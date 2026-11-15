@@ -350,24 +350,38 @@ describe('admin linked modules UI', () => {
       });
 
       try {
-        await page.goto(
-          new URL(target, BASE_URL).toString(),
-          {
-            waitUntil: 'domcontentloaded',
-            timeout: 30000
+        // Some module targets (.html URLs with ?embed=1) 308-redirect to their
+        // clean URL, destroying the execution context mid-measurement. Retry the
+        // whole navigation + axe pass once when that happens instead of failing.
+        let lastNavigationError = null;
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+          try {
+            await page.goto(
+              new URL(target, BASE_URL).toString(),
+              {
+                waitUntil: 'domcontentloaded',
+                timeout: 30000
+              }
+            );
+
+            await addAxeAfterStableNavigation(page);
+            const violations = await runAxeAfterStableNavigation(page);
+
+            if (violations.length) {
+              failures.push({
+                target,
+                violations
+              });
+            }
+            lastNavigationError = null;
+            break;
+          } catch (error) {
+            lastNavigationError = error;
+            if (!/Execution context was destroyed/i.test(error.message)) throw error;
+            await page.waitForLoadState('domcontentloaded').catch(() => {});
           }
-        );
-
-        await addAxeAfterStableNavigation(page);
-
-        const violations = await runAxeAfterStableNavigation(page);
-
-        if (violations.length) {
-          failures.push({
-            target,
-            violations
-          });
         }
+        if (lastNavigationError) throw lastNavigationError;
       } catch (error) {
         failures.push({
           target,
