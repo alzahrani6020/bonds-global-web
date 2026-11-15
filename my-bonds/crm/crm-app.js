@@ -53,8 +53,12 @@
   if(spec==='checkbox')return head+'<input type="checkbox" name="'+key+'" '+(value?'checked':'')+'>'+tail;
   if(spec==='textarea')return head+'<textarea name="'+key+'" rows="3">'+escape(value||'')+'</textarea>'+tail;
   if(spec.startsWith('select:')||spec.startsWith('ref:')){
-   const options=spec.startsWith('ref:')?(rows[spec.slice(4)]||[]).map(r=>[r.id,r.name||r.title]):spec.slice(7).split('|').map(x=>[x,stageLabels[x]||kinds[x]||statusLabels[x]||x]);
-   return head+'<select name="'+key+'"><option value="">—</option>'+options.map(([id,label])=>'<option value="'+escape(id)+'" '+(id===value?'selected':'')+'>'+escape(label)+'</option>').join('')+'</select>'+tail;
+   const reference=spec.startsWith('ref:');
+   const options=reference?(rows[spec.slice(4)]||[]).map(r=>[r.id,r.name||r.title]):spec.slice(7).split('|').map(x=>[x,stageLabels[x]||kinds[x]||statusLabels[x]||x]);
+   // An empty option is valid for nullable foreign keys, but not for NOT NULL
+   // enum columns. When creating, select the first valid enum rather than NULL.
+   const selected=value==null?(reference?'':(options[0]?.[0]||'')):String(value);
+   return head+'<select name="'+key+'"'+(!reference?' required':'')+'>'+(reference?'<option value="">—</option>':'')+options.map(([id,label])=>'<option value="'+escape(id)+'" '+(String(id)===selected?' selected':'')+'>'+escape(label)+'</option>').join('')+'</select>'+tail;
   }
   return head+'<input name="'+key+'" type="'+spec+'" value="'+escape(toInputValue(value,spec))+'" '+(required?'required ':'')+(spec==='number'?'min="0" step="any"':'')+'>'+tail;
  }
@@ -110,6 +114,9 @@
    for(const [key,,spec='text',required=false] of defs[group]){
     let val=spec==='checkbox'?fd.has(key):String(fd.get(key)||'').trim();
     if(required&&!val)throw Error('حقل مطلوب');
+    // Do not send NULL for optional fields that have a database default.
+    // Postgres applies DEFAULT only when a column is omitted, not when NULL is sent.
+    if(!editing && val==='' && (spec.startsWith('select:') || (spec==='number' && !required)))continue;
     if(spec==='number'){val=val===''?undefined:Number(val);if(val!==undefined&&!Number.isFinite(val))throw Error('قيمة رقمية غير صحيحة');}
     if(spec==='datetime-local'&&val)val=new Date(val).toISOString();
     if(val!==undefined)payload[key]=val===''?null:val;
