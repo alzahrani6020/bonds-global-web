@@ -109,7 +109,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          docker run --rm --name bonds-correspondence-test-pg -e POSTGRES_PASSWORD=isolated-fixture -d postgres:16-alpine
+          docker run --rm --name bonds-correspondence-test-pg -e POSTGRES_PASSWORD=isolated-fixture -d postgres:17-alpine
           trap 'docker rm -f bonds-correspondence-test-pg >/dev/null 2>&1 || true' EXIT
           ready=0
           for attempt in $(seq 1 45); do
