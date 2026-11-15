@@ -28,4 +28,21 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(sql).toContain('owner_user_id=(select auth.uid())');
   expect(sql).not.toMatch(/DROP\s+TABLE|TRUNCATE\s+TABLE/i);
  });
+ test('en/CRM has a real English route and linked data-driven localization',()=>{
+  const en=read('en/my-bonds/crm/index.html');
+  expect(en).toContain('<html lang="en" dir="ltr">');
+  expect(en).toContain('data-section="companies"');
+  expect(en).toContain('Companies');
+  expect(en).toContain('/my-bonds/crm/crm-app.js?v=1');
+  expect(js).toContain('document.documentElement.lang');
+  expect(js).toContain('translations');
+ });
+ test('not-null enum selects never default to empty and deletions cannot cascade from account',()=>{
+  expect(js).toContain("(!reference?' required':'')");
+  expect(js).toContain("const selected=value==null?(reference?'':");
+  const sql=read('supabase/migrations/20261115020000_crm_client_app_isolated_workspaces.sql');
+  expect(sql).toContain('owner_user_id uuid not null references auth.users(id) on delete restrict');
+  expect(sql).not.toContain('owner_user_id uuid not null references auth.users(id) on delete cascade');
+ });
+
 });
