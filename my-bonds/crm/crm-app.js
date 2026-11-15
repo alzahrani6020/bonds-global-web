@@ -133,6 +133,11 @@
     if(spec==='datetime-local'&&val)val=new Date(val).toISOString();
     if(val!==undefined)payload[key]=val===''?null:val;
    }
+   // A blank currency must not override the database NOT NULL default.
+   if(group==='deals' && !payload.currency) {
+    if(editing && editing.currency) payload.currency=editing.currency;
+    else delete payload.currency;
+   }
    if(group==='stages'){
     if(payload.probability!=null&&(payload.probability<0||payload.probability>100))throw Error('الاحتمالية من 0 إلى 100');
     if(payload.is_won&&payload.is_lost)throw Error('لا يمكن أن تكون المرحلة رابحة وخاسرة معًا');
