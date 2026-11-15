@@ -50,6 +50,13 @@ describe('correspondence verification module UI contracts', () => {
     expect(app).toContain('escapeHtml(ev.document?.subject');
   });
 
+  test('verification event attributes an authenticated account only when bearer identity is resolved', () => {
+    const correspondence = read('lib/api/correspondence.js');
+    expect(correspondence).toContain("String(req.headers?.authorization || '').startsWith('Bearer ')");
+    expect(correspondence).toContain("verifierId = (await resolveUser(req))?.id || null");
+    expect(correspondence).toContain('actor_user_id: verifierId');
+  });
+
   test('every verification log row can open its letterhead document', () => {
     const app = read('admin/correspondence-verification/app.js');
     expect(app).toContain('/letterhead.html?document=');
