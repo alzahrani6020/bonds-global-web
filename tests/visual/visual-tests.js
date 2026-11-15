@@ -388,6 +388,61 @@ async function runScenarioDropdownInteractionGate(browser) {
   }
 }
 
+// Additional acceptance evidence at the exact aspect and dimensions of the
+// user-approved reference (1773 x 887). The old approved snapshots stay intact.
+async function runApprovedReferenceSizeGate(browser) {
+  const evidenceDir = path.join(SNAPSHOTS_DIR, 'approved-reference-1773x887');
+  ensureDir(evidenceDir);
+  let failures = 0;
+  for (const p of [{ name: 'index-ar', url: '/' }, { name: 'index-en', url: '/en/index.html' }]) {
+    const page = await browser.newPage({ viewport: { width: 1773, height: 887 }, deviceScaleFactor: 1 });
+    try {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.route(/(\\/global-auth-gate|\\/calculators\\/auth-gate)\\.js(?:\\?.*)?$/, route => route.abort());
+      await page.goto(new URL(p.url, BASE_URL).toString(), { waitUntil: 'networkidle', timeout: 25000 });
+      await page.waitForTimeout(300);
+      const result = await page.evaluate(() => {
+        const rect = selector => {
+          const el = document.querySelector(selector);
+          if (!el) return null;
+          const r = el.getBoundingClientRect();
+          return { top: Math.round(r.top), bottom: Math.round(r.bottom), height: Math.round(r.height), width: Math.round(r.width) };
+        };
+        const photo = document.querySelector('.bonds-hero__photo');
+        const nav = document.querySelector('.main-nav');
+        const navCss = nav && getComputedStyle(nav);
+        return {
+          topbar: rect('.bonds-topbar'), branding: rect('.main-header__inner'),
+          nav: rect('.main-nav'), header: rect('.main-header'),
+          hero: rect('.bonds-hero'), title: rect('#bonds-hero-title'),
+          cards: document.querySelectorAll('.bonds-quicklink').length,
+          imageLoaded: !!(photo && photo.complete && photo.naturalWidth > 0),
+          navVisible: !!(navCss && navCss.display !== 'none' && navCss.visibility !== 'hidden'),
+          hasClock: !!document.querySelector('.bonds-topbar__clock'),
+          hasSearch: !!document.querySelector('.bonds-header-search-form'),
+          hasBooking: !!document.querySelector('#headerCtaBtn'),
+          overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+        };
+      });
+      const valid = result.topbar && result.topbar.height >= 30 &&
+        result.branding && result.branding.height >= 55 &&
+        result.nav && result.navVisible && result.nav.height >= 35 &&
+        result.header && result.header.height >= 150 &&
+        result.hero && result.hero.top >= result.header.bottom - 2 &&
+        result.title && result.title.top >= result.header.bottom - 2 &&
+        result.imageLoaded && result.cards === 6 &&
+        result.hasClock && result.hasBooking && result.hasSearch && !result.overflow;
+      await page.screenshot({ path: path.join(evidenceDir, p.name + '.png'), fullPage: false });
+      console.log(' APPROVED_REFERENCE_SIZE_' + p.name + ' ' + JSON.stringify(result) + ' ' + (valid ? 'PASS' : 'FAIL'));
+      if (!valid) failures++;
+    } catch (error) {
+      console.error(' APPROVED_REFERENCE_SIZE_' + p.name + ' FAIL ' + error.message);
+      failures++;
+    } finally { await page.close(); }
+  }
+  return failures;
+}
+
 (async () => {
   ensureDir(SNAPSHOTS_DIR);
   ensureDir(DIFFS_DIR);
@@ -412,6 +467,12 @@ async function runScenarioDropdownInteractionGate(browser) {
         await runArabicLetterheadListGeometryGate(browser);
   } catch (err) {
     console.error(' Arabic letterhead list geometry failed: ' + err.message);
+    failed++;
+  }
+  try {
+    failed += await runApprovedReferenceSizeGate(browser);
+  } catch (err) {
+    console.error(' Reference-sized homepage acceptance failed: ' + err.message);
     failed++;
   }
   let created = 0;
