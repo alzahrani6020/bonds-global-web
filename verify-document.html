@@ -151,6 +151,7 @@
       invalid:['رابط التحقق غير صالح','رمز التحقق في الرابط غير صالح. امسح رمز QR من المستند الأصلي مرة أخرى.'],
       missing:['المستند غير موجود في السجل','لم يُعثر على إصدار رسمي يطابق رمز التحقق.'],
       limited:['التحقق مقيّد مؤقتًا','تم تجاوز عدد طلبات التحقق المسموح. أعد المحاولة بعد انتهاء مهلة التقييد.'],
+      auth:['تسجيل الدخول مطلوب','يتطلب التحقق حسابًا مسجلًا وموثقًا. يرجى تسجيل الدخول مرة أخرى.'],
       unavailable:['خدمة التحقق غير متاحة حاليًا','تعذر إكمال التحقق بسبب مشكلة اتصال أو خادم. هذا لا يعني أن المستند مزور أو غير صحيح.']
     };
     const message=messages[reason]||messages.unavailable;
@@ -174,8 +175,20 @@
   }
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token)){fail();return;}
   try{
-    const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{cache:'no-store'});
+    const session=await window.BondsAuth?.getSession();
+    if(!session || session.error){fail('unavailable');return;}
+    const accessToken=session.data?.session?.access_token||'';
+    if(!accessToken){
+      status.textContent="تسجيل الدخول مطلوب — ستعود إلى رابط التحقق بعد الدخول";
+      status.classList.add('warn');
+      location.replace("/calculators/auth/index.html?redirect="+encodeURIComponent(location.pathname+location.search));
+      return;
+    }
+    const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{
+      cache:'no-store',headers:{Authorization:'Bearer '+accessToken}
+    });
     const d=await r.json().catch(()=>({}));
+    if(r.status===401){fail('auth');return;}
     if(r.status===404){fail('missing');return;}
     if(r.status===400){fail('invalid');return;}
     if(r.status===429){fail('limited');return;}
