@@ -284,3 +284,25 @@ html body.bonds-redesign #site-header .main-header__inner{
   html body.bonds-redesign .bonds-quicklink strong {font-size:19px}
   html body.bonds-redesign .bonds-quicklink span:last-child {font-size:15px}
 }
+
+
+/* English copy must fit the same desktop hero rhythm as the Arabic version.
+   Never clip, hide, or artificially cap the text: keep intrinsic height. */
+@media (min-width:1501px) {
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__copy {
+    padding-inline:35px;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__copy h1 {
+    font-size:clamp(36px,2.35vw,42px);
+    line-height:1.16;
+    margin-bottom:15px;
+    overflow-wrap:normal;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__copy p {
+    font-size:18px;
+    line-height:1.5;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__actions {
+    margin-top:16px;
+  }
+}
