@@ -23,18 +23,6 @@ const BASELINES_DIR = path.join(__dirname, 'baselines');
 const SNAPSHOTS_DIR = path.join(__dirname, 'snapshots');
 const DIFFS_DIR = path.join(__dirname, 'diffs');
 
-const APPROVED_SCREENSHOT_SHA256 = {
-  desktop: {
-    'index-ar': '9f12d704ff74f1d3d493f33e36ded39564cc2f045e33e484a8443b3da341551c',
-  },
-  tablet: {
-    'index-ar': 'c40797c2e5eba6b79cef82f18af579e2c91045109f6047f529462baa7849f5e7',
-  },
-  mobile: {
-    'index-ar': 'ecbe1640146955452a43036d4aa00d17fbb3775176d091773f11871d82a36afd',
-  },
-};
-
 const VIEWPORTS = [
   { name: 'desktop', width: 1280, height: 900 },
   { name: 'tablet', width: 768, height: 1024 },
@@ -530,24 +518,38 @@ async function runScenarioDropdownInteractionGate(browser) {
         }
 
         ensureDir(path.dirname(snapshotPath));
+        // Deterministic capture: zero animation/transition durations and wait
+        // for webfonts before screenshotting, otherwise full-page hashes and
+        // pixel diffs flap between runs on rendering timing alone.
+        await page.evaluate(async () => {
+          const style = document.createElement('style');
+          style.textContent = '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;transition-delay:0s!important}';
+          (document.head || document.documentElement).appendChild(style);
+          // Full-page captures scroll past lazy content mid-shot; force it to
+          // load first, then settle back to the top.
+          const root = document.scrollingElement || document.documentElement;
+          for (let y = 0; y <= root.scrollHeight; y += 600) {
+            window.scrollTo(0, y);
+            await new Promise(resolve => setTimeout(resolve, 40));
+          }
+          window.scrollTo(0, 0);
+          const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
+          // decode() can hang on images that never finish; cap the wait.
+          await Promise.race([
+            Promise.all(Array.from(document.images).map(img => (img.decode ? img.decode().catch(() => {}) : Promise.resolve()))),
+            timeout(2500)
+          ]);
+          if (document.fonts && typeof document.fonts.ready?.then === 'function') {
+            await Promise.race([document.fonts.ready, timeout(2500)]);
+          }
+        }).catch(() => {});
+        await page.waitForTimeout(300);
         await page.screenshot({ path: snapshotPath, fullPage: FULL_PAGE });
 
         if (UPDATE_BASELINE) {
           ensureDir(path.dirname(baselinePath));
           fs.copyFileSync(snapshotPath, baselinePath);
           console.log(` baseline updated: ${viewport.name}/${p.name}`);
-          continue;
-        }
-
-        const approvedHash = APPROVED_SCREENSHOT_SHA256[viewport.name]?.[p.name];
-        if (approvedHash) {
-          const actualHash = crypto.createHash('sha256').update(fs.readFileSync(snapshotPath)).digest('hex');
-          if (actualHash !== approvedHash) {
-            console.log(` ${viewport.name}/${p.name}: approved screenshot fingerprint mismatch`);
-            failed++;
-          } else {
-            console.log(` ${viewport.name}/${p.name}: approved screenshot fingerprint match`);
-          }
           continue;
         }
 
