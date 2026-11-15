@@ -47,6 +47,10 @@ describe('Bonds bilingual homepage redesign', () => {
     expect(css).toContain('body.bonds-redesign .bonds-hero__globe{position:absolute;');
     expect(css).toContain('html[dir="ltr"] body.bonds-redesign .bonds-hero__globe');
   });
+  test('English desktop cards reserve icon space on their left without affecting Arabic', () => {
+    const css = read('styles/bonds-redesign-2026.css');
+    expect(css).toMatch(/html\[dir="ltr"\] body\.bonds-redesign \.bonds-quicklink\s*\{\s*padding:20px 15px 18px 82px;/);
+  });
   test('new theme has matching responsive and direction rules', () => {
     const css = read('styles/bonds-redesign-2026.css');
     expect(css).toContain('html[dir="ltr"] body.bonds-redesign');
