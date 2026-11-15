@@ -80,7 +80,7 @@ function render(current){
  $('crm-org-list').innerHTML=(data.organizations||[]).map(x=>'<tr><td>'+e(x.name)+'</td><td>'+e(x.sector||'—')+'</td><td>'+e(x.country||'—')+'</td><td>'+e(x.status||'—')+'</td><td><button class="btn btn2" data-action="edit-organization" data-id="'+e(x.id)+'" type="button">تعديل</button></td></tr>').join('')||'<tr><td colspan="5">لا توجد مؤسسات</td></tr>';
  $('crm-deals-list').innerHTML=(data.opportunities||[]).map(x=>'<tr><td>'+e(x.title)+'</td><td>'+e(relationName(x))+'</td><td>'+e(x.stage)+'</td><td>'+Number(x.value_amount||0).toLocaleString('ar-SA')+' '+e(x.currency||'SAR')+'</td><td>'+e(x.next_action||'—')+'</td><td><button class="btn btn2" type="button" data-action="edit-deal" data-id="'+e(x.id)+'">تعديل / متابعة</button></td></tr>').join('')||'<tr><td colspan="6">لا توجد فرص حالياً</td></tr>';
  const filtered=($('crm-activity-filter').value==='all')?(data.activities||[]):(data.activities||[]).filter(x=>x.status===$('crm-activity-filter').value);
- $('crm-activity-list').innerHTML=filtered.map(x=>'<tr><td>'+e(x.subject)+'</td><td>'+e(types.find(t=>t[0]===x.activity_type)?.[1]||x.activity_type)+'</td><td>'+e(relationName(x))+'</td><td>'+e(fmtDate(x.scheduled_at))+'</td><td>'+e(statuses.find(t=>t[0]===x.status)?.[1]||x.status)+'</td><td><button class="btn btn2" type="button" data-action="edit-activity" data-id="'+e(x.id)+'">تعديل</button></td></tr>').join('')||'<tr><td colspan="6">لا توجد أنشطة مطابقة</td></tr>';
+ $('crm-activity-list').innerHTML=filtered.map(x=>'<tr><td>'+e(x.subject)+'</td><td>'+e(types.find(t=>t[0]===x.activity_type)?.[1]||x.activity_type)+'</td><td>'+e(relationName(x))+'</td><td>'+e(fmtDate(x.scheduled_at))+'</td><td>'+e(statuses.find(t=>t[0]===x.status)?.[1]||x.status)+'</td><td><button class="btn btn2" type="button" data-action="edit-activity" data-id="'+e(x.id)+'">تعديل</button> <button class="btn btn2" type="button" data-action="delete-activity" data-id="'+e(x.id)+'">أرشفة</button></td></tr>').join('')||'<tr><td colspan="6">لا توجد أنشطة مطابقة</td></tr>';
 }
 function edit(kind,record){
  setMessage('',false);
@@ -181,6 +181,17 @@ root.addEventListener('click',ev=>{
  if(action==='cancel'){$('crm-editor-section').hidden=true;return}
  if(action==='new-client')return edit('client');
  if(action==='new-activity')return edit('activity');
+ if(action==='delete-activity'){
+  const id=button.dataset.id;
+  const item=(data?.activities||[]).find(x=>String(x.id)===id);
+  if(!item || !window.confirm('هل تريد أرشفة النشاط «'+item.subject+'»؟ لن تُحذف بيانات العميل أو الصفقة.'))return;
+  button.disabled=true;
+  call('crm-activity-delete',{id}).then(()=>{
+   setMessage('أُرشف النشاط دون حذف بيانات العملاء',false);
+   if(typeof window.loadCrm==='function')return window.loadCrm();
+  }).catch(err=>setMessage('تعذر الأرشفة: '+String(err.message||err),true)).finally(()=>{button.disabled=false});
+  return;
+ }
  const lookup={ 'edit-client':['clients','client'],'edit-organization':['organizations','organization'],'edit-deal':['opportunities','deal'],'edit-activity':['activities','activity'] };
  const cfg=lookup[action];
  if(!cfg || !data)return;
