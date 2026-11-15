@@ -22,6 +22,7 @@ create index if not exists company_program_makkin_links_state_idx
  on public.company_program_makkin_links(state);
 alter table public.company_program_makkin_links enable row level security;
 revoke all on public.company_program_makkin_links from public, anon, authenticated;
+grant select,insert,update on public.company_program_makkin_links to service_role;
 -- The link is exclusively service-side. Browser clients must never infer
 -- internal tenant IDs or change mappings. Service-role actions must additionally
 -- verify a logged operator/approval before switching a mapping to 'verified'.
