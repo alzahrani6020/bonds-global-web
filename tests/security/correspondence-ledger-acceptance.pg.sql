@@ -112,7 +112,7 @@ END $$;
 
 
 -- Verify the audit counter and identified event are a single DB transaction.
-DO $
+DO $$
 DECLARE
  root_issue uuid;
  verifier uuid := 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
@@ -139,19 +139,19 @@ BEGIN
  END;
  IF (SELECT verification_count FROM public.correspondence_issues WHERE id=root_issue) <> 2
  THEN RAISE EXCEPTION 'rejected anonymous verifier changed issue count'; END IF;
-END $;
+END $$;
 
 -- Force an audit-table INSERT failure and prove count is rolled back.
 CREATE OR REPLACE FUNCTION public.reject_disposable_audit_write()
-RETURNS trigger LANGUAGE plpgsql AS $
+RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  RAISE EXCEPTION 'TEST_FORCED_AUDIT_REJECTION';
-END $;
+END $$;
 CREATE TRIGGER reject_disposable_audit_write
 BEFORE INSERT ON public.correspondence_verification_events
 FOR EACH ROW EXECUTE FUNCTION public.reject_disposable_audit_write();
 
-DO $
+DO $$
 DECLARE
  root_issue uuid;
  actual_error text;
@@ -168,7 +168,7 @@ BEGIN
  IF (SELECT verification_count FROM public.correspondence_issues WHERE id=root_issue) <> 2
  OR (SELECT count(*) FROM public.correspondence_verification_events WHERE issue_id=root_issue) <> 2
  THEN RAISE EXCEPTION 'audit failure committed a partial counter update'; END IF;
-END $;
+END $$;
 DROP TRIGGER reject_disposable_audit_write ON public.correspondence_verification_events;
 DROP FUNCTION public.reject_disposable_audit_write();
 
