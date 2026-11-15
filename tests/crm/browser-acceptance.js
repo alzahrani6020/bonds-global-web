@@ -137,6 +137,30 @@ async function main(){
   await page.locator('#csv-file').setInputFiles({name:'contacts.csv',mimeType:'text/csv',buffer:Buffer.from('name,email,phone,status\nAlice,alice@example.com,123,lead\n')});
   await page.waitForFunction(()=>window.__crmTestState.db.crm_app_contacts.length===1);
   assert.equal(await page.locator('#records-body tr').count(),1);
+  // 1,500 records: server-side pagination and search must find the last row,
+  // not silently search only the first 500 entries.
+  await page.evaluate(()=>{
+   const state=window.__crmTestState,work=state.db.crm_app_workspaces[0].id;
+   for(let i=0;i<1499;i++){
+    state.db.crm_app_contacts.push({
+     id:'77777777-7777-4777-8777-'+String(i+1).padStart(12,'0'),
+     workspace_id:work,name:'Synthetic Contact '+String(i+1).padStart(4,'0'),
+     email:'contact'+i+'@example.com',status:'lead',
+     created_at:'2026-11-15T00:00:00.000Z',updated_at:'2026-11-15T00:00:00.000Z'
+    });
+   }
+  });
+  await page.locator('#refresh').click();
+  await page.waitForFunction(()=>document.querySelector('#page-info')?.textContent.includes('/ 1500'));
+  assert.equal(await page.locator('#records-body tr').count(),50);
+  await page.locator('#page-next').click();
+  await page.waitForFunction(()=>document.querySelector('#page-info')?.textContent.startsWith('51'));
+  await page.locator('#search').fill('Synthetic Contact 1499');
+  await page.waitForFunction(()=>document.querySelector('#page-info')?.textContent==='1–1 / 1');
+  assert.equal(await page.locator('#records-body tr').count(),1);
+  assert.match(await page.locator('#records-body').innerText(),/Synthetic Contact 1499/);
+  await page.locator('#search').fill('');
+  await page.waitForFunction(()=>document.querySelector('#page-info')?.textContent.includes('/ 1500'));
   assert.deepEqual(errors,[],'CRM browser errors');
   await page.goto(base+'/en/my-bonds/crm/',{waitUntil:'domcontentloaded'});
   assert.equal(await page.locator('html').getAttribute('lang'),'en');
