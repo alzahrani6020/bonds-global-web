@@ -820,14 +820,31 @@
       { type: 'dropdown', label: labels.aboutGovernance, items: aboutDropdown },
     ];
 
-    const navHtml = navItems.map(item => {
+    const redesignNav = document.body.classList.contains('bonds-redesign');
+    // Icons are decorative; original labels, destinations and dropdown semantics remain unchanged.
+    const iconPaths = [
+      '<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>',
+      '<path d="M3 7 12 3l9 4-9 4zM3 12l9 4 9-4M3 17l9 4 9-4"/>',
+      '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 2 16 2 16 0V6M4 12c0 2 16 2 16 0"/>',
+      '<path d="m3 12 5-5 4 4 4-4 5 5-5 5-4-4-4 4z"/>',
+      '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+      '<path d="M14 4a6 6 0 0 0-8 8L3 20l2 2 8-8a6 6 0 0 0 8-8l-4 4-3-3z"/>',
+      '<rect x="4" y="5" width="16" height="16"/><path d="M9 5V2M15 5V2M9 10h2M14 10h2M9 14h2M14 14h2M9 18h2M14 18h2"/>',
+      '<path d="M3 5h8v15H3zM13 8h8v12h-8zM6 9h2M6 13h2M16 12h2"/>',
+      '<circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/>'
+    ];
+    function navIcon(i) {
+      if (!redesignNav) return '';
+      return '<span class="bonds-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+(iconPaths[i] || iconPaths[8])+'</svg></span>';
+    }
+    const navHtml = navItems.map((item, i) => {
       if (item.type === 'dropdown') {
         const highlightClass = item.highlight ? ' nav-highlight' : '';
         const navIdAttr = item.navId ? ` data-nav-id="${item.navId}"` : '';
-        return `<li class="dropdown"${navIdAttr}><button type="button" class="dropdown-toggle${highlightClass}" aria-expanded="false" aria-haspopup="true">${item.label} ${caretSvg}</button>${buildDropdown(item.items, item.all, item.isLarge)}</li>`;
+        return `<li class="dropdown"${navIdAttr}><button type="button" class="dropdown-toggle${highlightClass}" aria-expanded="false" aria-haspopup="true">${navIcon(i)}${item.label} ${caretSvg}</button>${buildDropdown(item.items, item.all, item.isLarge)}</li>`;
       }
       const highlightClass = item.highlight ? ' nav-highlight' : '';
-      return `<li><a href="${item.href}" data-nav="${item.href}" class="${highlightClass}">${item.label}</a></li>`;
+      return `<li><a href="${item.href}" data-nav="${item.href}" class="${highlightClass}">${navIcon(i)}${item.label}</a></li>`;
     }).join('');
 
     return `
