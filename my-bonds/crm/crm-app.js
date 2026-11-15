@@ -23,7 +23,7 @@
  const escape = value => String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const notify=(message,error=false)=>{const n=$('status');n.textContent=t(message);n.className='notice'+(error?' error':'');n.hidden=!message;n.style.display=message?'block':'none';};
  const must = result => {if(result.error)throw result.error;return result.data;};
- const formatValue=v=>v==null?'—':typeof v==='boolean'?(v?'نعم':'لا'):String(v);
+ const formatValue=v=>v==null?'—':typeof v==='boolean'?(v?t('نعم'):t('لا')):String(v);
  const toInputValue=(v,type)=>!v?'':type==='datetime-local'?new Date(v).toISOString().slice(0,16):String(v);
  const normalSection=s=>s==='pipeline'?'deals':s;
  function showSection(name) {
@@ -48,7 +48,7 @@
   const query=($('search').value||'').toLocaleLowerCase();
   const filtered=list.filter(r=>!query||Object.values(r).some(v=>String(v??'').toLocaleLowerCase().includes(query)));
   $('records-head').innerHTML='<tr>'+columns[group].map(k=>'<th>'+escape(t(schema.find(d=>d[0]===k)?.[1]||k))+'</th>').join('')+'<th>'+t('إجراءات')+'</th></tr>';
-  $('records-body').innerHTML=filtered.length?filtered.map(r=>'<tr>'+columns[group].map(k=>'<td>'+escape(k.endsWith('_id')?nameFor(k==='company_id'?'companies':'contacts',r[k]):formatValue(r[k]))+'</td>').join('')+'<td><button type="button" class="secondary" data-edit="'+escape(r.id)+'">تعديل</button>'+(group==='activities'?'<button type="button" class="secondary" data-archive="'+escape(r.id)+'">أرشفة</button>':'')+'</td></tr>').join(''):'<tr><td colspan="7">لا توجد سجلات</td></tr>';
+  $('records-body').innerHTML=filtered.length?filtered.map(r=>'<tr>'+columns[group].map(k=>'<td>'+escape(k.endsWith('_id')?nameFor(k==='company_id'?'companies':'contacts',r[k]):formatValue(r[k]))+'</td>').join('')+'<td><button type="button" class="secondary" data-edit="'+escape(r.id)+'">'+t("تعديل")+'</button>'+(group==='activities'?'<button type="button" class="secondary" data-archive="'+escape(r.id)+'">'+t("أرشفة")+'</button>':'')+'</td></tr>').join(''):'<tr><td colspan="7">'+t("لا توجد سجلات")+'</td></tr>';
  }
  function buildField(def,record){
   const [key,label,spec='text',required=false]=def,value=record?.[key];
