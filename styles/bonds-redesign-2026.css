@@ -164,3 +164,16 @@ html body.bonds-redesign #site-header .main-header__inner{
     left:auto!important;right:-12%!important;
   }
 }
+
+/* Final globe lower-edge correction: generic image inset:0 supplies top:0.
+   Explicit top:auto is required for bottom positioning in the real DOM. */
+@media(min-width:1281px){
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__globe{
+    top:auto!important;bottom:-40%!important;width:min(64%,600px)!important;
+    right:auto!important;left:-12%!important;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__globe{
+    top:auto!important;bottom:-40%!important;width:min(64%,600px)!important;
+    left:auto!important;right:-12%!important;
+  }
+}
