@@ -42,6 +42,8 @@
    <button type="button" data-section="activities">Activities and tasks</button>
    <button type="button" data-section="renewals">Renewals</button>
    <button type="button" data-section="success">Customer success</button>
+   <button type="button" data-section="members">Team and permissions</button>
+   <button type="button" data-section="audit">Audit log</button>
   </nav>
   <a href="/my-bonds/crm/" class="back" lang="ar">العربية</a>
   <a href="/my-bonds/" class="back">Back to My Bonds</a>
@@ -89,6 +91,19 @@
     </div>
     <div class="panel overflow"><table><thead id="records-head"></thead><tbody id="records-body"></tbody></table></div>
     <p class="muted">Only your workspace records are shown. Activities can be archived without deleting contacts.</p>
+   </section>
+
+   <section id="membership-section" class="panel" hidden>
+    <p class="muted">Add an existing Bonds user by their UUID. Only the owner can manage team members or read the audit history.</p>
+    <form id="member-form">
+     <label>Employee account UUID<input name="member_user_id" required placeholder="00000000-0000-0000-0000-000000000000"></label>
+     <label>Role<select name="role"><option value="viewer">Viewer</option><option value="editor">Editor</option><option value="admin">Admin</option></select></label>
+     <button type="submit" class="primary">Grant workspace access</button>
+    </form>
+    <div class="overflow"><table><thead id="members-head"></thead><tbody id="members-body"></tbody></table></div>
+   </section>
+   <section id="audit-section" class="panel" hidden>
+    <div class="overflow"><table><thead id="audit-head"></thead><tbody id="audit-body"></tbody></table></div>
    </section>
    <section id="editor" class="panel" hidden>
     <div class="editor-head"><h2 id="editor-title">Edit</h2><button class="secondary" type="button" id="editor-close">Close</button></div>
