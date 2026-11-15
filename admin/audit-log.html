@@ -197,7 +197,7 @@
     function roleBadge(role) {
       const map = { super_admin: 'badge--super', admin: 'badge--admin', support: 'badge--support' };
       const label = role === 'super_admin' ? 'Super Admin' : role === 'admin' ? 'Admin' : role === 'support' ? 'Support' : role || '—';
-      return `<span class="badge ${map[role] || 'badge--owner'}">${label}</span>`;
+      return `<span class="badge ${map[role] || 'badge--owner'}">${BondsAdminCommon.escapeHtml(label)}</span>`;
     }
 
     function formatDate(iso) {
@@ -210,7 +210,7 @@
       if (!details || typeof details !== 'object') return '—';
       const entries = Object.entries(details).filter(([k]) => k !== 'password');
       if (!entries.length) return '—';
-      return entries.map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join('<br>');
+      return entries.map(([k, v]) => `${BondsAdminCommon.escapeHtml(k)}: ${BondsAdminCommon.escapeHtml(JSON.stringify(v))}`).join('<br>');
     }
 
     async function refresh() {
@@ -261,13 +261,13 @@
       tbody.innerHTML = page.map(log => `
         <tr>
           <td>${formatDate(log.created_at)}</td>
-          <td>${log.actor_email || '—'}</td>
+          <td>${BondsAdminCommon.escapeHtml(log.actor_email || '—')}</td>
           <td>${roleBadge(log.actor_role)}</td>
-          <td><span class="action-tag">${log.action || '—'}</span></td>
+          <td><span class="action-tag">${BondsAdminCommon.escapeHtml(log.action || '—')}</span></td>
           <td>
-            ${log.target_type || ''}${log.target_type && log.target_id ? '<br>' : ''}
-            <span style="font-size:0.75rem;color:var(--text-muted);direction:ltr;display:inline-block;">${log.target_id || ''}</span>
-            ${log.target_email ? '<br><span style="font-size:0.75rem;color:var(--text-muted)">' + log.target_email + '</span>' : ''}
+            ${BondsAdminCommon.escapeHtml(log.target_type || '')}${log.target_type && log.target_id ? '<br>' : ''}
+            <span style="font-size:0.75rem;color:var(--text-muted);direction:ltr;display:inline-block;">${BondsAdminCommon.escapeHtml(log.target_id || '')}</span>
+            ${log.target_email ? '<br><span style="font-size:0.75rem;color:var(--text-muted)">' + BondsAdminCommon.escapeHtml(log.target_email) + '</span>' : ''}
           </td>
           <td class="details">${formatDetails(log.details)}</td>
         </tr>

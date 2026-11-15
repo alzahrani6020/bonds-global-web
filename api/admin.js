@@ -685,6 +685,28 @@ async function getAuditLog(sb, opts = {}) {
   return { success: true, logs: data || [], count: count || 0 };
 }
 
+// ── Correspondence verification events log ──────────────────
+async function getVerificationEvents(sb, params = {}) {
+  const limit = Math.min(Math.max(parseInt(params.limit) || 50, 1), 200);
+  const offset = Math.max(parseInt(params.offset) || 0, 0);
+  const issueNumber = String(params.issue_number || '').trim().slice(0, 120);
+  const from = String(params.from || '').trim();
+  const to = String(params.to || '').trim();
+
+  let query = sb
+    .from('correspondence_verification_events')
+    .select('*, issue:correspondence_issues(issue_number,state,issue_version)', { count: 'exact' });
+  if (issueNumber) query = query.ilike('issue_number', `%${issueNumber}%`);
+  if (from && !Number.isNaN(Date.parse(from))) query = query.gte('created_at', new Date(from).toISOString());
+  if (to && !Number.isNaN(Date.parse(to))) query = query.lte('created_at', new Date(to).toISOString());
+
+  const { data, error, count } = await query
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+  if (error) throw error;
+  return { success: true, events: data || [], count: count || 0, limit, offset };
+}
+
 // ── Admin Operations Inbox ─────────────────────────────────
 async function getOperationsOverview(sb) {
   const now = new Date().toISOString();
@@ -4807,7 +4829,8 @@ async function handler(req, res) {
       'ai-reviews', 'audit-log', 'assistant-audit-search', 'assistant-operational-replay', 'assistant-cost-governance', 'assistant-task-budget', 'operations-overview', 'system-health',
       'security-status', 'funding-cases-list', 'funding-cases-detail',
       'funding-cases-assignees', 'funding-cases-kpis',
-      'funding-cases-client-list', 'funding-cases-client-detail'
+      'funding-cases-client-list', 'funding-cases-client-detail',
+      'verification-events'
     ]);
     // Guest lookup applies its own dedicated, fail-closed rate limits inside its handler.
     const GUEST_LOOKUP_ACTION = 'funding-cases-guest-lookup';
@@ -5607,6 +5630,17 @@ async function handler(req, res) {
         if (!user) return res.status(401).json({ error: 'Authentication required' });
         if (!req.query?.id) return res.status(400).json({ error: 'Missing id' });
         return res.status(200).json(await getClientFundingCaseDetail(sb, req.query.id, user.id));
+      }
+      if (action === 'verification-events') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getVerificationEvents(sb, {
+          issue_number: req.query?.issue_number,
+          from: req.query?.from,
+          to: req.query?.to,
+          limit: req.query?.limit,
+          offset: req.query?.offset
+        }));
       }
       return res.status(400).json({ error: 'Unknown action' });
     }
