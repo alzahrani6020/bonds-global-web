@@ -145,3 +145,64 @@ test('integration-status rejects unknown application keys before touching identi
  await handler({method:'GET',query:{workspace_id:WS,action:'integration-status',program_key:'invented'}},response);
  expect(response.statusCode).toBe(400);
 });
+
+
+const { generateKeyPairSync, verify: verifySignature } = require('node:crypto');
+const signingPair=generateKeyPairSync('ed25519');
+const nativeFetch=global.fetch;
+afterEach(()=>{global.fetch=nativeFetch;delete process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM;delete process.env.MAKKIN_MAPPING_VERIFY_URL;});
+test('owner mapping proof validates SCC identity without issuing access tokens or writing mappings',async()=>{
+ const owner=qb({id:WS,name:'Company A'});
+ const link=qb({id:WS});
+ const entitlements=qb([{program_key:'hr',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ const tenant=qb({workspace_link_id:WS,makkin_tenant_id:'private-tenant',state:'pending'});
+ const mapped=qb({workspace_link_id:WS,bonds_user_id:USER,makkin_user_id:'private-user',state:'pending'});
+ const from=jest.fn(table=>({
+  crm_app_workspaces:owner,company_program_workspaces:link,
+  company_program_entitlements:entitlements,
+  company_program_makkin_links:tenant,company_program_makkin_user_links:mapped
+ })[table]||(()=>{throw Error('unexpected '+table)})());
+ createClient.mockReturnValue({from});
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-11-01T00:00:00Z'});
+ process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM=signingPair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
+ process.env.MAKKIN_MAPPING_VERIFY_URL='https://scc380-api.onrender.com/integrations/bonds/verify-mapping';
+ global.fetch=jest.fn(async(_url,options)=>{
+  const {assertion}=JSON.parse(options.body);
+  const [payload,signature]=assertion.split('.');
+  expect(verifySignature(null,Buffer.from(payload),signingPair.publicKey,Buffer.from(signature,'base64url'))).toBe(true);
+  const decoded=JSON.parse(Buffer.from(payload,'base64url').toString('utf8'));
+  expect(decoded).toMatchObject({tenantId:'private-tenant',userId:'private-user',programKey:'hr'});
+  return {ok:true,json:async()=>({matched:true,operationalReady:false})};
+ });
+ const response=res();
+ await handler({method:'POST',query:{action:'probe-mapping'},body:{workspace_id:WS,program_key:'hr'}},response);
+ expect(response.statusCode).toBe(200);
+ expect(response.body).toMatchObject({matched:true,operationalReady:false});
+ expect(JSON.stringify(response.body)).not.toContain('private-tenant');
+ expect(JSON.stringify(response.body)).not.toContain('private-user');
+});
+test('unverified BONDS email blocks remote proof before any network call',async()=>{
+ createClient.mockReturnValue({from:table=>table==='crm_app_workspaces'?qb({id:WS,name:'Company A'}):(()=>{throw Error('unexpected lookup')})()});
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:null});
+ global.fetch=jest.fn();
+ const response=res();
+ await handler({method:'POST',query:{action:'probe-mapping'},body:{workspace_id:WS,program_key:'hr'}},response);
+ expect(response.statusCode).toBe(403);
+ expect(global.fetch).not.toHaveBeenCalled();
+});
+test('non-owner cannot probe an SCC identity even with an entitlement',async()=>{
+ const owner=qb(null);
+ const member=qb({role:'member'});
+ const workspace=qb({id:WS,name:'A'});
+ createClient.mockReturnValue({from:table=>{
+  if(table==='crm_app_workspaces')return owner;
+  if(table==='crm_app_members')return member;
+  if(table==='company_program_workspaces')return qb({id:WS});
+  if(table==='company_program_entitlements')return qb([],null,'list');
+  throw Error('unexpected '+table);
+ }});
+ verifyBearer.mockResolvedValue({id:USER,email:'member@example.org',email_confirmed_at:'2026-11-01'});
+ const response=res();
+ await handler({method:'POST',query:{action:'probe-mapping'},body:{workspace_id:WS,program_key:'hr'}},response);
+ expect(response.statusCode).toBe(403);
+});
