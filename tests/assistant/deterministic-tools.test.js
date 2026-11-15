@@ -50,6 +50,12 @@ describe('deterministic assistant tools', () => {
     expect(parsePageOpen('open service workspace')).toEqual({ target:'service_workspace' });
     expect(parsePageOpen('افتح مساحة الصفقات')).toEqual({ target:'deal_workspace' });
     expect(parsePageOpen('open deal workspace')).toEqual({ target:'deal_workspace' });
+    expect(parsePageOpen('افتح السي ار ام')).toEqual({ target:'crm' });
+    expect(parsePageOpen('افتح الـ CRM')).toEqual({ target:'crm' });
+    expect(resolveDeterministicTool('افتح السي ار ام')).toEqual({
+      action:'site_navigate',
+      input:{ target:'crm' }
+    });
     expect(parsePageOpen('كيف اعمل ميزانية')).toBeNull();
     expect(parseCalculatorOpen('افتح حاسبة التمويل')).toEqual({ calculator:'loan' });
     expect(parseCalculatorOpen('افتح صفحة حاسبة التمويل')).toEqual({ calculator:'loan' });

@@ -18,6 +18,14 @@
       "kind": "page",
       "risk": "low"
     },
+    "crm": {
+      "routes": {
+        "ar": "/admin/crm.html",
+        "en": "/admin/crm.html"
+      },
+      "kind": "page",
+      "risk": "low"
+    },
     "funding_readiness": {
       "routes": {
         "ar": "/funding-readiness",
