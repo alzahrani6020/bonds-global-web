@@ -1,0 +1,378 @@
+
+/* Bonds Global — single, scoped homepage design layer (AR / EN). */
+body.bonds-redesign{--bonds-navy:#071f38;--bonds-gold:#bb8b34;margin:0;background:#fff;color:#10253d;font-family:"Vazirmatn",Arial,sans-serif}
+body.bonds-redesign #site-header{position:relative;z-index:40}
+body.bonds-redesign .main-header{background:#fff!important;border-bottom:0!important;box-shadow:0 4px 20px rgba(6,25,46,.13)!important}
+body.bonds-redesign .main-header__inner{max-width:none;display:flex;flex-wrap:wrap;gap:10px 20px;padding:14px clamp(15px,3vw,48px) 0;background:#fff}
+body.bonds-redesign .header-brand{order:0;margin-inline-end:auto}
+body.bonds-redesign .header-brand__image{width:165px!important;max-width:165px!important;height:auto!important;object-fit:contain}
+body.bonds-redesign .header-actions{order:1;gap:9px}
+body.bonds-redesign .main-nav{order:2;flex:0 0 100%;width:100%;margin:10px 0 0;background:linear-gradient(105deg,#06182d,#12385b);border-bottom:4px solid #bf8e39;padding:5px 8px;min-width:0}
+body.bonds-redesign .main-nav>ul{display:flex;justify-content:space-between;align-items:center;gap:2px;flex-wrap:wrap}
+body.bonds-redesign .main-nav>ul>li>a,body.bonds-redesign .main-nav>ul>li>.dropdown-toggle{color:#fff!important;border:0!important;background:transparent!important;font-weight:700;padding:9px 11px}
+body.bonds-redesign .main-nav>ul>li:first-child>a{background:linear-gradient(135deg,#ebbd64,#9d6a1b)!important;border-radius:12px;color:#fff!important}
+body.bonds-redesign .btn-header{background:linear-gradient(135deg,#e9b953,#a8771e)!important;color:#fff!important;border:1px solid #e9ba62!important;border-radius:10px!important}
+body.bonds-redesign .header-search,body.bonds-redesign .header-login,body.bonds-redesign .header-signup,body.bonds-redesign .lang-switch,body.bonds-redesign .header-account{color:#122944!important;border-color:#cad4df!important}
+body.bonds-redesign .dropdown-menu{z-index:1200}
+.bonds-topbar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-height:43px;background:#071c35;color:#fff;padding:7px clamp(12px,3vw,50px);font:600 12px/1.5 "Vazirmatn",Arial,sans-serif}
+.bonds-topbar__local{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.bonds-topbar__clock{font-variant-numeric:tabular-nums;padding:4px 11px;border:1px solid #c89a49;border-radius:8px;white-space:nowrap}
+.bonds-topbar__date{color:#f0d89f}.bonds-topbar__zone{display:flex;align-items:center;gap:6px}
+.bonds-topbar select{max-width:160px;padding:3px 5px;background:#143452;color:#fff;border:1px solid #ad8744;border-radius:6px;font:inherit}
+.bonds-topbar__links a{color:#fff;text-decoration:none}
+.bonds-topbar :focus-visible{outline:2px solid #f1cf87;outline-offset:2px}
+.bonds-home__main{background:#fff;overflow:hidden}
+.bonds-hero{display:grid;grid-template-columns:52% 48%;direction:rtl;background:radial-gradient(circle at 65% 40%,#1c446b,#071c35 80%);min-height:405px;color:#fff}
+.bonds-hero__copy{align-self:center;padding:40px clamp(20px,5vw,92px) 40px 25px}
+.bonds-hero__copy h1{margin:0 0 20px;color:#fff;font-size:clamp(28px,3.5vw,56px);line-height:1.35;font-weight:800}
+.bonds-hero__copy p{margin:0;color:#e3eaf3;font-size:clamp(15px,1.4vw,21px);line-height:1.9}
+.bonds-hero__actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:24px}
+.bonds-hero__actions a{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:12px 24px;border:2px solid #e3bb6b;border-radius:11px;color:#fff!important;text-decoration:none;font-weight:800}
+.bonds-hero__actions a:first-child{background:linear-gradient(135deg,#efc36b,#a46e15)}
+.bonds-hero__image{position:relative;overflow:hidden;min-height:405px;background:linear-gradient(120deg,#1c3855,#607e92);border-right:7px solid #c99b40;border-radius:48% 0 0 0 / 90% 0 0 0}
+.bonds-hero__image img.bonds-hero__photo{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.bonds-hero__credit{position:absolute;bottom:7px;left:10px;background:rgba(3,17,30,.75);padding:3px 7px;border-radius:5px;font-size:10px;color:#fff}
+.bonds-hero__credit a{color:inherit;text-decoration:underline}
+.bonds-quicklinks{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:13px;padding:30px clamp(12px,2vw,30px);background:#fff}
+.bonds-quicklink{display:flex;flex-direction:column;gap:8px;min-height:142px;padding:17px 13px;border:1px solid #d8dfe6;border-radius:17px;text-decoration:none;color:#10243d;background:linear-gradient(145deg,#fff,#f8f6f2);transition:transform .2s,box-shadow .2s}
+.bonds-quicklink:hover,.bonds-quicklink:focus-visible{transform:translateY(-3px);box-shadow:0 9px 27px rgba(5,24,44,.12)}
+.bonds-quicklink__icon{display:grid;place-items:center;width:51px;height:51px;border-radius:14px;background:linear-gradient(135deg,#e5b65a,#996719);color:#fff;font-size:25px}
+.bonds-quicklink strong{font-size:16px}.bonds-quicklink span:last-child{font-size:13px;line-height:1.6;color:#53637a}
+.bonds-home-info{max-width:1200px;margin:22px auto 65px;padding:0 20px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.bonds-home-info article{padding:26px;background:#f7f8fa;border:1px solid #dfe4ea;border-radius:17px}
+.bonds-home-info h2{margin:0 0 12px;color:#0b2a4a}.bonds-home-info p{color:#475a70;line-height:1.9}
+body.bonds-redesign[dir="ltr"] .bonds-hero{direction:ltr}
+html[dir="ltr"] body.bonds-redesign .bonds-hero{direction:ltr}
+html[dir="ltr"] body.bonds-redesign .bonds-hero__copy{padding:40px 25px 40px clamp(20px,5vw,92px)}
+html[dir="ltr"] body.bonds-redesign .bonds-hero__image{border-radius:0 48% 0 0 / 0 90% 0 0;border-right:0;border-left:7px solid #c99b40}
+@media(min-width:1281px){body.bonds-redesign .main-nav{display:flex!important;position:static!important;transform:none!important;visibility:visible!important;opacity:1!important;height:auto!important;box-shadow:none!important}}
+@media(max-width:1280px){body.bonds-redesign .main-header__inner{flex-wrap:nowrap;padding-bottom:12px}body.bonds-redesign .main-nav{order:initial;flex:initial;width:min(320px,85vw);margin:0;background:#0b2946;border:0;padding:5rem 1rem 1.5rem}body.bonds-redesign .main-nav>ul{display:flex;flex-direction:column;align-items:stretch;gap:6px}body.bonds-redesign .main-nav>ul>li>a,body.bonds-redesign .main-nav>ul>li>.dropdown-toggle{color:#fff!important}}
+@media(max-width:1050px){.bonds-quicklinks{grid-template-columns:repeat(3,minmax(0,1fr))}.bonds-hero{grid-template-columns:1fr}.bonds-hero__image{min-height:260px;border-radius:0!important;border:0!important;border-top:5px solid #bb8b34!important}}
+@media(max-width:700px){.bonds-topbar{font-size:11px}.bonds-topbar__date{display:block;flex:1 1 100%;font-size:10px}.bonds-topbar select{max-width:125px}.bonds-hero__copy,html[dir="ltr"] body.bonds-redesign .bonds-hero__copy{padding:28px 20px}.bonds-hero__image{min-height:210px}.bonds-quicklinks{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:18px 11px}.bonds-quicklink{padding:11px;min-height:128px}.bonds-home-info{grid-template-columns:1fr;padding:0 12px}.bonds-redesign .header-brand__image{width:115px!important}}
+@media(prefers-reduced-motion:reduce){.bonds-quicklink{transition:none}}
+
+
+/* Reference matching: brand + usable search entry + skyline globe composition. */
+body.bonds-redesign .header-brand{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:260px;width:auto!important;height:auto!important;overflow:visible!important;flex:0 0 auto}
+body.bonds-redesign .bonds-brand-wordmark{display:flex;flex-direction:column;align-items:flex-start;gap:3px;direction:ltr;white-space:nowrap;line-height:1.25}
+body.bonds-redesign .bonds-brand-wordmark strong{font:800 clamp(19px,2vw,31px)/1.15 Arial,sans-serif;letter-spacing:1px;color:#0b2747}
+body.bonds-redesign .bonds-brand-wordmark small{font:700 10px/1.5 "Vazirmatn",Arial,sans-serif;color:#142941;letter-spacing:0}
+body.bonds-redesign .header-search{display:flex!important;align-items:center;justify-content:space-between;gap:22px;min-width:min(27vw,460px);min-height:50px;border:1px solid #cbd3de!important;border-radius:28px;padding:10px 15px;background:#f6f7f9!important;text-decoration:none}
+body.bonds-redesign .header-search svg{flex:0 0 21px;width:21px;height:21px}
+body.bonds-redesign .bonds-search-placeholder{font-size:clamp(11px,1.1vw,15px);white-space:nowrap;color:#67778a;overflow:hidden;text-overflow:ellipsis}
+body.bonds-redesign .bonds-topbar{font-size:13px;min-height:49px}
+body.bonds-redesign .main-nav>ul>li>a,body.bonds-redesign .main-nav>ul>li>.dropdown-toggle{display:inline-flex!important;align-items:center;justify-content:center;gap:7px;min-height:46px}
+body.bonds-redesign .bonds-nav-icon{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;flex:0 0 19px;color:inherit}
+body.bonds-redesign .bonds-nav-icon svg{width:19px;height:19px;display:block}
+body.bonds-redesign .bonds-hero__image{border-radius:42% 0 0 0 / 95% 0 0 0;box-shadow:inset 8px 0 0 #edc66c}
+body.bonds-redesign .bonds-hero__image:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,rgba(6,28,48,.24),transparent 72%);z-index:1}
+body.bonds-redesign .bonds-hero__globe{position:absolute;bottom:-14%;left:-12%;width:min(72%,660px);height:auto;max-height:125%;z-index:2;filter:drop-shadow(0 0 8px rgba(255,202,95,.45));pointer-events:none}
+body.bonds-redesign .bonds-hero__credit{z-index:3}
+body.bonds-redesign .bonds-hero__eyebrow{display:block;color:#eac87b;font-weight:700;letter-spacing:.02em;margin:0 0 9px}
+html[dir="ltr"] body.bonds-redesign .bonds-hero__globe{left:auto;right:-12%;transform:scaleX(-1)}
+@media (max-width:1500px){body.bonds-redesign .header-brand{min-width:220px}body.bonds-redesign .header-search{min-width:220px}}
+@media (max-width:1280px){body.bonds-redesign .main-nav>ul>li>a,body.bonds-redesign .main-nav>ul>li>.dropdown-toggle{justify-content:flex-start}body.bonds-redesign .bonds-brand-wordmark strong{font-size:20px}body.bonds-redesign .bonds-brand-wordmark small{font-size:9px}body.bonds-redesign .header-search{min-width:auto;min-height:38px;padding:7px;border-radius:50%}body.bonds-redesign .bonds-search-placeholder{display:none}}
+@media (max-width:700px){body.bonds-redesign .header-brand{gap:4px;min-width:0;width:auto!important;flex:0 1 auto}body.bonds-redesign .bonds-brand-wordmark strong{font-size:14px}body.bonds-redesign .bonds-brand-wordmark small{font-size:7px;max-width:115px;white-space:normal}body.bonds-redesign .header-brand__image{width:64px!important;max-width:64px!important}body.bonds-redesign .bonds-hero__globe{width:64%;bottom:-16%}}
+
+@media(max-width:430px){body.bonds-redesign .bonds-brand-wordmark{display:none}body.bonds-redesign .header-actions{gap:4px!important}}
+
+.bonds-quicklink__icon svg{width:29px;height:29px;display:block}
+.bonds-topbar__links{display:flex;align-items:center;gap:13px}
+.bonds-topbar__iconlink{font-size:19px;line-height:1;text-decoration:none;display:inline-grid;place-items:center;width:27px;height:27px}
+@media(max-width:700px){.bonds-topbar__links{display:none}.bonds-topbar__local{gap:6px}}
+
+/* Override legacy header-footer fixed logo sizing only on redesigned homepages. */
+body.bonds-redesign .main-header .header-brand img.header-brand__image{width:145px!important;max-width:145px!important;height:auto!important;object-fit:contain!important}
+body.bonds-redesign .bonds-brand-map{display:block;flex:0 0 clamp(70px,9vw,140px);width:clamp(70px,9vw,140px);height:67px;background:url("/assets/bonds-world-dots.svg") center/contain no-repeat}
+@media(max-width:1500px){body.bonds-redesign .bonds-brand-map{flex-basis:75px;width:75px}body.bonds-redesign .main-header .header-brand img.header-brand__image{width:100px!important;max-width:100px!important}}
+@media(max-width:1280px){body.bonds-redesign .bonds-brand-map{display:none}body.bonds-redesign .main-header .header-brand img.header-brand__image{width:74px!important;max-width:74px!important}}
+@media(max-width:700px){body.bonds-redesign .main-header .header-brand img.header-brand__image{width:55px!important;max-width:55px!important}body.bonds-redesign .bonds-search-placeholder{display:none}}
+
+body.bonds-redesign .bonds-header-search-form{margin:0}
+body.bonds-redesign .bonds-header-search-form input{flex:1 1 auto;width:100%;min-width:0;border:0!important;box-shadow:none!important;outline:none;background:transparent!important;color:#1b2d43;font:600 clamp(11px,1vw,15px)/1.5 "Vazirmatn",Arial,sans-serif;padding:0 3px}
+body.bonds-redesign .bonds-header-search-form input::placeholder{color:#65768d;opacity:1}
+body.bonds-redesign .bonds-header-search-form button{flex:0 0 24px;border:0;background:transparent;color:#10243d;cursor:pointer;display:grid;place-items:center;padding:1px}
+body.bonds-redesign .bonds-header-search-form:focus-within{outline:2px solid #b98a37;outline-offset:2px}
+@media(max-width:1280px){body.bonds-redesign .bonds-header-search-form input{display:none!important}body.bonds-redesign .bonds-header-search-form{width:43px;height:43px;min-width:43px}}
+
+/* The redesigned header occupies layout space, unlike legacy fixed headers.
+   Prevent first-screen hero text from being covered on mobile and tablet. */
+body.bonds-redesign #site-header{position:sticky!important;top:0;z-index:1000;display:block}
+body.bonds-redesign .main-header{position:relative!important;top:auto!important;left:auto!important;right:auto!important;transform:none!important}
+body.bonds-redesign{padding-top:0!important}
+
+/* Narrow-screen header collision guard: preserve logo, booking, language, search and menu.
+   Uses intrinsic shrinking rather than hiding functional controls. */
+@media(max-width:430px){
+  body.bonds-redesign .main-header__inner{box-sizing:border-box!important;max-width:100%!important;min-width:0!important;padding:8px 8px!important;gap:4px!important}
+  body.bonds-redesign .header-brand{flex:0 0 45px!important;width:45px!important;min-width:0!important;margin:0!important}
+  body.bonds-redesign .main-header .header-brand img.header-brand__image{width:44px!important;max-width:44px!important}
+  body.bonds-redesign .header-actions{display:flex!important;flex:1 1 auto!important;min-width:0!important;max-width:calc(100% - 49px)!important;gap:3px!important;justify-content:flex-end!important}
+  body.bonds-redesign .btn-header{white-space:nowrap!important;font-size:10px!important;padding:8px 6px!important;min-width:0!important}
+  body.bonds-redesign .lang-switch{font-size:11px!important;padding:6px 5px!important;min-width:0!important}
+  body.bonds-redesign .nav-toggle{flex:0 0 35px!important;width:35px!important;min-width:35px!important;padding:7px!important}
+  body.bonds-redesign .bonds-header-search-form{flex:0 0 35px!important;width:35px!important;min-width:35px!important;min-height:35px!important;height:35px!important;padding:5px!important}
+}
+
+/* Root-cause correction: institutional-system.css enforces 64px !important
+   heights on shared header elements. The redesigned topbar, brand and nav
+   must contribute their real heights to document flow. */
+html body.bonds-redesign #site-header .main-header{
+  height:auto!important;min-height:0!important;max-height:none!important;
+  display:block!important;overflow:visible!important;
+}
+html body.bonds-redesign #site-header .main-header__inner{
+  height:auto!important;min-height:0!important;max-height:none!important;
+  width:100%!important;max-width:none!important;
+  box-sizing:border-box!important;overflow:visible!important;
+}
+
+/* Approved 1773x887 reference alignment — visual QA from real browser captures.
+   Mirror the gold curved photo separator, then match the three-tier header and
+   hero proportions only at desktop widths. Mobile sizing stays unchanged. */
+@media (min-width:1281px){
+  body.bonds-redesign .bonds-topbar{min-height:70px;padding-top:12px;padding-bottom:12px}
+  body.bonds-redesign .main-header__inner{padding-top:24px!important;padding-bottom:10px!important;row-gap:17px!important}
+  body.bonds-redesign .main-nav{margin-top:13px;padding-top:11px;padding-bottom:11px}
+  body.bonds-redesign .bonds-hero{min-height:380px}
+  body.bonds-redesign .bonds-hero__copy{padding-top:23px;padding-bottom:23px}
+  body.bonds-redesign .bonds-hero__copy h1{line-height:1.18;margin-bottom:15px}
+  body.bonds-redesign .bonds-hero__copy p{line-height:1.58}
+  body.bonds-redesign .bonds-hero__actions{margin-top:18px}
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__image{
+    border-radius:0 42% 0 0 / 0 95% 0 0;
+    box-shadow:inset -8px 0 0 #edc66c;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__image{
+    border-radius:42% 0 0 0 / 95% 0 0 0;
+    box-shadow:inset 8px 0 0 #edc66c;
+  }
+}
+
+/* Gold arc and globe positioning parity with the supplied 1773x887 image.
+   The generic hero-image rule sets inset:0 on all img nodes. For a positioned
+   globe, inherited right:0 can override left:-12% in RTL over-constraint. */
+@media (min-width:1281px){
+  html[dir="rtl"] body.bonds-redesign .bonds-hero{grid-template-columns:47% 53%}
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__image{
+    border-radius:0 22% 0 0 / 0 95% 0 0;
+  }
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__globe{
+    right:auto!important;left:-12%!important;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__globe{
+    left:auto!important;right:-12%!important;
+  }
+}
+
+/* Final globe lower-edge correction: generic image inset:0 supplies top:0.
+   Explicit top:auto is required for bottom positioning in the real DOM. */
+@media(min-width:1281px){
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__globe{
+    top:auto!important;bottom:-40%!important;width:min(64%,600px)!important;
+    right:auto!important;left:-12%!important;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__globe{
+    top:auto!important;bottom:-40%!important;width:min(64%,600px)!important;
+    left:auto!important;right:-12%!important;
+  }
+}
+
+
+/* Approved 1774x887 desktop reference: preserve real links, buttons and text.
+   Desktop-only sizing. Tablet/mobile retain their independent interaction layout. */
+@media (min-width:1501px) {
+  html body.bonds-redesign .bonds-topbar {
+    min-height:70px;
+    padding-inline:32px;
+    font-size:17px;
+    gap:20px;
+  }
+  html body.bonds-redesign .bonds-topbar__clock {
+    font-size:26px;
+    font-weight:800;
+    border:2px solid #d1a64b;
+    padding:5px 18px;
+  }
+  html body.bonds-redesign .bonds-topbar__date {font-size:17px}
+  html body.bonds-redesign .bonds-topbar__links {gap:19px}
+  html body.bonds-redesign .main-header__inner {
+    padding:22px 30px 0!important;
+    gap:0 18px!important;
+    align-items:center;
+    justify-content:space-between;
+  }
+  html body.bonds-redesign .header-brand {
+    min-width:0!important;
+    flex:0 0 auto;
+    margin-inline-end:0;
+    gap:14px;
+  }
+  html body.bonds-redesign .main-header .header-brand img.header-brand__image {
+    width:106px!important;max-width:106px!important;
+  }
+  html body.bonds-redesign .bonds-brand-map {
+    width:210px;flex-basis:210px;height:110px;
+  }
+  html body.bonds-redesign .bonds-brand-wordmark strong {
+    font-size:37px;letter-spacing:.3px;
+  }
+  html body.bonds-redesign .bonds-brand-wordmark small {
+    font-size:15px;
+  }
+  html body.bonds-redesign .header-actions {
+    display:flex!important;align-items:center;gap:18px!important;
+    flex:1 1 auto;min-width:0;justify-content:flex-end;
+  }
+  html body.bonds-redesign .bonds-header-search-form {
+    min-width:290px;width:min(25vw,440px);min-height:58px;
+    border-radius:32px;
+    font-size:17px;
+    margin-inline-end:auto;
+  }
+  html body.bonds-redesign .bonds-header-search-form input {
+    display:block!important;font-size:16px;
+  }
+  html body.bonds-redesign .btn-header {
+    font-size:19px;padding:14px 23px!important;white-space:nowrap;
+  }
+  html body.bonds-redesign .header-login,html body.bonds-redesign .header-signup {
+    font-size:17px;white-space:nowrap;
+  }
+  html body.bonds-redesign .main-nav {
+    flex:0 0 100%;width:100%;margin:15px 0 0;
+    padding:7px 12px;
+    min-height:74px;
+    box-sizing:border-box;
+  }
+  html body.bonds-redesign .main-nav>ul {flex-wrap:nowrap}
+  html body.bonds-redesign .main-nav>ul>li>a,
+  html body.bonds-redesign .main-nav>ul>li>.dropdown-toggle {
+    font-size:20px;min-height:54px;padding:9px 12px;
+    white-space:nowrap;
+  }
+  html body.bonds-redesign .bonds-nav-icon,
+  html body.bonds-redesign .bonds-nav-icon svg {width:25px;height:25px}
+  html body.bonds-redesign .bonds-hero {
+    grid-template-columns:46% 54%;min-height:380px;
+  }
+  html body.bonds-redesign .bonds-hero__copy {
+    padding:25px 55px 25px 30px;
+  }
+  html body.bonds-redesign .bonds-hero__copy h1 {
+    font-size:clamp(43px,3.3vw,59px);
+    line-height:1.2;margin-bottom:20px;
+  }
+  html body.bonds-redesign .bonds-hero__copy p {
+    font-size:22px;line-height:1.6;
+  }
+  html body.bonds-redesign .bonds-hero__actions a {
+    font-size:19px;min-height:58px;padding:12px 30px;
+  }
+  html body.bonds-redesign .bonds-quicklinks {
+    gap:17px;padding:30px 30px;
+  }
+  html body.bonds-redesign .bonds-quicklink {
+    min-height:137px;position:relative;
+    padding:20px 82px 18px 15px;
+    gap:9px;align-items:stretch;
+  }
+  html body.bonds-redesign .bonds-quicklink__icon {
+    position:absolute;inset-block-start:12px;inset-inline-start:12px;
+    width:64px;height:74px;
+  }
+  html body.bonds-redesign .bonds-quicklink strong {font-size:19px}
+  html body.bonds-redesign .bonds-quicklink span:last-child {font-size:15px}
+}
+
+
+/* English copy must fit the same desktop hero rhythm as the Arabic version.
+   Never clip, hide, or artificially cap the text: keep intrinsic height. */
+@media (min-width:1501px) {
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__copy {
+    padding-inline:35px;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__copy h1 {
+    font-size:clamp(36px,2.35vw,42px);
+    line-height:1.16;
+    margin-bottom:15px;
+    overflow-wrap:normal;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__copy p {
+    font-size:18px;
+    line-height:1.5;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__actions {
+    margin-top:16px;
+  }
+}
+
+
+/* RTL cards reserve the icon space on the right; LTR must reserve it on the left. */
+@media (min-width:1501px) {
+  html[dir="ltr"] body.bonds-redesign .bonds-quicklink {
+    padding:20px 15px 18px 82px;
+  }
+}
+
+
+/* Desktop visual parity: full-bleed menu, gold map, stronger curved hero edge.
+   Scoped to the redesigned homepages; preserve responsive navigation below 1501px. */
+@media (min-width:1501px) {
+  html body.bonds-redesign .main-nav {
+    flex-basis:calc(100% + 60px)!important;
+    width:calc(100% + 60px)!important;
+    margin-inline:-30px!important;
+    padding-inline:30px!important;
+    border-bottom:5px solid #dbaf59!important;
+  }
+  html body.bonds-redesign .main-nav>ul {
+    width:100%;
+    justify-content:space-between;
+  }
+  html body.bonds-redesign .bonds-brand-map {
+    filter:sepia(1) saturate(4) hue-rotate(351deg) brightness(.87);
+  }
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__image {
+    box-sizing:border-box;
+    border-right:24px solid #d0a047!important;
+    box-shadow:inset -10px 0 0 #f3ce79!important;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__image {
+    box-sizing:border-box;
+    border-left:24px solid #d0a047!important;
+    box-shadow:inset 10px 0 0 #f3ce79!important;
+  }
+  html body.bonds-redesign .bonds-hero__photo {
+    filter:saturate(1.22) contrast(1.09) brightness(1.05);
+  }
+}
+
+
+/* Reference globe occupies most of the photo area and sits in the lower corner.
+   Correct the previous 64% / -40% placement, which hid too much of the globe. */
+@media (min-width:1501px) {
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__globe {
+    top:auto!important;bottom:-20%!important;
+    left:-12%!important;right:auto!important;
+    width:min(64%,620px)!important;max-height:none!important;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__globe {
+    top:auto!important;bottom:-20%!important;
+    right:-12%!important;left:auto!important;
+    width:min(64%,620px)!important;max-height:none!important;
+  }
+  html body.bonds-redesign .bonds-quicklink strong {font-size:21px}
+  html body.bonds-redesign .bonds-quicklink span:last-child {font-size:16px}
+}
+
+
+/* Approved desktop hero proportions: match the shorter reference image strip
+   without clipping either language's intrinsic copy. */
+@media (min-width:1501px) {
+  html body.bonds-redesign .bonds-hero {min-height:385px}
+  html body.bonds-redesign .bonds-hero__image {min-height:385px}
+  html body.bonds-redesign .bonds-hero__photo {
+    filter:sepia(.18) saturate(1.35) contrast(1.1) brightness(1.04);
+  }
+}
