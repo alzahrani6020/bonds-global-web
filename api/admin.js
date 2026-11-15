@@ -2753,7 +2753,8 @@ function crmClientPayload(body, existing) {
   return row;
 }
 async function createCrmClient(sb, body, admin, req) {
-  const row = {...crmClientPayload(body,false), status: body?.status || 'active', created_by: admin.id};
+  const fields = crmClientPayload(body,false);
+  const row = {...fields, status: fields.status || 'active', created_by: admin.id};
   const { data, error } = await sb.from('advisory_clients').insert([row])
     .select('id,name,email,phone,company_name,status,source,organization_id,relationship_role,is_decision_maker,created_at').single();
   if (error) throw error;
