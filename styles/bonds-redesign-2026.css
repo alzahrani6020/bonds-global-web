@@ -87,3 +87,10 @@ body.bonds-redesign .bonds-brand-map{display:block;flex:0 0 clamp(70px,9vw,140px
 @media(max-width:1500px){body.bonds-redesign .bonds-brand-map{flex-basis:75px;width:75px}body.bonds-redesign .main-header .header-brand img.header-brand__image{width:100px!important;max-width:100px!important}}
 @media(max-width:1280px){body.bonds-redesign .bonds-brand-map{display:none}body.bonds-redesign .main-header .header-brand img.header-brand__image{width:74px!important;max-width:74px!important}}
 @media(max-width:700px){body.bonds-redesign .main-header .header-brand img.header-brand__image{width:55px!important;max-width:55px!important}body.bonds-redesign .bonds-search-placeholder{display:none}}
+
+body.bonds-redesign .bonds-header-search-form{margin:0}
+body.bonds-redesign .bonds-header-search-form input{flex:1 1 auto;width:100%;min-width:0;border:0!important;box-shadow:none!important;outline:none;background:transparent!important;color:#1b2d43;font:600 clamp(11px,1vw,15px)/1.5 "Vazirmatn",Arial,sans-serif;padding:0 3px}
+body.bonds-redesign .bonds-header-search-form input::placeholder{color:#65768d;opacity:1}
+body.bonds-redesign .bonds-header-search-form button{flex:0 0 24px;border:0;background:transparent;color:#10243d;cursor:pointer;display:grid;place-items:center;padding:1px}
+body.bonds-redesign .bonds-header-search-form:focus-within{outline:2px solid #b98a37;outline-offset:2px}
+@media(max-width:1280px){body.bonds-redesign .bonds-header-search-form input{display:none!important}body.bonds-redesign .bonds-header-search-form{width:43px;height:43px;min-width:43px}}
