@@ -127,3 +127,53 @@ revoke execute on function public.activate_correspondence_issue_after_final_pdf(
   from public, anon, authenticated;
 grant execute on function public.activate_correspondence_issue_after_final_pdf()
   to service_role;
+
+-- Count and identity audit MUST commit together, or neither may commit.
+-- Only server-side service_role can invoke this SECURITY INVOKER function.
+create or replace function public.record_correspondence_verification(
+ p_issue_id uuid,
+ p_actor_user_id uuid,
+ p_ip_hash text default null,
+ p_user_agent_hash text default null
+)
+returns bigint
+language plpgsql
+security invoker
+set search_path = ''
+as $function$
+declare
+  new_count bigint;
+begin
+  if p_actor_user_id is null then
+    raise exception 'Verified account required for official correspondence verification'
+      using errcode = '23502';
+  end if;
+
+  update public.correspondence_issues
+     set verification_count = verification_count + 1,
+         last_verified_at = now()
+   where id = p_issue_id
+   returning verification_count into new_count;
+
+  if not found then
+    raise exception 'Official issue not found'
+      using errcode = 'P0002';
+  end if;
+
+  insert into public.correspondence_verification_events (
+    issue_id, document_id, issue_number, actor_user_id, result,
+    ip_hash, user_agent_hash
+  )
+  select id, document_id, issue_number, p_actor_user_id, 'verified',
+         p_ip_hash, p_user_agent_hash
+    from public.correspondence_issues
+   where id = p_issue_id;
+
+  return new_count;
+end;
+$function$;
+
+revoke execute on function public.record_correspondence_verification(uuid,uuid,text,text)
+  from public, anon, authenticated;
+grant execute on function public.record_correspondence_verification(uuid,uuid,text,text)
+  to service_role;
