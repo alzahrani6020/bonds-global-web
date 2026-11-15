@@ -1311,7 +1311,13 @@
   }
 
   function paginateEditableSheets() {
-    if (!canEditCurrent()) return false;
+    if (!canEditCurrent()) {
+      // Locked or non-owned documents cannot be auto-fixed: surface that
+      // explicitly instead of letting the cryptic A4 overflow error appear.
+      throw new Error(isEn
+        ? 'This document is locked, so overflowing pages cannot be split automatically. Restore editing rights or shorten the content.'
+        : 'هذا المستند مقفل ولا يمكن تقسيم صفحاته المتجاوزة تلقائياً. استعد صلاحية التحرير أو قصّر المحتوى.');
+    }
     const container = document.getElementById('pages-container');
     if (!container) throw new Error('Letterhead pages container missing');
     const sheets = () => Array.from(container.querySelectorAll('.sheet'));
@@ -1386,44 +1392,57 @@
     }
     let pageAdded = false;
     for (let i = 0; i < sheets.length; i++) {
-      let clippedContent = false;
-      const canvas = await html2canvas(sheets[i], {
-        scale: 1.6,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#ffffff',
-        // PDF must use desktop A4 layout even when triggered from a phone.
-        windowWidth: Math.max(1280, window.innerWidth),
-        onclone: clonedDocument => {
-          const clonedSheet = clonedDocument.querySelectorAll('.sheet')[i];
-          const content = clonedSheet?.querySelector('.doc-content');
-          const footer = clonedSheet?.querySelector('.letterhead-footer');
-          if (!clonedSheet || !content || !footer) {
-            clippedContent = true;
-            return;
+      let retriedAfterPagination = false;
+      while (true) {
+        let clippedContent = false;
+        const canvas = await html2canvas(sheets[i], {
+          scale: 1.6,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: '#ffffff',
+          // PDF must use desktop A4 layout even when triggered from a phone.
+          windowWidth: Math.max(1280, window.innerWidth),
+          onclone: clonedDocument => {
+            const clonedSheet = clonedDocument.querySelectorAll('.sheet')[i];
+            const content = clonedSheet?.querySelector('.doc-content');
+            const footer = clonedSheet?.querySelector('.letterhead-footer');
+            if (!clonedSheet || !content || !footer) {
+              clippedContent = true;
+              return;
+            }
+            // An overflow:hidden A4 sheet can clip content without growing the canvas.
+            const contentBottom = content.getBoundingClientRect().bottom;
+            const footerTop = footer.getBoundingClientRect().top;
+            clippedContent = contentBottom > footerTop + 1 ||
+              clonedSheet.scrollHeight > clonedSheet.clientHeight + 1;
           }
-          // An overflow:hidden A4 sheet can clip content without growing the canvas.
-          const contentBottom = content.getBoundingClientRect().bottom;
-          const footerTop = footer.getBoundingClientRect().top;
-          clippedContent = contentBottom > footerTop + 1 ||
-            clonedSheet.scrollHeight > clonedSheet.clientHeight + 1;
+        });
+        const overflowError = () => clippedContent
+          ? new Error(isEn
+            ? `Page ${i + 1} content overlaps its footer or is clipped. Move content to a new page.`
+            : `محتوى الصفحة ${i + 1} متداخل مع التذييل أو مقصوص. انقل جزءًا من المحتوى إلى صفحة جديدة.`)
+          : null;
+        const pageHeightPx = Math.floor(canvas.width * 297 / 210);
+        // Issued documents must have one physical PDF page per numbered sheet.
+        // Cropping an overflowing sheet creates an unnumbered page without a header.
+        // Tolerance: html2canvas rounds device pixels, so a healthy A4 sheet can
+        // land 1-3px over the exact ratio and must not fail the finalization.
+        const a4Error = canvas.height > pageHeightPx + 8
+          ? new Error(isEn
+            ? `Page ${i + 1} overflows A4. Split the content into another letterhead page before finalizing the PDF.`
+            : `الصفحة ${i + 1} تتجاوز حدود A4. وزّع المحتوى على صفحة مراسلات إضافية قبل اعتماد PDF النهائي.`)
+          : null;
+        if ((clippedContent || a4Error) && !retriedAfterPagination && canEditCurrent()) {
+          // Automation: re-run the pagination pass (content may have been edited
+          // since the pre-flight pass) and rebuild the sheet list before failing.
+          retriedAfterPagination = true;
+          paginateEditableSheets();
+          sheets.length = 0;
+          sheets.push(...document.querySelectorAll('.sheet'));
+          if (i < sheets.length) continue;
         }
-      });
-      if (clippedContent) {
-        throw new Error(isEn
-          ? `Page ${i + 1} content overlaps its footer or is clipped. Move content to a new page.`
-          : `محتوى الصفحة ${i + 1} متداخل مع التذييل أو مقصوص. انقل جزءًا من المحتوى إلى صفحة جديدة.`);
-      }
-      const pageHeightPx = Math.floor(canvas.width * 297 / 210);
-      // Issued documents must have one physical PDF page per numbered sheet.
-      // Cropping an overflowing sheet creates an unnumbered page without a header.
-      // Tolerance: html2canvas rounds device pixels, so a healthy A4 sheet can
-      // land 1-3px over the exact ratio and must not fail the finalization.
-      if (canvas.height > pageHeightPx + 8) {
-        throw new Error(isEn
-          ? `Page ${i + 1} overflows A4. Split the content into another letterhead page before finalizing the PDF.`
-          : `الصفحة ${i + 1} تتجاوز حدود A4. وزّع المحتوى على صفحة مراسلات إضافية قبل اعتماد PDF النهائي.`);
-      }
+        if (clippedContent) throw overflowError();
+        if (a4Error) throw a4Error;
       const totalPages = 1;
       for (let page = 0; page < totalPages; page++) {
         const y = page * pageHeightPx;
@@ -1438,6 +1457,8 @@
         pdf.addImage(img, 'JPEG', 0, 0, 210, 210 * sliceHeight / canvas.width, undefined, 'FAST');
         pageAdded = true;
       }
+      break;
+    }
     }
     return pdf.output('blob');
   }

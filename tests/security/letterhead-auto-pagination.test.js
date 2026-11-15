@@ -45,4 +45,11 @@ describe('letterhead automatic pagination', () => {
     expect(client).toContain('prepareEditableAction()');
     expect(client).toContain('guard < 200');
   });
+
+  test('the PDF export auto-heals: locked docs fail explicitly, overflow re-paginates once', () => {
+    expect(client).toContain('cannot be split automatically');
+    expect(client).toContain('retriedAfterPagination');
+    expect(client).toContain('paginateEditableSheets();');
+    expect(client).toContain('sheets.push(...document.querySelectorAll(\'.sheet\'))');
+  });
 });
