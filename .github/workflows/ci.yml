@@ -48,6 +48,9 @@ jobs:
           CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
         run: node tests/crm/isolated-postgres-acceptance.js
 
+      - name: Verify owner-authorized invitation server and failure handling
+        run: node --test tests/crm/invite-handler.spec.js
+
       - name: Validate Bonds Native and Token Runtime operations
         shell: pwsh
         run: |
