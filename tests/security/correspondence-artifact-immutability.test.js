@@ -202,7 +202,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
         ?Promise.resolve({data:{user:{id:'admin-1',email:'admin@example.com'}},error:null})
         :Promise.resolve({data:{user:null},error:{message:'invalid token'}}))},
       from:jest.fn((table)=>makeChain(scenario,table)),
-      rpc:jest.fn(()=>Promise.resolve({data:'BDS-2026-000001',error:null})),
+      rpc:jest.fn((name)=>Promise.resolve({data:name==='record_correspondence_verification'?4:'BDS-2026-000001',error:null})),
       storage:{from:jest.fn(()=>({download:jest.fn(()=>Promise.resolve({data:scenario.blob,error:null}))}))}
     };
     return scenario;
@@ -321,8 +321,8 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
     const verify=api.slice(api.indexOf("if (action === 'verify')"),api.indexOf("if (action === 'official-preview')"));
     expect(verify).toContain('const verifier = await resolveUser(req)');
     expect(verify).toContain('if (!verifier || verifier.is_anonymous)');
-    expect(verify).toContain('actor_user_id: verifier.id');
-    expect(verify.indexOf('const verifier = await resolveUser(req)')).toBeLessThan(verify.indexOf("increment_issue_verification_count"));
+    expect(verify).toContain('p_actor_user_id: verifier.id');
+    expect(verify.indexOf('const verifier = await resolveUser(req)')).toBeLessThan(verify.indexOf("record_correspondence_verification"));
     for(const page of ['verify-document.html','en/verify-document.html']){
       const html=read(page);
       expect(html).toContain("window.BondsAuth?.getSession()");
