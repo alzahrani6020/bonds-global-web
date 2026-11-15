@@ -21,7 +21,7 @@
   success:[['company_id','الشركة','ref:companies'],['contact_id','جهة الاتصال','ref:contacts'],['health_score','مؤشر الصحة','number'],['risk_level','درجة المخاطر','select:low|medium|high|critical'],['lifecycle_stage','المرحلة','select:onboarding|activated|adopting|healthy|at_risk|churned'],['next_review_at','المراجعة المقبلة','datetime-local'],['success_plan','خطة النجاح','textarea']]
  };
  const columns={companies:['name','sector','city','status'],contacts:['name','email','phone','role'],deals:['title','stage','value_amount','next_action'],activities:['subject','kind','status','scheduled_at'],renewals:['title','renewal_date','status','risk_level'],success:['health_score','risk_level','lifecycle_stage','next_review_at'],pipelines:['name','description','is_active','is_default'],stages:['name','pipeline_id','sort_order','probability']};
- let sb,workspace=null,current='overview',rows={},editing=null,installPrompt=null,currentUser=null,currentRole=null,availableWorkspaces=[],page=0,pageTotal=0,pageSize=50,searchTimer=null,requestSequence=0,overviewTotals={};
+ let sb,workspace=null,current='overview',rows={},editing=null,installPrompt=null,currentUser=null,currentRole=null,availableWorkspaces=[],lookupRows={},page=0,pageTotal=0,pageSize=50,searchTimer=null,requestSequence=0,overviewTotals={},overviewStageCounts={};
  const escape = value => String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const notify=(message,error=false)=>{const n=$('status');n.textContent=t(message);n.className='notice'+(error?' error':'');n.hidden=!message;n.style.display=message?'block':'none';};
  const must = result => {if(result.error)throw result.error;return result.data;};
@@ -150,12 +150,12 @@
   else if(name==='audit')renderAudit().catch(err=>notify(err.message,true));
   else {page=0;loadPage().catch(err=>notify(err.message,true));}
  }
- function nameFor(group,id){return (rows[group]||[]).find(x=>x.id===id)?.name || (rows[group]||[]).find(x=>x.id===id)?.title || '—';}
+ function nameFor(group,id){return (lookupRows[group]||[]).find(x=>x.id===id)?.name || (lookupRows[group]||[]).find(x=>x.id===id)?.title || '—';}
  function renderOverview(){
   const metrics=[['الشركات',overviewTotals.companies||0],['جهات الاتصال',overviewTotals.contacts||0],['الصفقات',overviewTotals.deals||0],['المهام المفتوحة',overviewTotals.openTasks||0],['التجديدات القادمة',overviewTotals.upcomingRenewals||0]];
   $('kpis').innerHTML=metrics.map(([k,v])=>'<div class="kpi"><b>'+v+'</b><span>'+escape(t(k))+'</span></div>').join('');
-  const deals=rows.deals||[],total=Math.max(1,deals.length);
-  $('pipeline-summary').innerHTML=Object.entries(stageLabels).map(([k,label])=>{const n=deals.filter(r=>r.stage===k).length;return '<div class="bar-row"><div class="bar-title"><span>'+t(label)+'</span><span>'+n+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+(n/total*100)+'%"></div></div></div>';}).join('');
+  const total=Math.max(1,overviewTotals.deals||0);
+  $('pipeline-summary').innerHTML=Object.entries(stageLabels).map(([k,label])=>{const n=overviewStageCounts[k]||0;return '<div class="bar-row"><div class="bar-title"><span>'+t(label)+'</span><span>'+n+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+(n/total*100)+'%"></div></div></div>';}).join('');
   const tasks=(rows.activities||[]).filter(r=>!r.deleted_at&&r.status==='open'&&r.scheduled_at).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)).slice(0,8);
   $('upcoming-tasks').innerHTML=tasks.length?tasks.map(r=>'<p>'+escape(r.subject)+' — '+escape(new Date(r.scheduled_at).toLocaleDateString('ar-SA'))+'</p>').join(''):t('لا توجد متابعات مجدولة');
  }
@@ -176,7 +176,7 @@
   if(spec==='textarea')return head+'<textarea name="'+key+'" rows="3">'+escape(value||'')+'</textarea>'+tail;
   if(spec.startsWith('select:')||spec.startsWith('ref:')){
    const reference=spec.startsWith('ref:');
-   const options=reference?(rows[spec.slice(4)]||[]).map(r=>[r.id,r.name||r.title]):spec.slice(7).split('|').map(x=>[x,t(stageLabels[x]||kinds[x]||statusLabels[x]||x)]);
+   const options=reference?(lookupRows[spec.slice(4)]||[]).map(r=>[r.id,r.name||r.title]):spec.slice(7).split('|').map(x=>[x,t(stageLabels[x]||kinds[x]||statusLabels[x]||x)]);
    // An empty option is valid for nullable foreign keys, but not for NOT NULL
    // enum columns. When creating, select the first valid enum rather than NULL.
    const selected=value==null?(reference?'':(options[0]?.[0]||'')):String(value);
@@ -190,7 +190,7 @@
   const stage=$('record-form').querySelector('[name="pipeline_stage_id"]');
   if(!pipeline||!stage)return;
   const selected=stage.value;
-  const stages=(rows.stages||[]).filter(item=>item.pipeline_id===pipeline.value&&item.is_active);
+  const stages=(lookupRows.stages||[]).filter(item=>item.pipeline_id===pipeline.value&&item.is_active);
   stage.innerHTML='<option value="">—</option>'+stages.map(item=>
    '<option value="'+escape(item.id)+'">'+escape(item.name)+'</option>').join('');
   if(stages.some(item=>item.id===selected))stage.value=selected;
@@ -241,27 +241,38 @@
   const renewals=await sb.from(tableNames.renewals).select('id',{count:'exact',head:true}).eq('workspace_id',wid).eq('status','upcoming');
   if(tasks.error)throw tasks.error;if(renewals.error)throw renewals.error;
   overviewTotals={...Object.fromEntries(counts),openTasks:tasks.count??0,upcomingRenewals:renewals.count??0};
-  const [deals,followups]=await Promise.all([
-   sb.from(tableNames.deals).select('stage').eq('workspace_id',wid).order('updated_at',{ascending:false}).limit(500),
-   sb.from(tableNames.activities).select('subject,scheduled_at').eq('workspace_id',wid).eq('status','open').is('deleted_at',null).not('scheduled_at','is',null).order('scheduled_at',{ascending:true}).limit(8)
-  ]);
-  if(deals.error)throw deals.error;if(followups.error)throw followups.error;
-  rows.deals=deals.data||[];rows.activities=followups.data||[];
+  const stages=await Promise.all(Object.keys(stageLabels).map(async stage=>{
+   const result=await sb.from(tableNames.deals).select('id',{count:'exact',head:true}).eq('workspace_id',wid).eq('stage',stage);
+   if(result.error)throw result.error;return [stage,result.count??0];
+  }));
+  overviewStageCounts=Object.fromEntries(stages);
+  const followups=await sb.from(tableNames.activities).select('subject,scheduled_at').eq('workspace_id',wid).eq('status','open').is('deleted_at',null).not('scheduled_at','is',null).order('scheduled_at',{ascending:true}).limit(8);
+  if(followups.error)throw followups.error;
+  rows.activities=followups.data||[];
+ }
+ async function loadLookups(){
+  const wid=workspace.id;
+  const fields={companies:'id,name',contacts:'id,name',deals:'id,title',pipelines:'id,name',stages:'id,name,pipeline_id,is_active'};
+  const result=await Promise.all(Object.entries(fields).map(async ([key,columns])=>{
+   const items=[],size=250;
+   for(let offset=0;offset<10000;offset+=size){
+    const response=await sb.from(tableNames[key]).select(columns).eq('workspace_id',wid)
+      .order('id',{ascending:true}).range(offset,offset+size-1);
+    if(response.error)throw response.error;
+    items.push(...(response.data||[]));
+    if((response.data||[]).length<size)break;
+    if(offset+size===10000)throw Error(english?'Too many linked records; narrow the data set':'عدد السجلات المرجعية يتجاوز الحد المدعوم');
+   }
+   return [key,items];
+  }));
+  if(workspace?.id===wid)lookupRows=Object.fromEntries(result);
  }
  async function refresh(){
   if(!workspace)return;
-  // Reference selections are separate from the paginated listing.
-  const lookupGroups=['companies','contacts','deals','pipelines','stages'];
-  const lookups=await Promise.all(lookupGroups.map(async key=>{
-   const response=await sb.from(tableNames[key]).select('id,name,title,pipeline_id,is_active').eq('workspace_id',workspace.id).limit(500);
-   // Tables do not share every column. Only preload lookup fields present on each entity.
-   return [key,response];
-  }));
-  for(const [key,result] of lookups){
-   if(!result.error)rows[key]=result.data||[];
-  }
-  if(current==='overview'){await loadOverview();showSection(current);}
-  else if(current==='members'||current==='audit')showSection(current);
+  await loadLookups();
+  if(current==='overview'){await loadOverview();renderOverview();}
+  else if(current==='members')await renderMembers();
+  else if(current==='audit')await renderAudit();
   else await loadPage();
  }
  async function renderMembers(){
@@ -431,7 +442,7 @@
     if(payload.is_won&&payload.is_lost)throw Error('لا يمكن أن تكون المرحلة رابحة وخاسرة معًا');
    }
    if(group==='deals'&&payload.pipeline_stage_id){
-    const stage=(rows.stages||[]).find(x=>x.id===payload.pipeline_stage_id);
+    const stage=(lookupRows.stages||[]).find(x=>x.id===payload.pipeline_stage_id);
     if(!stage||stage.pipeline_id!==payload.pipeline_id)throw Error('مرحلة المسار لا تتبع المسار المحدد');
    }
    if(group==='activities')payload.completed_at=payload.status==='completed'?(editing?.completed_at||new Date().toISOString()):null;
