@@ -2783,6 +2783,7 @@ async function updateCrmOrganization(sb, body, admin, req) {
   const update={};
   for(const key of fields) if (Object.prototype.hasOwnProperty.call(body||{},key)) update[key]=crmOptionalText(body[key],key==='name'?240:160);
   if(Object.prototype.hasOwnProperty.call(update,'name') && !update.name) throw badRequest('name required');
+  if(update.status!==undefined && !new Set(['prospect','active','inactive','customer','archived']).has(update.status)) throw badRequest('invalid organization status');
   if(!Object.keys(update).length) throw badRequest('no editable fields');
   update.updated_at=new Date().toISOString();
   const {data,error}=await sb.from('crm_organizations').update(update).eq('id',id)
