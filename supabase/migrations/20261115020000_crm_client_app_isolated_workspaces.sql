@@ -131,10 +131,10 @@ create index crm_app_pipelines_workspace_idx on public.crm_app_pipelines(workspa
 create index crm_app_pipeline_stages_pipeline_idx on public.crm_app_pipeline_stages(workspace_id,pipeline_id,sort_order);
 create index crm_app_companies_workspace_idx on public.crm_app_companies(workspace_id,updated_at desc);
 create index crm_app_contacts_workspace_idx on public.crm_app_contacts(workspace_id,updated_at desc);
--- Prevent repeated CSV imports from creating multiple contacts for the same email.
--- Case-insensitive uniqueness is scoped to the company workspace only.
-create unique index crm_app_contacts_workspace_email_unique
- on public.crm_app_contacts(workspace_id,lower(btrim(email)))
+-- Prevent exact repeated imports without prohibiting shared company inboxes.
+-- Two different contacts may legitimately share one email address.
+create unique index crm_app_contacts_workspace_identity_unique
+ on public.crm_app_contacts(workspace_id,lower(btrim(name)),lower(btrim(email)))
  where email is not null and btrim(email)<>'';
 create index crm_app_deals_workspace_idx on public.crm_app_deals(workspace_id,updated_at desc);
 create index crm_app_activities_workspace_idx on public.crm_app_activities(workspace_id,status,scheduled_at);
