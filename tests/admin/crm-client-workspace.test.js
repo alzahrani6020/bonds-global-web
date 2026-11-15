@@ -119,4 +119,11 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(manifest.scope).toBe('/my-bonds/crm/');
  });
 
+ test('deal stage selector only accepts active stages from its selected pipeline',()=>{
+  expect(js).toContain('function updatePipelineStageOptions()');
+  expect(js).toContain('item.pipeline_id===pipeline.value&&item.is_active');
+  expect(js).toContain("if(event.target.name==='pipeline_id')updatePipelineStageOptions()");
+  expect(js).toContain('if(stages.some(item=>item.id===selected))stage.value=selected');
+ });
+
 });
