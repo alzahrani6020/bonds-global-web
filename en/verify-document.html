@@ -172,7 +172,7 @@
     document.getElementById('issued').textContent=d.issued_at?new Date(d.issued_at).toLocaleString('en-US'):'-';
     document.getElementById('subject').textContent=d.subject||d.title||'-';
     document.getElementById('signer').textContent=[d.signer_name,d.signer_title].filter(Boolean).join(' — ')||'Signatory details not recorded';
-    document.getElementById('doc-status').textContent=state==='active'?'Active':state==='revoked'?'Revoked':'Superseded';
+    document.getElementById('doc-status').textContent=state==='active'?'Active':state==='revoked'?'Revoked':state==='pending'?'Pending final PDF':'Superseded';
     document.getElementById('hash').textContent=d.checksum_sha256||'-';
     document.getElementById('issued-hash').textContent=d.issued_hash||'-';
     document.getElementById('artifact-hash').textContent=d.artifact_hash||'-';
