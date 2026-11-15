@@ -86,9 +86,12 @@ test('cross-workspace nonmember is rejected before entitlements',async()=>{
 });
 test('inactive BONDS company and nonmember are denied',async()=>{
  const owner=qb(null),member=qb(null);
- createClient.mockReturnValue({from:table=>({
-   companies:owner,company_members:member
- })[table]||(()=>{throw Error('no access')})())});
+ const from=jest.fn(table=>{
+   if(table==='companies') return owner;
+   if(table==='company_members') return member;
+   throw new Error('Unexpected company-programs query: '+table);
+ });
+ createClient.mockReturnValue({from});
  const response=res();
  await handler({method:'GET',query:{workspace_type:'company',workspace_id:WS}},response);
  expect(response.statusCode).toBe(404);
