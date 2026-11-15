@@ -22,6 +22,11 @@ describe('homepage illustrative market data labels', () => {
     const html = read('en/index.html');
 
     expect(html).not.toContain('<span>LIVE</span>');
-    expect(html).toContain('<span>ILLUSTRATIVE</span>');
+    // New homepage has no illustrative investment dashboard or fabricated live figures.
+    expect(html).not.toContain('Portfolio Yield');
+    expect(html).not.toContain('5.24%');
+    expect(html).not.toContain('Mod. Duration');
+    expect(html).toContain('Your partner in growth, finance');
+    expect(html).toContain('bonds-hero');
   });
 });
