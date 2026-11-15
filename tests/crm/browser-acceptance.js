@@ -21,7 +21,7 @@ async function main(){
     crm_app_companies:{status:'prospect'},crm_app_contacts:{status:'lead',is_decision_maker:false},
     crm_app_deals:{stage:'lead',currency:'SAR',probability:10,value_amount:0},
     crm_app_activities:{kind:'task',status:'open'},crm_app_pipelines:{is_active:true,is_default:false},
-    crm_app_pipeline_stages:{probability:10,sort_order:0,is_active:true}
+    crm_app_pipeline_stages:{probability:10,sort_order:0,is_active:true},crm_app_members:{active:true}
    };
    function builder(table){
     let mode='read',payload=null,filters=[],limit=null,offset=0,sort=null;
