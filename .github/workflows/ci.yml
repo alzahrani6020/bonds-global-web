@@ -159,7 +159,29 @@ jobs:
       - name: Run Mobile Interaction Tests
         run: npm run test:mobile
 
+      - name: Determine visual regression scope from PR base
+        id: visual-scope
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          echo "scope=full" >> "$GITHUB_OUTPUT"
+          if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then exit 0; fi
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          git diff --name-only "$BASE_SHA" HEAD > /tmp/bonds-pr-changed-files.txt
+          cat /tmp/bonds-pr-changed-files.txt
+          while IFS= read -r file; do
+            case "$file" in
+              my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|.github/workflows/ci.yml) ;;
+              *) exit 0 ;;
+            esac
+          done < /tmp/bonds-pr-changed-files.txt
+          echo "scope=crm-only" >> "$GITHUB_OUTPUT"
+
       - name: Run Visual Regression Tests
+        env:
+          BONDS_VISUAL_SCOPE: ${{ steps.visual-scope.outputs.scope }}
         run: npm run test:visual
 
       - name: Validate service manifests and token policies
