@@ -306,3 +306,11 @@ html body.bonds-redesign #site-header .main-header__inner{
     margin-top:16px;
   }
 }
+
+
+/* RTL cards reserve the icon space on the right; LTR must reserve it on the left. */
+@media (min-width:1501px) {
+  html[dir="ltr"] body.bonds-redesign .bonds-quicklink {
+    padding:20px 15px 18px 82px;
+  }
+}
