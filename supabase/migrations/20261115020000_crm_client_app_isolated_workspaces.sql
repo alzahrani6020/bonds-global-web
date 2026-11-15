@@ -1,9 +1,11 @@
 -- Client-facing CRM is isolated from Bonds internal admin CRM (crm_organizations et al).
--- One account owns one CRM app workspace; cross-owner references require matching workspace_id.
+-- One account initially owns one CRM app workspace; cross-owner references require matching workspace_id.
+-- RESTRICT auth-user deletion to avoid cascading destruction of the company's CRM history.
+-- Ownership transfer and employee memberships require a separately reviewed migration.
 -- All writes occur as the signed-in user under RLS; no service_role is exposed to browsers.
 create table public.crm_app_workspaces (
   id uuid primary key default gen_random_uuid(),
-  owner_user_id uuid not null references auth.users(id) on delete cascade,
+  owner_user_id uuid not null references auth.users(id) on delete restrict,
   name text not null check (char_length(btrim(name)) between 1 and 180),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
