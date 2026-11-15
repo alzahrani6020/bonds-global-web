@@ -2,8 +2,10 @@
 'use strict';
 jest.mock('@supabase/supabase-js',()=>({createClient:jest.fn()}));
 jest.mock('../../lib/api/auth-helper',()=>({verifyBearer:jest.fn()}));
+jest.mock('../../lib/api/rate-limit',()=>({checkRateLimit:jest.fn(async()=>false)}));
 const {createClient}=require('@supabase/supabase-js');
 const {verifyBearer}=require('../../lib/api/auth-helper');
+const {checkRateLimit}=require('../../lib/api/rate-limit');
 const handler=require('../../lib/api/company-programs');
 const WS='11111111-1111-4111-8111-111111111111';
 const USER='22222222-2222-4222-8222-222222222222';
@@ -258,6 +260,7 @@ test('session-check verifies approved mapping and keeps SCC token server-only',a
  expect(response.body).toMatchObject({authenticatedToMakkin:true,tokenExposed:false,operationalParityVerified:false});
  expect(JSON.stringify(response.body)).not.toContain(token);
  expect(global.fetch).toHaveBeenCalledTimes(2);
+ expect(checkRateLimit).toHaveBeenCalledWith('strict',expect.any(Object),expect.any(Object),'scc-session:'+USER+':'+WS,true);
 });
 test('session-check rejects pending mappings before any remote call',async()=>{
  const owner=qb({id:WS,name:'Company A'}),link=qb({id:WS});
