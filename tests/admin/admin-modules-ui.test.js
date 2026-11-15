@@ -142,6 +142,24 @@ async function stabilizePage(page) {
   }
 }
 
+async function readMobileViewportAfterStableNavigation(page) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      return await page.evaluate(() => ({
+        viewport: window.innerWidth,
+        document: document.documentElement.scrollWidth
+      }));
+    } catch (error) {
+      // A delayed auth redirect can destroy the context after DOMContentLoaded.
+      // Retry once after the final navigation; never suppress actual overflow.
+      if (attempt > 0 || !/Execution context was destroyed/i.test(error.message)) throw error;
+      await page.waitForLoadState('domcontentloaded');
+      await stabilizePage(page);
+    }
+  }
+  throw new Error('MOBILE_VIEWPORT_RETRY_EXHAUSTED');
+}
+
 async function addAxeAfterStableNavigation(page) {
   await stabilizePage(page);
   try {
@@ -304,10 +322,7 @@ describe('admin linked modules UI', () => {
 
         await stabilizePage(page);
 
-        const sizes = await page.evaluate(() => ({
-          viewport: window.innerWidth,
-          document: document.documentElement.scrollWidth
-        }));
+        const sizes = await readMobileViewportAfterStableNavigation(page);
 
         if (sizes.document > sizes.viewport + 1) {
           failures.push({
