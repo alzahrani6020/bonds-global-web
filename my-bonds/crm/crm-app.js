@@ -209,7 +209,7 @@
   const list=must(await sb.from('crm_app_members').select('id,member_user_id,role,active,updated_at')
    .eq('workspace_id',workspace.id).order('updated_at',{ascending:false}).limit(250));
   $('members-head').innerHTML='<tr><th>'+(english?'Member UUID':'معرف الموظف')+'</th><th>'+(english?'Role':'الدور')+'</th><th>'+(english?'Status':'الحالة')+'</th><th>'+(english?'Action':'الإجراء')+'</th></tr>';
-  $('members-body').innerHTML=list.length?list.map(m=>'<tr><td>'+escape(m.member_user_id)+'</td><td>'+escape(m.role)+'</td><td>'+(m.active?(english?'Active':'نشط'):(english?'Revoked':'ملغي'))+'</td><td><button class="secondary" type="button" data-member="'+escape(m.id)+'" data-active="'+m.active+'">'+(m.active?(english?'Revoke':'إلغاء الصلاحية'):(english?'Restore':'استعادة الصلاحية'))+'</button></td></tr>').join('')
+  $('members-body').innerHTML=list.length?list.map(m=>'<tr><td>'+escape(m.member_user_id)+'</td><td><select data-member-role="'+escape(m.id)+'"><option value="viewer" '+(m.role==='viewer'?'selected':'')+'>Viewer</option><option value="editor" '+(m.role==='editor'?'selected':'')+'>Editor</option><option value="admin" '+(m.role==='admin'?'selected':'')+'>Admin</option></select></td><td>'+(m.active?(english?'Active':'نشط'):(english?'Revoked':'ملغي'))+'</td><td><button class="secondary" type="button" data-member="'+escape(m.id)+'" data-active="'+m.active+'">'+(m.active?(english?'Revoke':'إلغاء الصلاحية'):(english?'Restore':'استعادة الصلاحية'))+'</button></td></tr>').join('')
    :'<tr><td colspan="4">'+(english?'No staff members':'لا يوجد أعضاء')+'</td></tr>';
  }
  async function renderAudit(){
@@ -318,6 +318,19 @@
    await renderMembers();event.currentTarget.reset();
    notify(english?'Membership granted':'تم منح صلاحية العضو');
   }catch(err){notify(err.message,true);}finally{button.disabled=false;}
+ });
+ $('members-body').addEventListener('change',async event=>{
+  const control=event.target.closest('[data-member-role]');
+  if(!control||currentRole!=='owner'||!workspace)return;
+  const role=control.value;
+  if(!['viewer','editor','admin'].includes(role))return;
+  control.disabled=true;
+  try{
+   must(await sb.from('crm_app_members').update({role,updated_at:new Date().toISOString()})
+    .eq('workspace_id',workspace.id).eq('id',control.dataset.memberRole).select('id'));
+   await renderMembers();
+   notify(english?'Member role updated':'تم تحديث صلاحية العضو');
+  }catch(err){notify(err.message,true);await renderMembers();}finally{control.disabled=false;}
  });
  $('members-body').addEventListener('click',async event=>{
   const button=event.target.closest('[data-member]');
