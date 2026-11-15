@@ -165,14 +165,14 @@
     if(!r.ok||!d.verified){fail();return;}
     content.hidden=false;
     const state=d.issue_state||'active';
-    status.textContent=state==='active'?'جارٍ التحقق من بصمة PDF الأصلي…':state==='revoked'?'✕ هذا الإصدار ملغي':'! تم استبدال هذا الإصدار';
+    status.textContent=state==='active'?'جارٍ التحقق من بصمة PDF الأصلي…':state==='revoked'?'✕ هذا الإصدار ملغي':state==='pending'?'الإصدار مسجل — بانتظار اعتماد ملف PDF النهائي':'! تم استبدال هذا الإصدار';
     if(state==='revoked')status.classList.add('bad'); else if(state!=='active')status.classList.add('warn');
     document.getElementById('reference').textContent=d.issue_number||d.reference_number||'-';
     document.getElementById('issue-version').textContent=d.issue_version||'-';
     document.getElementById('issued').textContent=d.issued_at?new Date(d.issued_at).toLocaleString('ar-SA'):'-';
     document.getElementById('subject').textContent=d.subject||d.title||'-';
     document.getElementById('signer').textContent=[d.signer_name,d.signer_title].filter(Boolean).join(' — ')||'بيانات الموقّع غير مسجلة';
-    document.getElementById('doc-status').textContent=state==='active'?'ساري':state==='revoked'?'ملغي':'مستبدل';
+    document.getElementById('doc-status').textContent=state==='active'?'ساري':state==='revoked'?'ملغي':state==='pending'?'بانتظار اعتماد PDF':'مستبدل';
     document.getElementById('hash').textContent=d.checksum_sha256||'-';
     document.getElementById('issued-hash').textContent=d.issued_hash||'-';
     document.getElementById('artifact-hash').textContent=d.artifact_hash||'-';
