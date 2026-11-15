@@ -165,7 +165,7 @@
     if(!r.ok||!d.verified){fail();return;}
     content.hidden=false;
     const state=d.issue_state||'active';
-    status.textContent=state==='active'?'Checking archived PDF fingerprint…':state==='revoked'?'✕ This issue has been revoked':'! This issue has been superseded';
+    status.textContent=state==='active'?'Checking archived PDF fingerprint…':state==='revoked'?'✕ This issue has been revoked':state==='pending'?'Issue registered — awaiting verified final PDF':'! This issue has been superseded';
     if(state==='revoked')status.classList.add('bad'); else if(state!=='active')status.classList.add('warn');
     document.getElementById('reference').textContent=d.issue_number||d.reference_number||'-';
     document.getElementById('issue-version').textContent=d.issue_version||'-';
