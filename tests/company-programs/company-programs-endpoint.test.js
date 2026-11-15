@@ -207,3 +207,24 @@ test('unsubscribed workspace employee cannot probe an SCC identity',async()=>{
  await handler({method:'POST',query:{action:'probe-mapping'},body:{workspace_id:WS,program_key:'hr'}},response);
  expect(response.statusCode).toBe(403);
 });
+
+test('mapping proof cannot be sent to a non-SCC host even with a configured HTTPS URL',async()=>{
+ const owner=qb({id:WS,name:'Company A'}),link=qb({id:WS});
+ const entitlements=qb([{program_key:'hr',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ const tenant=qb({workspace_link_id:WS,makkin_tenant_id:'private-tenant',state:'pending'});
+ const member=qb({workspace_link_id:WS,bonds_user_id:USER,makkin_user_id:'private-user',state:'pending'});
+ createClient.mockReturnValue({from:table=>({
+  crm_app_workspaces:owner,company_program_workspaces:link,
+  company_program_entitlements:entitlements,
+  company_program_makkin_links:tenant,company_program_makkin_user_links:member
+ })[table]});
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-11-01'});
+ process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM=signingPair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
+ process.env.MAKKIN_MAPPING_VERIFY_URL='https://attacker.invalid/integrations/bonds/verify-mapping';
+ global.fetch=jest.fn();
+ const response=res();
+ await handler({method:'POST',query:{action:'probe-mapping'},body:{workspace_id:WS,program_key:'hr'}},response);
+ expect(response.statusCode).toBe(503);
+ expect(response.body.error).toBe('MAPPING_PROBE_NOT_CONFIGURED');
+ expect(global.fetch).not.toHaveBeenCalled();
+});
