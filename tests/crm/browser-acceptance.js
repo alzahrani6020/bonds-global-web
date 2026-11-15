@@ -16,7 +16,7 @@ async function main(){
   await page.addInitScript(()=>{
    const db=Object.fromEntries(['crm_app_workspaces','crm_app_companies','crm_app_contacts','crm_app_deals','crm_app_activities','crm_app_renewals','crm_app_success','crm_app_pipelines','crm_app_pipeline_stages','crm_app_members','crm_app_audit'].map(x=>[x,[]]));
    const writes=[];let sequence=0;
-   window.__crmTestState={db,writes};
+   window.__crmTestState={db,writes,invites:[],accepted:[]};
    const defaults={
     crm_app_companies:{status:'prospect'},crm_app_contacts:{status:'lead',is_decision_maker:false},
     crm_app_deals:{stage:'lead',currency:'SAR',probability:10,value_amount:0},
@@ -78,8 +78,18 @@ async function main(){
     };
     return api;
    }
-   const supabase={auth:{getUser:async()=>({data:{user:{id:'11111111-1111-4111-8111-111111111111'}},error:null})},from:builder};
-   window.BondsAuth={ensureEnv:async()=>({}),getSupabase:()=>supabase};
+   const supabase={
+    auth:{getUser:async()=>({data:{user:{id:'11111111-1111-4111-8111-111111111111'}},error:null})},
+    from:builder,
+    rpc:async(name,args)=>{window.__crmTestState.accepted.push({name,args});return {data:null,error:null};}
+   };
+   window.BondsAuth={
+    ensureEnv:async()=>({}),getSupabase:()=>supabase,
+    authenticatedFetch:async(url,options)=>{
+     window.__crmTestState.invites.push({url,payload:JSON.parse(options.body)});
+     return {ok:true,status:202,json:async()=>({success:true,delivery:'accepted_by_provider'})};
+    }
+   };
    window.matchMedia=window.matchMedia||(()=>({matches:false,addListener(){}}));
   });
   const base=process.env.CRM_TEST_BASE_URL||'http://localhost:3005';
@@ -88,8 +98,18 @@ async function main(){
   await page.locator('#workspace-form input[name="name"]').fill('Isolated Company');
   await page.locator('#workspace-form button[type="submit"]').click();
   await page.waitForFunction(()=>document.querySelector('#workspace-content')?.hidden===false);
-  // Owner manages membership in a real UI; server policy is separately tested.
+  // Owner dispatches an email invitation; browser never receives a raw token.
   await page.locator('#crm-nav [data-section="members"]').click();
+  await page.locator('#invite-form [name="email"]').fill('employee@example.com');
+  await page.locator('#invite-form [name="role"]').selectOption('editor');
+  await page.locator('#invite-form [type="submit"]').click();
+  await page.waitForFunction(()=>window.__crmTestState.invites.length===1);
+  const emailInvite=await page.evaluate(()=>window.__crmTestState.invites[0]);
+  assert.equal(emailInvite.url,'/api/crm-invite');
+  assert.equal(emailInvite.payload.email,'employee@example.com');
+  assert.equal(emailInvite.payload.role,'editor');
+  assert.ok(!emailInvite.payload.token);
+  // Existing direct membership remains available and independently protected.
   await page.locator('#member-form [name="member_user_id"]').fill('22222222-2222-4222-8222-222222222222');
   await page.locator('#member-form [name="role"]').selectOption('editor');
   await page.locator('#member-form [type="submit"]').click();
@@ -167,6 +187,15 @@ async function main(){
   assert.equal(await page.locator('#crm-nav [data-section="companies"]').innerText(),'Companies');
   const manifest=await page.locator('link[rel="manifest"]').getAttribute('href');
   assert.equal(manifest,'/en/my-bonds/crm/crm-manifest.webmanifest');
+  // The invitation token is consumed by the authenticated RPC then removed
+  // immediately from location/history so it cannot leak through referrers.
+  const token='test-opaque-invitation-token-01234567890123456789';
+  await page.goto(base+'/en/my-bonds/crm/?invite='+token,{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__crmTestState.accepted.length===1);
+  assert.equal(new URL(page.url()).search,'');
+  const claim=await page.evaluate(()=>window.__crmTestState.accepted[0]);
+  assert.equal(claim.name,'crm_app_accept_invite');
+  assert.equal(claim.args.invite_token,token);
   console.log('CRM BROWSER ACCEPTANCE: PASS — onboarding, companies, pipelines, stages, deals, CSV, English UI');
  }finally{await browser.close();}
 }
