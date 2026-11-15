@@ -67,8 +67,11 @@ describe('correspondence verification module UI contracts', () => {
 
   test('every verification log row can open its letterhead document', () => {
     const app = read('admin/correspondence-verification/app.js');
-    expect(app).toContain('/letterhead.html?document=');
-    expect(app).toContain('encodeURIComponent(documentId)');
+    expect(app).toContain('/verify-document.html?token=');
+    expect(app).toContain('encodeURIComponent(issueToken)');
+    expect(app).toContain('ev.issue?.verification_token');
+    expect(app).toContain('issue.verification_token');
+    expect(app).toContain('فتح الخطاب الرسمي');
     expect(app).toContain("target=\"_blank\"");
   });
 });
