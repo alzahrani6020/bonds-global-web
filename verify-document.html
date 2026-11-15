@@ -137,14 +137,29 @@
     <footer class="footer"><span>هذه الصفحة للتحقق من صحة مستندات بوندز الرسمية فقط.</span><span>السجل 39733 · <a href="/">bonds-global.com</a></span></footer>
   </section>
 </main>
-<script src="/components/verified-pdf-viewer.js?v=20261114-rtl-verified-modal"></script>
+<script src="/api/env"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+<script src="/components/verified-pdf-viewer.js?v=20261115-qr-auth-integrated"></script>
 <script src="/components/verification-entry.js?v=1"></script>
 <script>
 (async function(){
   const params=new URLSearchParams(location.search);
   const token=params.get('token')||'';
   const status=document.getElementById('status'), content=document.getElementById('verified-content'), failure=document.getElementById('failure');
-  const fail=()=>{status.textContent='تعذر التحقق من المستند';status.classList.add('bad');failure.classList.add('active');content.hidden=true;};
+  const fail=(reason='invalid')=>{
+    const messages={
+      invalid:['رابط التحقق غير صالح','رمز التحقق في الرابط غير صالح. امسح رمز QR من المستند الأصلي مرة أخرى.'],
+      missing:['المستند غير موجود في السجل','لم يُعثر على إصدار رسمي يطابق رمز التحقق.'],
+      limited:['التحقق مقيّد مؤقتًا','تم تجاوز عدد طلبات التحقق المسموح. أعد المحاولة بعد انتهاء مهلة التقييد.'],
+      auth:['تسجيل الدخول مطلوب','يتطلب التحقق حسابًا مسجلًا وموثقًا. يرجى تسجيل الدخول مرة أخرى.'],
+      unavailable:['خدمة التحقق غير متاحة حاليًا','تعذر إكمال التحقق بسبب مشكلة اتصال أو خادم. هذا لا يعني أن المستند مزور أو غير صحيح.']
+    };
+    const message=messages[reason]||messages.unavailable;
+    status.textContent=message[0];status.classList.add('bad');
+    failure.querySelector('h2').textContent=message[0];
+    failure.querySelector('p').textContent=message[1];
+    failure.classList.add('active');content.hidden=true;
+  };
   if(!token){
     status.textContent='لم يتم تحديد مستند للتحقق منه';
     status.classList.add('warn');
@@ -160,19 +175,35 @@
   }
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token)){fail();return;}
   try{
-    const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{cache:'no-store'});
+    const session=await window.BondsAuth?.getSession();
+    if(!session || session.error){fail('unavailable');return;}
+    const accessToken=session.data?.session?.access_token||'';
+    if(!accessToken){
+      status.textContent="تسجيل الدخول مطلوب — ستعود إلى رابط التحقق بعد الدخول";
+      status.classList.add('warn');
+      location.replace("/calculators/auth/index.html?redirect="+encodeURIComponent(location.pathname+location.search));
+      return;
+    }
+    const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{
+      cache:'no-store',headers:{Authorization:'Bearer '+accessToken}
+    });
     const d=await r.json().catch(()=>({}));
-    if(!r.ok||!d.verified){fail();return;}
+    if(r.status===401){fail('auth');return;}
+    if(r.status===404){fail('missing');return;}
+    if(r.status===400){fail('invalid');return;}
+    if(r.status===429){fail('limited');return;}
+    if(!r.ok){fail('unavailable');return;}
+    if(!d.verified){fail('missing');return;}
     content.hidden=false;
     const state=d.issue_state||'active';
-    status.textContent=state==='active'?'جارٍ التحقق من بصمة PDF الأصلي…':state==='revoked'?'✕ هذا الإصدار ملغي':'! تم استبدال هذا الإصدار';
+    status.textContent=state==='active'?'جارٍ التحقق من بصمة PDF الأصلي…':state==='revoked'?'✕ هذا الإصدار ملغي':state==='pending'?'الإصدار مسجل — بانتظار اعتماد ملف PDF النهائي':'! تم استبدال هذا الإصدار';
     if(state==='revoked')status.classList.add('bad'); else if(state!=='active')status.classList.add('warn');
     document.getElementById('reference').textContent=d.issue_number||d.reference_number||'-';
     document.getElementById('issue-version').textContent=d.issue_version||'-';
     document.getElementById('issued').textContent=d.issued_at?new Date(d.issued_at).toLocaleString('ar-SA'):'-';
     document.getElementById('subject').textContent=d.subject||d.title||'-';
     document.getElementById('signer').textContent=[d.signer_name,d.signer_title].filter(Boolean).join(' — ')||'بيانات الموقّع غير مسجلة';
-    document.getElementById('doc-status').textContent=state==='active'?'ساري':state==='revoked'?'ملغي':'مستبدل';
+    document.getElementById('doc-status').textContent=state==='active'?'ساري':state==='revoked'?'ملغي':state==='pending'?'بانتظار اعتماد PDF':'مستبدل';
     document.getElementById('hash').textContent=d.checksum_sha256||'-';
     document.getElementById('issued-hash').textContent=d.issued_hash||'-';
     document.getElementById('artifact-hash').textContent=d.artifact_hash||'-';
@@ -223,8 +254,36 @@
     if(d.final_pdf_verified&&d.official_preview_url){
       const preview=d.official_preview_url;
       const wrap=document.getElementById('viewer-wrap');wrap.classList.add('active');
-      document.getElementById('open-pdf').href=preview;
-      document.getElementById('download-pdf').href=d.official_pdf_url||preview+'&download=1';
+      const protectedPdf=!!d.pdf_access_requires_login;
+      let accessToken='';
+      if(protectedPdf){
+        try{accessToken=(await window.BondsAuth?.getSession())?.data?.session?.access_token||'';}catch(_){}
+        if(!accessToken){
+          const notice=document.createElement('p');
+          notice.textContent="هذا الخطاب مصنف ومحمي. سجل الدخول بحساب مخول لعرض النسخة الرسمية وفحص بصمتها.";
+          const login=document.createElement('a');
+          login.className='btn primary';
+          login.textContent="تسجيل الدخول لعرض PDF الرسمي";
+          login.href="/calculators/auth/index.html?redirect="+encodeURIComponent(location.pathname+location.search);
+          wrap.append(notice,login);
+          pdfCheck.textContent="المستند مسجل؛ فحص ملف PDF يتطلب تسجيل دخول مخول.";
+          if(state==='active'){
+            status.textContent="إصدار رسمي مسجل — سجل الدخول للتحقق من ملف PDF المحمي";
+            status.classList.add('warn');
+          }
+          return;
+        }
+      }
+      const openPdf=document.getElementById('open-pdf');
+      const downloadPdf=document.getElementById('download-pdf');
+      if(protectedPdf){
+        openPdf.removeAttribute('href');downloadPdf.removeAttribute('href');
+        openPdf.setAttribute('aria-disabled','true');
+        downloadPdf.setAttribute('aria-disabled','true');
+      }else{
+        openPdf.href=preview;
+        downloadPdf.href=d.official_pdf_url||preview+'&download=1';
+      }
       // The expanded reading interface reuses verified PDF canvases; RTL controls
       // do not mirror or modify the archived PDF artwork.
       let pdfModalInstalled=false;
@@ -235,7 +294,15 @@
           url:preview,expectedHash:d.artifact_hash,
           container:document.getElementById('official-viewer'),
           feedback:document.getElementById('pdf-render-status'),
-          language:'ar'
+          language:'ar',
+          authorizationToken:accessToken,
+          onVerifiedBytes:protectedPdf?bytes=>{
+            const blobUrl=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+            openPdf.href=blobUrl;downloadPdf.href=blobUrl;
+            openPdf.removeAttribute('aria-disabled');
+            downloadPdf.removeAttribute('aria-disabled');
+            window.addEventListener('pagehide',()=>URL.revokeObjectURL(blobUrl),{once:true});
+          }:null
         });
         if(pdfMatches && !pdfModalInstalled && window.BondsVerifiedPdfViewer?.installModal){
           pdfModalInstalled=window.BondsVerifiedPdfViewer.installModal({
@@ -264,7 +331,7 @@
       if(state==='active'){status.textContent='ملف PDF الأصلي غير متاح — التحقق غير مكتمل';status.classList.add('warn');}
       pdfCheck.textContent='لا توجد نسخة PDF نهائية مرتبطة ببصمة موثقة';
     }
-  }catch(e){fail();}
+  }catch(e){console.warn('[BONDS verification] request failed',e?.name||'Error');fail('unavailable');}
 })();
 </script>
 </body>

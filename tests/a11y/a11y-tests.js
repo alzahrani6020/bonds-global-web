@@ -67,11 +67,12 @@ const PAGES = [
       // flakiness on pricing cards). Zero animation/transition durations,
       // scroll through the page to trigger observers, then measure the
       // settled state users actually see.
-      const settleAnimations = () => page.evaluate(() => {
+      const settleAnimations = () => page.evaluate(async () => {
         try {
           const style = document.createElement('style');
           style.textContent = '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;transition-delay:0s!important}';
           (document.head || document.documentElement).appendChild(style);
+          if (document.fonts && typeof document.fonts.ready?.then === 'function') await document.fonts.ready;
           const root = document.scrollingElement || document.documentElement;
           if (root) window.scrollTo(0, root.scrollHeight);
         } catch (_) {
