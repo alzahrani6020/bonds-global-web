@@ -28,6 +28,27 @@ async function main(){
    grant execute on function auth.uid() to authenticated;`);
   const migration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261115020000_crm_client_app_isolated_workspaces.sql'),'utf8');
   await client.query(migration);
+  // The administrative ledger has FKs to pre-existing Bonds tables. In this
+  // disposable database, create minimal referenced-table stubs first, then
+  // execute the unmodified administrative migration as a real SQL script.
+  await client.query(`
+   create table public.crm_organizations(id uuid primary key);
+   create table public.advisory_clients(id uuid primary key);
+   create table public.crm_opportunities(id uuid primary key);`);
+  const adminMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261115010000_crm_activities_makkin_additive.sql'),'utf8');
+  await client.query(adminMigration);
+  const {rows:adminSecurity}=await client.query(`
+   select c.relrowsecurity as rls,
+    has_table_privilege('authenticated','public.crm_activities','SELECT') as browser_read,
+    has_table_privilege('service_role','public.crm_activities','SELECT') as service_read
+   from pg_class c where c.oid='public.crm_activities'::regclass`);
+  assert.equal(adminSecurity[0].rls,true,'Admin activities require RLS');
+  assert.equal(adminSecurity[0].browser_read,false,'Browser role can read administrative CRM activities');
+  assert.equal(adminSecurity[0].service_read,true,'Service role cannot access administrative CRM activities');
+  const adminActivity=await client.query("insert into crm_activities(subject) values('Admin task') returning id,status");
+  assert.equal(adminActivity.rows[0].status,'open');
+  await assert.rejects(()=>client.query("insert into crm_activities(subject,status) values('Invalid completion','completed')"),
+   error=>error.code==='23514','Completed admin activity must have completed_at timestamp');
   const tables=['crm_app_workspaces','crm_app_companies','crm_app_contacts','crm_app_deals','crm_app_activities','crm_app_renewals','crm_app_success','crm_app_pipelines','crm_app_pipeline_stages'];
   const {rows:rls}=await client.query("select relname,relrowsecurity from pg_class where relnamespace='public'::regnamespace and relname=any($1)",[tables]);
   assert.equal(rls.length,tables.length,'CRM tables missing from migration');
@@ -85,7 +106,7 @@ async function main(){
 
   await assert.rejects(()=>client.query('delete from auth.users where id=$1',[a]),error=>error.code==='23503',
    'Deleting owner must not cascade CRM company records');
-  console.log('CRM ISOLATED POSTGRES ACCEPTANCE: PASS — migration, 9x RLS, tenant CRUD, CSV dedupe, pipelines, archive, owner retention');
+  console.log('CRM ISOLATED POSTGRES ACCEPTANCE: PASS — both migrations, 9x RLS, tenant CRUD, CSV dedupe, pipelines, archive, owner retention');
  }finally{await client.end();}
 }
 main().catch(e=>{console.error('CRM ISOLATED POSTGRES ACCEPTANCE: FAIL',e.message,'SQLSTATE='+String(e.code||'unknown'));process.exitCode=1;});
