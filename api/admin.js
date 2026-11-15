@@ -704,7 +704,29 @@ async function getVerificationEvents(sb, params = {}) {
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
   if (error) throw error;
-  return { success: true, events: data || [], count: count || 0, limit, offset };
+  const events = data || [];
+  const actorIds = [...new Set(events.map(event => event.actor_user_id).filter(Boolean))];
+  let contactById = new Map();
+  if (actorIds.length) {
+    // Authorized admin-only lookup. Profile email is account contact data,
+    // not independent proof of a person's legal identity.
+    const { data: profiles, error: profileError } = await sb.from('profiles')
+      .select('id,email,phone').in('id', actorIds);
+    if (profileError) {
+      console.warn('[verification-events] account contacts unavailable:', profileError.message);
+    } else {
+      contactById = new Map((profiles || []).map(profile => [profile.id, profile]));
+    }
+  }
+  return {
+    success: true,
+    events: events.map(event => ({
+      ...event,
+      verifier_email: contactById.get(event.actor_user_id)?.email || null,
+      verifier_phone: contactById.get(event.actor_user_id)?.phone || null
+    })),
+    count: count || 0, limit, offset
+  };
 }
 
 // ── Admin Operations Inbox ─────────────────────────────────
