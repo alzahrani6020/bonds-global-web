@@ -35,7 +35,7 @@ describe('Atomic successor activation migration safety',()=>{
     expect(activate.indexOf("state = 'active'")).toBeLessThan(activate.indexOf("set state = 'superseded'"));
   });
   test('migration does not rewrite archived issue rows or grant direct public access',()=>{
-    expect(sql).not.toMatch(/\\b(delete|truncate)\\s+from\\s+public\\.correspondence_issues/i);
+    expect(sql).not.toMatch(/\b(delete|truncate)\s+from\s+public\.correspondence_issues/i);
     expect(sql).toContain('revoke execute on function public.activate_correspondence_issue_after_final_pdf()');
     expect(sql).toContain('to service_role');
   });
