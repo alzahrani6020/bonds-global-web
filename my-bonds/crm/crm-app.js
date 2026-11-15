@@ -24,7 +24,14 @@
  const notify=(message,error=false)=>{const n=$('status');n.textContent=t(message);n.className='notice'+(error?' error':'');n.hidden=!message;n.style.display=message?'block':'none';};
  const must = result => {if(result.error)throw result.error;return result.data;};
  const formatValue=v=>v==null?'—':typeof v==='boolean'?(v?t('نعم'):t('لا')):String(v);
- const toInputValue=(v,type)=>!v?'':type==='datetime-local'?new Date(v).toISOString().slice(0,16):String(v);
+ const toInputValue=(v,type)=>{
+  if(v==null||v==='')return '';
+  if(type!=='datetime-local')return String(v);
+  const d=new Date(v);
+  if(!Number.isFinite(d.getTime()))return '';
+  const pad=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+ };
  const normalSection=s=>s==='pipeline'?'deals':s;
  function showSection(name) {
   current=name; $('section-heading').textContent=t(sectionTitles[name]);
@@ -36,11 +43,11 @@
  }
  function nameFor(group,id){return (rows[group]||[]).find(x=>x.id===id)?.name || (rows[group]||[]).find(x=>x.id===id)?.title || '—';}
  function renderOverview(){
-  const metrics=[['الشركات',rows.companies?.length||0],['جهات الاتصال',rows.contacts?.length||0],['الصفقات',rows.deals?.length||0],['المهام المفتوحة',(rows.activities||[]).filter(r=>r.status==='open').length],['التجديدات القادمة',(rows.renewals||[]).filter(r=>r.status==='upcoming').length]];
+  const metrics=[['الشركات',rows.companies?.length||0],['جهات الاتصال',rows.contacts?.length||0],['الصفقات',rows.deals?.length||0],['المهام المفتوحة',(rows.activities||[]).filter(r=>!r.deleted_at&&r.status==='open').length],['التجديدات القادمة',(rows.renewals||[]).filter(r=>r.status==='upcoming').length]];
   $('kpis').innerHTML=metrics.map(([k,v])=>'<div class="kpi"><b>'+v+'</b><span>'+escape(t(k))+'</span></div>').join('');
   const deals=rows.deals||[],total=Math.max(1,deals.length);
   $('pipeline-summary').innerHTML=Object.entries(stageLabels).map(([k,label])=>{const n=deals.filter(r=>r.stage===k).length;return '<div class="bar-row"><div class="bar-title"><span>'+t(label)+'</span><span>'+n+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+(n/total*100)+'%"></div></div></div>';}).join('');
-  const tasks=(rows.activities||[]).filter(r=>r.status==='open'&&r.scheduled_at).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)).slice(0,8);
+  const tasks=(rows.activities||[]).filter(r=>!r.deleted_at&&r.status==='open'&&r.scheduled_at).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)).slice(0,8);
   $('upcoming-tasks').innerHTML=tasks.length?tasks.map(r=>'<p>'+escape(r.subject)+' — '+escape(new Date(r.scheduled_at).toLocaleDateString('ar-SA'))+'</p>').join(''):t('لا توجد متابعات مجدولة');
  }
  function renderRecords(){
