@@ -24,12 +24,22 @@ async function main(){
     crm_app_pipeline_stages:{probability:10,sort_order:0,is_active:true},crm_app_members:{active:true}
    };
    function builder(table){
-    let mode='read',payload=null,filters=[],limit=null,offset=0,sort=null;
+    let mode='read',payload=null,filters=[],limit=null,offset=0,sort=[],head=false;
     const api={
-     select(){return api;},
+     select(_columns,options){head=Boolean(options?.head);return api;},
      eq(k,v){filters.push(x=>x[k]===v);return api;},
      is(k,v){filters.push(x=>x[k]===v);return api;},
-     order(k,opt={}){if(!sort)sort=[k,opt.ascending!==false];return api;},
+     not(k,operator,v){if(operator==='is')filters.push(x=>x[k]!==v);return api;},
+     or(expression){
+      const terms=expression.split(',').map(term=>{
+       const match=/^([a-z_]+)\.ilike\.\*(.*)\*$/.exec(term);
+       if(!match)throw Error('Invalid mock PostgREST OR');
+       return {column:match[1],needle:match[2].toLowerCase()};
+      });
+      filters.push(row=>terms.some(term=>String(row[term.column]??'').toLowerCase().includes(term.needle)));
+      return api;
+     },
+     order(k,opt={}){sort.push([k,opt.ascending!==false]);return api;},
      limit(n){limit=n;return api;},
      range(a,b){offset=a;limit=b-a+1;return api;},
      insert(value){mode='insert';payload=value;return api;},
@@ -48,8 +58,16 @@ async function main(){
        if(mode==='update'){
         data=data.map(row=>{Object.assign(row,payload);writes.push({table,mode:'update',row:{...payload}});return row;});
        }else{
-        if(sort)data.sort((a,b)=>{const left=a[sort[0]],right=b[sort[0]];return (String(left??'')<String(right??'')?-1:String(left??'')>String(right??'')?1:0)*(sort[1]?1:-1);});
-        data=data.slice(offset,limit==null?undefined:offset+limit);
+        if(sort.length)data.sort((a,b)=>{
+         for(const [col,ascending] of sort){const left=a[col],right=b[col];
+          const cmp=String(left??'').localeCompare(String(right??''));
+          if(cmp)return cmp*(ascending?1:-1);
+         }
+         return 0;
+        });
+        const matchingCount=data.length;
+        data=head?[]:data.slice(offset,limit==null?undefined:offset+limit);
+        return {data:one?data[0]||null:data,error:null,count:matchingCount};
        }
       }
       return {data:one?data[0]||null:data,error:null,count:data.length};
