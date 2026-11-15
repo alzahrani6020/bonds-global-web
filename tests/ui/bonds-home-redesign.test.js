@@ -40,6 +40,13 @@ describe('Bonds bilingual homepage redesign', () => {
     expect(js).toContain('islamic-umalqura');
     expect(js).not.toContain('navigator.geolocation');
   });
+  test('hero photo fills the frame without imposing full inset or height on globe overlay', () => {
+    const css = read('styles/bonds-redesign-2026.css');
+    expect(css).toContain('.bonds-hero__image img.bonds-hero__photo{position:absolute;inset:0;');
+    expect(css).not.toMatch(/\.bonds-hero__image img\s*\{[^}]*inset\s*:\s*0/);
+    expect(css).toContain('body.bonds-redesign .bonds-hero__globe{position:absolute;');
+    expect(css).toContain('html[dir="ltr"] body.bonds-redesign .bonds-hero__globe');
+  });
   test('new theme has matching responsive and direction rules', () => {
     const css = read('styles/bonds-redesign-2026.css');
     expect(css).toContain('html[dir="ltr"] body.bonds-redesign');
