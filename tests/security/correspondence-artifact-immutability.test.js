@@ -32,6 +32,9 @@ describe('Atomic successor activation migration safety',()=>{
     expect(activate).toContain("state = 'active'");
     expect(activate).toContain("set state = 'superseded'");
     expect(activate).toContain("where id = current_issue.supersedes_issue_id");
+    expect(activate).toContain("and pdf_hash is not null");
+    expect(activate).toContain("if not found then");
+    expect(activate).toContain("Predecessor is not active with a finalized PDF");
     expect(activate.indexOf("state = 'active'")).toBeLessThan(activate.indexOf("set state = 'superseded'"));
   });
   test('migration does not rewrite archived issue rows or grant direct public access',()=>{
