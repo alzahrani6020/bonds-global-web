@@ -835,6 +835,7 @@
   <div class="main-header__inner">
     <a href="${homeHref}" class="header-brand">
       <img class="header-brand__image" src="/assets/bonds-logo-2026-v2-sm.webp?v=2026f" alt="${isEn ? 'Bonds' : 'بوندز'}" width="112" height="44" />
+      <span class="bonds-brand-wordmark" aria-hidden="true"><strong>BONDS GLOBAL</strong><small>${isEn ? 'FINANCIAL & BUSINESS ADVISORY' : 'بوندز جلوبال للاستشارات المالية والإدارية'}</small></span>
     </a>
     <nav class="main-nav" id="mainNav">
       <ul>
@@ -842,9 +843,7 @@
       </ul>
     </nav>
     <div class="header-actions">
-      <a href="${searchHref}" class="header-search" aria-label="${labels.search}" title="${labels.search}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-      </a>
+      <a href="${searchHref}" class="header-search" aria-label="${labels.search}" title="${labels.search}"><span class="bonds-search-placeholder">${isEn ? 'Search for a service, tool or program...' : 'ابحث عن خدمة أو أداة أو برنامج...'}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></a>
       <a href="${contactHref}" class="btn-header" id="headerCtaBtn">${labels.cta}</a>
       <a href="${signupHref}" class="header-signup" id="headerSignupBtn">${labels.signup}</a>
       <a href="${loginHref}" class="header-login" id="headerLoginBtn">${labels.login}</a>
