@@ -36,6 +36,6 @@ describe('user-directed removal of unused service request atomic context additio
    expect(read(file)).toContain('/components/service-request.js?v=24');
   }
   // Version must be a valid cache tag; an exact historical patch would forbid all future releases.
-  expect(read('sw.js')).toMatch(/const CACHE_VERSION = 'v\\d+\\.\\d+\\.\\d+';/);
+  expect(read('sw.js')).toMatch(/const CACHE_VERSION = 'v[0-9]+[.][0-9]+[.][0-9]+';/);
  });
 });
