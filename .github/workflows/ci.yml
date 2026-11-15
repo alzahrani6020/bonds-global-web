@@ -117,6 +117,14 @@ jobs:
             sleep 1
           done
           test "$ready" -eq 1
+          # pg_isready can win the race against the unix socket on first boot;
+          # prove a real connection before feeding the fixture scripts.
+          connected=0
+          for attempt in $(seq 1 30); do
+            if docker exec -i bonds-correspondence-test-pg psql -U postgres -c 'select 1' >/dev/null 2>&1; then connected=1; break; fi
+            sleep 1
+          done
+          test "$connected" -eq 1
           docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < tests/security/correspondence-ledger-bootstrap.pg.sql
           docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < supabase/migrations/20261115030000_correspondence_atomic_successor_activation.sql
           docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < tests/security/correspondence-ledger-acceptance.pg.sql
