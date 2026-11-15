@@ -204,24 +204,32 @@ $('crm-edit-form').addEventListener('submit',ev=>{
  submit(ev).catch(err=>setMessage('تعذر الحفظ: '+String(err.message||err),true));
 });
 const install=$('crm-install'), hint=$('crm-install-hint');
-if(standalone){install.hidden=true;hint.textContent='برنامج CRM مثبت';}
+const installShortcut=$('crm-install-shortcut');
+function markInstalled(){
+ installPrompt=null;install.hidden=true;
+ if(installShortcut)installShortcut.hidden=true;
+ hint.textContent='تم تثبيت برنامج CRM';
+}
+async function requestInstall(){
+ if(installPrompt){
+  const p=installPrompt;installPrompt=null;
+  try{
+   await p.prompt();
+   const choice=await p.userChoice;
+   hint.textContent=choice?.outcome==='accepted'?'تم قبول طلب التثبيت؛ تحقق من ظهور التطبيق على جهازك':'لم يتم قبول التثبيت';
+  }catch(err){hint.textContent='تعذر فتح طلب التثبيت. استخدم قائمة المتصفح.';}
+ }else{
+  hint.textContent='للتثبيت: Chrome أو Edge ← قائمة المتصفح ← تثبيت التطبيق. في iPhone: مشاركة ← إضافة إلى الشاشة الرئيسية. يتطلب CRM اتصالاً بالشبكة.';
+ }
+}
+if(standalone){install.hidden=true;if(installShortcut)installShortcut.hidden=true;hint.textContent='برنامج CRM يعمل بوضع التطبيق المثبت';}
 else {
  window.addEventListener('beforeinstallprompt',ev=>{
   ev.preventDefault();installPrompt=ev;install.textContent='تثبيت برنامج CRM';
  });
- window.addEventListener('appinstalled',()=>{
-  installPrompt=null;install.hidden=true;hint.textContent='تم تثبيت برنامج CRM';
- });
- install.addEventListener('click',async()=>{
-  if(installPrompt){
-    const p=installPrompt;installPrompt=null;
-    try{await p.prompt();const choice=await p.userChoice;
-      hint.textContent=choice?.outcome==='accepted'?'تم قبول التثبيت':'لم يتم قبول التثبيت';
-    }catch(err){hint.textContent='تعذر فتح طلب التثبيت. استخدم قائمة المتصفح.'}
-  }else {
-    hint.textContent='للتثبيت: Chrome أو Edge ← قائمة المتصفح ← تثبيت التطبيق. في iPhone: مشاركة ← إضافة إلى الشاشة الرئيسية. يتطلب CRM اتصالاً بالشبكة.';
-  }
- });
+ window.addEventListener('appinstalled',markInstalled);
+ install.addEventListener('click',requestInstall);
+ if(installShortcut)installShortcut.addEventListener('click',requestInstall);
 }
 if('serviceWorker' in navigator){
  window.addEventListener('load',()=>{
