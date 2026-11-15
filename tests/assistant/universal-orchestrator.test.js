@@ -643,6 +643,55 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.trace[1].execution.error.code).toBe('EVIDENCE_VERIFY_EXCEPTION');
   });
 
+  test('caches identical fast-research questions for a few minutes (trace records the hit)', async () => {
+    executeGovernedAction.mockImplementation(async ({ action }) => {
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            results:[
+              { title:'خبر الذهب', url:'https://example.com/gold', snippet:'سعر الذهب تحرك اليوم.' }
+            ]
+          }
+        };
+      }
+      if (action === 'evidence_verify') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          result:{ verification_state:'SUPPORTED' }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const first = await runUniversalOrchestrator(
+      [{ role:'user', content:'أسعار الذهب اليوم في السوق' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+    const searchCallsAfterFirst = executeGovernedAction.mock.calls
+      .filter(call => call[0].action === 'web_search').length;
+
+    const second = await runUniversalOrchestrator(
+      [{ role:'user', content:'أسعار الذهب اليوم في السوق' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(first.reply).toContain('سعر الذهب تحرك اليوم.');
+    expect(second.reply).toBe(first.reply);
+    expect(second.trace.some(item => item.action === 'fast_research_cache')).toBe(true);
+    // No second web_search ran: the cache served the identical question.
+    expect(executeGovernedAction.mock.calls.filter(call => call[0].action === 'web_search').length)
+      .toBe(searchCallsAfterFirst);
+  });
+
   test('keeps Wikipedia hits whose snippets were truncated mid-tag', async () => {
     executeGovernedAction.mockImplementation(async ({ action }) => {
       if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
