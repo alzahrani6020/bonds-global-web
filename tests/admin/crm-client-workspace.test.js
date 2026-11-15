@@ -75,4 +75,15 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(js).toContain("key==='is_active'");
  });
 
+ test('client CRM is discoverable via bilingual header and My Bonds, and language routes are linked',()=>{
+  const header=read('site-layout.js');
+  const ar=read('my-bonds/crm/index.html');
+  const en=read('en/my-bonds/crm/index.html');
+  expect(header).toContain("href: isEn ? '/en/my-bonds/crm/' : '/my-bonds/crm/'");
+  expect(read('my-bonds/index.html')).toContain('href="/my-bonds/crm/"');
+  expect(read('en/my-bonds/index.html')).toContain('href="/en/my-bonds/crm/"');
+  expect(ar).toContain('href="/en/my-bonds/crm/"');
+  expect(en).toContain('href="/my-bonds/crm/"');
+ });
+
 });
