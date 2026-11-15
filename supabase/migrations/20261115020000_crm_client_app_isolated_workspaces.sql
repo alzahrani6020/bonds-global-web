@@ -238,7 +238,7 @@ revoke all on function crm_private.record_event() from public,anon,authenticated
 -- Workspace ownership is verified by PostgreSQL, never by client-provided role or metadata.
 alter table public.crm_app_workspaces enable row level security;
 create policy crm_app_workspaces_read on public.crm_app_workspaces for select to authenticated
- using ((select auth.uid()) is not null and crm_private.workspace_role(id) is not null);
+ using ((select auth.uid()) is not null and (owner_user_id=(select auth.uid()) or crm_private.workspace_role(id) is not null));
 create policy crm_app_workspaces_insert on public.crm_app_workspaces for insert to authenticated
  with check ((select auth.uid()) is not null and owner_user_id=(select auth.uid()));
 create policy crm_app_workspaces_update on public.crm_app_workspaces for update to authenticated
