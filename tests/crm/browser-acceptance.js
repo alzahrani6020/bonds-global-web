@@ -8,6 +8,7 @@ async function main(){
  try{
   const page=await browser.newPage({viewport:{width:1280,height:800},acceptDownloads:true});
   const errors=[];
+  page.on('dialog',dialog=>dialog.accept());
   page.on('pageerror',error=>errors.push(error.message));
   await page.route('**/api/env*',route=>route.fulfill({status:200,contentType:'application/javascript',body:'window.__ENV={};'}));
   await page.route('**/bonds-auth-2026.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:'/* stub: BondsAuth injected in isolated test */'}));
@@ -114,7 +115,7 @@ async function main(){
 
   // Contact CSV import: one bounded batch, validated before any DB write.
   await page.locator('#crm-nav [data-section="contacts"]').click();
-  page.on('dialog',dialog=>dialog.accept());
+
   await page.locator('#csv-file').setInputFiles({name:'contacts.csv',mimeType:'text/csv',buffer:Buffer.from('name,email,phone,status\nAlice,alice@example.com,123,lead\n')});
   await page.waitForFunction(()=>window.__crmTestState.db.crm_app_contacts.length===1);
   assert.equal(await page.locator('#records-body tr').count(),1);
