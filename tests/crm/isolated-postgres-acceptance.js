@@ -21,7 +21,7 @@ async function main(){
    create role authenticated nologin;
    create role service_role nologin;
    create schema auth;
-   create table auth.users(id uuid primary key);
+   create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);
    create function auth.uid() returns uuid language sql stable
     as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
    grant usage on schema auth,public to authenticated;
@@ -140,6 +140,28 @@ async function main(){
   assert.ok(changed.rows[0].deleted_at,'Activity soft archive did not persist');
   const hidden=await as(b,()=>client.query('select id from crm_app_activities where id=$1',[activityId]));
   assert.equal(hidden.rowCount,0,'Tenant B can read tenant A activity');
+
+  // Real PostgreSQL acceptance of a one-time invitation by a matching,
+  // verified user (not a simulated browser role).
+  const invitee=randomUUID(),unverified=randomUUID(),outsider=randomUUID();
+  await client.query("insert into auth.users(id,email,email_confirmed_at) values($1,'invitee@example.com',now()),($2,'pending@example.com',null),($3,'other@example.com',now())",[invitee,unverified,outsider]);
+  const inviteToken='local-invite-token-for-verified-user-0123456789';
+  const hash=require('node:crypto').createHash('sha256').update(inviteToken).digest('hex');
+  await client.query("insert into crm_app_invitations(workspace_id,invited_email,invited_role,token_hash,invited_by,expires_at) values($1,'invitee@example.com','viewer',$2,$3,now()+interval '48 hours')",[wa,hash,a]);
+  await assert.rejects(()=>as(outsider,()=>client.query("select public.crm_app_accept_invite($1)",[inviteToken])),
+   e=>e.code==='22023','Mismatched invite email must fail');
+  const claimed=await as(invitee,()=>client.query("select public.crm_app_accept_invite($1) as workspace_id",[inviteToken]));
+  assert.equal(claimed.rows[0].workspace_id,wa,'Invitation did not activate correct workspace');
+  const approved=await as(invitee,()=>client.query("select role from crm_app_members where workspace_id=$1 and member_user_id=$2",[wa,invitee]));
+  assert.equal(approved.rows[0].role,'viewer');
+  await assert.rejects(()=>as(invitee,()=>client.query("select public.crm_app_accept_invite($1)",[inviteToken])),
+   e=>e.code==='22023','Invitation token must not be reusable');
+  const pendingToken='local-invite-token-for-unverified-user-0123456789';
+  await client.query("insert into crm_app_invitations(workspace_id,invited_email,invited_role,token_hash,invited_by,expires_at) values($1,'pending@example.com','editor',$2,$3,now()+interval '48 hours')",[wa,require('node:crypto').createHash('sha256').update(pendingToken).digest('hex'),a]);
+  await assert.rejects(()=>as(unverified,()=>client.query("select public.crm_app_accept_invite($1)",[pendingToken])),
+   e=>e.code==='28000','Unverified email must not activate invitation');
+  const inviteRead=await as(invitee,()=>client.query("select id from crm_app_invitations where workspace_id=$1",[wa]).catch(e=>e));
+  assert.equal(inviteRead.code,'42501','Pending invites must remain private to browser roles');
 
   await assert.rejects(()=>client.query('delete from auth.users where id=$1',[a]),error=>error.code==='23503',
    'Deleting owner must not cascade CRM company records');
