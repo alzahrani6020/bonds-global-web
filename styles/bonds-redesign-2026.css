@@ -314,3 +314,36 @@ html body.bonds-redesign #site-header .main-header__inner{
     padding:20px 15px 18px 82px;
   }
 }
+
+
+/* Desktop visual parity: full-bleed menu, gold map, stronger curved hero edge.
+   Scoped to the redesigned homepages; preserve responsive navigation below 1501px. */
+@media (min-width:1501px) {
+  html body.bonds-redesign .main-nav {
+    flex-basis:calc(100% + 60px)!important;
+    width:calc(100% + 60px)!important;
+    margin-inline:-30px!important;
+    padding-inline:30px!important;
+    border-bottom:5px solid #dbaf59!important;
+  }
+  html body.bonds-redesign .main-nav>ul {
+    width:100%;
+    justify-content:space-between;
+  }
+  html body.bonds-redesign .bonds-brand-map {
+    filter:sepia(1) saturate(4) hue-rotate(351deg) brightness(.87);
+  }
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__image {
+    box-sizing:border-box;
+    border-right:24px solid #d0a047!important;
+    box-shadow:inset -10px 0 0 #f3ce79!important;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__image {
+    box-sizing:border-box;
+    border-left:24px solid #d0a047!important;
+    box-shadow:inset 10px 0 0 #f3ce79!important;
+  }
+  html body.bonds-redesign .bonds-hero__photo {
+    filter:saturate(1.22) contrast(1.09) brightness(1.05);
+  }
+}
