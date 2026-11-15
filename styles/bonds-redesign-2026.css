@@ -94,3 +94,9 @@ body.bonds-redesign .bonds-header-search-form input::placeholder{color:#65768d;o
 body.bonds-redesign .bonds-header-search-form button{flex:0 0 24px;border:0;background:transparent;color:#10243d;cursor:pointer;display:grid;place-items:center;padding:1px}
 body.bonds-redesign .bonds-header-search-form:focus-within{outline:2px solid #b98a37;outline-offset:2px}
 @media(max-width:1280px){body.bonds-redesign .bonds-header-search-form input{display:none!important}body.bonds-redesign .bonds-header-search-form{width:43px;height:43px;min-width:43px}}
+
+/* The redesigned header occupies layout space, unlike legacy fixed headers.
+   Prevent first-screen hero text from being covered on mobile and tablet. */
+body.bonds-redesign #site-header{position:sticky!important;top:0;z-index:1000;display:block}
+body.bonds-redesign .main-header{position:relative!important;top:auto!important;left:auto!important;right:auto!important;transform:none!important}
+body.bonds-redesign{padding-top:0!important}
