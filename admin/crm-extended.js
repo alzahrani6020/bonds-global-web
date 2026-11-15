@@ -7,10 +7,11 @@ const root=document.getElementById('bonds-crm-extensions');
 if(!root)return;
 const e=value=>window.BondsAdminCommon.escapeHtml(value==null?'':String(value));
 const fmtDate=value=>value?new Date(value).toLocaleDateString('ar-SA'):'—';
-const states=[['active','نشط'],['inactive','غير نشط'],['prospect','محتمل'],['lead','عميل محتمل'],['customer','عميل'],['converted','تم التحويل']];
+const states=[['active','نشط'],['inactive','غير نشط'],['prospect','محتمل'],['lead','عميل محتمل'],['customer','عميل'],['archived','مؤرشف']];
 const phases=[['lead','محتمل'],['qualified','مؤهل'],['proposal','عرض'],['negotiation','تفاوض'],['won','رابحة'],['lost','خاسرة']];
 const types=[['task','مهمة'],['call','مكالمة'],['meeting','اجتماع'],['email','بريد'],['note','ملاحظة'],['whatsapp','واتساب'],['sms','رسالة نصية'],['visit','زيارة']];
 const statuses=[['open','مفتوحة'],['completed','مكتملة'],['cancelled','ملغاة']];
+function localTimeInput(iso){if(!iso)return '';const d=new Date(iso);if(!Number.isFinite(d.getTime()))return '';const z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'T'+z(d.getHours())+':'+z(d.getMinutes());}
 const selectOptions=(items,selected)=>items.map(item=>'<option value="'+e(item[0])+'"'+(String(selected)==String(item[0])?' selected':'')+'>'+e(item[1])+'</option>').join('');
 let data=null;
 let installPrompt=null;
@@ -23,6 +24,8 @@ root.innerHTML=[
  '<div class="crm-extended-actions"><button class="btn" type="button" data-action="new-client">إضافة عميل / جهة اتصال</button>',
  '<input id="crm-client-search" type="search" placeholder="بحث في العملاء" aria-label="البحث في جهات الاتصال"></div>',
  '<div class="scroll"><table><thead><tr><th>الاسم</th><th>الشركة</th><th>الهاتف</th><th>البريد</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="crm-client-list"></tbody></table></div></section>',
+ '<section class="card span-12" aria-labelledby="crm-organizations-title"><h2 id="crm-organizations-title">إدارة الشركات والمؤسسات</h2>',
+ '<div class="scroll"><table><thead><tr><th>المؤسسة</th><th>القطاع</th><th>الدولة</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="crm-org-list"></tbody></table></div></section>',
  '<section class="card span-12" aria-labelledby="crm-opportunities-title"><h2 id="crm-opportunities-title">إدارة الصفقات والمتابعات</h2>',
  '<p class="muted">تحديث مرحلة الصفقة وقيمتها واحتمالية الفوز وإجراء المتابعة القادم دون حذف البيانات.</p>',
  '<div class="scroll"><table><thead><tr><th>الصفقة</th><th>الشركة</th><th>المرحلة</th><th>القيمة</th><th>المتابعة القادمة</th><th>إجراء</th></tr></thead><tbody id="crm-deals-list"></tbody></table></div></section>',
@@ -74,6 +77,7 @@ function render(current){
  const query=($('crm-client-search').value||'').toLocaleLowerCase('ar');
  const clients=(data.clients||[]).filter(x=>!query||[x.name,x.email,x.phone,x.company_name].some(y=>String(y||'').toLocaleLowerCase('ar').includes(query)));
  $('crm-client-list').innerHTML=clients.map(x=>'<tr><td>'+e(x.name)+'</td><td>'+e(x.company_name||'—')+'</td><td dir="ltr">'+e(x.phone||'—')+'</td><td dir="ltr">'+e(x.email||'—')+'</td><td>'+e(x.status||'—')+'</td><td><button class="btn btn2" type="button" data-action="edit-client" data-id="'+e(x.id)+'">تعديل</button></td></tr>').join('')||'<tr><td colspan="6">لا توجد جهات اتصال مطابقة</td></tr>';
+ $('crm-org-list').innerHTML=(data.organizations||[]).map(x=>'<tr><td>'+e(x.name)+'</td><td>'+e(x.sector||'—')+'</td><td>'+e(x.country||'—')+'</td><td>'+e(x.status||'—')+'</td><td><button class="btn btn2" data-action="edit-organization" data-id="'+e(x.id)+'" type="button">تعديل</button></td></tr>').join('')||'<tr><td colspan="5">لا توجد مؤسسات</td></tr>';
  $('crm-deals-list').innerHTML=(data.opportunities||[]).map(x=>'<tr><td>'+e(x.title)+'</td><td>'+e(relationName(x))+'</td><td>'+e(x.stage)+'</td><td>'+Number(x.value_amount||0).toLocaleString('ar-SA')+' '+e(x.currency||'SAR')+'</td><td>'+e(x.next_action||'—')+'</td><td><button class="btn btn2" type="button" data-action="edit-deal" data-id="'+e(x.id)+'">تعديل / متابعة</button></td></tr>').join('')||'<tr><td colspan="6">لا توجد فرص حالياً</td></tr>';
  const filtered=($('crm-activity-filter').value==='all')?(data.activities||[]):(data.activities||[]).filter(x=>x.status===$('crm-activity-filter').value);
  $('crm-activity-list').innerHTML=filtered.map(x=>'<tr><td>'+e(x.subject)+'</td><td>'+e(types.find(t=>t[0]===x.activity_type)?.[1]||x.activity_type)+'</td><td>'+e(relationName(x))+'</td><td>'+e(fmtDate(x.scheduled_at))+'</td><td>'+e(statuses.find(t=>t[0]===x.status)?.[1]||x.status)+'</td><td><button class="btn btn2" type="button" data-action="edit-activity" data-id="'+e(x.id)+'">تعديل</button></td></tr>').join('')||'<tr><td colspan="6">لا توجد أنشطة مطابقة</td></tr>';
@@ -94,6 +98,12 @@ function edit(kind,record){
    sel('المؤسسة المرتبطة','organization_id',choices(data.organizations,'id','name','بدون مؤسسة'),r.organization_id||'')+
    field('مصدر العميل','source',r.source)+field('الدور في القرار','relationship_role',r.relationship_role)+
    '<label class="crm-field crm-checkbox"><input name="is_decision_maker" type="checkbox"'+(r.is_decision_maker?' checked':'')+'>صاحب قرار</label>';
+ }else if(kind==='organization'){
+  $('crm-edit-title').textContent='تعديل بيانات المؤسسة';
+  fields.innerHTML=field('اسم المؤسسة','name',r.name,'text',true)+field('الاسم القانوني','legal_name',r.legal_name)+
+   field('القطاع','sector',r.sector)+field('الدولة','country',r.country)+field('المدينة','city',r.city)+
+   field('الموقع / النطاق','domain',r.domain)+field('الرقم الضريبي','tax_number',r.tax_number)+
+   sel('حالة المؤسسة','status',[['prospect','محتملة'],['active','نشطة'],['inactive','غير نشطة'],['customer','عميل'],['archived','مؤرشفة']],r.status||'prospect');
  }else if(kind==='deal'){
   $('crm-edit-title').textContent='تعديل الصفقة والمتابعة القادمة';
   fields.innerHTML=field('عنوان الصفقة','title',r.title,'text',true)+
@@ -101,7 +111,7 @@ function edit(kind,record){
    field('القيمة','value_amount',r.value_amount,'number')+
    field('الاحتمالية %','probability',r.probability,'number')+
    field('الإجراء القادم','next_action',r.next_action)+
-   field('موعد المتابعة','next_action_at',r.next_action_at?String(r.next_action_at).slice(0,16):'','datetime-local')+
+   field('موعد المتابعة','next_action_at',localTimeInput(r.next_action_at),'datetime-local')+
    field('تاريخ الإغلاق المتوقع','expected_close_date',r.expected_close_date||'','date');
   fields.querySelector('[name=probability]').min='0';
   fields.querySelector('[name=probability]').max='100';
@@ -114,7 +124,7 @@ function edit(kind,record){
    sel('العميل المرتبط','client_id',choices(data.clients,'id','name','بدون عميل'),r.client_id||'')+
    sel('المؤسسة المرتبطة','organization_id',choices(data.organizations,'id','name','بدون مؤسسة'),r.organization_id||'')+
    sel('الفرصة المرتبطة','opportunity_id',choices(data.opportunities,'id','title','بدون فرصة'),r.opportunity_id||'')+
-   field('الموعد','scheduled_at',r.scheduled_at?String(r.scheduled_at).slice(0,16):'','datetime-local')+
+   field('الموعد','scheduled_at',localTimeInput(r.scheduled_at),'datetime-local')+
    '<label class="crm-field crm-field-wide">التفاصيل<textarea name="details" maxlength="8000" rows="3">'+e(r.details||'')+'</textarea></label>';
  }
  $('crm-editor-section').hidden=false;
@@ -134,6 +144,9 @@ async function submit(ev){
   for(const k of ['name','email','phone','company_name','status','organization_id','source','relationship_role'])
    body[k]=formValue(fd,k)||null;
   body.is_decision_maker=fd.has('is_decision_maker');
+ }else if(type==='organization'){
+  action='crm-organization-update';
+  for(const k of ['name','legal_name','sector','country','city','domain','tax_number','status'])body[k]=formValue(fd,k)||null;
  }else if(type==='deal'){
   action='crm-opportunity-update';
   for(const k of ['stage','next_action','expected_close_date'])
@@ -168,7 +181,7 @@ root.addEventListener('click',ev=>{
  if(action==='cancel'){$('crm-editor-section').hidden=true;return}
  if(action==='new-client')return edit('client');
  if(action==='new-activity')return edit('activity');
- const lookup={ 'edit-client':['clients','client'],'edit-deal':['opportunities','deal'],'edit-activity':['activities','activity'] };
+ const lookup={ 'edit-client':['clients','client'],'edit-organization':['organizations','organization'],'edit-deal':['opportunities','deal'],'edit-activity':['activities','activity'] };
  const cfg=lookup[action];
  if(!cfg || !data)return;
  const record=(data[cfg[0]]||[]).find(x=>String(x.id)===button.dataset.id);
@@ -207,4 +220,5 @@ if('serviceWorker' in navigator){
  },{once:true});
 }
 window.BondsCrmExtra=Object.freeze({render});
+try{if(typeof crm!=='undefined' && crm)render(crm);}catch(_error){}
 })();
