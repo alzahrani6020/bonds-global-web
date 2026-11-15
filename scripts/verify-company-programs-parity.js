@@ -32,6 +32,23 @@ if(source.models.length<1 || source.summary.modelFields<1 || source.apiModules.l
  fail('Missing field/model/module source inventory');
 if(!fs.existsSync(path.join(root,'docs/makkin-database-field-parity.json')))
  fail('Missing field-by-field schema and migration proof');
+else {
+ const parity=read('docs/makkin-database-field-parity.json');
+ const models=new Map(parity.models.map(m=>[m.model,m]));
+ for(const model of source.models) {
+  const target=models.get(model.name);
+  if(!target) { fail('Missing source model: '+model.name); continue; }
+  const fields=new Map(target.fields.map(f=>[f.sourceField,f]));
+  for(const field of model.fields) {
+   const match=fields.get(field.name);
+   if(!match) { fail('Missing field: '+model.name+'.'+field.name); continue; }
+   if(match.sourceType!==field.type)fail('Type mismatch: '+model.name+'.'+field.name);
+   if(!match.bondsTable||!match.bondsField||
+       match.status!=='VERIFIED'||!match.evidence)
+     fail('Field not verified: '+model.name+'.'+field.name);
+  }
+ }
+}
 if(!fs.existsSync(path.join(root,'docs/makkin-operational-e2e-evidence.json')))
  fail('Missing authenticated real-workspace workflow evidence');
 const result={
