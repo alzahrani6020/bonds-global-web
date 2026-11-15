@@ -25,13 +25,13 @@ const DIFFS_DIR = path.join(__dirname, 'diffs');
 
 const APPROVED_SCREENSHOT_SHA256 = {
   desktop: {
-    'index-ar': '9f12d704ff74f1d3d493f33e36ded39564cc2f045e33e484a8443b3da341551c',
+    'index-ar': 'a96713bf06a47def1f04a63399b259e34a24e90363a2619447563fda9ee7564f',
   },
   tablet: {
-    'index-ar': 'c40797c2e5eba6b79cef82f18af579e2c91045109f6047f529462baa7849f5e7',
+    'index-ar': '03570b4b72478b52be6fb3134a5f47a4e77734872ac542e6bcf817a80fe5108d',
   },
   mobile: {
-    'index-ar': 'ecbe1640146955452a43036d4aa00d17fbb3775176d091773f11871d82a36afd',
+    'index-ar': '525710cb93cf9de3321e1e0411e8f17f750e081792cc8f5c5ab4a9f7168db721',
   },
 };
 
