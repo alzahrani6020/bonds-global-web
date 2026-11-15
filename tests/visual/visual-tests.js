@@ -398,7 +398,7 @@ async function runApprovedReferenceSizeGate(browser) {
     const page = await browser.newPage({ viewport: { width: 1773, height: 887 }, deviceScaleFactor: 1 });
     try {
       await page.emulateMedia({ reducedMotion: 'reduce' });
-      await page.route(/(\\/global-auth-gate|\\/calculators\\/auth-gate)\\.js(?:\\?.*)?$/, route => route.abort());
+      await page.route(/(\/global-auth-gate|\/calculators\/auth-gate)\.js(?:\?.*)?$/, route => route.abort());
       await page.goto(new URL(p.url, BASE_URL).toString(), { waitUntil: 'networkidle', timeout: 25000 });
       await page.waitForTimeout(300);
       const result = await page.evaluate(() => {
