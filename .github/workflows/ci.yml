@@ -49,7 +49,7 @@ jobs:
         run: node tests/crm/isolated-postgres-acceptance.js
 
       - name: Verify owner-authorized invitation server and failure handling
-        run: node --test tests/crm/invite-handler.spec.js
+        run: node --test tests/crm/invite-handler-contract.cjs
 
       - name: Validate Bonds Native and Token Runtime operations
         shell: pwsh
