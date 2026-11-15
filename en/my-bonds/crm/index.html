@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta name="robots" content="noindex,nofollow">
+ <title>BONDS CRM for Business | Client Workspace</title>
+ <meta name="description" content="BONDS CRM manages contacts, organizations, deals, tasks and renewals.">
+ <link rel="alternate" hreflang="ar" href="/my-bonds/crm/">
+ <meta name="theme-color" content="#0066cc">
+ <link rel="manifest" href="/my-bonds/crm/crm-manifest.webmanifest">
+ <link rel="icon" href="/assets/icons/icon-192.png" sizes="192x192">
+ <link rel="stylesheet" href="/my-bonds/crm/crm-app.css?v=1">
+ <script src="/api/env" defer></script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+ <script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
+ <script src="/my-bonds/crm/crm-app.js?v=1" defer></script>
+ <style>html[lang="en"]{direction:ltr}html[lang="en"] body{text-align:left}html[lang="en"] .sidebar{border-left:0;border-right:1px solid var(--stroke)}html[lang="en"] .sidebar-nav button,html[lang="en"] th,html[lang="en"] td{text-align:left}</style>
+</head>
+<body>
+<div class="app">
+ <aside class="sidebar" aria-label="أقسام CRM">
+  <a class="brand" href="/my-bonds/"><span class="brand-mark">B</span><span><b>BONDS CRM</b><small>Company programs</small></span></a>
+  <div class="workspace-name" id="workspace-name">Client workspace</div>
+  <nav class="sidebar-nav" id="crm-nav" aria-label="تنقل برنامج CRM">
+   <button type="button" data-section="overview" class="active">Overview</button>
+   <button type="button" data-section="companies">Companies</button>
+   <button type="button" data-section="contacts">Contacts</button>
+   <button type="button" data-section="deals">Deals</button>
+   <button type="button" data-section="pipeline">Sales pipelines</button>
+   <button type="button" data-section="activities">Activities and tasks</button>
+   <button type="button" data-section="renewals">Renewals</button>
+   <button type="button" data-section="success">Customer success</button>
+  </nav>
+  <a href="/my-bonds/" class="back">Back to My Bonds</a>
+ </aside>
+ <main class="content">
+  <header class="toolbar">
+   <div><p class="eyebrow">Business CRM · Saved in your account</p><h1 id="section-heading">Overview</h1></div>
+   <div class="toolbar-actions">
+    <button class="secondary" id="refresh" type="button">Refresh</button>
+    <button class="primary" id="install" type="button">Install app</button>
+   </div>
+  </header>
+  <p class="hint" id="install-hint" role="status"></p>
+  <p class="notice" id="status" role="status" aria-live="polite"></p>
+  <section id="auth-gate" class="panel" hidden>
+   <h2>Sign in required</h2><p>Use your Bonds account to access your own CRM workspace. Other organizations' records are private.</p>
+   <a href="/my-bonds/" class="primary link-button">Sign in via My Bonds</a>
+  </section>
+  <section id="onboarding" class="panel" hidden>
+   <h2>Set up your company CRM workspace</h2>
+   <p class="muted">Your data is kept separately from Bonds internal CRM and other organizations.</p>
+   <form id="workspace-form">
+    <label>Company or business name
+     <input name="name" required maxlength="180" placeholder="Company name">
+    </label>
+    <button type="submit" class="primary">Create workspace</button>
+   </form>
+  </section>
+  <section id="workspace-content" hidden>
+   <section id="overview" class="section">
+    <div id="kpis" class="kpis"></div>
+    <div class="row-panels">
+     <article class="panel"><h2>Deal stages</h2><div id="pipeline-summary"></div></article>
+     <article class="panel"><h2>Upcoming follow-ups</h2><div id="upcoming-tasks"></div></article>
+    </div>
+    <p class="muted">Operational figures reflect your records; weighted deal values are not guaranteed revenue.</p>
+   </section>
+   <section id="records-section" class="section" hidden>
+    <div class="section-actions">
+      <input id="search" type="search" placeholder="Search records" aria-label="Search section">
+      <button type="button" class="primary" id="new-record">Add new</button>
+    </div>
+    <div class="panel overflow"><table><thead id="records-head"></thead><tbody id="records-body"></tbody></table></div>
+    <p class="muted">Only your workspace records are shown. Activities can be archived without deleting contacts.</p>
+   </section>
+   <section id="editor" class="panel" hidden>
+    <div class="editor-head"><h2 id="editor-title">Edit</h2><button class="secondary" type="button" id="editor-close">Close</button></div>
+    <form id="record-form"><div class="editor-fields" id="editor-fields"></div>
+      <button class="primary" type="submit" id="save-record">Save</button>
+    </form>
+   </section>
+  </section>
+ </main>
+</div>
+</body>
+</html>
