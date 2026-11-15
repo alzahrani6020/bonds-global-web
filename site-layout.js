@@ -821,14 +821,31 @@
       { type: 'dropdown', label: labels.aboutGovernance, items: aboutDropdown },
     ];
 
-    const navHtml = navItems.map(item => {
+    const redesignNav = document.body.classList.contains('bonds-redesign');
+    // Icons are decorative; original labels, destinations and dropdown semantics remain unchanged.
+    const iconPaths = [
+      '<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>',
+      '<path d="M3 7 12 3l9 4-9 4zM3 12l9 4 9-4M3 17l9 4 9-4"/>',
+      '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 2 16 2 16 0V6M4 12c0 2 16 2 16 0"/>',
+      '<path d="m3 12 5-5 4 4 4-4 5 5-5 5-4-4-4 4z"/>',
+      '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+      '<path d="M14 4a6 6 0 0 0-8 8L3 20l2 2 8-8a6 6 0 0 0 8-8l-4 4-3-3z"/>',
+      '<rect x="4" y="5" width="16" height="16"/><path d="M9 5V2M15 5V2M9 10h2M14 10h2M9 14h2M14 14h2M9 18h2M14 18h2"/>',
+      '<path d="M3 5h8v15H3zM13 8h8v12h-8zM6 9h2M6 13h2M16 12h2"/>',
+      '<circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/>'
+    ];
+    function navIcon(i) {
+      if (!redesignNav) return '';
+      return '<span class="bonds-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+(iconPaths[i] || iconPaths[8])+'</svg></span>';
+    }
+    const navHtml = navItems.map((item, i) => {
       if (item.type === 'dropdown') {
         const highlightClass = item.highlight ? ' nav-highlight' : '';
         const navIdAttr = item.navId ? ` data-nav-id="${item.navId}"` : '';
-        return `<li class="dropdown"${navIdAttr}><button type="button" class="dropdown-toggle${highlightClass}" aria-expanded="false" aria-haspopup="true">${item.label} ${caretSvg}</button>${buildDropdown(item.items, item.all, item.isLarge)}</li>`;
+        return `<li class="dropdown"${navIdAttr}><button type="button" class="dropdown-toggle${highlightClass}" aria-expanded="false" aria-haspopup="true">${navIcon(i)}${item.label} ${caretSvg}</button>${buildDropdown(item.items, item.all, item.isLarge)}</li>`;
       }
       const highlightClass = item.highlight ? ' nav-highlight' : '';
-      return `<li><a href="${item.href}" data-nav="${item.href}" class="${highlightClass}">${item.label}</a></li>`;
+      return `<li><a href="${item.href}" data-nav="${item.href}" class="${highlightClass}">${navIcon(i)}${item.label}</a></li>`;
     }).join('');
 
     return `
@@ -836,6 +853,8 @@
   <div class="main-header__inner">
     <a href="${homeHref}" class="header-brand">
       <img class="header-brand__image" src="/assets/bonds-logo-2026-v2-sm.webp?v=2026f" alt="${isEn ? 'Bonds' : 'بوندز'}" width="112" height="44" />
+      <span class="bonds-brand-map" aria-hidden="true"></span>
+      <span class="bonds-brand-wordmark" aria-hidden="true"><strong>BONDS GLOBAL</strong><small>${isEn ? 'FINANCIAL & BUSINESS ADVISORY' : 'بوندز جلوبال للاستشارات المالية والإدارية'}</small></span>
     </a>
     <nav class="main-nav" id="mainNav">
       <ul>
@@ -843,10 +862,8 @@
       </ul>
     </nav>
     <div class="header-actions">
-      <a href="${searchHref}" class="header-search" aria-label="${labels.search}" title="${labels.search}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-      </a>
-      <a href="${contactHref}" class="btn-header" id="headerCtaBtn">${labels.cta}</a>
+      ${redesignNav ? `<form class="header-search bonds-header-search-form" action="${searchHref}" method="get" role="search"><input type="search" name="q" class="bonds-search-placeholder" placeholder="${isEn ? 'Search for a service, tool or program...' : 'ابحث عن خدمة أو أداة أو برنامج...'}" aria-label="${labels.search}" maxlength="180"><button type="submit" aria-label="${labels.search}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></button></form>` : `<a href="${searchHref}" class="header-search" aria-label="${labels.search}" title="${labels.search}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></a>`}
+      <a href="${redesignNav ? langBase + 'book.html' : contactHref}" class="btn-header" id="headerCtaBtn">${labels.cta}</a>
       <a href="${signupHref}" class="header-signup" id="headerSignupBtn">${labels.signup}</a>
       <a href="${loginHref}" class="header-login" id="headerLoginBtn">${labels.login}</a>
       <div id="authContainer" class="header-account-wrap">
@@ -860,6 +877,102 @@
   </div>
 </header>
     `.trim();
+  }
+
+
+  // Scoped to the new homepage only; no geolocation permission, paid API or server timestamp.
+  function setupBondsLocalClock(container, lang) {
+    const isEn = lang === 'en';
+    const header = container.querySelector('#header');
+    if (!header || header.querySelector('.bonds-topbar')) return;
+    const topbar = document.createElement('div');
+    topbar.className = 'bonds-topbar';
+    topbar.setAttribute('aria-label', isEn ? 'Local time and date' : 'الوقت والتاريخ المحلي');
+    const label = document.createElement('span');
+    label.className = 'bonds-topbar__clock';
+    label.setAttribute('aria-label', isEn ? 'Local clock' : 'الساعة المحلية');
+    const dates = document.createElement('span');
+    dates.className = 'bonds-topbar__date';
+    const zoneLabel = document.createElement('label');
+    zoneLabel.className = 'bonds-topbar__zone';
+    zoneLabel.textContent = isEn ? 'Time zone: ' : 'المنطقة الزمنية: ';
+    const selector = document.createElement('select');
+    selector.setAttribute('aria-label', isEn ? 'Choose time zone' : 'اختر المنطقة الزمنية');
+    let browserZone = 'Asia/Riyadh';
+    try { browserZone = Intl.DateTimeFormat().resolvedOptions().timeZone || browserZone; } catch (_) {}
+    const zones = [
+      [browserZone, isEn ? 'Device time zone' : 'توقيت الجهاز'],
+      ['Asia/Riyadh', isEn ? 'Riyadh' : 'الرياض'],
+      ['Africa/Cairo', isEn ? 'Cairo' : 'القاهرة'],
+      ['Asia/Dubai', isEn ? 'Dubai' : 'دبي'],
+      ['Europe/London', isEn ? 'London' : 'لندن'],
+      ['America/New_York', isEn ? 'New York' : 'نيويورك']
+    ];
+    const used = new Set();
+    zones.forEach(([tz, title]) => {
+      if (used.has(tz)) return;
+      used.add(tz);
+      const option = document.createElement('option');
+      option.value = tz;
+      option.textContent = title;
+      selector.appendChild(option);
+    });
+    let selected = browserZone;
+    try {
+      const saved = localStorage.getItem('bonds:timezone');
+      if (saved && used.has(saved)) selected = saved;
+    } catch (_) {}
+    selector.value = selected;
+    zoneLabel.appendChild(selector);
+    const local = document.createElement('div');
+    local.className = 'bonds-topbar__local';
+    local.append(label, dates, zoneLabel);
+    const links = document.createElement('div');
+    links.className = 'bonds-topbar__links';
+    const contact = document.createElement('a');
+    contact.href = isEn ? '/en/contact.html' : '/contact.html';
+    contact.textContent = isEn ? 'Contact us' : 'تواصل معنا';
+    links.append(contact);
+    [
+      ['mailto:info@bonds-global.com', isEn ? 'Email Bonds Global' : 'مراسلة بوندز', '✉'],
+      ['tel:+966567566616', isEn ? 'Call Bonds Global' : 'الاتصال ببوندز', '☎'],
+      ['https://wa.me/966567566616', isEn ? 'WhatsApp Bonds Global' : 'واتساب بوندز', '◉']
+    ].forEach(([href, title, glyph]) => {
+      const anchor = document.createElement('a');
+      anchor.href = href;
+      anchor.className = 'bonds-topbar__iconlink';
+      anchor.setAttribute('aria-label', title);
+      anchor.title = title;
+      anchor.textContent = glyph;
+      if (href.startsWith('https://')) { anchor.target = '_blank'; anchor.rel = 'noopener noreferrer'; }
+      links.append(anchor);
+    });
+    topbar.append(local, links);
+    header.insertBefore(topbar, header.firstChild);
+    const locale = isEn ? 'en-GB' : 'ar-SA';
+    function render() {
+      if (!topbar.isConnected) return;
+      const now = new Date();
+      const timeOptions = {timeZone: selected, hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true};
+      const dateOptions = {timeZone: selected,weekday:'long',day:'numeric',month:'long',year:'numeric'};
+      try {
+        label.textContent = new Intl.DateTimeFormat(locale, timeOptions).format(now);
+        const gregorian = new Intl.DateTimeFormat(locale, Object.assign({calendar:'gregory'},dateOptions)).format(now);
+        const hijri = new Intl.DateTimeFormat(isEn?'en-GB-u-ca-islamic-umalqura':'ar-SA-u-ca-islamic-umalqura',dateOptions).format(now);
+        dates.textContent = gregorian+' · '+hijri;
+      } catch (_) { label.textContent = now.toLocaleTimeString(); dates.textContent = now.toLocaleDateString(); }
+    }
+    selector.addEventListener('change', function () {
+      selected = selector.value;
+      try { localStorage.setItem('bonds:timezone', selected); } catch (_) {}
+      render();
+    });
+    render();
+    const ticker = setInterval(function () {
+      if (!topbar.isConnected) { clearInterval(ticker); return; }
+      if (document.visibilityState !== 'hidden') render();
+    },1000);
+    document.addEventListener('visibilitychange', render);
   }
 
   function buildFooter(lang, base) {
@@ -1072,10 +1185,16 @@
     if (topbar) topbar.style.display = 'none';
 
     function setPadding() {
+      // Redesigned homepages have an in-flow sticky header, so compensation must be zero.
+      if (document.body.classList.contains('bonds-redesign')) {
+        document.body.style.paddingTop = '0px';
+        return;
+      }
       // Measure after layout/CSS settle; cap to avoid inflated heights from
       // temporarily visible dropdown markup before styles apply.
-      const height = Math.min(header.offsetHeight || 70, 120);
-      document.body.style.paddingTop = height + 'px';
+      const measured = header.getBoundingClientRect().height || header.offsetHeight || 70;
+      const height = document.body.classList.contains('bonds-redesign') ? measured : Math.min(measured, 120);
+      document.body.style.paddingTop = Math.ceil(height) + 'px';
     }
 
     // Initial measure may run before CSS hides large dropdown lists, so defer.
@@ -1123,7 +1242,7 @@
     const lang = detectLang();
     const base = getBase();
     ensureLayoutCSS();
-    ensurePublicHeritageIdentity();
+    if (!document.body.classList.contains('bonds-redesign')) ensurePublicHeritageIdentity();
 
     // Ensure <main> has an id for skip-link targeting
     const mainEl = document.querySelector('main');
@@ -1136,6 +1255,7 @@
     if (headerContainer) {
       headerContainer.insertAdjacentHTML('beforebegin', buildSkipLink(lang));
       headerContainer.innerHTML = buildHeader(lang, base);
+      if (document.body.classList.contains("bonds-redesign")) setupBondsLocalClock(headerContainer, lang);
       if (noPrint) headerContainer.classList.add('no-print');
       const navToggle = document.getElementById('navToggle');
       const mainNav = document.getElementById('mainNav');

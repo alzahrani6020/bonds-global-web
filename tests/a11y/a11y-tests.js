@@ -72,13 +72,9 @@ const PAGES = [
           const style = document.createElement('style');
           style.textContent = '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;transition-delay:0s!important}';
           (document.head || document.documentElement).appendChild(style);
+          if (document.fonts && typeof document.fonts.ready?.then === 'function') await document.fonts.ready;
           const root = document.scrollingElement || document.documentElement;
           if (root) window.scrollTo(0, root.scrollHeight);
-          // Webfonts change glyph metrics and can flip axe's contrast math
-          // between fallback and real fonts; wait for them before measuring.
-          if (document.fonts && typeof document.fonts.ready?.then === 'function') {
-            await document.fonts.ready;
-          }
         } catch (_) {
           // Settling is best-effort; measurement proceeds either way.
         }
@@ -129,6 +125,23 @@ const PAGES = [
 
       if (criticalOrSerious.length) {
         console.log(`\n ${p.name} — ${count} critical/serious violation(s)`);
+        // Output actual browser style evidence for pricing contrast defects;
+        // never auto-exclude or suppress violations.
+        if (p.name === 'pricing-root-ar') {
+          const targets = criticalOrSerious.flatMap(v => v.nodes.map(n => Array.isArray(n.target) ? n.target[0] : n.target));
+          const computed = await page.evaluate(selectors => selectors.map(selector => {
+            const el = document.querySelector(selector);
+            if (!el) return { selector, missing: true };
+            const ancestry = [];
+            let node = el;
+            for (let depth = 0; node && depth < 5; depth++, node = node.parentElement) {
+              const st = getComputedStyle(node);
+              ancestry.push({ tag: node.tagName, className: String(node.className).slice(0,100), color: st.color, background: st.backgroundColor, opacity: st.opacity, visibility: st.visibility });
+            }
+            return { selector, ancestry };
+          }), targets);
+          console.log('PRICING_CONTRAST_COMPUTED_STYLES=' + JSON.stringify(computed));
+        }
         criticalOrSerious.forEach((v) => {
           console.log(`   • ${v.id} (${v.impact}): ${v.help}`);
           v.nodes.forEach((node) => {

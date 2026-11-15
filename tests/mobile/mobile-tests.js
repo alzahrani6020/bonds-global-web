@@ -45,6 +45,43 @@ const PAGES = [
     try {
       await page.goto(fullUrl, { waitUntil: 'networkidle' });
 
+      // New homepage acceptance: check actual browser geometry, not CSS file contents.
+      if (p.name === 'index-ar' || p.name === 'index-en') {
+        const geometry = await page.evaluate(() => {
+          const rect = selector => {
+            const el = document.querySelector(selector);
+            if (!el) return null;
+            const r = el.getBoundingClientRect();
+            return { top: r.top, bottom: r.bottom, height: r.height };
+          };
+          return {
+            header: rect('.main-header'),
+            utility: rect('.bonds-topbar'),
+            brand: rect('.main-header__inner'),
+            title: rect('#bonds-hero-title'),
+            clock: !!document.querySelector('.bonds-topbar__clock'),
+            date: !!document.querySelector('.bonds-topbar__date'),
+            menu: !!document.querySelector('#navToggle'),
+            booking: !!document.querySelector('.main-header a[href$="book.html"]'),
+          };
+        });
+        console.log(` ${p.name}: redesigned header geometry ${JSON.stringify(geometry)}`);
+        const sufficientHeight = geometry.header && geometry.header.height > 95;
+        const inside = geometry.utility && geometry.brand &&
+          geometry.utility.top >= geometry.header.top - 2 &&
+          geometry.utility.bottom <= geometry.header.bottom + 2 &&
+          geometry.brand.bottom <= geometry.header.bottom + 2;
+        const noOverlap = geometry.title && geometry.header &&
+          geometry.title.top >= geometry.header.bottom - 2;
+        if (!(sufficientHeight && inside && noOverlap && geometry.clock &&
+          geometry.date && geometry.menu && geometry.booking)) {
+          console.error(` ${p.name}: REDESIGN_HEADER_GEOMETRY_FAIL`);
+          failed++;
+        } else {
+          console.log(` ${p.name}: redesign header dimensions, date, booking and hero clear PASS`);
+        }
+      }
+
       // Check the page does not overflow horizontally
       const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
       const viewportWidth = await page.evaluate(() => window.innerWidth);

@@ -14,7 +14,8 @@ describe('homepage illustrative market data labels', () => {
     expect(html).not.toContain('<span>LIVE</span>');
     expect(html).not.toContain('SPREAD');
     expect(html).not.toContain('SOFR');
-    expect(html).toContain('رؤية أوسع لقرارات أدق');
+    expect(html).toContain('طريقك إلى التمويل والنمو');
+    expect(html).not.toContain('bonds-hero__eyebrow');
     expect(html).toContain('الاعتماد على بيانات موثوقة');
   });
 
@@ -22,6 +23,11 @@ describe('homepage illustrative market data labels', () => {
     const html = read('en/index.html');
 
     expect(html).not.toContain('<span>LIVE</span>');
-    expect(html).toContain('<span>ILLUSTRATIVE</span>');
+    // New homepage has no illustrative investment dashboard or fabricated live figures.
+    expect(html).not.toContain('Portfolio Yield');
+    expect(html).not.toContain('5.24%');
+    expect(html).not.toContain('Mod. Duration');
+    expect(html).toContain('Your path to financing, growth');
+    expect(html).toContain('bonds-hero');
   });
 });
