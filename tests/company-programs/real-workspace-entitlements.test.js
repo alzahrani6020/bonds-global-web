@@ -18,10 +18,14 @@ describe('Company programs - no phantom capabilities',()=>{
     expect(isActiveEntitlement({...base,valid_until:'2026-11-15T15:00:00Z'},date)).toBe(false);
     expect(isActiveEntitlement({...base,program_key:'unknown'},date)).toBe(false);
   });
-  test('read-only endpoint requires an authenticated existing workspace',()=>{
+  test('company programs API only permits authenticated inventory and scoped mapping probes',()=>{
     const fs=require('fs');
     const api=fs.readFileSync(require('path').join(__dirname,'../../lib/api/company-programs.js'),'utf8');
-    expect(api).toContain("if(req.method!=='GET')");
+    expect(api).toContain("if(!['GET','POST'].includes(req.method))");
+    expect(api).toContain("req.query?.action!=='probe-mapping'");
+    expect(api).toContain('VERIFIED_EMAIL_REQUIRED');
+    expect(api).toContain('PROGRAM_ENTITLEMENT_REQUIRED');
+    expect(api).toContain('operationalReady:false');
     expect(api).toContain('verifyBearer(req)');
     expect(api).toContain(".eq('owner_user_id',user.id)");
     expect(api).toContain(".eq('member_user_id',user.id)");
