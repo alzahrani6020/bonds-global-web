@@ -279,3 +279,17 @@ test('session-check rejects pending mappings before any remote call',async()=>{
  expect(response.body.error).toBe('VERIFIED_MAPPING_REQUIRED');
  expect(global.fetch).not.toHaveBeenCalled();
 });
+
+test('session-check fails closed if distributed rate limiter cannot grant a slot',async()=>{
+ checkRateLimit.mockImplementationOnce(async(_kind,_req,response)=>{
+  response.status(429).json({error:'Too many requests'});
+  return true;
+ });
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-01-01'});
+ createClient.mockReturnValue({from:jest.fn(()=>{throw Error('should not query data when throttled');})});
+ global.fetch=jest.fn();
+ const response=res();
+ await handler({method:'POST',query:{action:'session-check'},body:{workspace_id:WS,program_key:'hr'}},response);
+ expect(response.statusCode).toBe(429);
+ expect(global.fetch).not.toHaveBeenCalled();
+});
