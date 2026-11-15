@@ -113,3 +113,16 @@ body.bonds-redesign{padding-top:0!important}
   body.bonds-redesign .nav-toggle{flex:0 0 35px!important;width:35px!important;min-width:35px!important;padding:7px!important}
   body.bonds-redesign .bonds-header-search-form{flex:0 0 35px!important;width:35px!important;min-width:35px!important;min-height:35px!important;height:35px!important;padding:5px!important}
 }
+
+/* Root-cause correction: institutional-system.css enforces 64px !important
+   heights on shared header elements. The redesigned topbar, brand and nav
+   must contribute their real heights to document flow. */
+html body.bonds-redesign #site-header .main-header{
+  height:auto!important;min-height:0!important;max-height:none!important;
+  display:block!important;overflow:visible!important;
+}
+html body.bonds-redesign #site-header .main-header__inner{
+  height:auto!important;min-height:0!important;max-height:none!important;
+  width:100%!important;max-width:none!important;
+  box-sizing:border-box!important;overflow:visible!important;
+}
