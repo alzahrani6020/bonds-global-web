@@ -86,4 +86,27 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(en).toContain('href="/my-bonds/crm/"');
  });
 
+ test('CSV contact import/export is tenant-scoped, bounded and protects spreadsheet cells',()=>{
+  const ar=read('my-bonds/crm/index.html');
+  const en=read('en/my-bonds/crm/index.html');
+  for(const html of [ar,en]){
+   expect(html).toContain('id="csv-import"');
+   expect(html).toContain('id="csv-export"');
+   expect(html).toContain('id="csv-file"');
+  }
+  expect(js).toContain('function parseCsv(text)');
+  expect(js).toContain('function csvCell(value)');
+  expect(js).toContain('if(/^\\s*[=+@\\-\\t\\r]/.test(v))');
+  expect(js).toContain('if(records.length>100)');
+  expect(js).toContain("sb.from('crm_app_contacts').insert(payload)");
+  expect(js).toContain(".eq('workspace_id',workspace.id)");
+  expect(sql).toContain('create unique index crm_app_contacts_workspace_email_unique');
+  expect(sql).toContain('on public.crm_app_contacts(workspace_id,lower(btrim(email)))');
+ });
+ test('blank deal currency does not violate the NOT NULL database constraint',()=>{
+  expect(js).toContain("if(group==='deals' && !payload.currency)");
+  expect(js).toContain('delete payload.currency');
+  expect(sql).toContain("currency text not null default 'SAR'");
+ });
+
 });
