@@ -148,7 +148,7 @@
   if(name==='overview')loadOverview().then(renderOverview).catch(err=>notify(err.message,true));
   else if(name==='members')renderMembers().catch(err=>notify(err.message,true));
   else if(name==='audit')renderAudit().catch(err=>notify(err.message,true));
-  else {page=0;loadPage().catch(err=>notify(err.message,true));}
+  else {page=0;(name==='stages'?loadLookups('stages').then(loadPage):loadPage()).catch(err=>notify(err.message,true));}
  }
  function nameFor(group,id){return (lookupRows[group]||[]).find(x=>x.id===id)?.name || (lookupRows[group]||[]).find(x=>x.id===id)?.title || '—';}
  function renderOverview(){
@@ -195,8 +195,9 @@
    '<option value="'+escape(item.id)+'">'+escape(item.name)+'</option>').join('');
   if(stages.some(item=>item.id===selected))stage.value=selected;
  }
- function openEditor(record=null){
+ async function openEditor(record=null){
   const group=normalSection(current);
+  await loadLookups(group);
   editing=record; $('editor-title').textContent=(record?t('تعديل'):t('إضافة'))+' '+t(sectionTitles[current]);
   $('editor-fields').innerHTML=defs[group].map(def=>buildField(def,record)).join('');
   updatePipelineStageOptions();
@@ -250,10 +251,13 @@
   if(followups.error)throw followups.error;
   rows.activities=followups.data||[];
  }
- async function loadLookups(){
+ async function loadLookups(group){
   const wid=workspace.id;
   const fields={companies:'id,name',contacts:'id,name',deals:'id,title',pipelines:'id,name',stages:'id,name,pipeline_id,is_active'};
-  const result=await Promise.all(Object.entries(fields).map(async ([key,columns])=>{
+  const keys=[...new Set((defs[group]||[]).filter(d=>String(d[2]||'').startsWith('ref:')).map(d=>d[2].slice(4)))];
+  if(group==='stages'&&!keys.includes('pipelines'))keys.push('pipelines');
+  const result=await Promise.all(keys.map(async key=>{
+   const columns=fields[key];
    const items=[],size=250;
    for(let offset=0;offset<10000;offset+=size){
     const response=await sb.from(tableNames[key]).select(columns).eq('workspace_id',wid)
@@ -265,11 +269,11 @@
    }
    return [key,items];
   }));
-  if(workspace?.id===wid)lookupRows=Object.fromEntries(result);
+  if(workspace?.id===wid)Object.assign(lookupRows,Object.fromEntries(result));
  }
  async function refresh(){
   if(!workspace)return;
-  await loadLookups();
+  if(current==='stages')await loadLookups('stages');
   if(current==='overview'){await loadOverview();renderOverview();}
   else if(current==='members')await renderMembers();
   else if(current==='audit')await renderAudit();
@@ -293,6 +297,7 @@
  }
  async function activateWorkspace(w){
   workspace=w;
+  lookupRows={};rows={};requestSequence++;
   currentRole=w.owner_user_id===currentUser?.id?'owner':null;
   if(!currentRole){
    const members=must(await sb.from('crm_app_members').select('role').eq('workspace_id',w.id)
@@ -365,7 +370,7 @@
  $('search').addEventListener('input',()=>{clearTimeout(searchTimer);page=0;searchTimer=setTimeout(()=>loadPage().catch(e=>notify(e.message,true)),250);});
  $('page-prev').addEventListener('click',()=>{if(page>0){page--;loadPage().catch(e=>notify(e.message,true));}});
  $('page-next').addEventListener('click',()=>{if((page+1)*pageSize<pageTotal){page++;loadPage().catch(e=>notify(e.message,true));}});
- $('new-record').addEventListener('click',()=>{if(currentRole==='viewer')return notify(english?'Read-only access':'صلاحية العرض فقط',true);openEditor();});
+ $('new-record').addEventListener('click',()=>{if(currentRole==='viewer')return notify(english?'Read-only access':'صلاحية العرض فقط',true);openEditor().catch(err=>notify(err.message,true));});
  $('csv-export').addEventListener('click',async()=>{
   const button=$('csv-export');button.disabled=true;
   try{await exportContacts();}catch(err){notify((english?'Export failed: ':'تعذر التصدير: ')+err.message,true);}
@@ -385,7 +390,7 @@
  });
  $('records-body').addEventListener('click',async e=>{
   const edit=e.target.closest('[data-edit]'),archive=e.target.closest('[data-archive]'),group=normalSection(current);
-  if(edit){if(currentRole==='viewer')return notify(english?'Read-only access':'صلاحية العرض فقط',true);openEditor((rows[group]||[]).find(r=>r.id===edit.dataset.edit));return;}
+  if(edit){if(currentRole==='viewer')return notify(english?'Read-only access':'صلاحية العرض فقط',true);openEditor((rows[group]||[]).find(r=>r.id===edit.dataset.edit)).catch(err=>notify(err.message,true));return;}
   if(archive&&currentRole==='viewer')return notify(english?'Read-only access':'صلاحية العرض فقط',true);
   if(archive&&group==='activities'&&window.confirm('أرشفة النشاط دون حذف العملاء؟')){
    try{must(await sb.from('crm_app_activities').update({deleted_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('workspace_id',workspace.id).eq('id',archive.dataset.archive));await refresh();notify('تمت أرشفة النشاط');}
