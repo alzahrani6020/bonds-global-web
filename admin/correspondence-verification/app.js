@@ -89,7 +89,7 @@
         <td>${escapeHtml(ev.document?.recipient_name || ev.document?.recipient_organization || '-')}</td>
         <td>${escapeHtml(ev.document?.subject || ev.document?.title || '-')}</td>
         <td>${resultBadge(ev.result)}</td>
-        <td>${ev.actor_user_id ? escapeHtml(ev.actor_user_id) : '<span class="cv-muted">زائر غير مسجل</span>'}</td>
+        <td>${ev.actor_user_id ? escapeHtml(ev.actor_user_id) : '<span class="cv-muted">هوية غير مسجلة</span>'}</td>
         <td>${openLetterButton(ev.document_id)}</td>
       </tr>`).join('');
 
