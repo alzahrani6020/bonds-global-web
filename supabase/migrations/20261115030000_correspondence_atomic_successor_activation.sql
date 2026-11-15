@@ -96,10 +96,19 @@ begin
 
   -- Same database transaction: failure rolls both updates back.
   if current_issue.supersedes_issue_id is not null then
+    -- Exactly one successor may replace an active predecessor. A competing
+    -- activation, revoked predecessor or stale link must roll back everything,
+    -- including the document's artifact binding and new issue activation.
     update public.correspondence_issues
        set state = 'superseded'
      where id = current_issue.supersedes_issue_id
-       and state = 'active';
+       and state = 'active'
+       and pdf_hash is not null;
+
+    if not found then
+      raise exception 'Predecessor is not active with a finalized PDF'
+        using errcode = '23514';
+    end if;
   end if;
 
   return new;
