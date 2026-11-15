@@ -500,6 +500,7 @@
       pricingFeasibilityGroup: isEn ? 'Pricing & Feasibility' : 'التسعير والجدوى',
       financialAnalysisGroup: isEn ? 'Financial Analysis' : 'التحليل المالي',
       tools: isEn ? 'Tools' : 'الأدوات',
+      companyPrograms: isEn ? 'Company Programs' : 'برامج شركات',
       aboutGovernance: isEn ? 'About' : 'عن بوندز',
       advisoryGroup: isEn ? 'Advisory' : 'الاستشارات',
       financeManagementGroup: isEn ? 'Financial Management' : 'الإدارة المالية',
@@ -800,6 +801,13 @@
       return `<div class="${cls}">${html}</div>`;
     }
 
+    // Company programs use existing permission-protected destinations.
+    // CRM is the administrative workspace; My Bonds is the client workspace.
+    const companyProgramsDropdown = [
+      { label: isEn ? 'Customer Relationship Management (CRM)' : 'إدارة علاقات العملاء (CRM)', href: '/admin/crm.html' },
+      { label: isEn ? 'My Bonds Workspace' : 'مساحة عمل بوندز', href: isEn ? '/en/my-bonds/' : '/my-bonds/' },
+    ];
+
     const navItems = [
       { href: homeHref, label: labels.home },
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
@@ -807,6 +815,7 @@
       { type: 'dropdown', navId: 'opportunities', label: labels.opportunitiesNav, items: opportunitiesDropdown },
       { href: langBase + 'sectors.html', label: labels.sectors },
       { type: 'dropdown', navId: 'tools', label: labels.tools, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Tools →' : 'جميع الأدوات →' } },
+      { type: 'dropdown', navId: 'company-programs', label: labels.companyPrograms, items: companyProgramsDropdown },
       { type: 'dropdown', label: labels.knowledge, items: intelligenceDropdown },
       { type: 'dropdown', label: labels.aboutGovernance, items: aboutDropdown },
     ];
