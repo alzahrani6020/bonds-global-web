@@ -60,15 +60,21 @@ revoke all on public.company_program_entitlement_audit from public,anon,authenti
 grant select on public.company_program_entitlement_audit to service_role;
 create or replace function crm_private.record_program_entitlement()
 returns trigger language plpgsql security definer set search_path = ''
-as $$
+as $
+declare prior_status text;
 begin
+ if tg_op='UPDATE' then
+   prior_status := old.status;
+ else
+   prior_status := null;
+ end if;
  insert into public.company_program_entitlement_audit
   (workspace_link_id,entitlement_id,program_key,action,previous_status,new_status)
  values(new.workspace_link_id,new.id,new.program_key,tg_op,
-        case when tg_op='UPDATE' then old.status else null end,new.status);
+        prior_status,new.status);
  return new;
 end
-$$;
+$;
 revoke all on function crm_private.record_program_entitlement() from public,anon,authenticated;
 drop trigger if exists company_program_entitlements_audit_trg on public.company_program_entitlements;
 create trigger company_program_entitlements_audit_trg
