@@ -166,7 +166,7 @@ create function crm_private.workspace_role(target_workspace uuid)
 returns text
 language sql stable security definer
 set search_path = ''
-as $
+as $$
  select case
   when (select auth.uid()) is null then null
   when exists (
@@ -180,16 +180,16 @@ as $
    limit 1
   )
  end
-$;
+$$;
 revoke all on function crm_private.workspace_role(uuid) from public, anon, authenticated;
 grant execute on function crm_private.workspace_role(uuid) to authenticated;
 -- Owner/admin/editor may edit records; viewers may read only.
 create function crm_private.can_edit(target_workspace uuid)
 returns boolean language sql stable security definer set search_path = ''
-as $
+as $$
  select coalesce(crm_private.workspace_role(target_workspace)
    in ('owner','admin','editor'),false)
-$;
+$$;
 revoke all on function crm_private.can_edit(uuid) from public, anon, authenticated;
 grant execute on function crm_private.can_edit(uuid) to authenticated;
 
@@ -215,7 +215,7 @@ create policy crm_app_audit_owner_read on public.crm_app_audit
 -- Users cannot insert/modify audit rows directly.
 create function crm_private.record_event()
 returns trigger language plpgsql security definer set search_path = ''
-as $
+as $$
 declare fields text[];
 begin
  if TG_OP='INSERT' then
@@ -232,7 +232,7 @@ begin
  end if;
  return NEW;
 end
-$;
+$$;
 revoke all on function crm_private.record_event() from public,anon,authenticated;
 
 -- Workspace ownership is verified by PostgreSQL, never by client-provided role or metadata.
