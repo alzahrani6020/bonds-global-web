@@ -21,7 +21,7 @@
   success:[['company_id','الشركة','ref:companies'],['contact_id','جهة الاتصال','ref:contacts'],['health_score','مؤشر الصحة','number'],['risk_level','درجة المخاطر','select:low|medium|high|critical'],['lifecycle_stage','المرحلة','select:onboarding|activated|adopting|healthy|at_risk|churned'],['next_review_at','المراجعة المقبلة','datetime-local'],['success_plan','خطة النجاح','textarea']]
  };
  const columns={companies:['name','sector','city','status'],contacts:['name','email','phone','role'],deals:['title','stage','value_amount','next_action'],activities:['subject','kind','status','scheduled_at'],renewals:['title','renewal_date','status','risk_level'],success:['health_score','risk_level','lifecycle_stage','next_review_at'],pipelines:['name','description','is_active','is_default'],stages:['name','pipeline_id','sort_order','probability']};
- let sb,workspace=null,current='overview',rows={},editing=null,installPrompt=null,currentUser=null,currentRole=null;
+ let sb,workspace=null,current='overview',rows={},editing=null,installPrompt=null,currentUser=null,currentRole=null,availableWorkspaces=[];
  const escape = value => String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const notify=(message,error=false)=>{const n=$('status');n.textContent=t(message);n.className='notice'+(error?' error':'');n.hidden=!message;n.style.display=message?'block':'none';};
  const must = result => {if(result.error)throw result.error;return result.data;};
@@ -220,6 +220,23 @@
   $('audit-body').innerHTML=list.length?list.map(x=>'<tr><td>'+escape(new Date(x.created_at).toLocaleString(english?'en-US':'ar-SA'))+'</td><td>'+escape(x.actor_user_id||'system')+'</td><td>'+escape(x.entity)+' '+escape(x.entity_id)+'</td><td>'+escape(x.action)+'</td><td>'+escape((x.changed_columns||[]).join(', '))+'</td></tr>').join('')
    :'<tr><td colspan="5">'+(english?'No audit events':'لا يوجد سجل تغييرات')+'</td></tr>';
  }
+ async function activateWorkspace(w){
+  workspace=w;
+  currentRole=w.owner_user_id===currentUser?.id?'owner':null;
+  if(!currentRole){
+   const members=must(await sb.from('crm_app_members').select('role').eq('workspace_id',w.id)
+    .eq('member_user_id',currentUser.id).eq('active',true).limit(1));
+   currentRole=members[0]?.role||null;
+  }
+  if(!currentRole)throw Error(english?'Workspace access revoked':'أُلغيت صلاحية مساحة العمل');
+  $('workspace-name').textContent=w.name;
+  $('workspace-select').value=w.id;
+  document.querySelectorAll('#crm-nav [data-section="members"],#crm-nav [data-section="audit"]')
+   .forEach(el=>el.hidden=currentRole!=='owner');
+  $('search').value='';
+  current='overview';
+  await refresh();
+ }
  async function initialize(){
   try{
    await window.BondsAuth.ensureEnv();
@@ -230,25 +247,30 @@
    currentUser=user;
    // RLS makes owned and assigned workspaces visible; never trust browser role claims.
    const spaces=must(await sb.from('crm_app_workspaces').select('id,name,owner_user_id').limit(20));
-   workspace=spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
-   currentRole=workspace?.owner_user_id===user.id?'owner':null;
-   if(workspace&&!currentRole){
-    const membership=must(await sb.from('crm_app_members').select('role').eq('workspace_id',workspace.id)
-     .eq('member_user_id',user.id).eq('active',true).limit(1));
-    currentRole=membership[0]?.role||null;
-   }
-   const ownerOnly=currentRole==='owner';
-   document.querySelectorAll('#crm-nav [data-section="members"],#crm-nav [data-section="audit"]').forEach(el=>el.hidden=!ownerOnly);
-   $('onboarding').hidden=!!workspace;$('workspace-content').hidden=!workspace;
-   if(workspace){$('workspace-name').textContent=workspace.name;await refresh();}
+   availableWorkspaces=spaces;
+   const chosen=spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
+   $('workspace-select').innerHTML=spaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
+   $('workspace-switch-label').hidden=spaces.length<2;
+   $('onboarding').hidden=!!chosen;$('workspace-content').hidden=!chosen;
+   if(chosen)await activateWorkspace(chosen);
+
   }catch(e){notify('تعذر تحميل مساحة CRM: '+(e.message||e),true);}
  }
+ $('workspace-select').addEventListener('change',async event=>{
+  const selected=availableWorkspaces.find(w=>w.id===event.target.value);
+  if(!selected)return;
+  try{await activateWorkspace(selected);}catch(err){notify(err.message,true);event.target.value=workspace?.id||'';}
+ });
  $('workspace-form').addEventListener('submit',async event=>{
   event.preventDefault(); const button=event.currentTarget.querySelector('button');button.disabled=true;
   try{const name=String(new FormData(event.currentTarget).get('name')||'').trim();
    const user=must(await sb.auth.getUser()).user;if(!user)throw Error('انتهت جلسة تسجيل الدخول');
    workspace=must(await sb.from('crm_app_workspaces').insert({name,owner_user_id:user.id}).select('id,name').single());
-   $('workspace-name').textContent=workspace.name;$('onboarding').hidden=true;$('workspace-content').hidden=false;await refresh();notify('أُنشئت مساحة العمل');
+   workspace.owner_user_id=user.id;
+   availableWorkspaces.push(workspace);currentUser=user;currentRole='owner';
+   $('workspace-select').innerHTML=availableWorkspaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
+   $('workspace-name').textContent=workspace.name;$('onboarding').hidden=true;$('workspace-content').hidden=false;
+   await activateWorkspace(workspace);notify('أُنشئت مساحة العمل');
   }catch(e){notify('تعذر إنشاء مساحة العمل: '+e.message,true);}finally{button.disabled=false;}
  });
  $('crm-nav').addEventListener('click',e=>{const n=e.target.closest('[data-section]');if(n&&workspace)showSection(n.dataset.section);});
