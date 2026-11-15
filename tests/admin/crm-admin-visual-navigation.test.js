@@ -24,6 +24,7 @@ describe('Bonds CRM admin and company program visual/navigation acceptance',()=>
   expect(theme).toContain('margin-right:248px');
   expect(theme).toContain('@media(max-width:1000px)');
   expect(admin).toContain('id="bonds-crm-extensions"');
+  expect(admin).toContain('id="pipeline" class="pipeline" tabindex="0" role="region"');
  });
  test('confidence summary renders semantic counts, not a raw JSON object in KPI',()=>{
   expect(admin).toContain('function confidenceSummary(value)');
