@@ -83,8 +83,15 @@ async function main(){
    e=>e.code==='42501','Viewer must not insert');
   await assert.rejects(()=>as(editor,()=>client.query("insert into crm_app_members(workspace_id,member_user_id,role) values($1,$2,'admin')",[wa,b])),
    e=>e.code==='42501','Editor must not add members');
+  // The owner may change roles; member privileges update without trusting cached JWT roles.
+  await as(a,()=>client.query("update crm_app_members set role='viewer' where workspace_id=$1 and member_user_id=$2",[wa,editor]));
+  await assert.rejects(()=>as(editor,()=>client.query("insert into crm_app_companies(workspace_id,name) values($1,'Blocked after downgrade')",[wa])),
+   e=>e.code==='42501','Downgraded editor retains write access');
+  await as(a,()=>client.query("update crm_app_members set role='editor' where workspace_id=$1 and member_user_id=$2",[wa,editor]));
   const employeeCompany=await as(editor,()=>client.query("insert into crm_app_companies(workspace_id,name) values($1,'Editor Company') returning id",[wa]));
   assert.equal(employeeCompany.rowCount,1,'Editor cannot create workspace-scoped records');
+  const membershipAudit=await as(a,()=>client.query("select action,changed_columns from crm_app_audit where workspace_id=$1 and entity='crm_app_members' and action='UPDATE'",[wa]));
+  assert.ok(membershipAudit.rows.some(r=>r.changed_columns.includes('role')),'Role changes missing from immutable audit log');
   const {rows:auditRows}=await as(a,()=>client.query("select action,entity,actor_user_id,changed_columns from crm_app_audit where workspace_id=$1 and entity='crm_app_companies'",[wa]));
   assert.ok(auditRows.some(x=>x.action==='INSERT'&&x.actor_user_id===editor),'Editor write missing from audit');
   const hiddenAudit=await as(viewer,()=>client.query('select id from crm_app_audit where workspace_id=$1',[wa]));
