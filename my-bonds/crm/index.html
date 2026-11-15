@@ -39,6 +39,8 @@
    <button type="button" data-section="activities">الأنشطة والمهام</button>
    <button type="button" data-section="renewals">التجديدات</button>
    <button type="button" data-section="success">نجاح العملاء</button>
+   <button type="button" data-section="members">فريق العمل والصلاحيات</button>
+   <button type="button" data-section="audit">سجل التدقيق</button>
   </nav>
   <a href="/en/my-bonds/crm/" class="back" lang="en">English</a>
   <a href="/my-bonds/" class="back">العودة إلى مساحتي</a>
@@ -86,6 +88,19 @@
     </div>
     <div class="panel overflow"><table><thead id="records-head"></thead><tbody id="records-body"></tbody></table></div>
     <p class="muted">تظهر السجلات التابعة لمساحة عملك فقط. الأرشفة متاحة للأنشطة والمهام دون حذف جهات الاتصال.</p>
+   </section>
+
+   <section id="membership-section" class="panel" hidden>
+    <p class="muted">إضافة موظف مسجل في بوندز باستخدام معرف حسابه UUID. المالك وحده يدير الأعضاء؛ ويظهر سجل التدقيق للمالك فقط.</p>
+    <form id="member-form">
+     <label>معرف حساب الموظف (UUID)<input name="member_user_id" required placeholder="00000000-0000-0000-0000-000000000000"></label>
+     <label>الدور<select name="role"><option value="viewer">Viewer</option><option value="editor">Editor</option><option value="admin">Admin</option></select></label>
+     <button type="submit" class="primary">إضافة إلى مساحة العمل</button>
+    </form>
+    <div class="overflow"><table><thead id="members-head"></thead><tbody id="members-body"></tbody></table></div>
+   </section>
+   <section id="audit-section" class="panel" hidden>
+    <div class="overflow"><table><thead id="audit-head"></thead><tbody id="audit-body"></tbody></table></div>
    </section>
    <section id="editor" class="panel" hidden>
     <div class="editor-head"><h2 id="editor-title">تحرير</h2><button class="secondary" type="button" id="editor-close">إغلاق</button></div>
