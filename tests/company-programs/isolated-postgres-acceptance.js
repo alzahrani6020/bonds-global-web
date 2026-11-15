@@ -71,6 +71,12 @@ async function main(){
     const mapping=await db.query("insert into public.company_program_makkin_links(workspace_link_id,makkin_tenant_id) values($1,'unverified-tenant') returning state",[c]);
     assert.equal(mapping.rows[0].state,'pending');
     await assert.rejects(()=>db.query("update public.company_program_makkin_links set state='verified' where workspace_link_id=$1",[c]),e=>e.code==='23514');
+    // Do not bind a BONDS user to a company without an explicitly linked
+    // SCC380 tenant; the FK must enforce this even for privileged clients.
+    await assert.rejects(
+      ()=>db.query("insert into public.company_program_makkin_user_links(workspace_link_id,bonds_user_id,makkin_user_id) values($1,$2,'orphan-user')",[b,userB]),
+      e=>e.code==='23503'
+    );
     const userLink=(await db.query(
       "insert into public.company_program_makkin_user_links(workspace_link_id,bonds_user_id,makkin_user_id) values($1,$2,'makkin-user-a') returning id,state",
       [c,userA]
@@ -91,6 +97,10 @@ async function main(){
     await assert.rejects(
       ()=>db.query("delete from public.company_program_makkin_links where workspace_link_id=$1",[c]),
       e=>e.code==='P0001'
+    );
+    await assert.rejects(
+      ()=>db.query("update public.company_program_makkin_user_links set state='verified',verified_at=now(),verified_by=$1 where id=$2",[userA,userLink.id]),
+      e=>e.code==='23514'
     );
     // Verified status requires an explicit verifier and timestamp. This
     // checks the schema contract, not whether an external SCC user exists.
