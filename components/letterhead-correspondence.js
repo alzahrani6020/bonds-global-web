@@ -1313,10 +1313,14 @@
   function paginateEditableSheets() {
     if (!canEditCurrent()) {
       // Locked or non-owned documents cannot be auto-fixed: surface that
-      // explicitly instead of letting the cryptic A4 overflow error appear.
+      // explicitly (with ownership fingerprints so support can tell a real
+      // ownership mismatch from a server-side flag bug) instead of the cryptic
+      // A4 overflow error.
+      const owner = String(state.document?.owner_user_id || '؟').slice(0, 8);
+      const viewer = String(state.userId || 'غير مسجل').slice(0, 8);
       throw new Error(isEn
-        ? 'This document is locked, so overflowing pages cannot be split automatically. Restore editing rights or shorten the content.'
-        : 'هذا المستند مقفل ولا يمكن تقسيم صفحاته المتجاوزة تلقائياً. استعد صلاحية التحرير أو قصّر المحتوى.');
+        ? `This document is locked, so overflowing pages cannot be split automatically. Restore editing rights or shorten the content. (owner ${owner} / you ${viewer})`
+        : `هذا المستند مقفل ولا يمكن تقسيم صفحاته المتجاوزة تلقائياً. استعد صلاحية التحرير أو قصّر المحتوى. (المالك ${owner} / أنت ${viewer})`);
     }
     const container = document.getElementById('pages-container');
     if (!container) throw new Error('Letterhead pages container missing');
