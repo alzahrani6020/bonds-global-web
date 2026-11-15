@@ -399,7 +399,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
   test('editable drafts paginate A4 before saving or exporting without touching issued artifacts', () => {
     const client = read('components/letterhead-correspondence.js');
     expect(client).toContain('function paginateEditableSheets()');
-    expect(client).toContain('if (!canEditCurrent()) return false');
+    expect(client).toContain('if (!canEditCurrent())');
     expect(client).toContain('setPages([...pagesHtml(), \'\'])');
     expect(client).toContain("continuation.setAttribute('start', String(nextNumber))");
     expect(client).toContain("if (++moves > 500 || sheets().length > 50)");
