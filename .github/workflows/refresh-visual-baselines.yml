@@ -16,6 +16,8 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci
+      - name: Install Playwright Browser
+        run: npx playwright install chromium
       - name: Start local dev server
         run: |
           npm run dev:local &
