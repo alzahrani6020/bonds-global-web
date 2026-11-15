@@ -102,7 +102,7 @@ async function main(){
   // Contact CSV import: one bounded batch, validated before any DB write.
   await page.locator('#crm-nav [data-section="contacts"]').click();
   page.on('dialog',dialog=>dialog.accept());
-  await page.locator('#csv-file').setInputFiles({name:'contacts.csv',mimeType:'text/csv',buffer:Buffer.from('name,email,phone,status\\nAlice,alice@example.com,123,lead\\n')});
+  await page.locator('#csv-file').setInputFiles({name:'contacts.csv',mimeType:'text/csv',buffer:Buffer.from('name,email,phone,status\nAlice,alice@example.com,123,lead\n')});
   await page.waitForFunction(()=>window.__crmTestState.db.crm_app_contacts.length===1);
   assert.equal(await page.locator('#records-body tr').count(),1);
   assert.deepEqual(errors,[],'CRM browser errors');
