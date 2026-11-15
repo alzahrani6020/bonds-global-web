@@ -21,7 +21,7 @@
   success:[['company_id','الشركة','ref:companies'],['contact_id','جهة الاتصال','ref:contacts'],['health_score','مؤشر الصحة','number'],['risk_level','درجة المخاطر','select:low|medium|high|critical'],['lifecycle_stage','المرحلة','select:onboarding|activated|adopting|healthy|at_risk|churned'],['next_review_at','المراجعة المقبلة','datetime-local'],['success_plan','خطة النجاح','textarea']]
  };
  const columns={companies:['name','sector','city','status'],contacts:['name','email','phone','role'],deals:['title','stage','value_amount','next_action'],activities:['subject','kind','status','scheduled_at'],renewals:['title','renewal_date','status','risk_level'],success:['health_score','risk_level','lifecycle_stage','next_review_at'],pipelines:['name','description','is_active','is_default'],stages:['name','pipeline_id','sort_order','probability']};
- let sb,workspace=null,current='overview',rows={},editing=null,installPrompt=null,currentUser=null,currentRole=null,availableWorkspaces=[];
+ let sb,workspace=null,current='overview',rows={},editing=null,installPrompt=null,currentUser=null,currentRole=null,availableWorkspaces=[],page=0,pageTotal=0,pageSize=50,searchTimer=null,requestSequence=0,overviewTotals={};
  const escape = value => String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const notify=(message,error=false)=>{const n=$('status');n.textContent=t(message);n.className='notice'+(error?' error':'');n.hidden=!message;n.style.display=message?'block':'none';};
  const must = result => {if(result.error)throw result.error;return result.data;};
@@ -145,14 +145,14 @@
   $('membership-section').hidden=name!=='members';
   $('audit-section').hidden=name!=='audit';
   $('editor').hidden=true; editing=null;
-  if(name==='overview')renderOverview();
+  if(name==='overview')loadOverview().then(renderOverview).catch(err=>notify(err.message,true));
   else if(name==='members')renderMembers().catch(err=>notify(err.message,true));
   else if(name==='audit')renderAudit().catch(err=>notify(err.message,true));
-  else renderRecords();
+  else {page=0;loadPage().catch(err=>notify(err.message,true));}
  }
  function nameFor(group,id){return (rows[group]||[]).find(x=>x.id===id)?.name || (rows[group]||[]).find(x=>x.id===id)?.title || '—';}
  function renderOverview(){
-  const metrics=[['الشركات',rows.companies?.length||0],['جهات الاتصال',rows.contacts?.length||0],['الصفقات',rows.deals?.length||0],['المهام المفتوحة',(rows.activities||[]).filter(r=>!r.deleted_at&&r.status==='open').length],['التجديدات القادمة',(rows.renewals||[]).filter(r=>r.status==='upcoming').length]];
+  const metrics=[['الشركات',overviewTotals.companies||0],['جهات الاتصال',overviewTotals.contacts||0],['الصفقات',overviewTotals.deals||0],['المهام المفتوحة',overviewTotals.openTasks||0],['التجديدات القادمة',overviewTotals.upcomingRenewals||0]];
   $('kpis').innerHTML=metrics.map(([k,v])=>'<div class="kpi"><b>'+v+'</b><span>'+escape(t(k))+'</span></div>').join('');
   const deals=rows.deals||[],total=Math.max(1,deals.length);
   $('pipeline-summary').innerHTML=Object.entries(stageLabels).map(([k,label])=>{const n=deals.filter(r=>r.stage===k).length;return '<div class="bar-row"><div class="bar-title"><span>'+t(label)+'</span><span>'+n+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+(n/total*100)+'%"></div></div></div>';}).join('');
@@ -161,8 +161,11 @@
  }
  function renderRecords(){
   const group=normalSection(current),schema=defs[group],list=(rows[group]||[]).filter(r=>group!=='activities'||!r.deleted_at);
-  const query=($('search').value||'').toLocaleLowerCase();
-  const filtered=list.filter(r=>!query||Object.values(r).some(v=>String(v??'').toLocaleLowerCase().includes(query)));
+  // Search is applied by PostgREST before pagination, never to a truncated browser cache.
+  const filtered=list;
+  $('page-info').textContent=(pageTotal===0?'0':String(page*pageSize+1))+'–'+String(Math.min((page+1)*pageSize,pageTotal))+' / '+pageTotal;
+  $('page-prev').disabled=page===0;
+  $('page-next').disabled=(page+1)*pageSize>=pageTotal;
   $('records-head').innerHTML='<tr>'+columns[group].map(k=>'<th>'+escape(t(schema.find(d=>d[0]===k)?.[1]||k))+'</th>').join('')+'<th>'+t('إجراءات')+'</th></tr>';
   $('records-body').innerHTML=filtered.length?filtered.map(r=>'<tr>'+columns[group].map(k=>'<td>'+escape(k.endsWith('_id')?nameFor(({company_id:'companies',contact_id:'contacts',deal_id:'deals',pipeline_id:'pipelines',pipeline_stage_id:'stages'}[k]||'contacts'),r[k]):formatValue(r[k]))+'</td>').join('')+'<td><button type="button" class="secondary" data-edit="'+escape(r.id)+'">'+t("تعديل")+'</button>'+(group==='activities'?'<button type="button" class="secondary" data-archive="'+escape(r.id)+'">'+t("أرشفة")+'</button>':'')+'</td></tr>').join(''):'<tr><td colspan="7">'+t("لا توجد سجلات")+'</td></tr>';
  }
@@ -199,10 +202,67 @@
   updatePipelineStageOptions();
   $('editor').hidden=false;$('editor').scrollIntoView({block:'start',behavior:'smooth'});
  }
+ const searchColumns={
+  companies:['name','legal_name','email','cr_number'],
+  contacts:['name','email','phone'],deals:['title','next_action'],
+  activities:['subject','details'],renewals:['title','notes'],
+  success:['success_plan'],pipelines:['name','description'],stages:['name']
+ };
+ function searchFilter(builder,group,term){
+  const clean=term.trim().slice(0,100);
+  if(!clean)return builder;
+  // PostgREST OR syntax cannot safely interpolate arbitrary punctuation.
+  // Reject grammar and wildcard characters rather than risk a filter injection.
+  if(/[,()%"'*\\]/.test(clean))throw Error(english?'Search contains unsupported characters':'البحث يحتوي على رموز غير مدعومة');
+  return builder.or(searchColumns[group].map(k=>k+'.ilike.*'+clean+'*').join(','));
+ }
+ async function loadPage(){
+  if(!workspace||!tableNames[normalSection(current)])return;
+  const seq=++requestSequence,group=normalSection(current),wid=workspace.id;
+  let query=sb.from(tableNames[group]).select('*',{count:'exact'}).eq('workspace_id',wid);
+  if(group==='activities')query=query.is('deleted_at',null);
+  query=searchFilter(query,group,$('search').value||'');
+  const result=await query.order('updated_at',{ascending:false}).order('id',{ascending:false}).range(page*pageSize,(page+1)*pageSize-1);
+  if(result.error)throw result.error;
+  if(seq!==requestSequence||workspace?.id!==wid||normalSection(current)!==group)return;
+  rows[group]=result.data||[];
+  pageTotal=result.count??0;
+  if(page>0&&page*pageSize>=pageTotal){page=Math.max(0,Math.ceil(pageTotal/pageSize)-1);return loadPage();}
+  renderRecords();
+ }
+ async function loadOverview(){
+  const wid=workspace.id;
+  const groups=['companies','contacts','deals'];
+  const counts=await Promise.all(groups.map(async key=>{
+   const r=await sb.from(tableNames[key]).select('id',{count:'exact',head:true}).eq('workspace_id',wid);
+   if(r.error)throw r.error;return [key,r.count??0];
+  }));
+  const tasks=await sb.from(tableNames.activities).select('id',{count:'exact',head:true}).eq('workspace_id',wid).eq('status','open').is('deleted_at',null);
+  const renewals=await sb.from(tableNames.renewals).select('id',{count:'exact',head:true}).eq('workspace_id',wid).eq('status','upcoming');
+  if(tasks.error)throw tasks.error;if(renewals.error)throw renewals.error;
+  overviewTotals={...Object.fromEntries(counts),openTasks:tasks.count??0,upcomingRenewals:renewals.count??0};
+  const [deals,followups]=await Promise.all([
+   sb.from(tableNames.deals).select('stage').eq('workspace_id',wid).order('updated_at',{ascending:false}).limit(500),
+   sb.from(tableNames.activities).select('subject,scheduled_at').eq('workspace_id',wid).eq('status','open').is('deleted_at',null).not('scheduled_at','is',null).order('scheduled_at',{ascending:true}).limit(8)
+  ]);
+  if(deals.error)throw deals.error;if(followups.error)throw followups.error;
+  rows.deals=deals.data||[];rows.activities=followups.data||[];
+ }
  async function refresh(){
   if(!workspace)return;
-  const out=await Promise.all(Object.entries(tableNames).map(async([k,t])=>[k,must(await sb.from(t).select('*').eq('workspace_id',workspace.id).order('updated_at',{ascending:false}).limit(500))]));
-  rows=Object.fromEntries(out);showSection(current);
+  // Reference selections are separate from the paginated listing.
+  const lookupGroups=['companies','contacts','deals','pipelines','stages'];
+  const lookups=await Promise.all(lookupGroups.map(async key=>{
+   const response=await sb.from(tableNames[key]).select('id,name,title,pipeline_id,is_active').eq('workspace_id',workspace.id).limit(500);
+   // Tables do not share every column. Only preload lookup fields present on each entity.
+   return [key,response];
+  }));
+  for(const [key,result] of lookups){
+   if(!result.error)rows[key]=result.data||[];
+  }
+  if(current==='overview'){await loadOverview();showSection(current);}
+  else if(current==='members'||current==='audit')showSection(current);
+  else await loadPage();
  }
  async function renderMembers(){
   if(!workspace||currentRole!=='owner')return;
@@ -275,7 +335,9 @@
  });
  $('crm-nav').addEventListener('click',e=>{const n=e.target.closest('[data-section]');if(n&&workspace)showSection(n.dataset.section);});
  $('refresh').addEventListener('click',()=>refresh().then(()=>notify('تم تحديث السجلات')).catch(e=>notify(e.message,true)));
- $('search').addEventListener('input',()=>renderRecords());
+ $('search').addEventListener('input',()=>{clearTimeout(searchTimer);page=0;searchTimer=setTimeout(()=>loadPage().catch(e=>notify(e.message,true)),250);});
+ $('page-prev').addEventListener('click',()=>{if(page>0){page--;loadPage().catch(e=>notify(e.message,true));}});
+ $('page-next').addEventListener('click',()=>{if((page+1)*pageSize<pageTotal){page++;loadPage().catch(e=>notify(e.message,true));}});
  $('new-record').addEventListener('click',()=>{if(currentRole==='viewer')return notify(english?'Read-only access':'صلاحية العرض فقط',true);openEditor();});
  $('csv-export').addEventListener('click',async()=>{
   const button=$('csv-export');button.disabled=true;
