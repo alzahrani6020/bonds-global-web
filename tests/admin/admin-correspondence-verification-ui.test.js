@@ -52,9 +52,16 @@ describe('correspondence verification module UI contracts', () => {
 
   test('verification event attributes an authenticated account only when bearer identity is resolved', () => {
     const correspondence = read('lib/api/correspondence.js');
-    expect(correspondence).toContain("String(req.headers?.authorization || '').startsWith('Bearer ')");
-    expect(correspondence).toContain("verifierId = (await resolveUser(req))?.id || null");
-    expect(correspondence).toContain('actor_user_id: verifierId');
+    expect(correspondence).toContain('const verifier = await resolveUser(req)');
+    expect(correspondence).toContain('if (!verifier || verifier.is_anonymous)');
+    expect(correspondence).toContain('actor_user_id: verifier.id');
+    const api = read('api/admin.js');
+    expect(api).toContain("select('id,email,phone').in('id', actorIds)");
+    expect(api).toContain('verifier_email: contactById.get(event.actor_user_id)?.email');
+    const app = read('admin/correspondence-verification/app.js');
+    expect(app).toContain('function verifierCell(event)');
+    expect(app).toContain('escapeHtml(event.verifier_email)');
+    expect(app).toContain('escapeHtml(event.verifier_phone)');
   });
 
   test('every verification log row can open its letterhead document', () => {
