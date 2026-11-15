@@ -128,7 +128,10 @@ async function getDashboardModuleTargets() {
 }
 
 function normalizePath(target) {
-  return target.replace(/\/+$/, '');
+  // cleanUrls 308-redirects ".html?x=1" to "?x=1"; navigating the extensionless
+  // URL directly removes the mid-measurement navigation that destroyed the
+  // execution context and flaked this suite on CI.
+  return target.replace(/\.html(?=\?|$)/i, '').replace(/\/+$/, '');
 }
 
 async function stabilizePage(page) {
@@ -294,20 +297,35 @@ describe('admin linked modules UI', () => {
       });
 
       try {
-        await page.goto(
-          new URL(target, BASE_URL).toString(),
-          {
-            waitUntil: 'domcontentloaded',
-            timeout: 30000
+        // Redirecting modules destroy the execution context mid-measurement;
+        // retry once on the post-navigation document instead of failing.
+        let sizes = null;
+        for (let attempt = 0; attempt < 2 && !sizes; attempt += 1) {
+          try {
+            if (attempt === 0) {
+              await page.goto(
+                new URL(target, BASE_URL).toString(),
+                {
+                  waitUntil: 'domcontentloaded',
+                  timeout: 30000
+                }
+              );
+            } else {
+              await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
+              await page.waitForTimeout(400);
+            }
+
+            await stabilizePage(page);
+
+            sizes = await page.evaluate(() => ({
+              viewport: window.innerWidth,
+              document: document.documentElement.scrollWidth
+            }));
+          } catch (err) {
+            const destroyed = /Execution context was destroyed/.test(String(err?.message || err));
+            if (!destroyed || attempt === 1) throw err;
           }
-        );
-
-        await stabilizePage(page);
-
-        const sizes = await page.evaluate(() => ({
-          viewport: window.innerWidth,
-          document: document.documentElement.scrollWidth
-        }));
+        }
 
         if (sizes.document > sizes.viewport + 1) {
           failures.push({
