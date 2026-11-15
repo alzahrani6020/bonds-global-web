@@ -82,6 +82,16 @@
   width: 100%;
 }
 
+/* Browser-evidenced contrast repair: these cards compute to #f5f1e9 even in a dark section.
+   Explicitly scope the dark foreground to the light, non-featured cards. */
+body.pricing-page .section-dark .pricing-card:not(.pricing-card--featured) .pricing-card__title,
+body.pricing-page .section-dark .pricing-card:not(.pricing-card--featured) .pricing-card__cta.btn-outline {
+  color: #0b1f3a !important;
+}
+body.pricing-page .section-dark .pricing-card:not(.pricing-card--featured) .pricing-card__cta.btn-outline {
+  border-color: #0b1f3a !important;
+}
+
 /* Accessibility: keep text/buttons on non-featured light pricing cards at WCAG AA contrast. */
 .pricing-card:not(.pricing-card--featured) .pricing-card__title {
   color: #f4f7ff;
