@@ -338,16 +338,27 @@
     }catch(error){notify((english?'Invitation was not accepted: ':'لم يتم قبول الدعوة: ')+(error.message||error),true);}
    }
    // RLS makes owned and assigned workspaces visible; never trust browser role claims.
-   const spaces=must(await sb.from('crm_app_workspaces').select('id,name,owner_user_id').limit(20));
+   const spaces=must(await sb.from('crm_app_workspaces').select('id,name,owner_user_id').order('created_at',{ascending:true}).limit(100));
    availableWorkspaces=spaces;
    const chosen=spaces.find(w=>w.id===acceptedWorkspaceId)||spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
    $('workspace-select').innerHTML=spaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
-   $('workspace-switch-label').hidden=spaces.length<2;
+   $('workspace-switch-label').hidden=spaces.length===0;
+   $('workspace-create-open').hidden=false;
+   $('workspace-create-cancel').hidden=!chosen;
    $('onboarding').hidden=!!chosen;$('workspace-content').hidden=!chosen;
    if(chosen)await activateWorkspace(chosen);
 
   }catch(e){notify('تعذر تحميل مساحة CRM: '+(e.message||e),true);}
  }
+ $('workspace-create-open').addEventListener('click',()=>{
+  if(!currentUser)return;
+  $('onboarding').hidden=false;
+  $('workspace-create-cancel').hidden=!workspace;
+  $('onboarding').scrollIntoView({block:'start',behavior:'smooth'});
+ });
+ $('workspace-create-cancel').addEventListener('click',()=>{
+  $('onboarding').hidden=true;
+ });
  $('workspace-select').addEventListener('change',async event=>{
   const selected=availableWorkspaces.find(w=>w.id===event.target.value);
   if(!selected)return;
@@ -361,8 +372,11 @@
    workspace.owner_user_id=user.id;
    availableWorkspaces.push(workspace);currentUser=user;currentRole='owner';
    $('workspace-select').innerHTML=availableWorkspaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
+   $('workspace-switch-label').hidden=false;
+   $('workspace-create-open').hidden=false;
+   $('workspace-create-cancel').hidden=false;
    $('workspace-name').textContent=workspace.name;$('onboarding').hidden=true;$('workspace-content').hidden=false;
-   await activateWorkspace(workspace);notify('أُنشئت مساحة العمل');
+   await activateWorkspace(workspace);notify(english?'Workspace created successfully':'أُنشئت مساحة العمل');
   }catch(e){notify('تعذر إنشاء مساحة العمل: '+e.message,true);}finally{button.disabled=false;}
  });
  $('crm-nav').addEventListener('click',e=>{const n=e.target.closest('[data-section]');if(n&&workspace)showSection(n.dataset.section);});
