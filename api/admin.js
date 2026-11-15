@@ -2723,7 +2723,7 @@ async function getCrmOverview(sb) {
 
 // Additional CRM workflows use the existing advisory_clients and
 // crm_organizations tables. Never update client auth links or delete records.
-const CRM_CLIENT_STATUSES = new Set(['active','inactive','prospect','lead','customer','converted']);
+const CRM_CLIENT_STATUSES = new Set(['active','inactive','prospect','lead','customer','archived']);
 function crmOptionalText(value, limit) {
   if (value == null || value === '') return null;
   return String(value).trim().slice(0, limit) || null;
