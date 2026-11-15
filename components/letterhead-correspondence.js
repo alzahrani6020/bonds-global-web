@@ -481,6 +481,8 @@
     state.events = result.events || [];
     state.role = result.role || 'user';
     state.permissions = Array.isArray(result.permissions) ? result.permissions : [];
+    // Reset the previous document's ownership decision before binding this response.
+    state.serverIsOwner = null;
     state.serverIsOwner = typeof result.is_owner === 'boolean' ? result.is_owner : null;
     state.relatedDocumentId = state.document?.related_document_id || null;
     state.workspaceContext = state.document?.workspace_context && typeof state.document.workspace_context === 'object'
