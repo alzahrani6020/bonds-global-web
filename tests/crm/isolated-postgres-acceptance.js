@@ -28,6 +28,9 @@ async function main(){
    grant execute on function auth.uid() to authenticated;`);
   const migration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261115020000_crm_client_app_isolated_workspaces.sql'),'utf8');
   await client.query(migration);
+  const multiWorkspaceMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql'),'utf8');
+  await client.query(multiWorkspaceMigration);
+
   // The administrative ledger has FKs to pre-existing Bonds tables. In this
   // disposable database, create minimal referenced-table stubs first, then
   // execute the unmodified administrative migration as a real SQL script.
@@ -69,6 +72,17 @@ async function main(){
   const first=await as(a,()=>client.query("insert into crm_app_workspaces(owner_user_id,name) values($1,'Tenant A') returning id",[a]));
   const second=await as(b,()=>client.query("insert into crm_app_workspaces(owner_user_id,name) values($1,'Tenant B') returning id",[b]));
   const wa=first.rows[0].id,wb=second.rows[0].id;
+  const additional=await as(a,()=>client.query("insert into crm_app_workspaces(owner_user_id,name) values($1,'Tenant A Second Workspace') returning id",[a]));
+  const wc=additional.rows[0].id;
+  assert.notEqual(wa,wc,'A second owned workspace must have its own ID');
+  const owned=await as(a,()=>client.query('select id from crm_app_workspaces where owner_user_id=$1',[a]));
+  assert.equal(owned.rowCount,2,'Owner must see both owned workspaces');
+  const otherOwnerCannotRead=await as(b,()=>client.query('select id from crm_app_workspaces where id=$1',[wc]));
+  assert.equal(otherOwnerCannotRead.rowCount,0,'Other tenant must not read the additional workspace');
+  await as(a,()=>client.query("insert into crm_app_companies(workspace_id,name) values($1,'Second Workspace Company')",[wc]));
+  const separate=await as(a,()=>client.query('select id from crm_app_companies where workspace_id=$1',[wa]));
+  assert.equal(separate.rowCount,0,'Separate workspaces must not mix their company records');
+
   // Only owner can grant employee access; viewers cannot edit or add records.
   await as(a,()=>client.query(
    "insert into crm_app_members(workspace_id,member_user_id,role) values($1,$2,'editor'),($1,$3,'viewer'),($1,$4,'admin')",
