@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
+ <meta name="referrer" content="no-referrer">
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width,initial-scale=1">
  <meta name="robots" content="noindex,nofollow">
@@ -94,6 +95,14 @@
 
    <section id="membership-section" class="panel" hidden>
     <p class="muted">إضافة موظف مسجل في بوندز باستخدام معرف حسابه UUID. المالك وحده يدير الأعضاء؛ ويظهر سجل التدقيق للمالك فقط.</p>
+    <form id="invite-form">
+     <label>البريد الإلكتروني للموظف<input name="email" type="email" maxlength="254" required autocomplete="off"></label>
+     <label>الصلاحية<select name="role"><option value="viewer">مشاهد</option><option value="editor">محرر</option><option value="admin">مدير</option></select></label>
+     <button type="submit" class="primary">إرسال دعوة البريد الإلكتروني</button>
+    </form>
+    <p class="muted">ترسل الدعوة من خادم بوندز فقط، وتُفعّل عند قبولها من بريد مؤكد مطابق. تستمر صلاحية الرابط 48 ساعة.</p>
+    <hr>
+    <p class="muted">الربط المباشر لموظف مسجل بالفعل باستخدام UUID:</p>
     <form id="member-form">
      <label>معرف حساب الموظف (UUID)<input name="member_user_id" required placeholder="00000000-0000-0000-0000-000000000000"></label>
      <label>الدور<select name="role"><option value="viewer">Viewer</option><option value="editor">Editor</option><option value="admin">Admin</option></select></label>
