@@ -151,6 +151,7 @@
       invalid:['Invalid verification link','The QR link contains an invalid verification token. Scan the original QR again.'],
       missing:['Document not found','This verification token is not registered in the official issue ledger.'],
       limited:['Verification temporarily limited','Too many verification requests. Try again after the displayed retry interval.'],
+      auth:['Sign-in required','Verification requires a signed-in account. Please sign in again.'],
       unavailable:['Verification service unavailable','The service could not complete the verification. This does not establish that the document is invalid.']
     };
     const message=messages[reason]||messages.unavailable;
@@ -174,8 +175,20 @@
   }
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token)){fail();return;}
   try{
-    const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{cache:'no-store'});
+    const session=await window.BondsAuth?.getSession();
+    if(!session || session.error){fail('unavailable');return;}
+    const accessToken=session.data?.session?.access_token||'';
+    if(!accessToken){
+      status.textContent="Sign in required — returning to this QR after login";
+      status.classList.add('warn');
+      location.replace("/en/calculators/auth/index.html?redirect="+encodeURIComponent(location.pathname+location.search));
+      return;
+    }
+    const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{
+      cache:'no-store',headers:{Authorization:'Bearer '+accessToken}
+    });
     const d=await r.json().catch(()=>({}));
+    if(r.status===401){fail('auth');return;}
     if(r.status===404){fail('missing');return;}
     if(r.status===400){fail('invalid');return;}
     if(r.status===429){fail('limited');return;}
