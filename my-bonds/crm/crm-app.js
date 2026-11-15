@@ -314,12 +314,28 @@
    sb=window.BondsAuth.getSupabase();
    if(!sb)throw new Error('تعذّر تهيئة خدمة المصادقة');
    const result=await sb.auth.getUser(),user=result.data?.user;
-   if(!user){$('auth-gate').hidden=false;return;}
+   const invitedToken=new URLSearchParams(window.location.search).get('invite');
+   // Never leave a bearer invitation token in browser history or referrer URLs.
+   if(invitedToken)window.history.replaceState(null,'',window.location.pathname);
+   if(!user){
+    $('auth-gate').hidden=false;
+    if(invitedToken)notify(english?'Sign in with the invited email, then reopen the invitation link from your mailbox.':'سجّل الدخول بالبريد المدعو ثم افتح رابط الدعوة من بريدك مجددًا.',true);
+    return;
+   }
    currentUser=user;
+   let acceptedWorkspaceId=null;
+   if(invitedToken){
+    try{
+     if(invitedToken.length<32||invitedToken.length>128)throw Error('Invalid invite token');
+     const result=await sb.rpc('crm_app_accept_invite',{invite_token:invitedToken});
+     acceptedWorkspaceId=must(result);
+     notify(english?'Invitation accepted successfully':'تم قبول الدعوة وربط مساحة العمل');
+    }catch(error){notify((english?'Invitation was not accepted: ':'لم يتم قبول الدعوة: ')+(error.message||error),true);}
+   }
    // RLS makes owned and assigned workspaces visible; never trust browser role claims.
    const spaces=must(await sb.from('crm_app_workspaces').select('id,name,owner_user_id').limit(20));
    availableWorkspaces=spaces;
-   const chosen=spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
+   const chosen=spaces.find(w=>w.id===acceptedWorkspaceId)||spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
    $('workspace-select').innerHTML=spaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
    $('workspace-switch-label').hidden=spaces.length<2;
    $('onboarding').hidden=!!chosen;$('workspace-content').hidden=!chosen;
@@ -375,6 +391,27 @@
    try{must(await sb.from('crm_app_activities').update({deleted_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('workspace_id',workspace.id).eq('id',archive.dataset.archive));await refresh();notify('تمت أرشفة النشاط');}
    catch(err){notify(err.message,true);}
   }
+ });
+ $('invite-form').addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(currentRole!=='owner'||!workspace)return notify(english?'Owner access required':'هذه العملية للمالك فقط',true);
+  const fd=new FormData(event.currentTarget);
+  const email=String(fd.get('email')||'').trim().toLowerCase();
+  const role=String(fd.get('role')||'');
+  if(!/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(email)||!['viewer','editor','admin'].includes(role))
+   return notify(english?'Invalid invitation data':'بيانات الدعوة غير صحيحة',true);
+  const button=event.currentTarget.querySelector('[type="submit"]');button.disabled=true;
+  try{
+   const response=await window.BondsAuth.authenticatedFetch('/api/crm-invite',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({workspace_id:workspace.id,email,role}),redirectOnAuth:false
+   });
+   const result=await response.json();
+   if(!response.ok||result?.success!==true)throw Error(result?.error||'INVITATION_FAILED');
+   notify(english?'Email provider accepted the invitation request.':'قبل مزود البريد طلب إرسال الدعوة.');
+   event.currentTarget.reset();
+  }catch(err){notify((english?'Could not send invitation: ':'تعذّر إرسال الدعوة: ')+(err.message||err),true);}
+  finally{button.disabled=false;}
  });
  $('member-form').addEventListener('submit',async event=>{
   event.preventDefault();
