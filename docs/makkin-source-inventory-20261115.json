@@ -1,0 +1,8931 @@
+{
+  "source": {
+    "repository": "alzahrani6020/scc380",
+    "branch": "main",
+    "sidebarPath": "apps/web/src/components/layout/Sidebar.tsx",
+    "schemaPath": "packages/database/prisma/schema.prisma",
+    "appModulePath": "apps/api/src/app.module.ts",
+    "sidebarBlob": "4ac1f90652c3772ce8a959f2b1ee82ba930dfa1f",
+    "schemaBlob": "546de4d6d0941e3e85def3b622ddc0353e74b6cf",
+    "appModuleBlob": "f486215d8f47a7a2e03722b75d20c4579440cca2"
+  },
+  "notice": "This is an extracted source inventory, NOT evidence of migration, deployment, feature correctness or runtime availability. All fields and paths must be reconciled with BONDS one-to-one.",
+  "summary": {
+    "navigationEntries": 74,
+    "dataModels": 108,
+    "modelFields": 1966,
+    "apiModules": 33
+  },
+  "navigation": [
+    {
+      "group": "الرئيسية",
+      "label": "لوحة التحكم",
+      "path": "/dashboard"
+    },
+    {
+      "group": "الرئيسية",
+      "label": "التحليلات",
+      "path": "/dashboard/analytics"
+    },
+    {
+      "group": "الرئيسية",
+      "label": "التنبيهات والإشعارات",
+      "path": "/dashboard/notifications"
+    },
+    {
+      "group": "العملاء (CRM)",
+      "label": "نظرة عامة",
+      "path": "/dashboard/crm"
+    },
+    {
+      "group": "العملاء (CRM)",
+      "label": "جهات الاتصال",
+      "path": "/dashboard/crm/contacts"
+    },
+    {
+      "group": "العملاء (CRM)",
+      "label": "الشركات",
+      "path": "/dashboard/crm/companies"
+    },
+    {
+      "group": "العملاء (CRM)",
+      "label": "الصفقات",
+      "path": "/dashboard/crm/deals"
+    },
+    {
+      "group": "العملاء (CRM)",
+      "label": "مسارات المبيعات",
+      "path": "/dashboard/crm/pipelines"
+    },
+    {
+      "group": "العملاء (CRM)",
+      "label": "الأنشطة",
+      "path": "/dashboard/crm/activities"
+    },
+    {
+      "group": "العملاء (CRM)",
+      "label": "المشاريع",
+      "path": "/dashboard/projects"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "نظرة عامة",
+      "path": "/dashboard/hr"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "الخدمة الذاتية",
+      "path": "/dashboard/hr/self-service"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "الموظفون",
+      "path": "/dashboard/hr/employees"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "طلبات الموارد البشرية",
+      "path": "/dashboard/hr/requests"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "الانضمام والمغادرة",
+      "path": "/dashboard/hr/lifecycle"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "الحضور",
+      "path": "/dashboard/hr/attendance"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "الورديات",
+      "path": "/dashboard/hr/shifts"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "الإجازات",
+      "path": "/dashboard/hr/leaves"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "أرصدة الإجازات",
+      "path": "/dashboard/hr/leave-balances"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "العقود",
+      "path": "/dashboard/hr/contracts"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "مستندات الموظفين",
+      "path": "/dashboard/hr/documents"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "العهد والأصول",
+      "path": "/dashboard/hr/assets"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "السلف والقروض",
+      "path": "/dashboard/hr/loans"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "التوظيف",
+      "path": "/dashboard/hr/recruitment"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "إدارة الأداء",
+      "path": "/dashboard/hr/performance"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "التدريب والتطوير",
+      "path": "/dashboard/hr/training"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "نهاية الخدمة والمخالصة",
+      "path": "/dashboard/hr/settlements"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "البلاغات والمخالفات",
+      "path": "/dashboard/hr/governance/violations"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "التحقيقات الإدارية والمالية",
+      "path": "/dashboard/hr/governance/investigations"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "الأدلة والإفادات",
+      "path": "/dashboard/hr/governance/evidence"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "الإنذارات والتظلمات",
+      "path": "/dashboard/hr/governance/discipline"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "المنافسة وتعارض المصالح",
+      "path": "/dashboard/hr/governance/conflicts"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "المطالبات والتعويضات",
+      "path": "/dashboard/hr/governance/claims"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "المنازعات والقضايا",
+      "path": "/dashboard/hr/governance/legal"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "إخلاء الطرف وتسليم الأعمال",
+      "path": "/dashboard/hr/governance/offboarding"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "الرقابة الوظيفية",
+      "path": "/dashboard/hr/governance/compliance"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "مسيرات الرواتب",
+      "path": "/dashboard/hr/payroll-runs"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "سجلات الرواتب",
+      "path": "/dashboard/hr/payroll"
+    },
+    {
+      "group": "الموارد البشرية (مكين)",
+      "label": "الإدارات",
+      "path": "/dashboard/hr/departments"
+    },
+    {
+      "group": "العقارات",
+      "label": "نظرة عامة",
+      "path": "/dashboard/real-estate"
+    },
+    {
+      "group": "العقارات",
+      "label": "قائمة العقارات",
+      "path": "/dashboard/real-estate/properties"
+    },
+    {
+      "group": "العقارات",
+      "label": "الوحدات",
+      "path": "/dashboard/real-estate/units"
+    },
+    {
+      "group": "العقارات",
+      "label": "العقود",
+      "path": "/dashboard/real-estate/contracts"
+    },
+    {
+      "group": "العقارات",
+      "label": "دفعات الإيجار",
+      "path": "/dashboard/real-estate/payments"
+    },
+    {
+      "group": "الأسطول",
+      "label": "المركبات",
+      "path": "/dashboard/fleet"
+    },
+    {
+      "group": "الأسطول",
+      "label": "الرحلات",
+      "path": "/dashboard/fleet/trips"
+    },
+    {
+      "group": "الأسطول",
+      "label": "السائقون",
+      "path": "/dashboard/fleet/drivers"
+    },
+    {
+      "group": "الأسطول",
+      "label": "الصيانة",
+      "path": "/dashboard/fleet/maintenance"
+    },
+    {
+      "group": "الأسطول",
+      "label": "الوقود",
+      "path": "/dashboard/fleet/fuel"
+    },
+    {
+      "group": "المبيعات",
+      "label": "الفواتير",
+      "path": "/dashboard/erp"
+    },
+    {
+      "group": "المبيعات",
+      "label": "الكاشير",
+      "path": "/dashboard/pos"
+    },
+    {
+      "group": "المشتريات والموردون",
+      "label": "الموردون",
+      "path": "/dashboard/suppliers"
+    },
+    {
+      "group": "المشتريات والموردون",
+      "label": "فواتير الموردين",
+      "path": "/dashboard/supplier-invoices"
+    },
+    {
+      "group": "المشتريات والموردون",
+      "label": "أوامر الشراء",
+      "path": "/dashboard/finance/purchase-orders"
+    },
+    {
+      "group": "المخزون",
+      "label": "الأصناف والمخزون",
+      "path": "/dashboard/inventory"
+    },
+    {
+      "group": "المخزون",
+      "label": "تحويلات المخزون",
+      "path": "/dashboard/stock-transfers"
+    },
+    {
+      "group": "المالية",
+      "label": "نظرة عامة",
+      "path": "/dashboard/finance"
+    },
+    {
+      "group": "المالية",
+      "label": "المدفوعات",
+      "path": "/dashboard/finance/payments"
+    },
+    {
+      "group": "المالية",
+      "label": "المصروفات",
+      "path": "/dashboard/finance/expenses"
+    },
+    {
+      "group": "المالية",
+      "label": "الحسابات البنكية",
+      "path": "/dashboard/finance/bank-accounts"
+    },
+    {
+      "group": "المالية",
+      "label": "التقارير المالية",
+      "path": "/dashboard/financial-reports"
+    },
+    {
+      "group": "المحاسبة",
+      "label": "القيود اليومية",
+      "path": "/dashboard/finance/journal-entries"
+    },
+    {
+      "group": "المحاسبة",
+      "label": "دفتر الأستاذ",
+      "path": "/dashboard/finance/general-ledger"
+    },
+    {
+      "group": "المحاسبة",
+      "label": "دليل الحسابات",
+      "path": "/dashboard/finance/chart-of-accounts"
+    },
+    {
+      "group": "الفروع",
+      "label": "إدارة الفروع",
+      "path": "/dashboard/branches"
+    },
+    {
+      "group": "النظام",
+      "label": "التكاملات الحكومية",
+      "path": "/dashboard/government"
+    },
+    {
+      "group": "النظام",
+      "label": "المساعد الذكي",
+      "path": "/dashboard/ai"
+    },
+    {
+      "group": "النظام",
+      "label": "طلبات الموافقة",
+      "path": "/dashboard/approvals"
+    },
+    {
+      "group": "النظام",
+      "label": "الامتثال",
+      "path": "/dashboard/compliance"
+    },
+    {
+      "group": "النظام",
+      "label": "الأمان",
+      "path": "/dashboard/security"
+    },
+    {
+      "group": "النظام",
+      "label": "المستخدمون",
+      "path": "/dashboard/users"
+    },
+    {
+      "group": "النظام",
+      "label": "النماذج الإلكترونية",
+      "path": "/dashboard/templates"
+    },
+    {
+      "group": "النظام",
+      "label": "الاشتراكات",
+      "path": "/dashboard/billing"
+    },
+    {
+      "group": "النظام",
+      "label": "الإعدادات",
+      "path": "/dashboard/settings"
+    }
+  ],
+  "models": [
+    {
+      "name": "Tenant",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "slug",
+          "type": "String"
+        },
+        {
+          "name": "domain",
+          "type": "String?"
+        },
+        {
+          "name": "type",
+          "type": "TenantType"
+        },
+        {
+          "name": "status",
+          "type": "TenantStatus"
+        },
+        {
+          "name": "plan",
+          "type": "PlanType"
+        },
+        {
+          "name": "vatNumber",
+          "type": "String?"
+        },
+        {
+          "name": "crNumber",
+          "type": "String?"
+        },
+        {
+          "name": "settings",
+          "type": "Json?"
+        },
+        {
+          "name": "features",
+          "type": "String[]"
+        },
+        {
+          "name": "logoUrl",
+          "type": "String?"
+        },
+        {
+          "name": "primaryColor",
+          "type": "String?"
+        },
+        {
+          "name": "baseCurrency",
+          "type": "String"
+        },
+        {
+          "name": "fxGainAccountId",
+          "type": "String?"
+        },
+        {
+          "name": "fxLossAccountId",
+          "type": "String?"
+        },
+        {
+          "name": "vatSettlementPayableAccountId",
+          "type": "String?"
+        },
+        {
+          "name": "vatSettlementReceivableAccountId",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "deletedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "users",
+          "type": "User[]"
+        },
+        {
+          "name": "contacts",
+          "type": "Contact[]"
+        },
+        {
+          "name": "companies",
+          "type": "Company[]"
+        },
+        {
+          "name": "pipelines",
+          "type": "Pipeline[]"
+        },
+        {
+          "name": "pipelineStages",
+          "type": "PipelineStage[]"
+        },
+        {
+          "name": "deals",
+          "type": "Deal[]"
+        },
+        {
+          "name": "activities",
+          "type": "Activity[]"
+        },
+        {
+          "name": "invoices",
+          "type": "Invoice[]"
+        },
+        {
+          "name": "invoiceItems",
+          "type": "InvoiceItem[]"
+        },
+        {
+          "name": "employees",
+          "type": "Employee[]"
+        },
+        {
+          "name": "departments",
+          "type": "Department[]"
+        },
+        {
+          "name": "vehicles",
+          "type": "Vehicle[]"
+        },
+        {
+          "name": "fleetTrips",
+          "type": "FleetTrip[]"
+        },
+        {
+          "name": "auditLogs",
+          "type": "AuditLog[]"
+        },
+        {
+          "name": "projects",
+          "type": "Project[]"
+        },
+        {
+          "name": "tasks",
+          "type": "Task[]"
+        },
+        {
+          "name": "payments",
+          "type": "Payment[]"
+        },
+        {
+          "name": "expenses",
+          "type": "Expense[]"
+        },
+        {
+          "name": "chartOfAccounts",
+          "type": "ChartOfAccount[]"
+        },
+        {
+          "name": "journalEntries",
+          "type": "JournalEntry[]"
+        },
+        {
+          "name": "journalEntryHeaders",
+          "type": "JournalEntryHeader[]"
+        },
+        {
+          "name": "journalEntryLines",
+          "type": "JournalEntryLine[]"
+        },
+        {
+          "name": "bankAccounts",
+          "type": "BankAccount[]"
+        },
+        {
+          "name": "bankStatementLines",
+          "type": "BankStatementLine[]"
+        },
+        {
+          "name": "bankReconciliations",
+          "type": "BankReconciliation[]"
+        },
+        {
+          "name": "purchaseOrders",
+          "type": "PurchaseOrder[]"
+        },
+        {
+          "name": "leaves",
+          "type": "Leave[]"
+        },
+        {
+          "name": "attendances",
+          "type": "Attendance[]"
+        },
+        {
+          "name": "payrolls",
+          "type": "Payroll[]"
+        },
+        {
+          "name": "shifts",
+          "type": "Shift[]"
+        },
+        {
+          "name": "employeeContracts",
+          "type": "EmployeeContract[]"
+        },
+        {
+          "name": "leavePolicies",
+          "type": "LeavePolicy[]"
+        },
+        {
+          "name": "leaveBalances",
+          "type": "LeaveBalance[]"
+        },
+        {
+          "name": "leaveBalanceAdjustments",
+          "type": "LeaveBalanceAdjustment[]"
+        },
+        {
+          "name": "payrollRuns",
+          "type": "PayrollRun[]"
+        },
+        {
+          "name": "payrollRunItems",
+          "type": "PayrollRunItem[]"
+        },
+        {
+          "name": "employeeDocuments",
+          "type": "EmployeeDocument[]"
+        },
+        {
+          "name": "employeeLoans",
+          "type": "EmployeeLoan[]"
+        },
+        {
+          "name": "employeeLoanPayments",
+          "type": "EmployeeLoanPayment[]"
+        },
+        {
+          "name": "payrollRunLoanDeductions",
+          "type": "PayrollRunLoanDeduction[]"
+        },
+        {
+          "name": "endServiceSettlements",
+          "type": "EndServiceSettlement[]"
+        },
+        {
+          "name": "hrRequests",
+          "type": "HrRequest[]"
+        },
+        {
+          "name": "hrLifecycleCases",
+          "type": "HrLifecycleCase[]"
+        },
+        {
+          "name": "hrLifecycleTasks",
+          "type": "HrLifecycleTask[]"
+        },
+        {
+          "name": "assetCustodyAssignments",
+          "type": "AssetCustodyAssignment[]"
+        },
+        {
+          "name": "jobOpenings",
+          "type": "JobOpening[]"
+        },
+        {
+          "name": "candidates",
+          "type": "Candidate[]"
+        },
+        {
+          "name": "performanceReviews",
+          "type": "PerformanceReview[]"
+        },
+        {
+          "name": "trainingCourses",
+          "type": "TrainingCourse[]"
+        },
+        {
+          "name": "trainingEnrollments",
+          "type": "TrainingEnrollment[]"
+        },
+        {
+          "name": "drivers",
+          "type": "Driver[]"
+        },
+        {
+          "name": "fleetMaintenances",
+          "type": "FleetMaintenance[]"
+        },
+        {
+          "name": "fleetFuelLogs",
+          "type": "FleetFuelLog[]"
+        },
+        {
+          "name": "sessions",
+          "type": "Session[]"
+        },
+        {
+          "name": "apiKeys",
+          "type": "ApiKey[]"
+        },
+        {
+          "name": "loginAttempts",
+          "type": "LoginAttempt[]"
+        },
+        {
+          "name": "aiConversations",
+          "type": "AIConversation[]"
+        },
+        {
+          "name": "aiMessages",
+          "type": "AIMessage[]"
+        },
+        {
+          "name": "templates",
+          "type": "Template[]"
+        },
+        {
+          "name": "notifications",
+          "type": "Notification[]"
+        },
+        {
+          "name": "subscriptions",
+          "type": "Subscription[]"
+        },
+        {
+          "name": "branches",
+          "type": "Branch[]"
+        },
+        {
+          "name": "alerts",
+          "type": "Alert[]"
+        },
+        {
+          "name": "suppliers",
+          "type": "Supplier[]"
+        },
+        {
+          "name": "supplierInvoices",
+          "type": "SupplierInvoice[]"
+        },
+        {
+          "name": "supplierInvoiceItems",
+          "type": "SupplierInvoiceItem[]"
+        },
+        {
+          "name": "supplierPayments",
+          "type": "SupplierPayment[]"
+        },
+        {
+          "name": "stockTransfers",
+          "type": "StockTransfer[]"
+        },
+        {
+          "name": "stockTransferItems",
+          "type": "StockTransferItem[]"
+        },
+        {
+          "name": "products",
+          "type": "Product[]"
+        },
+        {
+          "name": "productCategories",
+          "type": "ProductCategory[]"
+        },
+        {
+          "name": "warehouses",
+          "type": "Warehouse[]"
+        },
+        {
+          "name": "stockMovements",
+          "type": "StockMovement[]"
+        },
+        {
+          "name": "posSessions",
+          "type": "PosSession[]"
+        },
+        {
+          "name": "posOrders",
+          "type": "PosOrder[]"
+        },
+        {
+          "name": "posOrderItems",
+          "type": "PosOrderItem[]"
+        },
+        {
+          "name": "posPayments",
+          "type": "PosPayment[]"
+        },
+        {
+          "name": "fixedAssets",
+          "type": "FixedAsset[]"
+        },
+        {
+          "name": "fixedAssetCategories",
+          "type": "FixedAssetCategory[]"
+        },
+        {
+          "name": "depreciationEntries",
+          "type": "DepreciationEntry[]"
+        },
+        {
+          "name": "costCenters",
+          "type": "CostCenter[]"
+        },
+        {
+          "name": "financialPeriods",
+          "type": "FinancialPeriod[]"
+        },
+        {
+          "name": "budgetPlans",
+          "type": "BudgetPlan[]"
+        },
+        {
+          "name": "budgetLines",
+          "type": "BudgetLine[]"
+        },
+        {
+          "name": "exchangeRates",
+          "type": "ExchangeRate[]"
+        },
+        {
+          "name": "vatReturns",
+          "type": "VatReturn[]"
+        },
+        {
+          "name": "accountingSchedules",
+          "type": "AccountingSchedule[]"
+        },
+        {
+          "name": "accountingScheduleRuns",
+          "type": "AccountingScheduleRun[]"
+        },
+        {
+          "name": "yearEndCloses",
+          "type": "YearEndClose[]"
+        },
+        {
+          "name": "zatcaCredential",
+          "type": "ZatcaCredential?"
+        },
+        {
+          "name": "dataSubjectConsents",
+          "type": "DataSubjectConsent[]"
+        },
+        {
+          "name": "gpsLogs",
+          "type": "VehicleGpsLog[]"
+        },
+        {
+          "name": "driverCompliances",
+          "type": "DriverCompliance[]"
+        },
+        {
+          "name": "fleetViolations",
+          "type": "FleetViolation[]"
+        },
+        {
+          "name": "tripManifests",
+          "type": "TripManifest[]"
+        },
+        {
+          "name": "properties",
+          "type": "Property[]"
+        },
+        {
+          "name": "units",
+          "type": "Unit[]"
+        },
+        {
+          "name": "leaseContracts",
+          "type": "LeaseContract[]"
+        },
+        {
+          "name": "rentPayments",
+          "type": "RentPayment[]"
+        },
+        {
+          "name": "contractDocuments",
+          "type": "ContractDocument[]"
+        },
+        {
+          "name": "propertyExpenses",
+          "type": "PropertyExpense[]"
+        },
+        {
+          "name": "hrGovernanceCases",
+          "type": "HrGovernanceCase[]"
+        }
+      ]
+    },
+    {
+      "name": "ZatcaCredential",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "privateKey",
+          "type": "String?"
+        },
+        {
+          "name": "publicKey",
+          "type": "String?"
+        },
+        {
+          "name": "csrPem",
+          "type": "String?"
+        },
+        {
+          "name": "csid",
+          "type": "String?"
+        },
+        {
+          "name": "secretKey",
+          "type": "String?"
+        },
+        {
+          "name": "complianceToken",
+          "type": "String?"
+        },
+        {
+          "name": "productionToken",
+          "type": "String?"
+        },
+        {
+          "name": "otp",
+          "type": "String?"
+        },
+        {
+          "name": "otpExpiresAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "environment",
+          "type": "String"
+        },
+        {
+          "name": "lastRenewedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "expiresAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "email",
+          "type": "String"
+        },
+        {
+          "name": "phone",
+          "type": "String?"
+        },
+        {
+          "name": "passwordHash",
+          "type": "String?"
+        },
+        {
+          "name": "firstName",
+          "type": "String"
+        },
+        {
+          "name": "lastName",
+          "type": "String"
+        },
+        {
+          "name": "role",
+          "type": "UserRole"
+        },
+        {
+          "name": "status",
+          "type": "UserStatus"
+        },
+        {
+          "name": "emailVerified",
+          "type": "Boolean"
+        },
+        {
+          "name": "phoneVerified",
+          "type": "Boolean"
+        },
+        {
+          "name": "lastLoginAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "keycloakId",
+          "type": "String?"
+        },
+        {
+          "name": "preferences",
+          "type": "Json?"
+        },
+        {
+          "name": "twoFactorSecret",
+          "type": "String?"
+        },
+        {
+          "name": "twoFactorEnabled",
+          "type": "Boolean"
+        },
+        {
+          "name": "twoFactorBackupCodes",
+          "type": "String[]"
+        },
+        {
+          "name": "tenantId",
+          "type": "String?"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "deletedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "sessions",
+          "type": "Session[]"
+        },
+        {
+          "name": "apiKeys",
+          "type": "ApiKey[]"
+        },
+        {
+          "name": "loginAttempts",
+          "type": "LoginAttempt[]"
+        },
+        {
+          "name": "notifications",
+          "type": "Notification[]"
+        },
+        {
+          "name": "subscriptions",
+          "type": "Subscription[]"
+        },
+        {
+          "name": "oauthAccounts",
+          "type": "OAuthAccount[]"
+        },
+        {
+          "name": "passwordResets",
+          "type": "PasswordResetToken[]"
+        },
+        {
+          "name": "auditLogs",
+          "type": "AuditLog[]"
+        },
+        {
+          "name": "employeeProfile",
+          "type": "Employee?"
+        },
+        {
+          "name": "assignedContacts",
+          "type": "Contact[]"
+        },
+        {
+          "name": "assignedDeals",
+          "type": "Deal[]"
+        },
+        {
+          "name": "assignedActivities",
+          "type": "Activity[]"
+        }
+      ]
+    },
+    {
+      "name": "AuditLog",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String?"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant?"
+        },
+        {
+          "name": "userId",
+          "type": "String?"
+        },
+        {
+          "name": "user",
+          "type": "User?"
+        },
+        {
+          "name": "action",
+          "type": "String"
+        },
+        {
+          "name": "entityType",
+          "type": "String"
+        },
+        {
+          "name": "entityId",
+          "type": "String?"
+        },
+        {
+          "name": "oldValues",
+          "type": "Json?"
+        },
+        {
+          "name": "newValues",
+          "type": "Json?"
+        },
+        {
+          "name": "ipAddress",
+          "type": "String?"
+        },
+        {
+          "name": "userAgent",
+          "type": "String?"
+        },
+        {
+          "name": "httpMethod",
+          "type": "String?"
+        },
+        {
+          "name": "httpPath",
+          "type": "String?"
+        },
+        {
+          "name": "requestBody",
+          "type": "Json?"
+        },
+        {
+          "name": "responseStatus",
+          "type": "Int?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "DataSubjectConsent",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String?"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant?"
+        },
+        {
+          "name": "subjectType",
+          "type": "String"
+        },
+        {
+          "name": "subjectId",
+          "type": "String"
+        },
+        {
+          "name": "subjectName",
+          "type": "String"
+        },
+        {
+          "name": "subjectEmail",
+          "type": "String?"
+        },
+        {
+          "name": "subjectPhone",
+          "type": "String?"
+        },
+        {
+          "name": "purpose",
+          "type": "String"
+        },
+        {
+          "name": "purposeAr",
+          "type": "String?"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "granted",
+          "type": "Boolean"
+        },
+        {
+          "name": "grantedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "withdrawnAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "withdrawnBy",
+          "type": "String?"
+        },
+        {
+          "name": "ipAddress",
+          "type": "String?"
+        },
+        {
+          "name": "userAgent",
+          "type": "String?"
+        },
+        {
+          "name": "documentUrl",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "PasswordResetToken",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "email",
+          "type": "String"
+        },
+        {
+          "name": "token",
+          "type": "String"
+        },
+        {
+          "name": "expiresAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "usedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "user",
+          "type": "User?"
+        },
+        {
+          "name": "userId",
+          "type": "String?"
+        }
+      ]
+    },
+    {
+      "name": "OAuthAccount",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "userId",
+          "type": "String"
+        },
+        {
+          "name": "user",
+          "type": "User"
+        },
+        {
+          "name": "provider",
+          "type": "String"
+        },
+        {
+          "name": "providerAccountId",
+          "type": "String"
+        },
+        {
+          "name": "accessToken",
+          "type": "String?"
+        },
+        {
+          "name": "refreshToken",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "type",
+          "type": "ContactType"
+        },
+        {
+          "name": "status",
+          "type": "ContactStatus"
+        },
+        {
+          "name": "firstName",
+          "type": "String"
+        },
+        {
+          "name": "lastName",
+          "type": "String"
+        },
+        {
+          "name": "email",
+          "type": "String?"
+        },
+        {
+          "name": "phone",
+          "type": "String?"
+        },
+        {
+          "name": "phone2",
+          "type": "String?"
+        },
+        {
+          "name": "companyName",
+          "type": "String?"
+        },
+        {
+          "name": "companyId",
+          "type": "String?"
+        },
+        {
+          "name": "company",
+          "type": "Company?"
+        },
+        {
+          "name": "jobTitle",
+          "type": "String?"
+        },
+        {
+          "name": "idNumber",
+          "type": "String?"
+        },
+        {
+          "name": "vatNumber",
+          "type": "String?"
+        },
+        {
+          "name": "crNumber",
+          "type": "String?"
+        },
+        {
+          "name": "address",
+          "type": "String?"
+        },
+        {
+          "name": "city",
+          "type": "String?"
+        },
+        {
+          "name": "region",
+          "type": "String?"
+        },
+        {
+          "name": "zipCode",
+          "type": "String?"
+        },
+        {
+          "name": "country",
+          "type": "String?"
+        },
+        {
+          "name": "source",
+          "type": "LeadSource?"
+        },
+        {
+          "name": "stage",
+          "type": "DealStage?"
+        },
+        {
+          "name": "assignedToId",
+          "type": "String?"
+        },
+        {
+          "name": "assignedTo",
+          "type": "User?"
+        },
+        {
+          "name": "deals",
+          "type": "Deal[]"
+        },
+        {
+          "name": "activities",
+          "type": "Activity[]"
+        },
+        {
+          "name": "customFields",
+          "type": "Json?"
+        },
+        {
+          "name": "tags",
+          "type": "String[]"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Company",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "legalName",
+          "type": "String?"
+        },
+        {
+          "name": "crNumber",
+          "type": "String?"
+        },
+        {
+          "name": "vatNumber",
+          "type": "String?"
+        },
+        {
+          "name": "website",
+          "type": "String?"
+        },
+        {
+          "name": "email",
+          "type": "String?"
+        },
+        {
+          "name": "phone",
+          "type": "String?"
+        },
+        {
+          "name": "address",
+          "type": "String?"
+        },
+        {
+          "name": "city",
+          "type": "String?"
+        },
+        {
+          "name": "country",
+          "type": "String?"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "customFields",
+          "type": "Json?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "contacts",
+          "type": "Contact[]"
+        },
+        {
+          "name": "deals",
+          "type": "Deal[]"
+        }
+      ]
+    },
+    {
+      "name": "Pipeline",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "isDefault",
+          "type": "Boolean"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "stages",
+          "type": "PipelineStage[]"
+        },
+        {
+          "name": "deals",
+          "type": "Deal[]"
+        }
+      ]
+    },
+    {
+      "name": "PipelineStage",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "pipelineId",
+          "type": "String"
+        },
+        {
+          "name": "pipeline",
+          "type": "Pipeline"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "order",
+          "type": "Int"
+        },
+        {
+          "name": "probability",
+          "type": "Int"
+        },
+        {
+          "name": "color",
+          "type": "String?"
+        },
+        {
+          "name": "isWon",
+          "type": "Boolean"
+        },
+        {
+          "name": "isLost",
+          "type": "Boolean"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "deals",
+          "type": "Deal[]"
+        }
+      ]
+    },
+    {
+      "name": "Deal",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "contactId",
+          "type": "String"
+        },
+        {
+          "name": "contact",
+          "type": "Contact"
+        },
+        {
+          "name": "companyId",
+          "type": "String?"
+        },
+        {
+          "name": "company",
+          "type": "Company?"
+        },
+        {
+          "name": "value",
+          "type": "Decimal?"
+        },
+        {
+          "name": "currency",
+          "type": "String?"
+        },
+        {
+          "name": "stage",
+          "type": "DealStage"
+        },
+        {
+          "name": "probability",
+          "type": "Int?"
+        },
+        {
+          "name": "expectedClose",
+          "type": "DateTime?"
+        },
+        {
+          "name": "actualClose",
+          "type": "DateTime?"
+        },
+        {
+          "name": "assignedToId",
+          "type": "String?"
+        },
+        {
+          "name": "assignedTo",
+          "type": "User?"
+        },
+        {
+          "name": "activities",
+          "type": "Activity[]"
+        },
+        {
+          "name": "pipelineId",
+          "type": "String?"
+        },
+        {
+          "name": "pipeline",
+          "type": "Pipeline?"
+        },
+        {
+          "name": "pipelineStageId",
+          "type": "String?"
+        },
+        {
+          "name": "pipelineStage",
+          "type": "PipelineStage?"
+        },
+        {
+          "name": "stageOrder",
+          "type": "Int?"
+        },
+        {
+          "name": "customFields",
+          "type": "Json?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Activity",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "type",
+          "type": "ActivityType"
+        },
+        {
+          "name": "subject",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "contactId",
+          "type": "String?"
+        },
+        {
+          "name": "contact",
+          "type": "Contact?"
+        },
+        {
+          "name": "dealId",
+          "type": "String?"
+        },
+        {
+          "name": "deal",
+          "type": "Deal?"
+        },
+        {
+          "name": "scheduledAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "completedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "assignedToId",
+          "type": "String?"
+        },
+        {
+          "name": "assignedTo",
+          "type": "User?"
+        },
+        {
+          "name": "remindAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "reminded",
+          "type": "Boolean"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Invoice",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "invoiceNumber",
+          "type": "String"
+        },
+        {
+          "name": "contactId",
+          "type": "String"
+        },
+        {
+          "name": "type",
+          "type": "InvoiceType"
+        },
+        {
+          "name": "status",
+          "type": "InvoiceStatus"
+        },
+        {
+          "name": "subtotal",
+          "type": "Decimal"
+        },
+        {
+          "name": "taxRate",
+          "type": "Decimal?"
+        },
+        {
+          "name": "taxAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "discount",
+          "type": "Decimal?"
+        },
+        {
+          "name": "total",
+          "type": "Decimal"
+        },
+        {
+          "name": "currency",
+          "type": "String?"
+        },
+        {
+          "name": "exchangeRate",
+          "type": "Decimal?"
+        },
+        {
+          "name": "baseTotal",
+          "type": "Decimal?"
+        },
+        {
+          "name": "issueDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "dueDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "paidAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "paidAmount",
+          "type": "Decimal?"
+        },
+        {
+          "name": "zatcaUuid",
+          "type": "String?"
+        },
+        {
+          "name": "zatcaXmlUrl",
+          "type": "String?"
+        },
+        {
+          "name": "zatcaStatus",
+          "type": "ZatcaStatus?"
+        },
+        {
+          "name": "zatcaSignedXml",
+          "type": "String?"
+        },
+        {
+          "name": "previousInvoiceHash",
+          "type": "String?"
+        },
+        {
+          "name": "digitalSignature",
+          "type": "String?"
+        },
+        {
+          "name": "qrCodeData",
+          "type": "String?"
+        },
+        {
+          "name": "clearanceStatus",
+          "type": "String?"
+        },
+        {
+          "name": "reportingStatus",
+          "type": "String?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "retentionUntil",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "items",
+          "type": "InvoiceItem[]"
+        },
+        {
+          "name": "payments",
+          "type": "Payment[]"
+        }
+      ]
+    },
+    {
+      "name": "InvoiceItem",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "invoiceId",
+          "type": "String"
+        },
+        {
+          "name": "invoice",
+          "type": "Invoice"
+        },
+        {
+          "name": "productId",
+          "type": "String?"
+        },
+        {
+          "name": "product",
+          "type": "Product?"
+        },
+        {
+          "name": "description",
+          "type": "String"
+        },
+        {
+          "name": "quantity",
+          "type": "Decimal"
+        },
+        {
+          "name": "unitPrice",
+          "type": "Decimal"
+        },
+        {
+          "name": "discount",
+          "type": "Decimal?"
+        },
+        {
+          "name": "taxRate",
+          "type": "Decimal?"
+        },
+        {
+          "name": "total",
+          "type": "Decimal"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Payment",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "invoiceId",
+          "type": "String?"
+        },
+        {
+          "name": "invoice",
+          "type": "Invoice?"
+        },
+        {
+          "name": "amount",
+          "type": "Decimal"
+        },
+        {
+          "name": "currency",
+          "type": "String?"
+        },
+        {
+          "name": "exchangeRate",
+          "type": "Decimal?"
+        },
+        {
+          "name": "baseAmount",
+          "type": "Decimal?"
+        },
+        {
+          "name": "realizedFxDifference",
+          "type": "Decimal?"
+        },
+        {
+          "name": "method",
+          "type": "PaymentMethod"
+        },
+        {
+          "name": "status",
+          "type": "PaymentStatus"
+        },
+        {
+          "name": "reference",
+          "type": "String?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "paidAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Expense",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "category",
+          "type": "ExpenseCategory"
+        },
+        {
+          "name": "amount",
+          "type": "Decimal"
+        },
+        {
+          "name": "currency",
+          "type": "String?"
+        },
+        {
+          "name": "description",
+          "type": "String"
+        },
+        {
+          "name": "receiptUrl",
+          "type": "String?"
+        },
+        {
+          "name": "incurredAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "approvedById",
+          "type": "String?"
+        },
+        {
+          "name": "status",
+          "type": "ExpenseStatus"
+        },
+        {
+          "name": "debitAccountId",
+          "type": "String?"
+        },
+        {
+          "name": "debitAccount",
+          "type": "ChartOfAccount?"
+        },
+        {
+          "name": "creditAccountId",
+          "type": "String?"
+        },
+        {
+          "name": "creditAccount",
+          "type": "ChartOfAccount?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "ChartOfAccount",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "type",
+          "type": "AccountType"
+        },
+        {
+          "name": "parentId",
+          "type": "String?"
+        },
+        {
+          "name": "balance",
+          "type": "Decimal"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "ledgerEntries",
+          "type": "JournalEntry[]"
+        },
+        {
+          "name": "journalEntryLines",
+          "type": "JournalEntryLine[]"
+        },
+        {
+          "name": "supplierInvoiceItems",
+          "type": "SupplierInvoiceItem[]"
+        },
+        {
+          "name": "expenseDebits",
+          "type": "Expense[]"
+        },
+        {
+          "name": "expenseCredits",
+          "type": "Expense[]"
+        },
+        {
+          "name": "bankAccounts",
+          "type": "BankAccount[]"
+        },
+        {
+          "name": "yearEndRetainedEarnings",
+          "type": "YearEndClose[]"
+        },
+        {
+          "name": "budgetLines",
+          "type": "BudgetLine[]"
+        }
+      ]
+    },
+    {
+      "name": "JournalEntry",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "entryNumber",
+          "type": "String"
+        },
+        {
+          "name": "date",
+          "type": "DateTime"
+        },
+        {
+          "name": "description",
+          "type": "String"
+        },
+        {
+          "name": "reference",
+          "type": "String?"
+        },
+        {
+          "name": "debitAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "creditAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "accountId",
+          "type": "String?"
+        },
+        {
+          "name": "chartAccount",
+          "type": "ChartOfAccount?"
+        },
+        {
+          "name": "type",
+          "type": "JournalType"
+        },
+        {
+          "name": "status",
+          "type": "JournalStatus"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "reconciledBankLines",
+          "type": "BankStatementLine[]"
+        }
+      ]
+    },
+    {
+      "name": "JournalEntryHeader",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "entryNumber",
+          "type": "String"
+        },
+        {
+          "name": "date",
+          "type": "DateTime"
+        },
+        {
+          "name": "description",
+          "type": "String"
+        },
+        {
+          "name": "reference",
+          "type": "String?"
+        },
+        {
+          "name": "type",
+          "type": "JournalType"
+        },
+        {
+          "name": "status",
+          "type": "JournalStatus"
+        },
+        {
+          "name": "sourceType",
+          "type": "String?"
+        },
+        {
+          "name": "sourceId",
+          "type": "String?"
+        },
+        {
+          "name": "transactionCurrency",
+          "type": "String?"
+        },
+        {
+          "name": "exchangeRate",
+          "type": "Decimal?"
+        },
+        {
+          "name": "reversalOfId",
+          "type": "String?"
+        },
+        {
+          "name": "reversalOf",
+          "type": "JournalEntryHeader?"
+        },
+        {
+          "name": "reversals",
+          "type": "JournalEntryHeader[]"
+        },
+        {
+          "name": "postedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "lines",
+          "type": "JournalEntryLine[]"
+        },
+        {
+          "name": "yearEndClosingRecord",
+          "type": "YearEndClose?"
+        },
+        {
+          "name": "yearEndReversalRecord",
+          "type": "YearEndClose?"
+        }
+      ]
+    },
+    {
+      "name": "JournalEntryLine",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "journalEntryId",
+          "type": "String"
+        },
+        {
+          "name": "journalEntry",
+          "type": "JournalEntryHeader"
+        },
+        {
+          "name": "lineNumber",
+          "type": "Int"
+        },
+        {
+          "name": "accountId",
+          "type": "String"
+        },
+        {
+          "name": "chartAccount",
+          "type": "ChartOfAccount"
+        },
+        {
+          "name": "debitAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "creditAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "foreignDebitAmount",
+          "type": "Decimal?"
+        },
+        {
+          "name": "foreignCreditAmount",
+          "type": "Decimal?"
+        },
+        {
+          "name": "costCenterId",
+          "type": "String?"
+        },
+        {
+          "name": "costCenter",
+          "type": "CostCenter?"
+        },
+        {
+          "name": "projectId",
+          "type": "String?"
+        },
+        {
+          "name": "project",
+          "type": "Project?"
+        },
+        {
+          "name": "branchId",
+          "type": "String?"
+        },
+        {
+          "name": "branch",
+          "type": "Branch?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "reconciledBankLines",
+          "type": "BankStatementLine[]"
+        }
+      ]
+    },
+    {
+      "name": "YearEndClose",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "year",
+          "type": "Int"
+        },
+        {
+          "name": "version",
+          "type": "Int"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "retainedEarningsAccountId",
+          "type": "String"
+        },
+        {
+          "name": "retainedEarningsAccount",
+          "type": "ChartOfAccount"
+        },
+        {
+          "name": "netIncome",
+          "type": "Decimal"
+        },
+        {
+          "name": "status",
+          "type": "YearEndCloseStatus"
+        },
+        {
+          "name": "closingJournalId",
+          "type": "String?"
+        },
+        {
+          "name": "closingJournal",
+          "type": "JournalEntryHeader?"
+        },
+        {
+          "name": "reversalJournalId",
+          "type": "String?"
+        },
+        {
+          "name": "reversalJournal",
+          "type": "JournalEntryHeader?"
+        },
+        {
+          "name": "closedBy",
+          "type": "String?"
+        },
+        {
+          "name": "closedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "reversedBy",
+          "type": "String?"
+        },
+        {
+          "name": "reversedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "BankAccount",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "bankName",
+          "type": "String"
+        },
+        {
+          "name": "accountName",
+          "type": "String"
+        },
+        {
+          "name": "accountNumber",
+          "type": "String"
+        },
+        {
+          "name": "iban",
+          "type": "String?"
+        },
+        {
+          "name": "swiftCode",
+          "type": "String?"
+        },
+        {
+          "name": "currency",
+          "type": "String?"
+        },
+        {
+          "name": "balance",
+          "type": "Decimal"
+        },
+        {
+          "name": "isDefault",
+          "type": "Boolean"
+        },
+        {
+          "name": "branchId",
+          "type": "String?"
+        },
+        {
+          "name": "branch",
+          "type": "Branch?"
+        },
+        {
+          "name": "chartAccountId",
+          "type": "String?"
+        },
+        {
+          "name": "chartAccount",
+          "type": "ChartOfAccount?"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "reconciliations",
+          "type": "BankReconciliation[]"
+        },
+        {
+          "name": "statementLines",
+          "type": "BankStatementLine[]"
+        }
+      ]
+    },
+    {
+      "name": "BankReconciliation",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "bankAccountId",
+          "type": "String"
+        },
+        {
+          "name": "bankAccount",
+          "type": "BankAccount"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "openingBalance",
+          "type": "Decimal"
+        },
+        {
+          "name": "endingBalance",
+          "type": "Decimal"
+        },
+        {
+          "name": "ledgerBalance",
+          "type": "Decimal?"
+        },
+        {
+          "name": "difference",
+          "type": "Decimal?"
+        },
+        {
+          "name": "status",
+          "type": "BankReconciliationStatus"
+        },
+        {
+          "name": "completedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "lines",
+          "type": "BankStatementLine[]"
+        }
+      ]
+    },
+    {
+      "name": "BankStatementLine",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "reconciliationId",
+          "type": "String"
+        },
+        {
+          "name": "reconciliation",
+          "type": "BankReconciliation"
+        },
+        {
+          "name": "bankAccountId",
+          "type": "String"
+        },
+        {
+          "name": "bankAccount",
+          "type": "BankAccount"
+        },
+        {
+          "name": "transactionDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "amount",
+          "type": "Decimal"
+        },
+        {
+          "name": "reference",
+          "type": "String?"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "externalId",
+          "type": "String?"
+        },
+        {
+          "name": "status",
+          "type": "BankStatementLineStatus"
+        },
+        {
+          "name": "matchedJournalEntryLineId",
+          "type": "String?"
+        },
+        {
+          "name": "matchedJournalEntryLine",
+          "type": "JournalEntryLine?"
+        },
+        {
+          "name": "matchedLegacyJournalEntryId",
+          "type": "String?"
+        },
+        {
+          "name": "matchedLegacyJournalEntry",
+          "type": "JournalEntry?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Supplier",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "nameAr",
+          "type": "String?"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "taxNumber",
+          "type": "String?"
+        },
+        {
+          "name": "commercialReg",
+          "type": "String?"
+        },
+        {
+          "name": "email",
+          "type": "String?"
+        },
+        {
+          "name": "phone",
+          "type": "String?"
+        },
+        {
+          "name": "address",
+          "type": "String?"
+        },
+        {
+          "name": "city",
+          "type": "String?"
+        },
+        {
+          "name": "country",
+          "type": "String"
+        },
+        {
+          "name": "contactName",
+          "type": "String?"
+        },
+        {
+          "name": "contactPhone",
+          "type": "String?"
+        },
+        {
+          "name": "paymentTerms",
+          "type": "Int"
+        },
+        {
+          "name": "creditLimit",
+          "type": "Decimal?"
+        },
+        {
+          "name": "balance",
+          "type": "Decimal"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "products",
+          "type": "Product[]"
+        },
+        {
+          "name": "purchaseOrders",
+          "type": "PurchaseOrder[]"
+        },
+        {
+          "name": "supplierInvoices",
+          "type": "SupplierInvoice[]"
+        },
+        {
+          "name": "supplierPayments",
+          "type": "SupplierPayment[]"
+        }
+      ]
+    },
+    {
+      "name": "Branch",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "address",
+          "type": "String?"
+        },
+        {
+          "name": "city",
+          "type": "String?"
+        },
+        {
+          "name": "phone",
+          "type": "String?"
+        },
+        {
+          "name": "email",
+          "type": "String?"
+        },
+        {
+          "name": "managerName",
+          "type": "String?"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "isMain",
+          "type": "Boolean"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "warehouses",
+          "type": "Warehouse[]"
+        },
+        {
+          "name": "posSessions",
+          "type": "PosSession[]"
+        },
+        {
+          "name": "posOrders",
+          "type": "PosOrder[]"
+        },
+        {
+          "name": "bankAccounts",
+          "type": "BankAccount[]"
+        },
+        {
+          "name": "journalEntryLines",
+          "type": "JournalEntryLine[]"
+        }
+      ]
+    },
+    {
+      "name": "Alert",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "severity",
+          "type": "String"
+        },
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "message",
+          "type": "String"
+        },
+        {
+          "name": "entityId",
+          "type": "String?"
+        },
+        {
+          "name": "entityType",
+          "type": "String?"
+        },
+        {
+          "name": "actionUrl",
+          "type": "String?"
+        },
+        {
+          "name": "isRead",
+          "type": "Boolean"
+        },
+        {
+          "name": "dismissedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "PurchaseOrder",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "poNumber",
+          "type": "String"
+        },
+        {
+          "name": "vendorId",
+          "type": "String?"
+        },
+        {
+          "name": "supplier",
+          "type": "Supplier?"
+        },
+        {
+          "name": "status",
+          "type": "POStatus"
+        },
+        {
+          "name": "subtotal",
+          "type": "Decimal"
+        },
+        {
+          "name": "taxAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "total",
+          "type": "Decimal"
+        },
+        {
+          "name": "currency",
+          "type": "String?"
+        },
+        {
+          "name": "expectedDelivery",
+          "type": "DateTime?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "SupplierInvoice",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "invoiceNumber",
+          "type": "String"
+        },
+        {
+          "name": "supplierId",
+          "type": "String"
+        },
+        {
+          "name": "supplier",
+          "type": "Supplier"
+        },
+        {
+          "name": "issueDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "dueDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "subtotal",
+          "type": "Decimal"
+        },
+        {
+          "name": "taxAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "total",
+          "type": "Decimal"
+        },
+        {
+          "name": "currency",
+          "type": "String"
+        },
+        {
+          "name": "exchangeRate",
+          "type": "Decimal?"
+        },
+        {
+          "name": "baseTotal",
+          "type": "Decimal?"
+        },
+        {
+          "name": "paidAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "status",
+          "type": "SupplierInvoiceStatus"
+        },
+        {
+          "name": "items",
+          "type": "SupplierInvoiceItem[]"
+        },
+        {
+          "name": "payments",
+          "type": "SupplierPayment[]"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "SupplierInvoiceItem",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "supplierInvoiceId",
+          "type": "String"
+        },
+        {
+          "name": "supplierInvoice",
+          "type": "SupplierInvoice"
+        },
+        {
+          "name": "description",
+          "type": "String"
+        },
+        {
+          "name": "quantity",
+          "type": "Int"
+        },
+        {
+          "name": "unitPrice",
+          "type": "Decimal"
+        },
+        {
+          "name": "total",
+          "type": "Decimal"
+        },
+        {
+          "name": "accountId",
+          "type": "String?"
+        },
+        {
+          "name": "chartAccount",
+          "type": "ChartOfAccount?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "SupplierPayment",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "supplierId",
+          "type": "String"
+        },
+        {
+          "name": "supplier",
+          "type": "Supplier"
+        },
+        {
+          "name": "supplierInvoiceId",
+          "type": "String?"
+        },
+        {
+          "name": "supplierInvoice",
+          "type": "SupplierInvoice?"
+        },
+        {
+          "name": "amount",
+          "type": "Decimal"
+        },
+        {
+          "name": "currency",
+          "type": "String"
+        },
+        {
+          "name": "exchangeRate",
+          "type": "Decimal?"
+        },
+        {
+          "name": "baseAmount",
+          "type": "Decimal?"
+        },
+        {
+          "name": "realizedFxDifference",
+          "type": "Decimal?"
+        },
+        {
+          "name": "method",
+          "type": "String"
+        },
+        {
+          "name": "reference",
+          "type": "String?"
+        },
+        {
+          "name": "paymentDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Employee",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "userId",
+          "type": "String?"
+        },
+        {
+          "name": "user",
+          "type": "User?"
+        },
+        {
+          "name": "employeeCode",
+          "type": "String"
+        },
+        {
+          "name": "firstName",
+          "type": "String"
+        },
+        {
+          "name": "lastName",
+          "type": "String"
+        },
+        {
+          "name": "email",
+          "type": "String?"
+        },
+        {
+          "name": "phone",
+          "type": "String?"
+        },
+        {
+          "name": "idNumber",
+          "type": "String?"
+        },
+        {
+          "name": "nationality",
+          "type": "String?"
+        },
+        {
+          "name": "departmentId",
+          "type": "String?"
+        },
+        {
+          "name": "jobTitle",
+          "type": "String?"
+        },
+        {
+          "name": "employmentType",
+          "type": "EmploymentType"
+        },
+        {
+          "name": "status",
+          "type": "EmployeeStatus"
+        },
+        {
+          "name": "hireDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "terminationDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "basicSalary",
+          "type": "Decimal?"
+        },
+        {
+          "name": "housingAllowance",
+          "type": "Decimal?"
+        },
+        {
+          "name": "transportAllowance",
+          "type": "Decimal?"
+        },
+        {
+          "name": "otherAllowances",
+          "type": "Decimal?"
+        },
+        {
+          "name": "gosiNumber",
+          "type": "String?"
+        },
+        {
+          "name": "gosiSalary",
+          "type": "Decimal?"
+        },
+        {
+          "name": "emergencyContactName",
+          "type": "String?"
+        },
+        {
+          "name": "emergencyContactPhone",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "leaves",
+          "type": "Leave[]"
+        },
+        {
+          "name": "attendances",
+          "type": "Attendance[]"
+        },
+        {
+          "name": "payrolls",
+          "type": "Payroll[]"
+        },
+        {
+          "name": "shifts",
+          "type": "Shift[]"
+        },
+        {
+          "name": "contracts",
+          "type": "EmployeeContract[]"
+        },
+        {
+          "name": "leaveBalances",
+          "type": "LeaveBalance[]"
+        },
+        {
+          "name": "payrollRunItems",
+          "type": "PayrollRunItem[]"
+        },
+        {
+          "name": "documents",
+          "type": "EmployeeDocument[]"
+        },
+        {
+          "name": "loans",
+          "type": "EmployeeLoan[]"
+        },
+        {
+          "name": "endServiceSettlements",
+          "type": "EndServiceSettlement[]"
+        },
+        {
+          "name": "hrRequests",
+          "type": "HrRequest[]"
+        },
+        {
+          "name": "lifecycleCases",
+          "type": "HrLifecycleCase[]"
+        },
+        {
+          "name": "assetCustodyAssignments",
+          "type": "AssetCustodyAssignment[]"
+        },
+        {
+          "name": "performanceReviews",
+          "type": "PerformanceReview[]"
+        },
+        {
+          "name": "trainingEnrollments",
+          "type": "TrainingEnrollment[]"
+        },
+        {
+          "name": "governanceCases",
+          "type": "HrGovernanceCase[]"
+        }
+      ]
+    },
+    {
+      "name": "EmployeeDocument",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "fileName",
+          "type": "String"
+        },
+        {
+          "name": "mimeType",
+          "type": "String"
+        },
+        {
+          "name": "sizeBytes",
+          "type": "Int"
+        },
+        {
+          "name": "checksumSha256",
+          "type": "String"
+        },
+        {
+          "name": "content",
+          "type": "Bytes"
+        },
+        {
+          "name": "issuedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "expiresAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "EmployeeLoan",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "principal",
+          "type": "Decimal"
+        },
+        {
+          "name": "installmentAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "balance",
+          "type": "Decimal"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "approvedById",
+          "type": "String?"
+        },
+        {
+          "name": "approvedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "payments",
+          "type": "EmployeeLoanPayment[]"
+        },
+        {
+          "name": "payrollDeductions",
+          "type": "PayrollRunLoanDeduction[]"
+        }
+      ]
+    },
+    {
+      "name": "EmployeeLoanPayment",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "loanId",
+          "type": "String"
+        },
+        {
+          "name": "loan",
+          "type": "EmployeeLoan"
+        },
+        {
+          "name": "amount",
+          "type": "Decimal"
+        },
+        {
+          "name": "source",
+          "type": "String"
+        },
+        {
+          "name": "payrollRunId",
+          "type": "String?"
+        },
+        {
+          "name": "payrollRun",
+          "type": "PayrollRun?"
+        },
+        {
+          "name": "settlementId",
+          "type": "String?"
+        },
+        {
+          "name": "paidAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "PayrollRunLoanDeduction",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "payrollRunItemId",
+          "type": "String"
+        },
+        {
+          "name": "payrollRunItem",
+          "type": "PayrollRunItem"
+        },
+        {
+          "name": "loanId",
+          "type": "String"
+        },
+        {
+          "name": "loan",
+          "type": "EmployeeLoan"
+        },
+        {
+          "name": "amount",
+          "type": "Decimal"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "EndServiceSettlement",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "reason",
+          "type": "String"
+        },
+        {
+          "name": "initiatedBy",
+          "type": "String"
+        },
+        {
+          "name": "lastWorkingDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "dueDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "hireDateSnapshot",
+          "type": "DateTime"
+        },
+        {
+          "name": "serviceDays",
+          "type": "Int"
+        },
+        {
+          "name": "lastWage",
+          "type": "Decimal"
+        },
+        {
+          "name": "baseAward",
+          "type": "Decimal"
+        },
+        {
+          "name": "awardFactor",
+          "type": "Decimal"
+        },
+        {
+          "name": "eosAward",
+          "type": "Decimal"
+        },
+        {
+          "name": "leaveEncashment",
+          "type": "Decimal"
+        },
+        {
+          "name": "unpaidSalary",
+          "type": "Decimal"
+        },
+        {
+          "name": "otherEntitlements",
+          "type": "Decimal"
+        },
+        {
+          "name": "compensation",
+          "type": "Decimal"
+        },
+        {
+          "name": "outstandingLoanBalance",
+          "type": "Decimal"
+        },
+        {
+          "name": "loanDeduction",
+          "type": "Decimal"
+        },
+        {
+          "name": "otherDeductions",
+          "type": "Decimal"
+        },
+        {
+          "name": "netSettlement",
+          "type": "Decimal"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "approvedById",
+          "type": "String?"
+        },
+        {
+          "name": "approvedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "paidAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "HrRequest",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "subject",
+          "type": "String"
+        },
+        {
+          "name": "details",
+          "type": "Json?"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "resolution",
+          "type": "String?"
+        },
+        {
+          "name": "reviewedById",
+          "type": "String?"
+        },
+        {
+          "name": "reviewedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "cancelledAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "HrLifecycleCase",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "targetDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "completedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdById",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "tasks",
+          "type": "HrLifecycleTask[]"
+        }
+      ]
+    },
+    {
+      "name": "HrLifecycleTask",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "caseId",
+          "type": "String"
+        },
+        {
+          "name": "case",
+          "type": "HrLifecycleCase"
+        },
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "order",
+          "type": "Int"
+        },
+        {
+          "name": "assignedToId",
+          "type": "String?"
+        },
+        {
+          "name": "dueDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "completedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "completedById",
+          "type": "String?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "JobOpening",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "departmentId",
+          "type": "String?"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "location",
+          "type": "String?"
+        },
+        {
+          "name": "employmentType",
+          "type": "String?"
+        },
+        {
+          "name": "openings",
+          "type": "Int"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "openedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "closedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "candidates",
+          "type": "Candidate[]"
+        }
+      ]
+    },
+    {
+      "name": "Candidate",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "jobOpeningId",
+          "type": "String"
+        },
+        {
+          "name": "jobOpening",
+          "type": "JobOpening"
+        },
+        {
+          "name": "firstName",
+          "type": "String"
+        },
+        {
+          "name": "lastName",
+          "type": "String"
+        },
+        {
+          "name": "email",
+          "type": "String"
+        },
+        {
+          "name": "phone",
+          "type": "String?"
+        },
+        {
+          "name": "source",
+          "type": "String?"
+        },
+        {
+          "name": "stage",
+          "type": "String"
+        },
+        {
+          "name": "rating",
+          "type": "Int?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "hiredEmployeeId",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "PerformanceReview",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "reviewerUserId",
+          "type": "String"
+        },
+        {
+          "name": "periodStart",
+          "type": "DateTime"
+        },
+        {
+          "name": "periodEnd",
+          "type": "DateTime"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "goalsScore",
+          "type": "Decimal?"
+        },
+        {
+          "name": "competenciesScore",
+          "type": "Decimal?"
+        },
+        {
+          "name": "overallScore",
+          "type": "Decimal?"
+        },
+        {
+          "name": "strengths",
+          "type": "String?"
+        },
+        {
+          "name": "improvements",
+          "type": "String?"
+        },
+        {
+          "name": "goals",
+          "type": "String?"
+        },
+        {
+          "name": "summary",
+          "type": "String?"
+        },
+        {
+          "name": "employeeComments",
+          "type": "String?"
+        },
+        {
+          "name": "submittedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "acknowledgedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "TrainingCourse",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "provider",
+          "type": "String?"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "capacity",
+          "type": "Int?"
+        },
+        {
+          "name": "cost",
+          "type": "Decimal?"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "enrollments",
+          "type": "TrainingEnrollment[]"
+        }
+      ]
+    },
+    {
+      "name": "TrainingEnrollment",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "courseId",
+          "type": "String"
+        },
+        {
+          "name": "course",
+          "type": "TrainingCourse"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "score",
+          "type": "Decimal?"
+        },
+        {
+          "name": "certificateNumber",
+          "type": "String?"
+        },
+        {
+          "name": "completedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Department",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String?"
+        },
+        {
+          "name": "parentId",
+          "type": "String?"
+        },
+        {
+          "name": "managerId",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Leave",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "type",
+          "type": "LeaveType"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "days",
+          "type": "Int"
+        },
+        {
+          "name": "reason",
+          "type": "String?"
+        },
+        {
+          "name": "status",
+          "type": "LeaveStatus"
+        },
+        {
+          "name": "approvedById",
+          "type": "String?"
+        },
+        {
+          "name": "approvedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Attendance",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "date",
+          "type": "DateTime"
+        },
+        {
+          "name": "checkIn",
+          "type": "DateTime?"
+        },
+        {
+          "name": "checkOut",
+          "type": "DateTime?"
+        },
+        {
+          "name": "checkInLat",
+          "type": "Decimal?"
+        },
+        {
+          "name": "checkInLng",
+          "type": "Decimal?"
+        },
+        {
+          "name": "checkOutLat",
+          "type": "Decimal?"
+        },
+        {
+          "name": "checkOutLng",
+          "type": "Decimal?"
+        },
+        {
+          "name": "status",
+          "type": "AttendanceStatus"
+        },
+        {
+          "name": "workHours",
+          "type": "Decimal?"
+        },
+        {
+          "name": "overtimeHours",
+          "type": "Decimal?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Payroll",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "month",
+          "type": "Int"
+        },
+        {
+          "name": "year",
+          "type": "Int"
+        },
+        {
+          "name": "basicSalary",
+          "type": "Decimal"
+        },
+        {
+          "name": "housingAllowance",
+          "type": "Decimal"
+        },
+        {
+          "name": "transportAllowance",
+          "type": "Decimal"
+        },
+        {
+          "name": "otherAllowances",
+          "type": "Decimal"
+        },
+        {
+          "name": "gosiDeduction",
+          "type": "Decimal"
+        },
+        {
+          "name": "taxDeduction",
+          "type": "Decimal"
+        },
+        {
+          "name": "otherDeductions",
+          "type": "Decimal"
+        },
+        {
+          "name": "loanDeductions",
+          "type": "Decimal"
+        },
+        {
+          "name": "netSalary",
+          "type": "Decimal"
+        },
+        {
+          "name": "status",
+          "type": "PayrollStatus"
+        },
+        {
+          "name": "paidAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "payrollRunId",
+          "type": "String?"
+        },
+        {
+          "name": "payrollRun",
+          "type": "PayrollRun?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "PayrollRun",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "year",
+          "type": "Int"
+        },
+        {
+          "name": "month",
+          "type": "Int"
+        },
+        {
+          "name": "status",
+          "type": "PayrollRunStatus"
+        },
+        {
+          "name": "employeeCount",
+          "type": "Int"
+        },
+        {
+          "name": "grossTotal",
+          "type": "Decimal"
+        },
+        {
+          "name": "deductionTotal",
+          "type": "Decimal"
+        },
+        {
+          "name": "netTotal",
+          "type": "Decimal"
+        },
+        {
+          "name": "approvedById",
+          "type": "String?"
+        },
+        {
+          "name": "approvedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "paidAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "items",
+          "type": "PayrollRunItem[]"
+        },
+        {
+          "name": "payrolls",
+          "type": "Payroll[]"
+        },
+        {
+          "name": "loanPayments",
+          "type": "EmployeeLoanPayment[]"
+        }
+      ]
+    },
+    {
+      "name": "PayrollRunItem",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "payrollRunId",
+          "type": "String"
+        },
+        {
+          "name": "payrollRun",
+          "type": "PayrollRun"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "employeeCode",
+          "type": "String"
+        },
+        {
+          "name": "employeeName",
+          "type": "String"
+        },
+        {
+          "name": "basicSalary",
+          "type": "Decimal"
+        },
+        {
+          "name": "housingAllowance",
+          "type": "Decimal"
+        },
+        {
+          "name": "transportAllowance",
+          "type": "Decimal"
+        },
+        {
+          "name": "otherAllowances",
+          "type": "Decimal"
+        },
+        {
+          "name": "gosiDeduction",
+          "type": "Decimal"
+        },
+        {
+          "name": "taxDeduction",
+          "type": "Decimal"
+        },
+        {
+          "name": "otherDeductions",
+          "type": "Decimal"
+        },
+        {
+          "name": "loanDeductionsTotal",
+          "type": "Decimal"
+        },
+        {
+          "name": "grossSalary",
+          "type": "Decimal"
+        },
+        {
+          "name": "totalDeductions",
+          "type": "Decimal"
+        },
+        {
+          "name": "netSalary",
+          "type": "Decimal"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "loanDeductions",
+          "type": "PayrollRunLoanDeduction[]"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Shift",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "startTime",
+          "type": "DateTime"
+        },
+        {
+          "name": "endTime",
+          "type": "DateTime?"
+        },
+        {
+          "name": "isRecurring",
+          "type": "Boolean"
+        },
+        {
+          "name": "recurrence",
+          "type": "String?"
+        },
+        {
+          "name": "daysOfWeek",
+          "type": "Int[]"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "EmployeeContract",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "contractNumber",
+          "type": "String"
+        },
+        {
+          "name": "type",
+          "type": "ContractType"
+        },
+        {
+          "name": "status",
+          "type": "ContractStatus"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "probationEndDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "jobTitle",
+          "type": "String?"
+        },
+        {
+          "name": "basicSalary",
+          "type": "Decimal?"
+        },
+        {
+          "name": "housingAllowance",
+          "type": "Decimal?"
+        },
+        {
+          "name": "transportAllowance",
+          "type": "Decimal?"
+        },
+        {
+          "name": "otherAllowances",
+          "type": "Decimal?"
+        },
+        {
+          "name": "workingHoursPerWeek",
+          "type": "Int?"
+        },
+        {
+          "name": "signedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "terminatedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "terminationReason",
+          "type": "String?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "LeavePolicy",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "type",
+          "type": "LeaveType"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "annualEntitlement",
+          "type": "Int"
+        },
+        {
+          "name": "maxCarryForward",
+          "type": "Int"
+        },
+        {
+          "name": "requiresApproval",
+          "type": "Boolean"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "LeaveBalance",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "type",
+          "type": "LeaveType"
+        },
+        {
+          "name": "year",
+          "type": "Int"
+        },
+        {
+          "name": "entitlement",
+          "type": "Int"
+        },
+        {
+          "name": "carriedForward",
+          "type": "Int"
+        },
+        {
+          "name": "used",
+          "type": "Int"
+        },
+        {
+          "name": "pending",
+          "type": "Int"
+        },
+        {
+          "name": "adjustment",
+          "type": "Int"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "adjustments",
+          "type": "LeaveBalanceAdjustment[]"
+        }
+      ]
+    },
+    {
+      "name": "LeaveBalanceAdjustment",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "balanceId",
+          "type": "String"
+        },
+        {
+          "name": "balance",
+          "type": "LeaveBalance"
+        },
+        {
+          "name": "amount",
+          "type": "Int"
+        },
+        {
+          "name": "reason",
+          "type": "String"
+        },
+        {
+          "name": "createdById",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Vehicle",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "plateNumber",
+          "type": "String"
+        },
+        {
+          "name": "plateType",
+          "type": "PlateType"
+        },
+        {
+          "name": "make",
+          "type": "String"
+        },
+        {
+          "name": "model",
+          "type": "String"
+        },
+        {
+          "name": "year",
+          "type": "Int?"
+        },
+        {
+          "name": "color",
+          "type": "String?"
+        },
+        {
+          "name": "vin",
+          "type": "String?"
+        },
+        {
+          "name": "imei",
+          "type": "String?"
+        },
+        {
+          "name": "status",
+          "type": "VehicleStatus"
+        },
+        {
+          "name": "ownershipType",
+          "type": "OwnershipType"
+        },
+        {
+          "name": "ownerId",
+          "type": "String?"
+        },
+        {
+          "name": "assignedDriverId",
+          "type": "String?"
+        },
+        {
+          "name": "istimaraExpiry",
+          "type": "DateTime?"
+        },
+        {
+          "name": "insuranceExpiry",
+          "type": "DateTime?"
+        },
+        {
+          "name": "periodicInspectionExpiry",
+          "type": "DateTime?"
+        },
+        {
+          "name": "fuelType",
+          "type": "FuelType"
+        },
+        {
+          "name": "tgaOperatingLicense",
+          "type": "String?"
+        },
+        {
+          "name": "tgaLicenseExpiry",
+          "type": "DateTime?"
+        },
+        {
+          "name": "loadCapacityKg",
+          "type": "Decimal?"
+        },
+        {
+          "name": "axleCount",
+          "type": "Int?"
+        },
+        {
+          "name": "euroClass",
+          "type": "String?"
+        },
+        {
+          "name": "vehicleCategory",
+          "type": "String?"
+        },
+        {
+          "name": "maxSpeedLimit",
+          "type": "Decimal?"
+        },
+        {
+          "name": "lastLatitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "lastLongitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "lastLocationAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "lastSpeed",
+          "type": "Decimal?"
+        },
+        {
+          "name": "lastHeading",
+          "type": "Decimal?"
+        },
+        {
+          "name": "gpsDeviceId",
+          "type": "String?"
+        },
+        {
+          "name": "gpsProvider",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "fleetTrips",
+          "type": "FleetTrip[]"
+        },
+        {
+          "name": "maintenances",
+          "type": "FleetMaintenance[]"
+        },
+        {
+          "name": "fuelLogs",
+          "type": "FleetFuelLog[]"
+        },
+        {
+          "name": "gpsLogs",
+          "type": "VehicleGpsLog[]"
+        },
+        {
+          "name": "fleetViolations",
+          "type": "FleetViolation[]"
+        }
+      ]
+    },
+    {
+      "name": "FleetTrip",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "vehicleId",
+          "type": "String"
+        },
+        {
+          "name": "vehicle",
+          "type": "Vehicle"
+        },
+        {
+          "name": "driverId",
+          "type": "String?"
+        },
+        {
+          "name": "purpose",
+          "type": "String?"
+        },
+        {
+          "name": "startOdometer",
+          "type": "Decimal?"
+        },
+        {
+          "name": "endOdometer",
+          "type": "Decimal?"
+        },
+        {
+          "name": "startedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "endedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "startLatitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "startLongitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "endLatitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "endLongitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "status",
+          "type": "TripStatus"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "tripManifests",
+          "type": "TripManifest[]"
+        }
+      ]
+    },
+    {
+      "name": "Driver",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "firstName",
+          "type": "String"
+        },
+        {
+          "name": "lastName",
+          "type": "String"
+        },
+        {
+          "name": "email",
+          "type": "String?"
+        },
+        {
+          "name": "phone",
+          "type": "String?"
+        },
+        {
+          "name": "idNumber",
+          "type": "String?"
+        },
+        {
+          "name": "licenseNumber",
+          "type": "String?"
+        },
+        {
+          "name": "licenseExpiry",
+          "type": "DateTime?"
+        },
+        {
+          "name": "status",
+          "type": "DriverStatus"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "compliances",
+          "type": "DriverCompliance[]"
+        },
+        {
+          "name": "fleetViolations",
+          "type": "FleetViolation[]"
+        }
+      ]
+    },
+    {
+      "name": "FleetMaintenance",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "vehicleId",
+          "type": "String"
+        },
+        {
+          "name": "vehicle",
+          "type": "Vehicle"
+        },
+        {
+          "name": "type",
+          "type": "MaintenanceType"
+        },
+        {
+          "name": "description",
+          "type": "String"
+        },
+        {
+          "name": "cost",
+          "type": "Decimal?"
+        },
+        {
+          "name": "serviceDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "nextServiceDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "mileage",
+          "type": "Decimal?"
+        },
+        {
+          "name": "serviceCenter",
+          "type": "String?"
+        },
+        {
+          "name": "status",
+          "type": "MaintenanceStatus"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "FleetFuelLog",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "vehicleId",
+          "type": "String"
+        },
+        {
+          "name": "vehicle",
+          "type": "Vehicle"
+        },
+        {
+          "name": "driverId",
+          "type": "String?"
+        },
+        {
+          "name": "fuelType",
+          "type": "FuelType"
+        },
+        {
+          "name": "liters",
+          "type": "Decimal"
+        },
+        {
+          "name": "pricePerLiter",
+          "type": "Decimal"
+        },
+        {
+          "name": "totalCost",
+          "type": "Decimal"
+        },
+        {
+          "name": "odometer",
+          "type": "Decimal?"
+        },
+        {
+          "name": "location",
+          "type": "String?"
+        },
+        {
+          "name": "latitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "longitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "fueledAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "VehicleGpsLog",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "vehicleId",
+          "type": "String"
+        },
+        {
+          "name": "vehicle",
+          "type": "Vehicle"
+        },
+        {
+          "name": "latitude",
+          "type": "Decimal"
+        },
+        {
+          "name": "longitude",
+          "type": "Decimal"
+        },
+        {
+          "name": "speed",
+          "type": "Decimal?"
+        },
+        {
+          "name": "heading",
+          "type": "Decimal?"
+        },
+        {
+          "name": "altitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "accuracy",
+          "type": "Decimal?"
+        },
+        {
+          "name": "ignitionOn",
+          "type": "Boolean"
+        },
+        {
+          "name": "engineHours",
+          "type": "Decimal?"
+        },
+        {
+          "name": "deviceId",
+          "type": "String?"
+        },
+        {
+          "name": "recordedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "DriverCompliance",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "driverId",
+          "type": "String"
+        },
+        {
+          "name": "driver",
+          "type": "Driver"
+        },
+        {
+          "name": "tasreehNumber",
+          "type": "String?"
+        },
+        {
+          "name": "tasreehExpiry",
+          "type": "DateTime?"
+        },
+        {
+          "name": "medicalFitnessExpiry",
+          "type": "DateTime?"
+        },
+        {
+          "name": "trainingCertificateUrl",
+          "type": "String?"
+        },
+        {
+          "name": "trainingCompletedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "dailyDrivingMinutes",
+          "type": "Int"
+        },
+        {
+          "name": "weeklyDrivingMinutes",
+          "type": "Int"
+        },
+        {
+          "name": "lastRestPeriodAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "FleetViolation",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "vehicleId",
+          "type": "String"
+        },
+        {
+          "name": "vehicle",
+          "type": "Vehicle"
+        },
+        {
+          "name": "driverId",
+          "type": "String?"
+        },
+        {
+          "name": "driver",
+          "type": "Driver?"
+        },
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "severity",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String"
+        },
+        {
+          "name": "latitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "longitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "speedAtViolation",
+          "type": "Decimal?"
+        },
+        {
+          "name": "speedLimit",
+          "type": "Decimal?"
+        },
+        {
+          "name": "photoUrl",
+          "type": "String?"
+        },
+        {
+          "name": "videoUrl",
+          "type": "String?"
+        },
+        {
+          "name": "acknowledged",
+          "type": "Boolean"
+        },
+        {
+          "name": "acknowledgedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "acknowledgedBy",
+          "type": "String?"
+        },
+        {
+          "name": "resolution",
+          "type": "String?"
+        },
+        {
+          "name": "occurredAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "TripManifest",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "tripId",
+          "type": "String"
+        },
+        {
+          "name": "trip",
+          "type": "FleetTrip"
+        },
+        {
+          "name": "cargoType",
+          "type": "String?"
+        },
+        {
+          "name": "cargoWeight",
+          "type": "Decimal?"
+        },
+        {
+          "name": "cargoVolume",
+          "type": "Decimal?"
+        },
+        {
+          "name": "cargoDescription",
+          "type": "String?"
+        },
+        {
+          "name": "senderName",
+          "type": "String?"
+        },
+        {
+          "name": "senderAddress",
+          "type": "String?"
+        },
+        {
+          "name": "receiverName",
+          "type": "String?"
+        },
+        {
+          "name": "receiverAddress",
+          "type": "String?"
+        },
+        {
+          "name": "deliveryInstructions",
+          "type": "String?"
+        },
+        {
+          "name": "wasslTrackingId",
+          "type": "String?"
+        },
+        {
+          "name": "wasslStatus",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Property",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "propertyType",
+          "type": "PropertyType"
+        },
+        {
+          "name": "status",
+          "type": "PropertyStatus"
+        },
+        {
+          "name": "address",
+          "type": "String?"
+        },
+        {
+          "name": "city",
+          "type": "String?"
+        },
+        {
+          "name": "district",
+          "type": "String?"
+        },
+        {
+          "name": "buildingNumber",
+          "type": "String?"
+        },
+        {
+          "name": "latitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "longitude",
+          "type": "Decimal?"
+        },
+        {
+          "name": "deedNumber",
+          "type": "String?"
+        },
+        {
+          "name": "deedFileUrl",
+          "type": "String?"
+        },
+        {
+          "name": "ownerName",
+          "type": "String?"
+        },
+        {
+          "name": "ownerIdNumber",
+          "type": "String?"
+        },
+        {
+          "name": "ownerPhone",
+          "type": "String?"
+        },
+        {
+          "name": "regaLicenseNumber",
+          "type": "String?"
+        },
+        {
+          "name": "acquisitionDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "acquisitionCost",
+          "type": "Decimal?"
+        },
+        {
+          "name": "totalAreaSqm",
+          "type": "Decimal?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "units",
+          "type": "Unit[]"
+        },
+        {
+          "name": "contracts",
+          "type": "LeaseContract[]"
+        },
+        {
+          "name": "expenses",
+          "type": "PropertyExpense[]"
+        }
+      ]
+    },
+    {
+      "name": "Unit",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "propertyId",
+          "type": "String"
+        },
+        {
+          "name": "property",
+          "type": "Property"
+        },
+        {
+          "name": "unitNumber",
+          "type": "String"
+        },
+        {
+          "name": "floor",
+          "type": "Int?"
+        },
+        {
+          "name": "unitType",
+          "type": "UnitType"
+        },
+        {
+          "name": "status",
+          "type": "UnitStatus"
+        },
+        {
+          "name": "areaSqm",
+          "type": "Decimal?"
+        },
+        {
+          "name": "bedrooms",
+          "type": "Int?"
+        },
+        {
+          "name": "bathrooms",
+          "type": "Int?"
+        },
+        {
+          "name": "rentAmountMonthly",
+          "type": "Decimal?"
+        },
+        {
+          "name": "currentLeaseId",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "leases",
+          "type": "LeaseContract[]"
+        }
+      ]
+    },
+    {
+      "name": "LeaseContract",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "propertyId",
+          "type": "String"
+        },
+        {
+          "name": "property",
+          "type": "Property"
+        },
+        {
+          "name": "unitId",
+          "type": "String"
+        },
+        {
+          "name": "unit",
+          "type": "Unit"
+        },
+        {
+          "name": "ejarContractNumber",
+          "type": "String?"
+        },
+        {
+          "name": "contractType",
+          "type": "LeaseType"
+        },
+        {
+          "name": "lessorId",
+          "type": "String?"
+        },
+        {
+          "name": "lesseeId",
+          "type": "String?"
+        },
+        {
+          "name": "lessorName",
+          "type": "String"
+        },
+        {
+          "name": "lessorIdNumber",
+          "type": "String"
+        },
+        {
+          "name": "lessorPhone",
+          "type": "String?"
+        },
+        {
+          "name": "lesseeName",
+          "type": "String"
+        },
+        {
+          "name": "lesseeIdNumber",
+          "type": "String"
+        },
+        {
+          "name": "lesseePhone",
+          "type": "String?"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "rentAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "paymentFrequency",
+          "type": "PaymentFrequency"
+        },
+        {
+          "name": "securityDeposit",
+          "type": "Decimal?"
+        },
+        {
+          "name": "paymentMethod",
+          "type": "String?"
+        },
+        {
+          "name": "bankAccount",
+          "type": "String?"
+        },
+        {
+          "name": "status",
+          "type": "LeaseStatus"
+        },
+        {
+          "name": "ejarStatus",
+          "type": "String?"
+        },
+        {
+          "name": "ejarSyncedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "autoRenew",
+          "type": "Boolean"
+        },
+        {
+          "name": "renewalNoticeDays",
+          "type": "Int"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "payments",
+          "type": "RentPayment[]"
+        },
+        {
+          "name": "documents",
+          "type": "ContractDocument[]"
+        }
+      ]
+    },
+    {
+      "name": "RentPayment",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "contractId",
+          "type": "String"
+        },
+        {
+          "name": "contract",
+          "type": "LeaseContract"
+        },
+        {
+          "name": "propertyId",
+          "type": "String"
+        },
+        {
+          "name": "unitId",
+          "type": "String"
+        },
+        {
+          "name": "dueDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "paidDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "amount",
+          "type": "Decimal"
+        },
+        {
+          "name": "status",
+          "type": "PaymentStatus"
+        },
+        {
+          "name": "paymentMethod",
+          "type": "String?"
+        },
+        {
+          "name": "transactionRef",
+          "type": "String?"
+        },
+        {
+          "name": "bankReference",
+          "type": "String?"
+        },
+        {
+          "name": "ejarPaymentRef",
+          "type": "String?"
+        },
+        {
+          "name": "invoiceId",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "ContractDocument",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "contractId",
+          "type": "String"
+        },
+        {
+          "name": "contract",
+          "type": "LeaseContract"
+        },
+        {
+          "name": "type",
+          "type": "ContractDocumentType"
+        },
+        {
+          "name": "fileUrl",
+          "type": "String"
+        },
+        {
+          "name": "fileName",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "PropertyExpense",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "propertyId",
+          "type": "String"
+        },
+        {
+          "name": "property",
+          "type": "Property"
+        },
+        {
+          "name": "type",
+          "type": "PropertyExpenseType"
+        },
+        {
+          "name": "amount",
+          "type": "Decimal"
+        },
+        {
+          "name": "paidDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Project",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "status",
+          "type": "ProjectStatus"
+        },
+        {
+          "name": "priority",
+          "type": "ProjectPriority"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "budget",
+          "type": "Decimal?"
+        },
+        {
+          "name": "progress",
+          "type": "Int"
+        },
+        {
+          "name": "clientId",
+          "type": "String?"
+        },
+        {
+          "name": "managerId",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "tasks",
+          "type": "Task[]"
+        },
+        {
+          "name": "journalEntryLines",
+          "type": "JournalEntryLine[]"
+        }
+      ]
+    },
+    {
+      "name": "Task",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "projectId",
+          "type": "String?"
+        },
+        {
+          "name": "project",
+          "type": "Project?"
+        },
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "status",
+          "type": "TaskStatus"
+        },
+        {
+          "name": "priority",
+          "type": "TaskPriority"
+        },
+        {
+          "name": "assignedToId",
+          "type": "String?"
+        },
+        {
+          "name": "dueDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "completedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "estimatedHours",
+          "type": "Decimal?"
+        },
+        {
+          "name": "actualHours",
+          "type": "Decimal?"
+        },
+        {
+          "name": "parentId",
+          "type": "String?"
+        },
+        {
+          "name": "boardColumn",
+          "type": "String?"
+        },
+        {
+          "name": "order",
+          "type": "Int"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Session",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String?"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant?"
+        },
+        {
+          "name": "userId",
+          "type": "String"
+        },
+        {
+          "name": "user",
+          "type": "User"
+        },
+        {
+          "name": "token",
+          "type": "String"
+        },
+        {
+          "name": "ipAddress",
+          "type": "String?"
+        },
+        {
+          "name": "userAgent",
+          "type": "String?"
+        },
+        {
+          "name": "deviceInfo",
+          "type": "String?"
+        },
+        {
+          "name": "location",
+          "type": "String?"
+        },
+        {
+          "name": "lastActiveAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "expiresAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "revokedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "ApiKey",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String?"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant?"
+        },
+        {
+          "name": "userId",
+          "type": "String"
+        },
+        {
+          "name": "user",
+          "type": "User"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "key",
+          "type": "String"
+        },
+        {
+          "name": "scopes",
+          "type": "String[]"
+        },
+        {
+          "name": "lastUsedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "expiresAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "revokedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "LoginAttempt",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String?"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant?"
+        },
+        {
+          "name": "userId",
+          "type": "String?"
+        },
+        {
+          "name": "user",
+          "type": "User?"
+        },
+        {
+          "name": "email",
+          "type": "String?"
+        },
+        {
+          "name": "ipAddress",
+          "type": "String"
+        },
+        {
+          "name": "userAgent",
+          "type": "String?"
+        },
+        {
+          "name": "success",
+          "type": "Boolean"
+        },
+        {
+          "name": "failureReason",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "AIConversation",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "title",
+          "type": "String?"
+        },
+        {
+          "name": "model",
+          "type": "String"
+        },
+        {
+          "name": "context",
+          "type": "String?"
+        },
+        {
+          "name": "status",
+          "type": "AIStatus"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "messages",
+          "type": "AIMessage[]"
+        }
+      ]
+    },
+    {
+      "name": "AIMessage",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "conversationId",
+          "type": "String"
+        },
+        {
+          "name": "conversation",
+          "type": "AIConversation"
+        },
+        {
+          "name": "role",
+          "type": "AIMessageRole"
+        },
+        {
+          "name": "content",
+          "type": "String"
+        },
+        {
+          "name": "tokensUsed",
+          "type": "Int?"
+        },
+        {
+          "name": "model",
+          "type": "String?"
+        },
+        {
+          "name": "metadata",
+          "type": "Json?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Notification",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "userId",
+          "type": "String"
+        },
+        {
+          "name": "user",
+          "type": "User"
+        },
+        {
+          "name": "type",
+          "type": "NotificationType"
+        },
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "body",
+          "type": "String"
+        },
+        {
+          "name": "data",
+          "type": "Json?"
+        },
+        {
+          "name": "readAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "sentAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "channel",
+          "type": "NotificationChannel"
+        },
+        {
+          "name": "status",
+          "type": "NotificationDeliveryStatus"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Subscription",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "userId",
+          "type": "String"
+        },
+        {
+          "name": "user",
+          "type": "User"
+        },
+        {
+          "name": "plan",
+          "type": "PlanType"
+        },
+        {
+          "name": "status",
+          "type": "SubscriptionStatus"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "trialEndsAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "autoRenew",
+          "type": "Boolean"
+        },
+        {
+          "name": "seats",
+          "type": "Int"
+        },
+        {
+          "name": "pricePerSeat",
+          "type": "Decimal"
+        },
+        {
+          "name": "totalPrice",
+          "type": "Decimal"
+        },
+        {
+          "name": "currency",
+          "type": "String?"
+        },
+        {
+          "name": "billingCycle",
+          "type": "BillingCycle"
+        },
+        {
+          "name": "cancelReason",
+          "type": "String?"
+        },
+        {
+          "name": "cancelledAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "Template",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String?"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant?"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "nameAr",
+          "type": "String?"
+        },
+        {
+          "name": "category",
+          "type": "TemplateCategory"
+        },
+        {
+          "name": "subcategory",
+          "type": "String?"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "templateKey",
+          "type": "String"
+        },
+        {
+          "name": "htmlTemplate",
+          "type": "String"
+        },
+        {
+          "name": "cssStyles",
+          "type": "String?"
+        },
+        {
+          "name": "dataBindings",
+          "type": "Json?"
+        },
+        {
+          "name": "defaultData",
+          "type": "Json?"
+        },
+        {
+          "name": "paperSize",
+          "type": "String?"
+        },
+        {
+          "name": "orientation",
+          "type": "String?"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "isSystem",
+          "type": "Boolean"
+        },
+        {
+          "name": "sortOrder",
+          "type": "Int"
+        },
+        {
+          "name": "icon",
+          "type": "String?"
+        },
+        {
+          "name": "tags",
+          "type": "String[]"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "ProductCategory",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String?"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "parentId",
+          "type": "String?"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "products",
+          "type": "Product[]"
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "nameAr",
+          "type": "String?"
+        },
+        {
+          "name": "sku",
+          "type": "String"
+        },
+        {
+          "name": "barcode",
+          "type": "String?"
+        },
+        {
+          "name": "categoryId",
+          "type": "String?"
+        },
+        {
+          "name": "category",
+          "type": "ProductCategory?"
+        },
+        {
+          "name": "unitOfMeasure",
+          "type": "String"
+        },
+        {
+          "name": "costPrice",
+          "type": "Decimal"
+        },
+        {
+          "name": "salePrice",
+          "type": "Decimal"
+        },
+        {
+          "name": "wholesalePrice",
+          "type": "Decimal?"
+        },
+        {
+          "name": "minStockLevel",
+          "type": "Int"
+        },
+        {
+          "name": "currentStock",
+          "type": "Int"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "isService",
+          "type": "Boolean"
+        },
+        {
+          "name": "taxRate",
+          "type": "Decimal"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "imageUrl",
+          "type": "String?"
+        },
+        {
+          "name": "weightKg",
+          "type": "Decimal?"
+        },
+        {
+          "name": "dimensions",
+          "type": "Json?"
+        },
+        {
+          "name": "supplierId",
+          "type": "String?"
+        },
+        {
+          "name": "supplier",
+          "type": "Supplier?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "stockMovements",
+          "type": "StockMovement[]"
+        },
+        {
+          "name": "stockTransferItems",
+          "type": "StockTransferItem[]"
+        },
+        {
+          "name": "posOrderItems",
+          "type": "PosOrderItem[]"
+        },
+        {
+          "name": "invoiceItems",
+          "type": "InvoiceItem[]"
+        }
+      ]
+    },
+    {
+      "name": "Warehouse",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String?"
+        },
+        {
+          "name": "location",
+          "type": "String?"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "isDefault",
+          "type": "Boolean"
+        },
+        {
+          "name": "branchId",
+          "type": "String?"
+        },
+        {
+          "name": "branch",
+          "type": "Branch?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "stockMovements",
+          "type": "StockMovement[]"
+        }
+      ]
+    },
+    {
+      "name": "StockMovement",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "productId",
+          "type": "String"
+        },
+        {
+          "name": "product",
+          "type": "Product"
+        },
+        {
+          "name": "warehouseId",
+          "type": "String?"
+        },
+        {
+          "name": "warehouse",
+          "type": "Warehouse?"
+        },
+        {
+          "name": "type",
+          "type": "StockMovementType"
+        },
+        {
+          "name": "quantity",
+          "type": "Int"
+        },
+        {
+          "name": "unitCost",
+          "type": "Decimal"
+        },
+        {
+          "name": "totalCost",
+          "type": "Decimal"
+        },
+        {
+          "name": "reference",
+          "type": "String?"
+        },
+        {
+          "name": "referenceId",
+          "type": "String?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "StockTransfer",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "transferNumber",
+          "type": "String"
+        },
+        {
+          "name": "fromBranchId",
+          "type": "String"
+        },
+        {
+          "name": "toBranchId",
+          "type": "String"
+        },
+        {
+          "name": "status",
+          "type": "TransferStatus"
+        },
+        {
+          "name": "items",
+          "type": "StockTransferItem[]"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "requestedBy",
+          "type": "String?"
+        },
+        {
+          "name": "approvedBy",
+          "type": "String?"
+        },
+        {
+          "name": "shippedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "receivedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "StockTransferItem",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "transferId",
+          "type": "String"
+        },
+        {
+          "name": "transfer",
+          "type": "StockTransfer"
+        },
+        {
+          "name": "productId",
+          "type": "String"
+        },
+        {
+          "name": "product",
+          "type": "Product"
+        },
+        {
+          "name": "quantity",
+          "type": "Int"
+        },
+        {
+          "name": "receivedQty",
+          "type": "Int"
+        },
+        {
+          "name": "unitCost",
+          "type": "Decimal"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "PosSession",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "userId",
+          "type": "String"
+        },
+        {
+          "name": "openingCash",
+          "type": "Decimal"
+        },
+        {
+          "name": "closingCash",
+          "type": "Decimal?"
+        },
+        {
+          "name": "expectedCash",
+          "type": "Decimal?"
+        },
+        {
+          "name": "openedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "closedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "status",
+          "type": "SessionStatus"
+        },
+        {
+          "name": "posTerminal",
+          "type": "String?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "branchId",
+          "type": "String?"
+        },
+        {
+          "name": "branch",
+          "type": "Branch?"
+        },
+        {
+          "name": "orders",
+          "type": "PosOrder[]"
+        }
+      ]
+    },
+    {
+      "name": "PosOrder",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "orderNumber",
+          "type": "String"
+        },
+        {
+          "name": "sessionId",
+          "type": "String"
+        },
+        {
+          "name": "session",
+          "type": "PosSession"
+        },
+        {
+          "name": "customerId",
+          "type": "String?"
+        },
+        {
+          "name": "customerName",
+          "type": "String?"
+        },
+        {
+          "name": "customerPhone",
+          "type": "String?"
+        },
+        {
+          "name": "subtotal",
+          "type": "Decimal"
+        },
+        {
+          "name": "discount",
+          "type": "Decimal"
+        },
+        {
+          "name": "taxRate",
+          "type": "Decimal"
+        },
+        {
+          "name": "taxAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "total",
+          "type": "Decimal"
+        },
+        {
+          "name": "status",
+          "type": "PosOrderStatus"
+        },
+        {
+          "name": "branchId",
+          "type": "String?"
+        },
+        {
+          "name": "branch",
+          "type": "Branch?"
+        },
+        {
+          "name": "items",
+          "type": "PosOrderItem[]"
+        },
+        {
+          "name": "payments",
+          "type": "PosPayment[]"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "PosOrderItem",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "orderId",
+          "type": "String"
+        },
+        {
+          "name": "order",
+          "type": "PosOrder"
+        },
+        {
+          "name": "productId",
+          "type": "String?"
+        },
+        {
+          "name": "product",
+          "type": "Product?"
+        },
+        {
+          "name": "productName",
+          "type": "String"
+        },
+        {
+          "name": "quantity",
+          "type": "Int"
+        },
+        {
+          "name": "unitPrice",
+          "type": "Decimal"
+        },
+        {
+          "name": "discount",
+          "type": "Decimal"
+        },
+        {
+          "name": "taxRate",
+          "type": "Decimal"
+        },
+        {
+          "name": "total",
+          "type": "Decimal"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "PosPayment",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "orderId",
+          "type": "String"
+        },
+        {
+          "name": "order",
+          "type": "PosOrder"
+        },
+        {
+          "name": "method",
+          "type": "PosPaymentMethod"
+        },
+        {
+          "name": "amount",
+          "type": "Decimal"
+        },
+        {
+          "name": "reference",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "AssetCustodyAssignment",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "assetId",
+          "type": "String"
+        },
+        {
+          "name": "asset",
+          "type": "FixedAsset"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "assignedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "expectedReturnAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "returnedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "conditionOut",
+          "type": "String?"
+        },
+        {
+          "name": "conditionIn",
+          "type": "String?"
+        },
+        {
+          "name": "assignedById",
+          "type": "String?"
+        },
+        {
+          "name": "returnedById",
+          "type": "String?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "FixedAssetCategory",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String?"
+        },
+        {
+          "name": "depreciationRate",
+          "type": "Decimal"
+        },
+        {
+          "name": "usefulLifeYears",
+          "type": "Int"
+        },
+        {
+          "name": "depreciationMethod",
+          "type": "DepreciationMethod"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "assets",
+          "type": "FixedAsset[]"
+        }
+      ]
+    },
+    {
+      "name": "FixedAsset",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String?"
+        },
+        {
+          "name": "categoryId",
+          "type": "String"
+        },
+        {
+          "name": "category",
+          "type": "FixedAssetCategory"
+        },
+        {
+          "name": "acquisitionCost",
+          "type": "Decimal"
+        },
+        {
+          "name": "salvageValue",
+          "type": "Decimal"
+        },
+        {
+          "name": "usefulLifeYears",
+          "type": "Int"
+        },
+        {
+          "name": "depreciationMethod",
+          "type": "DepreciationMethod"
+        },
+        {
+          "name": "purchaseDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "status",
+          "type": "AssetStatus"
+        },
+        {
+          "name": "accumulatedDepreciation",
+          "type": "Decimal"
+        },
+        {
+          "name": "currentValue",
+          "type": "Decimal"
+        },
+        {
+          "name": "location",
+          "type": "String?"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "entries",
+          "type": "DepreciationEntry[]"
+        },
+        {
+          "name": "custodyAssignments",
+          "type": "AssetCustodyAssignment[]"
+        }
+      ]
+    },
+    {
+      "name": "DepreciationEntry",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "assetId",
+          "type": "String"
+        },
+        {
+          "name": "asset",
+          "type": "FixedAsset"
+        },
+        {
+          "name": "period",
+          "type": "String"
+        },
+        {
+          "name": "depreciationAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "accumulatedDepreciation",
+          "type": "Decimal"
+        },
+        {
+          "name": "bookValue",
+          "type": "Decimal"
+        },
+        {
+          "name": "postedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "CostCenter",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String?"
+        },
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "budget",
+          "type": "Decimal?"
+        },
+        {
+          "name": "isActive",
+          "type": "Boolean"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "journalEntryLines",
+          "type": "JournalEntryLine[]"
+        },
+        {
+          "name": "budgetLines",
+          "type": "BudgetLine[]"
+        }
+      ]
+    },
+    {
+      "name": "BudgetPlan",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "year",
+          "type": "Int"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "status",
+          "type": "BudgetStatus"
+        },
+        {
+          "name": "approvedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "approvedBy",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "lines",
+          "type": "BudgetLine[]"
+        }
+      ]
+    },
+    {
+      "name": "BudgetLine",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "planId",
+          "type": "String"
+        },
+        {
+          "name": "plan",
+          "type": "BudgetPlan"
+        },
+        {
+          "name": "month",
+          "type": "Int"
+        },
+        {
+          "name": "accountId",
+          "type": "String"
+        },
+        {
+          "name": "account",
+          "type": "ChartOfAccount"
+        },
+        {
+          "name": "costCenterId",
+          "type": "String?"
+        },
+        {
+          "name": "costCenter",
+          "type": "CostCenter?"
+        },
+        {
+          "name": "amount",
+          "type": "Decimal"
+        },
+        {
+          "name": "notes",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "ExchangeRate",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "fromCurrency",
+          "type": "String"
+        },
+        {
+          "name": "toCurrency",
+          "type": "String"
+        },
+        {
+          "name": "rate",
+          "type": "Decimal"
+        },
+        {
+          "name": "effectiveDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "source",
+          "type": "String"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "VatReturn",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "periodStart",
+          "type": "DateTime"
+        },
+        {
+          "name": "periodEnd",
+          "type": "DateTime"
+        },
+        {
+          "name": "status",
+          "type": "VatReturnStatus"
+        },
+        {
+          "name": "outputVat",
+          "type": "Decimal?"
+        },
+        {
+          "name": "inputVat",
+          "type": "Decimal?"
+        },
+        {
+          "name": "netVat",
+          "type": "Decimal?"
+        },
+        {
+          "name": "filedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "filedBy",
+          "type": "String?"
+        },
+        {
+          "name": "settlementVersion",
+          "type": "Int"
+        },
+        {
+          "name": "settlementJournalId",
+          "type": "String?"
+        },
+        {
+          "name": "reversalJournalId",
+          "type": "String?"
+        },
+        {
+          "name": "settledAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "settledBy",
+          "type": "String?"
+        },
+        {
+          "name": "reversedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "reversedBy",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "AccountingSchedule",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "kind",
+          "type": "AccountingScheduleKind"
+        },
+        {
+          "name": "frequency",
+          "type": "AccountingScheduleFrequency"
+        },
+        {
+          "name": "status",
+          "type": "AccountingScheduleStatus"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "nextRunDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "anchorDay",
+          "type": "Int"
+        },
+        {
+          "name": "autoReverse",
+          "type": "Boolean"
+        },
+        {
+          "name": "reverseAfterDays",
+          "type": "Int"
+        },
+        {
+          "name": "entryPrefix",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String"
+        },
+        {
+          "name": "createdBy",
+          "type": "String?"
+        },
+        {
+          "name": "lastRunAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "lines",
+          "type": "AccountingScheduleLine[]"
+        },
+        {
+          "name": "runs",
+          "type": "AccountingScheduleRun[]"
+        }
+      ]
+    },
+    {
+      "name": "AccountingScheduleLine",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "scheduleId",
+          "type": "String"
+        },
+        {
+          "name": "schedule",
+          "type": "AccountingSchedule"
+        },
+        {
+          "name": "lineNumber",
+          "type": "Int"
+        },
+        {
+          "name": "accountId",
+          "type": "String"
+        },
+        {
+          "name": "debitAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "creditAmount",
+          "type": "Decimal"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "costCenterId",
+          "type": "String?"
+        },
+        {
+          "name": "projectId",
+          "type": "String?"
+        },
+        {
+          "name": "branchId",
+          "type": "String?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "AccountingScheduleRun",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "scheduleId",
+          "type": "String"
+        },
+        {
+          "name": "schedule",
+          "type": "AccountingSchedule"
+        },
+        {
+          "name": "scheduledDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "status",
+          "type": "AccountingScheduleRunStatus"
+        },
+        {
+          "name": "postingJournalId",
+          "type": "String"
+        },
+        {
+          "name": "reversalDueDate",
+          "type": "DateTime?"
+        },
+        {
+          "name": "reversalJournalId",
+          "type": "String?"
+        },
+        {
+          "name": "snapshot",
+          "type": "Json"
+        },
+        {
+          "name": "postedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "reversedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "FinancialPeriod",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "year",
+          "type": "Int"
+        },
+        {
+          "name": "month",
+          "type": "Int?"
+        },
+        {
+          "name": "startDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "endDate",
+          "type": "DateTime"
+        },
+        {
+          "name": "isClosed",
+          "type": "Boolean"
+        },
+        {
+          "name": "closedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "HrGovernanceCase",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "tenant",
+          "type": "Tenant"
+        },
+        {
+          "name": "employeeId",
+          "type": "String"
+        },
+        {
+          "name": "employee",
+          "type": "Employee"
+        },
+        {
+          "name": "contractId",
+          "type": "String?"
+        },
+        {
+          "name": "category",
+          "type": "String"
+        },
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "priority",
+          "type": "String"
+        },
+        {
+          "name": "createdById",
+          "type": "String"
+        },
+        {
+          "name": "assignedToId",
+          "type": "String?"
+        },
+        {
+          "name": "resolution",
+          "type": "String?"
+        },
+        {
+          "name": "closedById",
+          "type": "String?"
+        },
+        {
+          "name": "closedAt",
+          "type": "DateTime?"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime"
+        },
+        {
+          "name": "events",
+          "type": "HrGovernanceEvent[]"
+        },
+        {
+          "name": "evidence",
+          "type": "HrGovernanceEvidence[]"
+        }
+      ]
+    },
+    {
+      "name": "HrGovernanceEvent",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "caseId",
+          "type": "String"
+        },
+        {
+          "name": "case",
+          "type": "HrGovernanceCase"
+        },
+        {
+          "name": "action",
+          "type": "String"
+        },
+        {
+          "name": "details",
+          "type": "String"
+        },
+        {
+          "name": "actorUserId",
+          "type": "String"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "name": "HrGovernanceEvidence",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "tenantId",
+          "type": "String"
+        },
+        {
+          "name": "caseId",
+          "type": "String"
+        },
+        {
+          "name": "case",
+          "type": "HrGovernanceCase"
+        },
+        {
+          "name": "fileName",
+          "type": "String"
+        },
+        {
+          "name": "mimeType",
+          "type": "String"
+        },
+        {
+          "name": "sizeBytes",
+          "type": "Int"
+        },
+        {
+          "name": "checksumSha256",
+          "type": "String"
+        },
+        {
+          "name": "content",
+          "type": "Bytes"
+        },
+        {
+          "name": "description",
+          "type": "String?"
+        },
+        {
+          "name": "uploadedById",
+          "type": "String"
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime"
+        }
+      ]
+    }
+  ],
+  "apiModules": [
+    {
+      "name": "ConfigModule",
+      "path": "@nestjs/config"
+    },
+    {
+      "name": "BullModule",
+      "path": "@nestjs/bullmq"
+    },
+    {
+      "name": "ScheduleModule",
+      "path": "@nestjs/schedule"
+    },
+    {
+      "name": "AuthModule",
+      "path": "./auth/auth.module"
+    },
+    {
+      "name": "TenantModule",
+      "path": "./tenant/tenant.module"
+    },
+    {
+      "name": "CrmModule",
+      "path": "./crm/crm.module"
+    },
+    {
+      "name": "ErpModule",
+      "path": "./erp/erp.module"
+    },
+    {
+      "name": "HrModule",
+      "path": "./hr/hr.module"
+    },
+    {
+      "name": "FleetModule",
+      "path": "./fleet/fleet.module"
+    },
+    {
+      "name": "AnalyticsModule",
+      "path": "./analytics/analytics.module"
+    },
+    {
+      "name": "GovernmentModule",
+      "path": "./government/government.module"
+    },
+    {
+      "name": "AiModule",
+      "path": "./ai/ai.module"
+    },
+    {
+      "name": "NotificationsModule",
+      "path": "./notifications/notifications.module"
+    },
+    {
+      "name": "ProjectsModule",
+      "path": "./projects/projects.module"
+    },
+    {
+      "name": "FinanceModule",
+      "path": "./finance/finance.module"
+    },
+    {
+      "name": "SecurityModule",
+      "path": "./security/security.module"
+    },
+    {
+      "name": "BillingModule",
+      "path": "./billing/billing.module"
+    },
+    {
+      "name": "UsersModule",
+      "path": "./users/users.module"
+    },
+    {
+      "name": "ApprovalsModule",
+      "path": "./approvals/approvals.module"
+    },
+    {
+      "name": "ZatcaModule",
+      "path": "./zatca/zatca.module"
+    },
+    {
+      "name": "TemplatesModule",
+      "path": "./templates/templates.module"
+    },
+    {
+      "name": "InventoryModule",
+      "path": "./inventory/inventory.module"
+    },
+    {
+      "name": "PosModule",
+      "path": "./pos/pos.module"
+    },
+    {
+      "name": "ReportsModule",
+      "path": "./reports/reports.module"
+    },
+    {
+      "name": "AutoJournalModule",
+      "path": "./auto-journal/auto-journal.module"
+    },
+    {
+      "name": "AccountingCoreModule",
+      "path": "./accounting-core/accounting-core.module"
+    },
+    {
+      "name": "SupplierModule",
+      "path": "./supplier/supplier.module"
+    },
+    {
+      "name": "BranchModule",
+      "path": "./branch/branch.module"
+    },
+    {
+      "name": "SupplierInvoiceModule",
+      "path": "./supplier-invoice/supplier-invoice.module"
+    },
+    {
+      "name": "StockTransferModule",
+      "path": "./stock-transfer/stock-transfer.module"
+    },
+    {
+      "name": "AlertsModule",
+      "path": "./alerts/alerts.module"
+    },
+    {
+      "name": "ComplianceModule",
+      "path": "./compliance/compliance.module"
+    },
+    {
+      "name": "RealEstateModule",
+      "path": "./real-estate/real-estate.module"
+    }
+  ]
+}
