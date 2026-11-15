@@ -170,10 +170,22 @@
   }
   return head+'<input name="'+key+'" type="'+spec+'" value="'+escape(toInputValue(value,spec))+'" '+(required?'required ':'')+(spec==='number'?'min="0" step="any"':'')+'>'+tail;
  }
+ function updatePipelineStageOptions(){
+  if(normalSection(current)!=='deals')return;
+  const pipeline=$('record-form').querySelector('[name="pipeline_id"]');
+  const stage=$('record-form').querySelector('[name="pipeline_stage_id"]');
+  if(!pipeline||!stage)return;
+  const selected=stage.value;
+  const stages=(rows.stages||[]).filter(item=>item.pipeline_id===pipeline.value&&item.is_active);
+  stage.innerHTML='<option value="">—</option>'+stages.map(item=>
+   '<option value="'+escape(item.id)+'">'+escape(item.name)+'</option>').join('');
+  if(stages.some(item=>item.id===selected))stage.value=selected;
+ }
  function openEditor(record=null){
   const group=normalSection(current);
   editing=record; $('editor-title').textContent=(record?t('تعديل'):t('إضافة'))+' '+t(sectionTitles[current]);
   $('editor-fields').innerHTML=defs[group].map(def=>buildField(def,record)).join('');
+  updatePipelineStageOptions();
   $('editor').hidden=false;$('editor').scrollIntoView({block:'start',behavior:'smooth'});
  }
  async function refresh(){
@@ -220,6 +232,9 @@
   finally{event.target.value='';$('csv-import').disabled=false;}
  });
  $('editor-close').addEventListener('click',()=>{$('editor').hidden=true;});
+ $('record-form').addEventListener('change',event=>{
+  if(event.target.name==='pipeline_id')updatePipelineStageOptions();
+ });
  $('records-body').addEventListener('click',async e=>{
   const edit=e.target.closest('[data-edit]'),archive=e.target.closest('[data-archive]'),group=normalSection(current);
   if(edit){openEditor((rows[group]||[]).find(r=>r.id===edit.dataset.edit));return;}
