@@ -15,6 +15,11 @@ a{color:var(--blue-light)}
 .brand b{display:block;font-size:1.05rem}
 .brand small{color:var(--muted);font-size:.76rem}
 .workspace-name{color:#cbd5e1;font-weight:700;padding:.5rem .7rem;overflow-wrap:anywhere}
+.workspace-name{border-radius:10px;background:rgba(30,41,59,.65);border:1px solid rgba(100,116,139,.28)}
+#workspace-switch-label{font-size:.82rem;font-weight:650;color:#cbd5e1;padding:.1rem .35rem}
+#workspace-select{margin-top:.35rem;max-width:100%}
+.workspace-create-open{width:100%;text-align:center;min-height:42px}
+#workspace-create-cancel{margin-inline-start:.5rem}
 .sidebar-nav{display:flex;flex-direction:column;gap:.25rem}
 .sidebar-nav button{text-align:right;padding:.75rem .85rem;border:1px solid transparent;background:transparent;color:#cbd5e1;border-radius:11px;font-weight:650}
 .sidebar-nav button:hover{background:rgba(51,65,85,.65);color:white}
