@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en" dir="ltr">
 <head>
+ <meta name="referrer" content="no-referrer">
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width,initial-scale=1">
  <meta name="robots" content="noindex,nofollow">
@@ -97,6 +98,14 @@
 
    <section id="membership-section" class="panel" hidden>
     <p class="muted">Add an existing Bonds user by their UUID. Only the owner can manage team members or read the audit history.</p>
+    <form id="invite-form">
+     <label>Employee email<input name="email" type="email" maxlength="254" required autocomplete="off"></label>
+     <label>Role<select name="role"><option value="viewer">Viewer</option><option value="editor">Editor</option><option value="admin">Admin</option></select></label>
+     <button type="submit" class="primary">Email invitation</button>
+    </form>
+    <p class="muted">The server sends an invite link, accepted only by the signed-in user with that verified email. The link expires in 48 hours.</p>
+    <hr>
+    <p class="muted">Direct link for an existing user by UUID:</p>
     <form id="member-form">
      <label>Employee account UUID<input name="member_user_id" required placeholder="00000000-0000-0000-0000-000000000000"></label>
      <label>Role<select name="role"><option value="viewer">Viewer</option><option value="editor">Editor</option><option value="admin">Admin</option></select></label>
