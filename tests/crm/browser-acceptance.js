@@ -13,7 +13,7 @@ async function main(){
   await page.route('**/bonds-auth-2026.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:'/* stub: BondsAuth injected in isolated test */'}));
   await page.route('**/supabase.min.js',route=>route.fulfill({status:200,contentType:'application/javascript',body:'/* mock */'}));
   await page.addInitScript(()=>{
-   const db=Object.fromEntries(['crm_app_workspaces','crm_app_companies','crm_app_contacts','crm_app_deals','crm_app_activities','crm_app_renewals','crm_app_success','crm_app_pipelines','crm_app_pipeline_stages'].map(x=>[x,[]]));
+   const db=Object.fromEntries(['crm_app_workspaces','crm_app_companies','crm_app_contacts','crm_app_deals','crm_app_activities','crm_app_renewals','crm_app_success','crm_app_pipelines','crm_app_pipeline_stages','crm_app_members','crm_app_audit'].map(x=>[x,[]]));
    const writes=[];let sequence=0;
    window.__crmTestState={db,writes};
    const defaults={
@@ -69,6 +69,19 @@ async function main(){
   await page.locator('#workspace-form input[name="name"]').fill('Isolated Company');
   await page.locator('#workspace-form button[type="submit"]').click();
   await page.waitForFunction(()=>document.querySelector('#workspace-content')?.hidden===false);
+  // Owner manages membership in a real UI; server policy is separately tested.
+  await page.locator('#crm-nav [data-section="members"]').click();
+  await page.locator('#member-form [name="member_user_id"]').fill('22222222-2222-4222-8222-222222222222');
+  await page.locator('#member-form [name="role"]').selectOption('editor');
+  await page.locator('#member-form [type="submit"]').click();
+  await page.waitForFunction(()=>window.__crmTestState.db.crm_app_members.length===1);
+  assert.equal(await page.locator('#members-body [data-member-role]').inputValue(),'editor');
+  await page.locator('#members-body [data-member-role]').selectOption('viewer');
+  await page.waitForFunction(()=>window.__crmTestState.db.crm_app_members[0]?.role==='viewer');
+  await page.locator('#members-body [data-member]').click();
+  await page.waitForFunction(()=>window.__crmTestState.db.crm_app_members[0]?.active===false);
+  await page.locator('#crm-nav [data-section="audit"]').click();
+  assert.equal(await page.locator('#audit-section').isVisible(),true);
   await page.locator('#crm-nav [data-section="companies"]').click();
   await page.locator('#new-record').click();
   await page.locator('#record-form [name="name"]').fill('Company A');
