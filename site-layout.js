@@ -931,6 +931,20 @@
     contact.href = isEn ? '/en/contact.html' : '/contact.html';
     contact.textContent = isEn ? 'Contact us' : 'تواصل معنا';
     links.append(contact);
+    [
+      ['mailto:info@bonds-global.com', isEn ? 'Email Bonds Global' : 'مراسلة بوندز', '✉'],
+      ['tel:+966567566616', isEn ? 'Call Bonds Global' : 'الاتصال ببوندز', '☎'],
+      ['https://wa.me/966567566616', isEn ? 'WhatsApp Bonds Global' : 'واتساب بوندز', '◉']
+    ].forEach(([href, title, glyph]) => {
+      const anchor = document.createElement('a');
+      anchor.href = href;
+      anchor.className = 'bonds-topbar__iconlink';
+      anchor.setAttribute('aria-label', title);
+      anchor.title = title;
+      anchor.textContent = glyph;
+      if (href.startsWith('https://')) { anchor.target = '_blank'; anchor.rel = 'noopener noreferrer'; }
+      links.append(anchor);
+    });
     topbar.append(local, links);
     header.insertBefore(topbar, header.firstChild);
     const locale = isEn ? 'en-GB' : 'ar-SA';
