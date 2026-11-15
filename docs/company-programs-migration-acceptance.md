@@ -13,7 +13,10 @@ All of SCC380 must appear AND OPERATE inside the BONDS Company Programs section,
 - An additive draft source-aware workspace mapping (`company_program_workspaces`) with foreign keys to either existing `companies` or existing `crm_app_workspaces`, plus separate independently grantable entitlements. No workspace, mapping or entitlement automatically created.
 - A service-only optional mapping from the verified source-aware BONDS workspace link to a verified SCC380 tenant; no mapping automatically created, and no Makkin credentials in the browser.
 - A read-only authenticated API `GET /api/company-programs?workspace_type=crm|company&workspace_id=<uuid>` which verifies owner/member status in the correct authoritative source and returns eleven products and entitlements. This API is NOT a Makkin functional proxy.
-- Contract tests (source only) for product registry and workspace authorization rules. No tests were executed against this branch yet.
+- Previously executed in GitHub CI: 605 Jest suites / 4,464 tests and isolated PostgreSQL entitlement checks PASS for the earlier catalog revision. Each new commit still requires fresh verification.
+- Explicit SCC user links and BONDS authenticated `integration-status` require active subscriptions plus separately verified SCC tenant and user mapping. Never infer correspondence from matching emails alone.
+- `POST /api/company-programs?action=probe-mapping` verifies a pre-provisioned mapping using a 40-second Ed25519 proof and the SCC companion endpoint in draft PR #197. It requires confirmed email and workspace membership and never grants subscriptions, tokens, or runtime program permissions. It fails closed if cryptographic keys/endpoint are absent.
+- SCC draft PR #197 validates mapping proofs against its own tenant/user database and Redis nonce store without relaxing Render PostgreSQL networking. It is **not** SSO or an operational proxy. Both draft PRs remain blocked from release.
 - Source-level route/model/field/module inventory to drive a no-loss reconciliation.
 
 ## Required before merge, DB changes, rollout or monetization
