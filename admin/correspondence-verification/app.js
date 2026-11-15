@@ -35,10 +35,22 @@
     return `<span class="cv-badge cv-badge--neutral">${escapeHtml(result || '-')}</span>`;
   }
 
-  function openLetterButton(documentId) {
-    if (!documentId) return '<span class="cv-muted">—</span>';
-    const href = '/letterhead.html?document=' + encodeURIComponent(documentId);
-    return `<a class="cv-btn" href="${href}" target="_blank" rel="noopener">فتح الخطاب</a>`;
+  function verifierCell(event) {
+    if (!event.actor_user_id) return '<span class="cv-muted">هوية غير مسجلة</span>';
+    const id = escapeHtml(event.actor_user_id);
+    const email = event.verifier_email ? escapeHtml(event.verifier_email) : '';
+    const phone = event.verifier_phone ? escapeHtml(event.verifier_phone) : '';
+    return '<div>' + (email || id) + '</div>'
+      + (email ? '<small class="cv-muted">' + id + '</small>' : '')
+      + (phone ? '<div class="cv-muted">' + phone + '</div>' : '');
+  }
+
+  function openLetterButton(issueToken) {
+    // Open the archived, SHA-verified issue rather than a mutable letterhead
+    // editor, so the admin sees the same official PDF as a QR verifier.
+    if (!issueToken) return '<span class="cv-muted">لا توجد نسخة موثقة</span>';
+    const href = '/verify-document.html?token=' + encodeURIComponent(issueToken);
+    return `<a class="cv-btn" href="${href}" target="_blank" rel="noopener">فتح الخطاب الرسمي</a>`;
   }
 
   // Official issues register derived from the currently loaded verification events,
@@ -51,6 +63,7 @@
         issue_id: ev.issue_id,
         issue_number: ev.issue_number || (ev.issue && ev.issue.issue_number) || ev.issue_id,
         document_id: ev.document_id || null,
+        verification_token: ev.issue?.verification_token || null,
         latest: ev.created_at,
         count: 0
       };
@@ -85,9 +98,12 @@
       <tr>
         <td>${escapeHtml(fmtDateTime(ev.created_at))}</td>
         <td>${escapeHtml(ev.issue_number || (ev.issue && ev.issue.issue_number) || '-')}</td>
+        <td>${escapeHtml(fmtDateTime(ev.issue?.issued_at || ev.document?.issued_at))}</td>
+        <td>${escapeHtml(ev.document?.recipient_name || ev.document?.recipient_organization || '-')}</td>
+        <td>${escapeHtml(ev.document?.subject || ev.document?.title || '-')}</td>
         <td>${resultBadge(ev.result)}</td>
-        <td>${ev.actor_user_id ? escapeHtml(ev.actor_user_id) : '<span class="cv-muted">تحقق عام</span>'}</td>
-        <td>${openLetterButton(ev.document_id)}</td>
+        <td>${verifierCell(ev)}</td>
+        <td>${openLetterButton(ev.issue?.verification_token)}</td>
       </tr>`).join('');
 
     const issueRows = issues.map(issue => `
@@ -95,7 +111,7 @@
         <td>${escapeHtml(issue.issue_number)}</td>
         <td>${escapeHtml(fmtDateTime(issue.latest))}</td>
         <td>${escapeHtml(String(issue.count))}</td>
-        <td>${openLetterButton(issue.document_id)}</td>
+        <td>${openLetterButton(issue.verification_token)}</td>
       </tr>`).join('');
 
     root.innerHTML = `
@@ -128,13 +144,16 @@
               <tr>
                 <th>الوقت</th>
                 <th>رقم الخطاب</th>
+                <th>تاريخ الإصدار</th>
+                <th>الموجّه إليه</th>
+                <th>الموضوع</th>
                 <th>النتيجة</th>
-                <th>هوية المتحقق</th>
+                <th>معرّف حساب المتحقق</th>
                 <th>الخطاب</th>
               </tr>
             </thead>
             <tbody>
-              ${rows || '<tr><td colspan="5" class="cv-muted">لا توجد عمليات تحقق بعد.</td></tr>'}
+              ${rows || '<tr><td colspan="8" class="cv-muted">لا توجد عمليات تحقق بعد.</td></tr>'}
             </tbody>
           </table>
         </div>

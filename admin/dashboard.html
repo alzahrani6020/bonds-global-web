@@ -986,6 +986,11 @@
       const moduleCache = new Map();
       const MODULE_CACHE_LIMIT = 5;
       let moduleLoadTimer = null;
+      // Sequence guard: a slow iframe whose load finishes after its attempt
+      // was superseded (timeout error panel, retry, double-click, or a newer
+      // module load) must never cache itself nor push tokens — otherwise a
+      // detached stale frame steals the cache slot from the visible one.
+      let moduleLoadSeq = 0;
 
       function clearModuleLoadTimer() {
         if (moduleLoadTimer) { clearTimeout(moduleLoadTimer); moduleLoadTimer = null; }
@@ -1278,7 +1283,10 @@
         }
         const cached = moduleCache.get(url);
         if (cached) {
-          // Reactivate the live iframe instead of reloading the module.
+          // Reactivate the live iframe instead of reloading the module. Bump
+          // the sequence so a late load from a previous attempt cannot cache
+          // itself after this reactivation.
+          moduleLoadSeq += 1;
           moduleCache.delete(url);
           moduleCache.set(url, cached);
           iframeWrap.innerHTML = '';
@@ -1289,6 +1297,7 @@
           return;
         }
         iframeWrap.innerHTML = '<div class="iframe-loader"><div class="spinner"></div><p>' + (adminI18n?.t('dashboard.loadingSection') || '') + '</p></div>';
+        const loadSeq = ++moduleLoadSeq;
         const iframe = document.createElement('iframe');
         iframe.className = 'module-frame';
         iframe.src = url + '&_v=4';
@@ -1299,6 +1308,9 @@
         iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-downloads');
         iframe.onload = async () => {
           clearModuleLoadTimer();
+          // A superseded load (timeout, retry, double-click, newer module)
+          // must not cache, push tokens, or touch the active state.
+          if (loadSeq !== moduleLoadSeq || currentIframe !== iframe) return;
           try {
             if (iframe.contentDocument) adminI18n?.bind(iframe.contentDocument);
           } catch (e) {}
@@ -1310,9 +1322,11 @@
         };
         iframe.onerror = () => {
           clearModuleLoadTimer();
+          if (loadSeq !== moduleLoadSeq || currentIframe !== iframe) return;
           showModuleLoadError(url, title);
         };
         moduleLoadTimer = setTimeout(() => {
+          if (loadSeq !== moduleLoadSeq || currentIframe !== iframe) return;
           showModuleLoadError(url, title);
         }, 25000);
         iframeWrap.innerHTML = '';

@@ -140,7 +140,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
       expect(page).not.toContain('id="seal"');
       expect(page).toContain('id="official-viewer"');
       expect(page).toContain('stamp_verified');
-      expect(page).toContain('/components/verified-pdf-viewer.js?v=20261114-rtl-verified-modal');
+      expect(page).toContain('/components/verified-pdf-viewer.js?v=20261115-qr-auth-integrated');
       expect(page).not.toContain('window.BondsOfficialSeal.create(');
       expect(page).toContain('const pdfMatches=await window.BondsVerifiedPdfViewer.render({');
       expect(page).toContain('final_pdf_verified');
@@ -159,7 +159,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
     const en=read('en/verify-document.html');
     const sw=read('sw.js');
     const vercel=JSON.parse(read('vercel.json'));
-    const asset='/components/verified-pdf-viewer.js?v=20261114-rtl-verified-modal';
+    const asset='/components/verified-pdf-viewer.js?v=20261115-qr-auth-integrated';
     expect(ar).toContain(asset);
     expect(en).toContain(asset);
     expect(sw).toContain("url.pathname === '/components/verified-pdf-viewer.js'");

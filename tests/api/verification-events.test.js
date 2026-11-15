@@ -57,20 +57,34 @@ const DOC = {
   confidentiality: 'internal'
 };
 
-function createCorrespondenceMock({ rpcResult, eventError } = {}) {
+function createCorrespondenceMock({ rpcResult, docConfidentiality, boundArtifacts } = {}) {
   const calls = { rpc: [], insert: [], update: [] };
   let issueLookupCount = 0;
+  const doc = boundArtifacts
+    ? {
+        ...DOC,
+        confidentiality: docConfidentiality || DOC.confidentiality,
+        document_hash: ISSUE.document_hash,
+        issued_hash: ISSUE.issued_hash,
+        artifact_path: 'official/issue-1.pdf',
+        artifact_hash: ISSUE.pdf_hash,
+        artifact_document_hash: ISSUE.document_hash,
+        artifact_issued_hash: ISSUE.issued_hash,
+        artifact_version: ISSUE.document_version
+      }
+    : { ...DOC, confidentiality: docConfidentiality || DOC.confidentiality };
   const makeChain = (table) => ({
     select: () => makeChain(table),
     insert: (rows) => {
       calls.insert.push({ table, rows });
-      return { error: eventError || null };
+      return { error: null };
     },
     update: (set) => {
       calls.update.push({ table, set });
       return makeChain(table);
     },
     eq: () => makeChain(table),
+    in: () => makeChain(table),
     order: () => makeChain(table),
     limit: () => makeChain(table),
     maybeSingle: () => {
@@ -79,12 +93,21 @@ function createCorrespondenceMock({ rpcResult, eventError } = {}) {
         // First lookup is the token lookup; later ones are the successor query.
         return Promise.resolve(issueLookupCount === 1 ? { data: ISSUE, error: null } : { data: null, error: null });
       }
-      if (table === 'correspondence_documents') return Promise.resolve({ data: DOC, error: null });
+      if (table === 'correspondence_documents') {
+        return Promise.resolve({ data: doc, error: null });
+      }
       return Promise.resolve({ data: null, error: null });
     }
   });
   const sb = {
     from: (table) => makeChain(table),
+    auth: {
+      getUser: (token) => {
+        if (token === 'valid-token') return Promise.resolve({ data: { user: { id: 'user-1', email: 'u@example.com', is_anonymous: false } }, error: null });
+        if (token === 'anon-token') return Promise.resolve({ data: { user: { id: 'anon-1', is_anonymous: true } }, error: null });
+        return Promise.resolve({ data: { user: null }, error: { message: 'invalid token' } });
+      }
+    },
     rpc: (name, args) => {
       calls.rpc.push({ name, args });
       return Promise.resolve(rpcResult || { data: 5, error: null });
@@ -93,14 +116,15 @@ function createCorrespondenceMock({ rpcResult, eventError } = {}) {
   return { sb, calls };
 }
 
-function verifyReq(overrides = {}) {
+function verifyReq({ auth, ...overrides } = {}) {
   return {
     method: 'GET',
     url: '/api/correspondence?action=verify&token=' + ISSUE.verification_token,
     headers: {
       host: 'localhost',
       'x-forwarded-for': '203.0.113.7, 70.41.3.18',
-      'user-agent': 'BondsVerifyTest/1.0'
+      'user-agent': 'BondsVerifyTest/1.0',
+      ...(auth ? { authorization: 'Bearer ' + auth } : {})
     },
     query: { action: 'verify', token: ISSUE.verification_token },
     ...overrides
@@ -120,7 +144,7 @@ function mockRes() {
   };
 }
 
-describe('correspondence public verify — atomic counter and event log', () => {
+describe('correspondence verify — authenticated verifier and atomic audit RPC', () => {
   let consoleErrorSpy;
 
   beforeEach(() => {
@@ -132,67 +156,102 @@ describe('correspondence public verify — atomic counter and event log', () => 
     mockState.sb = null;
   });
 
-  test('increments via atomic RPC and returns the new count', async () => {
+  test('rejects anonymous visitors before any database write', async () => {
     const mock = createCorrespondenceMock();
     mockState.sb = mock.sb;
 
     const res = mockRes();
     await correspondenceHandler(verifyReq(), res);
+
+    expect(res.statusCode).toBe(401);
+    expect(String(res.body.error)).toMatch(/sign in/i);
+    expect(mock.calls.rpc).toEqual([]);
+    expect(mock.calls.insert).toEqual([]);
+    expect(mock.calls.update).toEqual([]);
+  });
+
+  test('rejects anonymous-flag accounts (session present but anonymous identity)', async () => {
+    const mock = createCorrespondenceMock();
+    mockState.sb = mock.sb;
+
+    const res = mockRes();
+    await correspondenceHandler(verifyReq({ auth: 'anon-token' }), res);
+
+    expect(res.statusCode).toBe(401);
+    expect(mock.calls.rpc).toEqual([]);
+  });
+
+  test('records verification through the atomic audit RPC with the verifier identity and hashed context', async () => {
+    const mock = createCorrespondenceMock();
+    mockState.sb = mock.sb;
+
+    const res = mockRes();
+    await correspondenceHandler(verifyReq({ auth: 'valid-token' }), res);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.verified).toBe(true);
     expect(res.body.verification_count).toBe(5);
     expect(mock.calls.rpc).toEqual([
-      { name: 'increment_issue_verification_count', args: { p_issue_id: ISSUE.id } }
+      {
+        name: 'record_correspondence_verification',
+        args: {
+          p_issue_id: ISSUE.id,
+          p_actor_user_id: 'user-1',
+          p_ip_hash: crypto.createHash('sha256').update('203.0.113.7', 'utf8').digest('hex'),
+          p_user_agent_hash: crypto.createHash('sha256').update('BondsVerifyTest/1.0', 'utf8').digest('hex')
+        }
+      }
     ]);
-    // The old non-atomic read-then-update path must not run when the RPC succeeds.
-    expect(mock.calls.update.filter(c => c.table === 'correspondence_issues')).toEqual([]);
+    // The audit RPC is the single transaction: no separate counter update or event insert.
+    expect(mock.calls.update).toEqual([]);
+    expect(mock.calls.insert).toEqual([]);
   });
 
-  test('records a verification event with hashed ip/user-agent and public actor', async () => {
+  test('fails closed when the audit RPC errors — no verification is claimed, no lossy fallback', async () => {
+    const mock = createCorrespondenceMock({ rpcResult: { data: null, error: { message: 'audit unavailable' } } });
+    mockState.sb = mock.sb;
+
+    const res = mockRes();
+    await expect(correspondenceHandler(verifyReq({ auth: 'valid-token' }), res))
+      .rejects.toMatchObject({ message: 'audit unavailable' });
+    expect(mock.calls.update.filter(c => c.table === 'correspondence_issues')).toEqual([]);
+    expect(mock.calls.insert).toEqual([]);
+  });
+
+  test('fails closed when the audit RPC returns an invalid count', async () => {
+    const mock = createCorrespondenceMock({ rpcResult: { data: 0, error: null } });
+    mockState.sb = mock.sb;
+
+    const res = mockRes();
+    await expect(correspondenceHandler(verifyReq({ auth: 'valid-token' }), res)).rejects.toThrow(/invalid count/);
+  });
+
+  test('non-public documents withhold subject/signer and flag login-gated PDF access', async () => {
     const mock = createCorrespondenceMock();
     mockState.sb = mock.sb;
 
     const res = mockRes();
-    await correspondenceHandler(verifyReq(), res);
+    await correspondenceHandler(verifyReq({ auth: 'valid-token' }), res);
 
     expect(res.statusCode).toBe(200);
-    const eventInsert = mock.calls.insert.find(c => c.table === 'correspondence_verification_events');
-    expect(eventInsert).toBeTruthy();
-    expect(eventInsert.rows).toEqual({
-      issue_id: ISSUE.id,
-      document_id: ISSUE.document_id,
-      issue_number: ISSUE.issue_number,
-      actor_user_id: null,
-      result: 'verified',
-      ip_hash: crypto.createHash('sha256').update('203.0.113.7', 'utf8').digest('hex'),
-      user_agent_hash: crypto.createHash('sha256').update('BondsVerifyTest/1.0', 'utf8').digest('hex')
-    });
+    expect(res.body.pdf_access_requires_login).toBe(true);
+    expect(res.body.title).toBeNull();
+    expect(res.body.subject).toBeNull();
+    expect(res.body.signer_name).toBeNull();
+    expect(res.body.official_preview_url).toBeNull();
   });
 
-  test('event insert failure is logged server-side and does not block the public response', async () => {
-    const mock = createCorrespondenceMock({ eventError: { message: 'events table missing' } });
+  test('public documents keep full metadata and download links for authenticated verifiers', async () => {
+    const mock = createCorrespondenceMock({ docConfidentiality: 'public', boundArtifacts: true });
     mockState.sb = mock.sb;
 
     const res = mockRes();
-    await correspondenceHandler(verifyReq(), res);
+    await correspondenceHandler(verifyReq({ auth: 'valid-token' }), res);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.verified).toBe(true);
-    expect(consoleErrorSpy).toHaveBeenCalled();
-  });
-
-  test('falls back to read-then-update when the RPC is unavailable', async () => {
-    const mock = createCorrespondenceMock({ rpcResult: { data: null, error: { message: 'rpc missing' } } });
-    mockState.sb = mock.sb;
-
-    const res = mockRes();
-    await correspondenceHandler(verifyReq(), res);
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body.verification_count).toBe(ISSUE.verification_count + 1);
-    const issueUpdate = mock.calls.update.find(c => c.table === 'correspondence_issues');
-    expect(issueUpdate.set.verification_count).toBe(ISSUE.verification_count + 1);
+    expect(res.body.pdf_access_requires_login).toBe(false);
+    expect(res.body.title).toBe(DOC.title);
+    expect(String(res.body.official_preview_url)).toContain('action=official-preview');
   });
 });
 

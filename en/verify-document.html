@@ -137,14 +137,29 @@
     <footer class="footer"><span>This page is exclusively for verifying official Bonds documents.</span><span>CR 39733 · <a href="/">bonds-global.com</a></span></footer>
   </section>
 </main>
-<script src="/components/verified-pdf-viewer.js?v=20261114-rtl-verified-modal"></script>
+<script src="/api/env"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+<script src="/components/verified-pdf-viewer.js?v=20261115-qr-auth-integrated"></script>
 <script src="/components/verification-entry.js?v=1"></script>
 <script>
 (async function(){
   const params=new URLSearchParams(location.search);
   const token=params.get('token')||'';
   const status=document.getElementById('status'), content=document.getElementById('verified-content'), failure=document.getElementById('failure');
-  const fail=()=>{status.textContent='Document could not be verified';status.classList.add('bad');failure.classList.add('active');content.hidden=true;};
+  const fail=(reason='invalid')=>{
+    const messages={
+      invalid:['Invalid verification link','The QR link contains an invalid verification token. Scan the original QR again.'],
+      missing:['Document not found','This verification token is not registered in the official issue ledger.'],
+      limited:['Verification temporarily limited','Too many verification requests. Try again after the displayed retry interval.'],
+      auth:['Sign-in required','Verification requires a signed-in account. Please sign in again.'],
+      unavailable:['Verification service unavailable','The service could not complete the verification. This does not establish that the document is invalid.']
+    };
+    const message=messages[reason]||messages.unavailable;
+    status.textContent=message[0];status.classList.add('bad');
+    failure.querySelector('h2').textContent=message[0];
+    failure.querySelector('p').textContent=message[1];
+    failure.classList.add('active');content.hidden=true;
+  };
   if(!token){
     status.textContent='No document selected';
     status.classList.add('warn');
@@ -160,19 +175,35 @@
   }
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token)){fail();return;}
   try{
-    const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{cache:'no-store'});
+    const session=await window.BondsAuth?.getSession();
+    if(!session || session.error){fail('unavailable');return;}
+    const accessToken=session.data?.session?.access_token||'';
+    if(!accessToken){
+      status.textContent="Sign in required — returning to this QR after login";
+      status.classList.add('warn');
+      location.replace("/en/calculators/auth/index.html?redirect="+encodeURIComponent(location.pathname+location.search));
+      return;
+    }
+    const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{
+      cache:'no-store',headers:{Authorization:'Bearer '+accessToken}
+    });
     const d=await r.json().catch(()=>({}));
-    if(!r.ok||!d.verified){fail();return;}
+    if(r.status===401){fail('auth');return;}
+    if(r.status===404){fail('missing');return;}
+    if(r.status===400){fail('invalid');return;}
+    if(r.status===429){fail('limited');return;}
+    if(!r.ok){fail('unavailable');return;}
+    if(!d.verified){fail('missing');return;}
     content.hidden=false;
     const state=d.issue_state||'active';
-    status.textContent=state==='active'?'Checking archived PDF fingerprint…':state==='revoked'?'✕ This issue has been revoked':'! This issue has been superseded';
+    status.textContent=state==='active'?'Checking archived PDF fingerprint…':state==='revoked'?'✕ This issue has been revoked':state==='pending'?'Issue registered — awaiting verified final PDF':'! This issue has been superseded';
     if(state==='revoked')status.classList.add('bad'); else if(state!=='active')status.classList.add('warn');
     document.getElementById('reference').textContent=d.issue_number||d.reference_number||'-';
     document.getElementById('issue-version').textContent=d.issue_version||'-';
     document.getElementById('issued').textContent=d.issued_at?new Date(d.issued_at).toLocaleString('en-US'):'-';
     document.getElementById('subject').textContent=d.subject||d.title||'-';
     document.getElementById('signer').textContent=[d.signer_name,d.signer_title].filter(Boolean).join(' — ')||'Signatory details not recorded';
-    document.getElementById('doc-status').textContent=state==='active'?'Active':state==='revoked'?'Revoked':'Superseded';
+    document.getElementById('doc-status').textContent=state==='active'?'Active':state==='revoked'?'Revoked':state==='pending'?'Pending final PDF':'Superseded';
     document.getElementById('hash').textContent=d.checksum_sha256||'-';
     document.getElementById('issued-hash').textContent=d.issued_hash||'-';
     document.getElementById('artifact-hash').textContent=d.artifact_hash||'-';
@@ -223,8 +254,36 @@
     if(d.final_pdf_verified&&d.official_preview_url){
       const preview=d.official_preview_url;
       const wrap=document.getElementById('viewer-wrap');wrap.classList.add('active');
-      document.getElementById('open-pdf').href=preview;
-      document.getElementById('download-pdf').href=d.official_pdf_url||preview+'&download=1';
+      const protectedPdf=!!d.pdf_access_requires_login;
+      let accessToken='';
+      if(protectedPdf){
+        try{accessToken=(await window.BondsAuth?.getSession())?.data?.session?.access_token||'';}catch(_){}
+        if(!accessToken){
+          const notice=document.createElement('p');
+          notice.textContent="This issued PDF is protected. Sign in to your authorized account to inspect the official bytes.";
+          const login=document.createElement('a');
+          login.className='btn primary';
+          login.textContent="Sign in to view official PDF";
+          login.href="/en/calculators/auth/index.html?redirect="+encodeURIComponent(location.pathname+location.search);
+          wrap.append(notice,login);
+          pdfCheck.textContent="Document registered; PDF review requires an authorized sign-in.";
+          if(state==='active'){
+            status.textContent="Registered official issue — sign in to verify protected PDF";
+            status.classList.add('warn');
+          }
+          return;
+        }
+      }
+      const openPdf=document.getElementById('open-pdf');
+      const downloadPdf=document.getElementById('download-pdf');
+      if(protectedPdf){
+        openPdf.removeAttribute('href');downloadPdf.removeAttribute('href');
+        openPdf.setAttribute('aria-disabled','true');
+        downloadPdf.setAttribute('aria-disabled','true');
+      }else{
+        openPdf.href=preview;
+        downloadPdf.href=d.official_pdf_url||preview+'&download=1';
+      }
       // The expanded reading interface reuses verified PDF canvases; RTL controls
       // do not mirror or modify the archived PDF artwork.
       let pdfModalInstalled=false;
@@ -235,7 +294,15 @@
           url:preview,expectedHash:d.artifact_hash,
           container:document.getElementById('official-viewer'),
           feedback:document.getElementById('pdf-render-status'),
-          language:'en'
+          language:'en',
+          authorizationToken:accessToken,
+          onVerifiedBytes:protectedPdf?bytes=>{
+            const blobUrl=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+            openPdf.href=blobUrl;downloadPdf.href=blobUrl;
+            openPdf.removeAttribute('aria-disabled');
+            downloadPdf.removeAttribute('aria-disabled');
+            window.addEventListener('pagehide',()=>URL.revokeObjectURL(blobUrl),{once:true});
+          }:null
         });
         if(pdfMatches && !pdfModalInstalled && window.BondsVerifiedPdfViewer?.installModal){
           pdfModalInstalled=window.BondsVerifiedPdfViewer.installModal({
@@ -264,7 +331,7 @@
       if(state==='active'){status.textContent='Original PDF unavailable — verification incomplete';status.classList.add('warn');}
       pdfCheck.textContent='No fingerprint-bound official PDF is available';
     }
-  }catch(e){fail();}
+  }catch(e){console.warn('[BONDS verification] request failed',e?.name||'Error');fail('unavailable');}
 })();
 </script>
 </body>
