@@ -126,3 +126,25 @@ html body.bonds-redesign #site-header .main-header__inner{
   width:100%!important;max-width:none!important;
   box-sizing:border-box!important;overflow:visible!important;
 }
+
+/* Approved 1773x887 reference alignment — visual QA from real browser captures.
+   Mirror the gold curved photo separator, then match the three-tier header and
+   hero proportions only at desktop widths. Mobile sizing stays unchanged. */
+@media (min-width:1281px){
+  body.bonds-redesign .bonds-topbar{min-height:70px;padding-top:12px;padding-bottom:12px}
+  body.bonds-redesign .main-header__inner{padding-top:24px!important;padding-bottom:10px!important;row-gap:17px!important}
+  body.bonds-redesign .main-nav{margin-top:13px;padding-top:11px;padding-bottom:11px}
+  body.bonds-redesign .bonds-hero{min-height:380px}
+  body.bonds-redesign .bonds-hero__copy{padding-top:23px;padding-bottom:23px}
+  body.bonds-redesign .bonds-hero__copy h1{line-height:1.18;margin-bottom:15px}
+  body.bonds-redesign .bonds-hero__copy p{line-height:1.58}
+  body.bonds-redesign .bonds-hero__actions{margin-top:18px}
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__image{
+    border-radius:0 42% 0 0 / 0 95% 0 0;
+    box-shadow:inset -8px 0 0 #edc66c;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__image{
+    border-radius:42% 0 0 0 / 95% 0 0 0;
+    box-shadow:inset 8px 0 0 #edc66c;
+  }
+}
