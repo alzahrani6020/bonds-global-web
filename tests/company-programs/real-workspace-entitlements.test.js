@@ -20,7 +20,7 @@ describe('Company programs - no phantom capabilities',()=>{
   });
   test('read-only endpoint requires an authenticated existing workspace',()=>{
     const fs=require('fs');
-    const api=fs.readFileSync(require('path').join(__dirname,'../../api/company-programs.js'),'utf8');
+    const api=fs.readFileSync(require('path').join(__dirname,'../../lib/api/company-programs.js'),'utf8');
     expect(api).toContain("if(req.method!=='GET')");
     expect(api).toContain('verifyBearer(req)');
     expect(api).toContain(".eq('owner_user_id',user.id)");
