@@ -110,4 +110,66 @@ BEGIN
  THEN RAISE EXCEPTION 'competing activation corrupted predecessor or issued documents'; END IF;
 END $$;
 
-SELECT 'PASS: atomic successor activation, failed PDF rollback, historical immutability, competing successors' AS acceptance;
+
+-- Verify the audit counter and identified event are a single DB transaction.
+DO $
+DECLARE
+ root_issue uuid;
+ verifier uuid := 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
+BEGIN
+ SELECT id INTO root_issue FROM public.correspondence_issues WHERE issue_number='ROOT';
+ IF has_function_privilege('anon','public.record_correspondence_verification(uuid,uuid,text,text)','EXECUTE')
+    OR has_function_privilege('authenticated','public.record_correspondence_verification(uuid,uuid,text,text)','EXECUTE')
+    OR NOT has_function_privilege('service_role','public.record_correspondence_verification(uuid,uuid,text,text)','EXECUTE')
+ THEN RAISE EXCEPTION 'audit RPC privileges are not least-privilege'; END IF;
+
+ PERFORM public.record_correspondence_verification(root_issue,verifier,null,null);
+ PERFORM public.record_correspondence_verification(root_issue,verifier,null,null);
+
+ IF (SELECT verification_count FROM public.correspondence_issues WHERE id=root_issue) <> 2
+ OR (SELECT count(*) FROM public.correspondence_verification_events WHERE issue_id=root_issue) <> 2
+ OR (SELECT count(*) FROM public.correspondence_verification_events
+     WHERE issue_id=root_issue AND actor_user_id=verifier AND result='verified') <> 2
+ THEN RAISE EXCEPTION 'atomic counter and authenticated audit rows disagree'; END IF;
+
+ BEGIN
+  PERFORM public.record_correspondence_verification(root_issue,null,null,null);
+  RAISE EXCEPTION 'missing authenticated actor incorrectly accepted';
+ EXCEPTION WHEN not_null_violation THEN NULL;
+ END;
+ IF (SELECT verification_count FROM public.correspondence_issues WHERE id=root_issue) <> 2
+ THEN RAISE EXCEPTION 'rejected anonymous verifier changed issue count'; END IF;
+END $;
+
+-- Force an audit-table INSERT failure and prove count is rolled back.
+CREATE OR REPLACE FUNCTION public.reject_disposable_audit_write()
+RETURNS trigger LANGUAGE plpgsql AS $
+BEGIN
+ RAISE EXCEPTION 'TEST_FORCED_AUDIT_REJECTION';
+END $;
+CREATE TRIGGER reject_disposable_audit_write
+BEFORE INSERT ON public.correspondence_verification_events
+FOR EACH ROW EXECUTE FUNCTION public.reject_disposable_audit_write();
+
+DO $
+DECLARE
+ root_issue uuid;
+ actual_error text;
+BEGIN
+ SELECT id INTO root_issue FROM public.correspondence_issues WHERE issue_number='ROOT';
+ BEGIN
+  PERFORM public.record_correspondence_verification(root_issue,
+    'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',null,null);
+  RAISE EXCEPTION 'audit failure was swallowed';
+ EXCEPTION WHEN raise_exception THEN
+  GET STACKED DIAGNOSTICS actual_error = MESSAGE_TEXT;
+  IF actual_error <> 'TEST_FORCED_AUDIT_REJECTION' THEN RAISE; END IF;
+ END;
+ IF (SELECT verification_count FROM public.correspondence_issues WHERE id=root_issue) <> 2
+ OR (SELECT count(*) FROM public.correspondence_verification_events WHERE issue_id=root_issue) <> 2
+ THEN RAISE EXCEPTION 'audit failure committed a partial counter update'; END IF;
+END $;
+DROP TRIGGER reject_disposable_audit_write ON public.correspondence_verification_events;
+DROP FUNCTION public.reject_disposable_audit_write();
+
+SELECT 'PASS: atomic successor activation, failed PDF rollback, historical immutability, competing successors, atomic verified-account audit' AS acceptance;
