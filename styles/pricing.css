@@ -84,7 +84,7 @@
 
 /* Accessibility: keep text/buttons on non-featured light pricing cards at WCAG AA contrast. */
 .pricing-card:not(.pricing-card--featured) .pricing-card__title {
-  color: #0a2342;
+  color: #f4f7ff;
 }
 
 .pricing-card:not(.pricing-card--featured) .pricing-card__trial {
@@ -92,8 +92,8 @@
 }
 
 .pricing-card:not(.pricing-card--featured) .pricing-card__cta.btn-outline {
-  color: #0a2342;
-  border-color: #0a2342;
+  color: #f4f7ff;
+  border-color: #cad7e9;
 }
 
 .pricing-card__cta--spaced {
