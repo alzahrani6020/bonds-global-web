@@ -84,6 +84,8 @@ async function main(){
   assert.equal(contact.rowCount,1);
   await assert.rejects(()=>as(a,()=>client.query("insert into crm_app_contacts(workspace_id,name,email) values($1,'Contact A','user@example.com')",[wa])),
     error=>error.code==='23505','Identical contact names and emails must be unique within workspace');
+  const sharedInbox=await as(a,()=>client.query("insert into crm_app_contacts(workspace_id,name,email) values($1,'Different Person','user@example.com') returning id",[wa]));
+  assert.equal(sharedInbox.rowCount,1,'Different people must be able to share one corporate email');
   const otherContact=await as(b,()=>client.query("insert into crm_app_contacts(workspace_id,name,email) values($1,'Contact B','user@example.com') returning id",[wb]));
   assert.equal(otherContact.rowCount,1,'Emails may repeat in different tenant workspaces');
 
