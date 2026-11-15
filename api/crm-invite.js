@@ -46,9 +46,17 @@ module.exports=async function crmInvite(req,res){
   if(quotaError)throw quotaError;
   if((count||0)>=30)return respond(res,429,{error:'INVITATION_DAILY_LIMIT'});
   const {data:pending,error:pendingError}=await sb.from('crm_app_invitations')
-    .select('id').eq('workspace_id',workspaceId).eq('invited_email',email).is('accepted_at',null).limit(1);
+    .select('id,expires_at').eq('workspace_id',workspaceId).eq('invited_email',email).is('accepted_at',null).limit(1);
   if(pendingError)throw pendingError;
-  if(pending?.length)return respond(res,409,{error:'INVITATION_ALREADY_PENDING'});
+  if(pending?.length){
+   if(Date.parse(pending[0].expires_at)>Date.now())
+    return respond(res,409,{error:'INVITATION_ALREADY_PENDING'});
+   // Only an owner-authorized request can clear an expired pending invitation.
+   // This never touches a membership or an accepted invitation.
+   const {error:expiredError}=await sb.from('crm_app_invitations').delete()
+    .eq('id',pending[0].id).eq('workspace_id',workspaceId).is('accepted_at',null);
+   if(expiredError)throw expiredError;
+  }
   const secret=randomBytes(32).toString('base64url');
   const hash=createHash('sha256').update(secret).digest('hex');
   const expires=new Date(Date.now()+48*3600000).toISOString();
