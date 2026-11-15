@@ -80,14 +80,46 @@ describe('Correspondence issuance integrity boundaries',()=>{
     expect(api).toContain("Signer name and capacity are required before signing");
     expect(api).toContain("!doc.signer_name || !doc.signer_title");
     expect(api).toContain("issue.signature_hash === doc.signature_hash && issue.issued_hash === doc.issued_hash");
-    expect(api).toContain("signer_name: (issue.signature_hash");
-    expect(api).toContain("signer_title: (issue.signature_hash");
+    expect(api).toContain("signer_name: (!pdfAccessRequiresLogin && issue.signature_hash");
+    expect(api).toContain("signer_title: (!pdfAccessRequiresLogin && issue.signature_hash");
   });
 
   test('the server independently verifies historic archived PDF bytes on every preview',()=>{
     expect(api).toContain('async function loadPublicVerifiedArtifact');
     expect(api).toContain("hash !== doc.artifact_hash || hash !== issue.pdf_hash");
     expect(api).toContain("Cache-Control', 'private, no-store, max-age=0");
+  });
+
+  test('protected correspondence requires both authentication and per-document authorization before PDF bytes are fetched',()=>{
+    const preview=api.slice(api.indexOf("if (action === 'official-preview')"),api.indexOf("if (action === 'qr')"));
+    expect(preview).toContain("doc.confidentiality !== 'public'");
+    expect(preview).toContain("const viewer = await resolveUser(req)");
+    expect(preview).toContain("const viewerRole = await resolveRole(sb, viewer.id)");
+    expect(preview).toContain("const viewerMemberships = await resolveMemberships(sb, viewer.id)");
+    expect(preview).toContain("const viewerPermissions = await resolveCorrespondencePermissions(sb, viewer.id, viewerRole)");
+    expect(preview).toContain("!canRead(doc, viewer, viewerRole, viewerMemberships, viewerPermissions)");
+    expect(preview).toContain("res.status(401)");
+    expect(preview).toContain("res.status(403)");
+    expect(preview.indexOf("!canRead(doc, viewer, viewerRole")).toBeLessThan(preview.indexOf("await loadPublicVerifiedArtifact(sb, doc, issue)"));
+  });
+
+  test('restricted issue QR reveals only public status and authorized viewer obtains SHA-verified blob',()=>{
+    const viewer=read('components/verified-pdf-viewer.js');
+    for(const page of ['verify-document.html','en/verify-document.html']){
+      const html=read(page);
+      expect(html).toContain('pdf_access_requires_login');
+      expect(html).toContain('window.BondsAuth?.getSession()');
+      expect(html).toContain('encodeURIComponent(location.pathname+location.search)');
+      expect(html).toContain('authorizationToken:accessToken');
+      expect(html).toContain('onVerifiedBytes:protectedPdf?bytes=>');
+      expect(html).toContain('URL.createObjectURL(new Blob([bytes]');
+    }
+    expect(api).toContain('title: pdfAccessRequiresLogin ? null : doc.title');
+    expect(api).toContain('subject: pdfAccessRequiresLogin ? null : doc.subject');
+    expect(api).toContain('signer_name: (!pdfAccessRequiresLogin');
+    expect(viewer).toContain("if(authorizationToken)headers.Authorization='Bearer '+authorizationToken");
+    expect(viewer).toContain("if(typeof onVerifiedBytes==='function')onVerifiedBytes(documentBytes)");
+    expect(viewer.indexOf('actual.toLowerCase()!==expectedHash.toLowerCase()')).toBeLessThan(viewer.indexOf("onVerifiedBytes(documentBytes)"));
   });
 
   test('a revoked official issue stays verifiable but loses its public download URLs',()=>{
@@ -261,7 +293,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
         pdf_hash:pdfHash
       },error:null}],
       'correspondence_documents:maybeSingle':[{data:{
-        id:'doc-1',current_version:1,document_hash:'HASH-1',issued_hash:'IH-1',
+        id:'doc-1',confidentiality:'public',current_version:1,document_hash:'HASH-1',issued_hash:'IH-1',
         artifact_path:'scope/doc-1/v1/final.pdf',artifact_hash:pdfHash,
         artifact_document_hash:'HASH-1',artifact_issued_hash:'IH-1',artifact_version:1
       },error:null}]
