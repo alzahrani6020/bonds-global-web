@@ -48,7 +48,7 @@ html[dir="ltr"] body.bonds-redesign .bonds-hero__image{border-radius:0 48% 0 0 /
 @media(min-width:1281px){body.bonds-redesign .main-nav{display:flex!important;position:static!important;transform:none!important;visibility:visible!important;opacity:1!important;height:auto!important;box-shadow:none!important}}
 @media(max-width:1280px){body.bonds-redesign .main-header__inner{flex-wrap:nowrap;padding-bottom:12px}body.bonds-redesign .main-nav{order:initial;flex:initial;width:min(320px,85vw);margin:0;background:#0b2946;border:0;padding:5rem 1rem 1.5rem}body.bonds-redesign .main-nav>ul{display:flex;flex-direction:column;align-items:stretch;gap:6px}body.bonds-redesign .main-nav>ul>li>a,body.bonds-redesign .main-nav>ul>li>.dropdown-toggle{color:#fff!important}}
 @media(max-width:1050px){.bonds-quicklinks{grid-template-columns:repeat(3,minmax(0,1fr))}.bonds-hero{grid-template-columns:1fr}.bonds-hero__image{min-height:260px;border-radius:0!important;border:0!important;border-top:5px solid #bb8b34!important}}
-@media(max-width:700px){.bonds-topbar{font-size:11px}.bonds-topbar__date{display:none}.bonds-topbar select{max-width:125px}.bonds-hero__copy,html[dir="ltr"] body.bonds-redesign .bonds-hero__copy{padding:28px 20px}.bonds-hero__image{min-height:210px}.bonds-quicklinks{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:18px 11px}.bonds-quicklink{padding:11px;min-height:128px}.bonds-home-info{grid-template-columns:1fr;padding:0 12px}.bonds-redesign .header-brand__image{width:115px!important}}
+@media(max-width:700px){.bonds-topbar{font-size:11px}.bonds-topbar__date{display:block;flex:1 1 100%;font-size:10px}.bonds-topbar select{max-width:125px}.bonds-hero__copy,html[dir="ltr"] body.bonds-redesign .bonds-hero__copy{padding:28px 20px}.bonds-hero__image{min-height:210px}.bonds-quicklinks{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:18px 11px}.bonds-quicklink{padding:11px;min-height:128px}.bonds-home-info{grid-template-columns:1fr;padding:0 12px}.bonds-redesign .header-brand__image{width:115px!important}}
 @media(prefers-reduced-motion:reduce){.bonds-quicklink{transition:none}}
 
 
@@ -75,3 +75,8 @@ html[dir="ltr"] body.bonds-redesign .bonds-hero__globe{left:auto;right:-12%;tran
 @media (max-width:700px){body.bonds-redesign .header-brand{gap:4px;min-width:0;width:auto!important;flex:0 1 auto}body.bonds-redesign .bonds-brand-wordmark strong{font-size:14px}body.bonds-redesign .bonds-brand-wordmark small{font-size:7px;max-width:115px;white-space:normal}body.bonds-redesign .header-brand__image{width:64px!important;max-width:64px!important}body.bonds-redesign .bonds-hero__globe{width:64%;bottom:-16%}}
 
 @media(max-width:430px){body.bonds-redesign .bonds-brand-wordmark{display:none}body.bonds-redesign .header-actions{gap:4px!important}}
+
+.bonds-quicklink__icon svg{width:29px;height:29px;display:block}
+.bonds-topbar__links{display:flex;align-items:center;gap:13px}
+.bonds-topbar__iconlink{font-size:19px;line-height:1;text-decoration:none;display:inline-grid;place-items:center;width:27px;height:27px}
+@media(max-width:700px){.bonds-topbar__links{display:none}.bonds-topbar__local{gap:6px}}
