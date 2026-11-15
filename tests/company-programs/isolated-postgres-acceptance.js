@@ -82,6 +82,11 @@ async function main(){
       [c,userA]
     )).rows[0];
     assert.equal(userLink.state,'pending');
+    await db.query("insert into public.company_program_makkin_links(workspace_link_id,makkin_tenant_id) values($1,'tenant-company-b')",[b]);
+    await assert.rejects(
+      ()=>db.query("insert into public.company_program_makkin_user_links(workspace_link_id,bonds_user_id,makkin_user_id) values($1,$2,'makkin-user-a')",[b,userB]),
+      e=>e.code==='23505'
+    );
     await assert.rejects(
       ()=>db.query("update public.company_program_makkin_user_links set state='verified' where id=$1",[userLink.id]),
       e=>e.code==='23514'
