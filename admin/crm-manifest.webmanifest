@@ -1,0 +1,31 @@
+{
+  "id": "/admin/crm.html",
+  "name": "بوندز CRM — إدارة علاقات العملاء",
+  "short_name": "BONDS CRM",
+  "description": "برنامج إدارة العملاء والفرص والشركات والمتابعات في بوندز. يتطلب حسابًا مصرحًا واتصالًا بالشبكة.",
+  "start_url": "/admin/crm.html?source=installed",
+  "scope": "/admin/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0066cc",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": [
+    "business",
+    "productivity"
+  ]
+}
