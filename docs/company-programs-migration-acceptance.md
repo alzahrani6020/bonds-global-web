@@ -5,14 +5,14 @@ All of SCC380 must appear AND OPERATE inside the BONDS Company Programs section,
 
 ## Verified source and destination evidence
 - Makkin GitHub source `alzahrani6020/scc380`: source extraction is in `docs/makkin-source-inventory-20261115.json` with source blob SHAs.
-- BONDS production Supabase `bonds-global`: 12 `crm_app_*` tables were found in read-only inspection; at inspection time, 1 actual CRM workspace, 0 members, 0 CRM deals, 0 CRM activities. This is a count of queried tables, not a business migration snapshot.
+- BONDS production Supabase `bonds-global`: both `companies/company_members` and `crm_app_workspaces/crm_app_members` exist as distinct real workspace/ownership models. Read-only counts at inspection: `companies` 0, `company_members` 0, CRM workspaces 1, CRM members 0, CRM deals 0, CRM activities 0. Neither type may be silently substituted for the other.
 - BONDS existing CRM user experience: `/my-bonds/crm/`, backed by `crm_app_workspaces`, `crm_app_members`, and RLS function `crm_private.workspace_role`.
 - Existing BONDS company-program header contains only CRM destinations and My Bonds; not eleven operational programs.
 
 ## What this branch truly implements
-- An additive draft schema to associate *real existing BONDS CRM workspace IDs* with independently grantable commercial product entitlements. No entitlement automatically created.
-- A service-only optional mapping from a BONDS workspace to a verified SCC380 tenant; no mapping automatically created, and no Makkin credentials in the browser.
-- A read-only authenticated API `GET /api/company-programs?workspace_id=<uuid>` which verifies workspace owner/member status server-side, returns eleven product names and granted rights. This API is NOT a Makkin functional proxy.
+- An additive draft source-aware workspace mapping (`company_program_workspaces`) with foreign keys to either existing `companies` or existing `crm_app_workspaces`, plus separate independently grantable entitlements. No workspace, mapping or entitlement automatically created.
+- A service-only optional mapping from the verified source-aware BONDS workspace link to a verified SCC380 tenant; no mapping automatically created, and no Makkin credentials in the browser.
+- A read-only authenticated API `GET /api/company-programs?workspace_type=crm|company&workspace_id=<uuid>` which verifies owner/member status in the correct authoritative source and returns eleven products and entitlements. This API is NOT a Makkin functional proxy.
 - Contract tests (source only) for product registry and workspace authorization rules. No tests were executed against this branch yet.
 - Source-level route/model/field/module inventory to drive a no-loss reconciliation.
 
@@ -22,7 +22,7 @@ All of SCC380 must appear AND OPERATE inside the BONDS Company Programs section,
 - [ ] Build complete mapping for every source route, model, operation, dependency, field and task, including cross-module services (government, security, alerts, analytics, AI, branch, templates).
 - [ ] Implement trusted BONDS session to Makkin authorization exchange with server-side workspace membership, verified tenant mapping, per-app entitlement and role checks on both systems; no broad tenant super-admin token sent to a browser.
 - [ ] Implement eleven fully operational BONDS applications and workflows, not placeholder links or embedded unauthenticated Makkin frames.
-- [ ] Preserve existing CRM (admin and customer) without mixing data; map all other BONDS workspace types after verifying their production ownership contracts, not by guessing IDs.
+- [ ] Preserve existing CRM (admin and customer) without mixing data; verify membership contracts of any additional BONDS workspace types before extending the registry; never alias unrelated company and CRM workspace IDs.
 - [ ] Test real workflow outcomes including create/edit/approve/search/export/payroll/journal/contract/tenant isolation; dual-account and dual-workspace E2E.
 - [ ] Authenticate and run all database, app, RTL/LTR, mobile, negative access, backend, and deployment gates and verify actual production SHA.
 
