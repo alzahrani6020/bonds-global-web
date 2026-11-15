@@ -50,3 +50,26 @@ html[dir="ltr"] body.bonds-redesign .bonds-hero__image{border-radius:0 48% 0 0 /
 @media(max-width:1050px){.bonds-quicklinks{grid-template-columns:repeat(3,minmax(0,1fr))}.bonds-hero{grid-template-columns:1fr}.bonds-hero__image{min-height:260px;border-radius:0!important;border:0!important;border-top:5px solid #bb8b34!important}}
 @media(max-width:700px){.bonds-topbar{font-size:11px}.bonds-topbar__date{display:none}.bonds-topbar select{max-width:125px}.bonds-hero__copy,html[dir="ltr"] body.bonds-redesign .bonds-hero__copy{padding:28px 20px}.bonds-hero__image{min-height:210px}.bonds-quicklinks{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:18px 11px}.bonds-quicklink{padding:11px;min-height:128px}.bonds-home-info{grid-template-columns:1fr;padding:0 12px}.bonds-redesign .header-brand__image{width:115px!important}}
 @media(prefers-reduced-motion:reduce){.bonds-quicklink{transition:none}}
+
+
+/* Reference matching: brand + usable search entry + skyline globe composition. */
+body.bonds-redesign .header-brand{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:260px}
+body.bonds-redesign .bonds-brand-wordmark{display:flex;flex-direction:column;align-items:flex-start;gap:3px;direction:ltr;white-space:nowrap;line-height:1.25}
+body.bonds-redesign .bonds-brand-wordmark strong{font:800 clamp(19px,2vw,31px)/1.15 Arial,sans-serif;letter-spacing:1px;color:#0b2747}
+body.bonds-redesign .bonds-brand-wordmark small{font:700 10px/1.5 "Vazirmatn",Arial,sans-serif;color:#142941;letter-spacing:0}
+body.bonds-redesign .header-search{display:flex!important;align-items:center;justify-content:space-between;gap:22px;min-width:min(27vw,460px);min-height:50px;border:1px solid #cbd3de!important;border-radius:28px;padding:10px 15px;background:#f6f7f9!important;text-decoration:none}
+body.bonds-redesign .header-search svg{flex:0 0 21px;width:21px;height:21px}
+body.bonds-redesign .bonds-search-placeholder{font-size:clamp(11px,1.1vw,15px);white-space:nowrap;color:#67778a;overflow:hidden;text-overflow:ellipsis}
+body.bonds-redesign .bonds-topbar{font-size:13px;min-height:49px}
+body.bonds-redesign .main-nav>ul>li>a,body.bonds-redesign .main-nav>ul>li>.dropdown-toggle{display:inline-flex!important;align-items:center;justify-content:center;gap:7px;min-height:46px}
+body.bonds-redesign .bonds-nav-icon{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;flex:0 0 19px;color:inherit}
+body.bonds-redesign .bonds-nav-icon svg{width:19px;height:19px;display:block}
+body.bonds-redesign .bonds-hero__image{border-radius:42% 0 0 0 / 95% 0 0 0;box-shadow:inset 8px 0 0 #edc66c}
+body.bonds-redesign .bonds-hero__image:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,rgba(6,28,48,.24),transparent 72%);z-index:1}
+body.bonds-redesign .bonds-hero__globe{position:absolute;bottom:-14%;left:-12%;width:min(72%,660px);height:auto;max-height:125%;z-index:2;filter:drop-shadow(0 0 8px rgba(255,202,95,.45));pointer-events:none}
+body.bonds-redesign .bonds-hero__credit{z-index:3}
+body.bonds-redesign .bonds-hero__eyebrow{display:block;color:#eac87b;font-weight:700;letter-spacing:.02em;margin:0 0 9px}
+html[dir="ltr"] body.bonds-redesign .bonds-hero__globe{left:auto;right:-12%;transform:scaleX(-1)}
+@media (max-width:1500px){body.bonds-redesign .header-brand{min-width:220px}body.bonds-redesign .header-search{min-width:220px}}
+@media (max-width:1280px){body.bonds-redesign .main-nav>ul>li>a,body.bonds-redesign .main-nav>ul>li>.dropdown-toggle{justify-content:flex-start}body.bonds-redesign .bonds-brand-wordmark strong{font-size:20px}body.bonds-redesign .bonds-brand-wordmark small{font-size:9px}body.bonds-redesign .header-search{min-width:auto;min-height:38px;padding:7px;border-radius:50%}body.bonds-redesign .bonds-search-placeholder{display:none}}
+@media (max-width:700px){body.bonds-redesign .header-brand{gap:4px;min-width:0}body.bonds-redesign .bonds-brand-wordmark strong{font-size:14px}body.bonds-redesign .bonds-brand-wordmark small{font-size:7px;max-width:115px;white-space:normal}body.bonds-redesign .header-brand__image{width:64px!important;max-width:64px!important}body.bonds-redesign .bonds-hero__globe{width:64%;bottom:-16%}}
