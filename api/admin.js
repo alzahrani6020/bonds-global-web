@@ -695,7 +695,7 @@ async function getVerificationEvents(sb, params = {}) {
 
   let query = sb
     .from('correspondence_verification_events')
-    .select('*, issue:correspondence_issues(issue_number,state,issue_version)', { count: 'exact' });
+    .select('*, issue:correspondence_issues(issue_number,state,issue_version,issued_at,verification_token), document:correspondence_documents!correspondence_verification_events_document_id_fkey(title,subject,recipient_name,recipient_organization,issued_at,confidentiality)', { count: 'exact' });
   if (issueNumber) query = query.ilike('issue_number', `%${issueNumber}%`);
   if (from && !Number.isNaN(Date.parse(from))) query = query.gte('created_at', new Date(from).toISOString());
   if (to && !Number.isNaN(Date.parse(to))) query = query.lte('created_at', new Date(to).toISOString());
@@ -704,7 +704,29 @@ async function getVerificationEvents(sb, params = {}) {
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
   if (error) throw error;
-  return { success: true, events: data || [], count: count || 0, limit, offset };
+  const events = data || [];
+  const actorIds = [...new Set(events.map(event => event.actor_user_id).filter(Boolean))];
+  let contactById = new Map();
+  if (actorIds.length) {
+    // Authorized admin-only lookup. Profile email is account contact data,
+    // not independent proof of a person's legal identity.
+    const { data: profiles, error: profileError } = await sb.from('profiles')
+      .select('id,email,phone').in('id', actorIds);
+    if (profileError) {
+      console.warn('[verification-events] account contacts unavailable:', profileError.message);
+    } else {
+      contactById = new Map((profiles || []).map(profile => [profile.id, profile]));
+    }
+  }
+  return {
+    success: true,
+    events: events.map(event => ({
+      ...event,
+      verifier_email: contactById.get(event.actor_user_id)?.email || null,
+      verifier_phone: contactById.get(event.actor_user_id)?.phone || null
+    })),
+    count: count || 0, limit, offset
+  };
 }
 
 // ── Admin Operations Inbox ─────────────────────────────────

@@ -94,11 +94,14 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
     scenario.sb={
       auth:{getUser:jest.fn((token)=>Promise.resolve(users[token]||{data:{user:null},error:{message:'invalid token'}}))},
       from:jest.fn((table)=>makeChain(scenario,table)),
-      rpc:jest.fn(()=>Promise.resolve({data:null,error:null})),
+      rpc:jest.fn(()=>Promise.resolve({data:7,error:null})),
       storage:{from:jest.fn(()=>({download:jest.fn(()=>Promise.resolve({data:scenario.blob,error:null}))}))}
     };
     return scenario;
   }
+
+  const AUTH_HEADERS={host:'localhost',authorization:'Bearer user-token'};
+  const AUTH_USER={'user-token':{data:{user:{id:'user-1',email:'user@example.com',is_anonymous:false}},error:null}};
 
   function mockReq(overrides={}){
     return {method:'GET',headers:{host:'localhost'},query:{},body:{},url:'/api/correspondence',...overrides};
@@ -131,14 +134,14 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
   }
 
   test('verify hands out download URLs for a public document exactly as before',async()=>{
-    const scenario=makeScenario();
+    const scenario=makeScenario(AUTH_USER);
     mockCurrentScenario=scenario;
     scenario.results={
       'correspondence_issues:maybeSingle':[{data:activeIssue(),error:null},{data:null,error:null}],
       'correspondence_documents:maybeSingle':[{data:classifiedDoc({confidentiality:'public'}),error:null}]
     };
     const res=mockRes();
-    await runCorrespondence(mockReq({method:'GET',query:{action:'verify',token:TOKEN}}),res);
+    await runCorrespondence(mockReq({method:'GET',headers:AUTH_HEADERS,query:{action:'verify',token:TOKEN}}),res);
     expect(res.statusCode).toBe(200);
     expect(res._json.verified).toBe(true);
     expect(res._json.final_pdf_verified).toBe(true);
@@ -146,35 +149,42 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
     expect(res._json.official_pdf_url).toContain('download=1');
   });
 
-  test('verify withholds official PDF URLs for a confidential document but stays verified',async()=>{
-    const scenario=makeScenario();
+  test('verify withholds sensitive metadata for a confidential document but stays verified',async()=>{
+    const scenario=makeScenario(AUTH_USER);
     mockCurrentScenario=scenario;
     scenario.results={
       'correspondence_issues:maybeSingle':[{data:activeIssue(),error:null},{data:null,error:null}],
       'correspondence_documents:maybeSingle':[{data:classifiedDoc(),error:null}]
     };
     const res=mockRes();
-    await runCorrespondence(mockReq({method:'GET',query:{action:'verify',token:TOKEN}}),res);
+    await runCorrespondence(mockReq({method:'GET',headers:AUTH_HEADERS,query:{action:'verify',token:TOKEN}}),res);
     expect(res.statusCode).toBe(200);
     expect(res._json.verified).toBe(true);
     expect(res._json.final_pdf_verified).toBe(true);
-    expect(res._json.official_preview_url).toBeNull();
-    expect(res._json.official_pdf_url).toBeNull();
+    // Sensitive metadata is withheld; the byte endpoint itself enforces
+    // per-document authorization (official-preview gates).
+    expect(res._json.pdf_access_requires_login).toBe(true);
+    expect(res._json.title).toBeNull();
+    expect(res._json.subject).toBeNull();
+    expect(res._json.signer_name).toBeNull();
+    expect(res._json.signer_title).toBeNull();
+    expect(String(res._json.official_preview_url)).toContain('action=official-preview');
   });
 
-  test('verify also withholds official PDF URLs for a restricted document',async()=>{
-    const scenario=makeScenario();
+  test('verify also withholds sensitive metadata for a restricted document',async()=>{
+    const scenario=makeScenario(AUTH_USER);
     mockCurrentScenario=scenario;
     scenario.results={
       'correspondence_issues:maybeSingle':[{data:activeIssue(),error:null},{data:null,error:null}],
       'correspondence_documents:maybeSingle':[{data:classifiedDoc({confidentiality:'restricted'}),error:null}]
     };
     const res=mockRes();
-    await runCorrespondence(mockReq({method:'GET',query:{action:'verify',token:TOKEN}}),res);
+    await runCorrespondence(mockReq({method:'GET',headers:AUTH_HEADERS,query:{action:'verify',token:TOKEN}}),res);
     expect(res.statusCode).toBe(200);
     expect(res._json.verified).toBe(true);
-    expect(res._json.official_preview_url).toBeNull();
-    expect(res._json.official_pdf_url).toBeNull();
+    expect(res._json.pdf_access_requires_login).toBe(true);
+    expect(res._json.title).toBeNull();
+    expect(res._json.subject).toBeNull();
   });
 
   test('official-preview of a confidential document without a session answers 404 without touching storage',async()=>{
@@ -188,7 +198,7 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
     await runCorrespondence(mockReq({method:'GET',query:{action:'official-preview',token:TOKEN}}),res);
     expect(res.statusCode).toBe(404);
     expect(res._json.error).toContain('Verification issue not found');
-    expect(scenario.sb.auth.getUser).not.toHaveBeenCalled();
+    // The session is probed for authorization, but no bytes are touched.
     expect(scenario.sb.storage.from).not.toHaveBeenCalled();
   });
 
@@ -232,9 +242,9 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
     expect(res._body).toEqual(pdfBytes);
   });
 
-  test('official-preview of a confidential document answers 404 for an authenticated non-owner non-admin',async()=>{
+  test('official-preview of a confidential document answers 403 for an authenticated non-owner non-admin',async()=>{
     const scenario=makeScenario({
-      'user-token':{data:{user:{id:'user-2',email:'user@example.com'}},error:null}
+      'user-token':{data:{user:{id:'user-2',email:'user@example.com',is_anonymous:false}},error:null}
     });
     mockCurrentScenario=scenario;
     scenario.results={
@@ -248,8 +258,8 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
       headers:{host:'localhost',authorization:'Bearer user-token'},
       query:{action:'official-preview',token:TOKEN}
     }),res);
-    expect(res.statusCode).toBe(404);
-    expect(res._json.error).toContain('Verification issue not found');
+    expect(res.statusCode).toBe(403);
+    expect(res._json.error).toMatch(/not authorized/i);
     expect(scenario.sb.storage.from).not.toHaveBeenCalled();
   });
 

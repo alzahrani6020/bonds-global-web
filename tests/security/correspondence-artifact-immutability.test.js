@@ -10,6 +10,40 @@ jest.mock('../../lib/api/supabase',()=>jest.fn(()=>mockCurrentScenario.sb));
 
 const {handler}=require('../../lib/api/correspondence');
 
+describe('Atomic successor activation migration safety',()=>{
+  const sql=read('supabase/migrations/20261115030000_correspondence_atomic_successor_activation.sql');
+  test('old issue is not superseded by the issuance trigger before PDF finalization',()=>{
+    const capture=sql.split('create or replace function public.capture_correspondence_issue()')[1]
+      .split('create or replace function public.activate_correspondence_issue_after_final_pdf()')[0];
+    expect(capture).toContain("'pending'");
+    expect(capture).toContain('new.related_document_id');
+    expect(capture).not.toContain("set state = 'superseded'");
+    expect(capture).not.toContain("set pdf_hash = new.artifact_hash");
+  });
+  test('new issue activation and previous issue supersession occur in the same DB trigger transaction',()=>{
+    const activate=sql.split('create or replace function public.activate_correspondence_issue_after_final_pdf()')[1];
+    expect(activate).toContain('old.artifact_hash is null and new.artifact_hash is not null');
+    expect(activate).toContain('for update');
+    expect(activate).toContain("current_issue.state <> 'pending'");
+    expect(activate).toContain("new.artifact_document_hash is distinct from new.document_hash");
+    expect(activate).toContain("new.artifact_issued_hash is distinct from new.issued_hash");
+    expect(activate).toContain("new.artifact_version is distinct from new.current_version");
+    expect(activate).toContain("set pdf_hash = new.artifact_hash,");
+    expect(activate).toContain("state = 'active'");
+    expect(activate).toContain("set state = 'superseded'");
+    expect(activate).toContain("where id = current_issue.supersedes_issue_id");
+    expect(activate).toContain("and pdf_hash is not null");
+    expect(activate).toContain("if not found then");
+    expect(activate).toContain("Predecessor is not active with a finalized PDF");
+    expect(activate.indexOf("state = 'active'")).toBeLessThan(activate.indexOf("set state = 'superseded'"));
+  });
+  test('migration does not rewrite archived issue rows or grant direct public access',()=>{
+    expect(sql).not.toMatch(/\b(delete|truncate)\s+from\s+public\.correspondence_issues/i);
+    expect(sql).toContain('revoke execute on function public.activate_correspondence_issue_after_final_pdf()');
+    expect(sql).toContain('to service_role');
+  });
+});
+
 describe('Correspondence issuance integrity boundaries',()=>{
   const api=read('lib/api/correspondence.js');
   const ui=read('components/letterhead-correspondence.js');
@@ -46,8 +80,8 @@ describe('Correspondence issuance integrity boundaries',()=>{
     expect(api).toContain("Signer name and capacity are required before signing");
     expect(api).toContain("!doc.signer_name || !doc.signer_title");
     expect(api).toContain("issue.signature_hash === doc.signature_hash && issue.issued_hash === doc.issued_hash");
-    expect(api).toContain("signer_name: (issue.signature_hash");
-    expect(api).toContain("signer_title: (issue.signature_hash");
+    expect(api).toContain("signer_name: (!pdfAccessRequiresLogin && issue.signature_hash");
+    expect(api).toContain("signer_title: (!pdfAccessRequiresLogin && issue.signature_hash");
   });
 
   test('the server independently verifies historic archived PDF bytes on every preview',()=>{
@@ -56,8 +90,42 @@ describe('Correspondence issuance integrity boundaries',()=>{
     expect(api).toContain("Cache-Control', 'private, no-store, max-age=0");
   });
 
+  test('protected correspondence requires per-document authorization before PDF bytes are fetched and never reveals issue state to unauthorized callers',()=>{
+    const preview=api.slice(api.indexOf("if (action === 'official-preview')"),api.indexOf("if (action === 'qr')"));
+    expect(preview).toContain("doc.confidentiality !== 'public'");
+    expect(preview).toContain("const viewer = await resolveUser(req)");
+    expect(preview).toContain("const viewerRole = await resolveRole(sb, viewer.id)");
+    expect(preview).toContain("const viewerMemberships = await resolveMemberships(sb, viewer.id)");
+    expect(preview).toContain("const viewerPermissions = await resolveCorrespondencePermissions(sb, viewer.id, viewerRole)");
+    expect(preview).toContain("!canRead(doc, viewer, viewerRole, viewerMemberships, viewerPermissions)");
+    expect(preview).toContain("res.status(403)");
+    // Privacy before state: the confidentiality gate must run before the
+    // revoked/pending branches so unauthorized callers cannot probe issue state.
+    expect(preview.indexOf("doc.confidentiality !== 'public'")).toBeLessThan(preview.indexOf("issue.state === 'revoked'"));
+    expect(preview.indexOf("!canRead(doc, viewer, viewerRole")).toBeLessThan(preview.indexOf("await loadPublicVerifiedArtifact(sb, doc, issue)"));
+  });
+
+  test('restricted issue QR reveals only public status and authorized viewer obtains SHA-verified blob',()=>{
+    const viewer=read('components/verified-pdf-viewer.js');
+    for(const page of ['verify-document.html','en/verify-document.html']){
+      const html=read(page);
+      expect(html).toContain('pdf_access_requires_login');
+      expect(html).toContain('window.BondsAuth?.getSession()');
+      expect(html).toContain('encodeURIComponent(location.pathname+location.search)');
+      expect(html).toContain('authorizationToken:accessToken');
+      expect(html).toContain('onVerifiedBytes:protectedPdf?bytes=>');
+      expect(html).toContain('URL.createObjectURL(new Blob([bytes]');
+    }
+    expect(api).toContain('title: pdfAccessRequiresLogin ? null : doc.title');
+    expect(api).toContain('subject: pdfAccessRequiresLogin ? null : doc.subject');
+    expect(api).toContain('signer_name: (!pdfAccessRequiresLogin');
+    expect(viewer).toContain("if(authorizationToken)headers.Authorization='Bearer '+authorizationToken");
+    expect(viewer).toContain("if(typeof onVerifiedBytes==='function')onVerifiedBytes(documentBytes)");
+    expect(viewer.indexOf('actual.toLowerCase()!==expectedHash.toLowerCase()')).toBeLessThan(viewer.indexOf("onVerifiedBytes(documentBytes)"));
+  });
+
   test('a revoked official issue stays verifiable but loses its public download URLs',()=>{
-    expect(api).toContain("issue.state !== 'revoked'");
+    expect(api).toContain("['active', 'superseded'].includes(issue.state)");
     expect(api).toContain("if (issue.state === 'revoked')");
     expect(api).toContain('status(410)');
     expect(api).toContain('This official issue has been revoked and is no longer available');
@@ -136,7 +204,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
         ?Promise.resolve({data:{user:{id:'admin-1',email:'admin@example.com'}},error:null})
         :Promise.resolve({data:{user:null},error:{message:'invalid token'}}))},
       from:jest.fn((table)=>makeChain(scenario,table)),
-      rpc:jest.fn(()=>Promise.resolve({data:'BDS-2026-000001',error:null})),
+      rpc:jest.fn((name)=>Promise.resolve({data:name==='record_correspondence_verification'?4:'BDS-2026-000001',error:null})),
       storage:{from:jest.fn(()=>({download:jest.fn(()=>Promise.resolve({data:scenario.blob,error:null}))}))}
     };
     return scenario;
@@ -189,12 +257,30 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
       'correspondence_issues:maybeSingle':[{data:{
         id:'iss-1',document_id:'doc-1',state:'revoked',issue_version:2,
         issue_number:'BDS-2026-000001',verification_token:TOKEN
-      },error:null}]
+      },error:null}],
+      'correspondence_documents:maybeSingle':[{data:{id:'doc-1',owner_user_id:'owner-1',confidentiality:'public'},error:null}]
     };
     const res=mockRes();
     await runCorrespondence(mockReq({method:'GET',query:{action:'official-preview',token:TOKEN}}),res);
     expect(res.statusCode).toBe(410);
     expect(res._json.error).toContain('revoked');
+    expect(scenario.sb.storage.from).not.toHaveBeenCalled();
+  });
+
+  test('pending successor returns 409 and cannot download a PDF',async()=>{
+    const scenario=makeScenario();
+    mockCurrentScenario=scenario;
+    scenario.results={
+      'correspondence_issues:maybeSingle':[{data:{
+        id:'iss-pending',document_id:'doc-new',state:'pending',
+        issue_version:2,issue_number:'OUT-PENDING',verification_token:TOKEN
+      },error:null}],
+      'correspondence_documents:maybeSingle':[{data:{id:'doc-new',owner_user_id:'owner-1',confidentiality:'public'},error:null}]
+    };
+    const res=mockRes();
+    await runCorrespondence(mockReq({method:'GET',query:{action:'official-preview',token:TOKEN}}),res);
+    expect(res.statusCode).toBe(409);
+    expect(res._json.error).toContain('awaiting final PDF');
     expect(scenario.sb.storage.from).not.toHaveBeenCalled();
   });
 
@@ -211,7 +297,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
         pdf_hash:pdfHash
       },error:null}],
       'correspondence_documents:maybeSingle':[{data:{
-        id:'doc-1',current_version:1,document_hash:'HASH-1',issued_hash:'IH-1',
+        id:'doc-1',confidentiality:'public',current_version:1,document_hash:'HASH-1',issued_hash:'IH-1',
         artifact_path:'scope/doc-1/v1/final.pdf',artifact_hash:pdfHash,
         artifact_document_hash:'HASH-1',artifact_issued_hash:'IH-1',artifact_version:1
       },error:null}]
@@ -221,6 +307,33 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
     expect(res.statusCode).toBe(200);
     expect(res._body).toEqual(pdfBytes);
     expect(res.headers['Content-Type']).toBe('application/pdf');
+  });
+
+  test('guest QR validation returns 401 before ledger lookup or counter mutation',async()=>{
+    const scenario=makeScenario();
+    mockCurrentScenario=scenario;
+    const res=mockRes();
+    await runCorrespondence(mockReq({method:'GET',query:{action:'verify',token:TOKEN}}),res);
+    expect(res.statusCode).toBe(401);
+    expect(res._json.error).toContain('Sign in');
+    expect(scenario.sb.from).not.toHaveBeenCalled();
+    expect(scenario.sb.rpc).not.toHaveBeenCalled();
+  });
+
+  test('authenticated QR verifications are attributed to server-verified account IDs',()=>{
+    const api=read('lib/api/correspondence.js');
+    const verify=api.slice(api.indexOf("if (action === 'verify')"),api.indexOf("if (action === 'official-preview')"));
+    expect(verify).toContain('const verifier = await resolveUser(req)');
+    expect(verify).toContain('if (!verifier || verifier.is_anonymous)');
+    expect(verify).toContain('p_actor_user_id: verifier.id');
+    expect(verify.indexOf('const verifier = await resolveUser(req)')).toBeLessThan(verify.indexOf("record_correspondence_verification"));
+    for(const page of ['verify-document.html','en/verify-document.html']){
+      const html=read(page);
+      expect(html).toContain("window.BondsAuth?.getSession()");
+      expect(html).toContain("location.replace(");
+      expect(html).toContain("encodeURIComponent(location.pathname+location.search)");
+      expect(html).toContain("headers:{Authorization:'Bearer '+accessToken}");
+    }
   });
 
   test('verify keeps a revoked issue verifiable with successor but withholds download URLs',async()=>{
@@ -252,7 +365,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
       'correspondence_documents:maybeSingle':[{data:boundDoc,error:null}]
     };
     const res=mockRes();
-    await runCorrespondence(mockReq({method:'GET',query:{action:'verify',token:TOKEN}}),res);
+    await runCorrespondence(mockReq({method:'GET',headers:{host:'localhost',authorization:'Bearer valid-token'},query:{action:'verify',token:TOKEN}}),res);
     expect(res.statusCode).toBe(200);
     expect(res._json.verified).toBe(true);
     expect(res._json.issue_state).toBe('revoked');
@@ -289,7 +402,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
       'correspondence_documents:maybeSingle':[{data:boundDoc,error:null}]
     };
     const res=mockRes();
-    await runCorrespondence(mockReq({method:'GET',query:{action:'verify',token:TOKEN}}),res);
+    await runCorrespondence(mockReq({method:'GET',headers:{host:'localhost',authorization:'Bearer valid-token'},query:{action:'verify',token:TOKEN}}),res);
     expect(res.statusCode).toBe(200);
     expect(res._json.verified).toBe(true);
     expect(res._json.official_preview_url).toContain('action=official-preview');
