@@ -2717,6 +2717,77 @@ async function getCrmOverview(sb) {
   };
 }
 
+// Additional CRM workflows use the existing advisory_clients and
+// crm_organizations tables. Never update client auth links or delete records.
+const CRM_CLIENT_STATUSES = new Set(['active','inactive','prospect','lead','customer','converted']);
+function crmOptionalText(value, limit) {
+  if (value == null || value === '') return null;
+  return String(value).trim().slice(0, limit) || null;
+}
+function crmOptionalUuid(value, field) {
+  if (value == null || value === '') return null;
+  const str = String(value).trim();
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str)) throw badRequest(field + ' must be UUID');
+  return str;
+}
+function crmClientPayload(body, existing) {
+  const allowed = ['name','email','phone','company_name','status','source','organization_id','relationship_role','is_decision_maker','country','city','sector'];
+  const row = {};
+  for (const key of allowed) {
+    if (!Object.prototype.hasOwnProperty.call(body || {},key)) continue;
+    if (key === 'organization_id') row[key] = crmOptionalUuid(body[key],key);
+    else if (key === 'is_decision_maker') {
+      if (typeof body[key] !== 'boolean') throw badRequest('is_decision_maker must be boolean');
+      row[key] = body[key];
+    } else if (key === 'status') {
+      const val = String(body[key] || '').toLowerCase();
+      if (!CRM_CLIENT_STATUSES.has(val)) throw badRequest('invalid client status');
+      row[key] = val;
+    } else {
+      row[key] = crmOptionalText(body[key], key === 'email' ? 254 : key === 'name' ? 240 : 160);
+    }
+  }
+  if ((!existing && !row.name) || (existing && Object.prototype.hasOwnProperty.call(row,'name') && !row.name)) throw badRequest('name required');
+  if (row.email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(row.email)) throw badRequest('invalid email');
+  if (existing && !Object.keys(row).length) throw badRequest('no editable fields');
+  return row;
+}
+async function createCrmClient(sb, body, admin, req) {
+  const row = {...crmClientPayload(body,false), status: body?.status || 'active', created_by: admin.id};
+  const { data, error } = await sb.from('advisory_clients').insert([row])
+    .select('id,name,email,phone,company_name,status,source,organization_id,relationship_role,is_decision_maker,created_at').single();
+  if (error) throw error;
+  await logAdminAction(sb,admin,'crm_client_create','advisory_client',data.id,null,{name:data.name},req);
+  return {success:true,client:data};
+}
+async function updateCrmClient(sb, body, admin, req) {
+  const id = crmOptionalUuid(body?.id,'id');
+  if (!id) throw badRequest('id required');
+  const updates = {...crmClientPayload(body,true), updated_at:new Date().toISOString(),updated_by:admin.id};
+  const { data, error } = await sb.from('advisory_clients').update(updates).eq('id',id).is('deleted_at',null)
+    .select('id,name,email,phone,company_name,status,source,organization_id,relationship_role,is_decision_maker,updated_at').maybeSingle();
+  if (error) throw error;
+  if (!data) throw new HttpError(404,'CRM client not found');
+  await logAdminAction(sb,admin,'crm_client_update','advisory_client',id,null,{fields:Object.keys(updates)},req);
+  return {success:true,client:data};
+}
+async function updateCrmOrganization(sb, body, admin, req) {
+  const id = crmOptionalUuid(body?.id,'id');
+  if (!id) throw badRequest('id required');
+  const fields=['name','legal_name','domain','country','city','sector','tax_number','status'];
+  const update={};
+  for(const key of fields) if (Object.prototype.hasOwnProperty.call(body||{},key)) update[key]=crmOptionalText(body[key],key==='name'?240:160);
+  if(Object.prototype.hasOwnProperty.call(update,'name') && !update.name) throw badRequest('name required');
+  if(!Object.keys(update).length) throw badRequest('no editable fields');
+  update.updated_at=new Date().toISOString();
+  const {data,error}=await sb.from('crm_organizations').update(update).eq('id',id)
+    .select('id,name,legal_name,domain,country,city,sector,tax_number,status,updated_at').maybeSingle();
+  if(error) throw error;
+  if(!data) throw new HttpError(404,'CRM organization not found');
+  await logAdminAction(sb,admin,'crm_organization_update','crm_organization',id,null,{fields:Object.keys(update)},req);
+  return {success:true,organization:data};
+}
+
 async function createCrmOrganization(sb, body, admin, req) {
   const name = String(body?.name || '').trim();
   if (!name) throw badRequest('name required');
@@ -5068,6 +5139,18 @@ async function handler(req, res) {
       if (action === 'support-note-add') {
         const access = await requireAdminPermission(req, sb, 'support.manage');
         return res.status(200).json(await addSupportNote(sb, req.body, access.user, req));
+      }
+      if (action === 'crm-client-create') {
+        const access = await requireAdminPermission(req, sb, 'crm.write');
+        return res.status(200).json(await createCrmClient(sb, req.body, access.user, req));
+      }
+      if (action === 'crm-client-update') {
+        const access = await requireAdminPermission(req, sb, 'crm.write');
+        return res.status(200).json(await updateCrmClient(sb, req.body, access.user, req));
+      }
+      if (action === 'crm-organization-update') {
+        const access = await requireAdminPermission(req, sb, 'crm.write');
+        return res.status(200).json(await updateCrmOrganization(sb, req.body, access.user, req));
       }
       if (action === 'crm-organization-create') {
         const access = await requireAdminPermission(req, sb, 'crm.write');
