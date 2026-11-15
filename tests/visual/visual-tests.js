@@ -424,21 +424,26 @@ async function runScenarioDropdownInteractionGate(browser) {
 
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.route(/(\/global-auth-gate|\/calculators\/auth-gate)\.js(?:\?.*)?$/, route => route.abort());
-    await page.context().addInitScript(() => {
-      // Deterministic *test-only* clock for the approved Arabic homepage PNG.
-      // The production header remains a live clock. The approved screenshot
-      // was captured at 18:43:15 UTC on 2026-11-15; all other pixels remain
-      // subject to the original unchanged SHA-256 fingerprint gate.
+    // Each approved viewport was captured sequentially. Freeze only the
+    // live Arabic homepage clock to that viewport's *original* capture time;
+    // all other pixels still undergo the unchanged approved SHA-256 check.
+    // This is test-only; no production clock or baseline asset is modified.
+    const approvedClockUTC = {
+      desktop: '2026-11-15T18:43:15.000Z',
+      tablet: '2026-11-15T18:43:32.000Z',
+      mobile: '2026-11-15T18:43:48.000Z',
+    }[viewport.name];
+    await page.context().addInitScript((fixedISOString) => {
       if (location.pathname === '/') {
         const NativeDate = Date;
-        const fixed = NativeDate.parse('2026-11-15T18:43:15.000Z');
+        const fixed = NativeDate.parse(fixedISOString);
         class ScreenshotDate extends NativeDate {
           constructor(...args) { super(...(args.length ? args : [fixed])); }
           static now() { return fixed; }
         }
         window.Date = ScreenshotDate;
       }
-    });
+    }, approvedClockUTC);
     await page.context().addInitScript(() => {
       localStorage.setItem('cookies', 'accepted');
       try {
