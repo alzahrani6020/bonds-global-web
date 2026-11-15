@@ -19,6 +19,18 @@ jobs:
   test-and-audit:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: crm-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -30,6 +42,11 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
+
+      - name: Verify CRM migration and tenant RLS (disposable PostgreSQL)
+        env:
+          CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
+        run: node tests/crm/isolated-postgres-acceptance.js
 
       - name: Validate Bonds Native and Token Runtime operations
         shell: pwsh
