@@ -284,3 +284,67 @@ begin
   execute format('create trigger %I after insert or update on public.%I for each row execute function crm_private.record_event()',t||'_audit',t);
  end loop;
 end $$;
+
+-- Invitations remain hidden from the Data API. Only the server creates and
+-- emails opaque tokens; only a verified matching Supabase user can accept.
+create table public.crm_app_invitations (
+ id uuid primary key default gen_random_uuid(),
+ workspace_id uuid not null references public.crm_app_workspaces(id) on delete restrict,
+ invited_email text not null check(char_length(invited_email) between 3 and 254 and invited_email=lower(btrim(invited_email))),
+ invited_role text not null check(invited_role in ('admin','editor','viewer')),
+ token_hash text not null unique check(token_hash ~ '^[0-9a-f]{64}$'),
+ invited_by uuid not null references auth.users(id) on delete restrict,
+ expires_at timestamptz not null,
+ created_at timestamptz not null default now(),
+ accepted_at timestamptz,
+ accepted_by uuid references auth.users(id) on delete restrict,
+ check (expires_at > created_at),
+ check ((accepted_at is null) = (accepted_by is null))
+);
+create unique index crm_app_pending_invite_idx on public.crm_app_invitations(workspace_id,invited_email)
+ where accepted_at is null;
+create index crm_app_invite_workspace_idx on public.crm_app_invitations(workspace_id,created_at desc);
+alter table public.crm_app_invitations enable row level security;
+revoke all on public.crm_app_invitations from public,anon,authenticated;
+
+-- SECURITY DEFINER is necessary here because the matching verified e-mail is
+-- in auth.users and pending invitation rows are never directly exposed.
+-- Token matching, authenticated identity, e-mail verification, expiry and
+-- membership activation execute together under one PostgreSQL transaction.
+create function public.crm_app_accept_invite(invite_token text)
+returns uuid language plpgsql security definer set search_path=''
+as $invite$
+declare
+ actor uuid := (select auth.uid());
+ actor_email text;
+ actor_verified timestamptz;
+ invitation public.crm_app_invitations%rowtype;
+begin
+ if actor is null or invite_token is null or char_length(invite_token) < 32
+   or char_length(invite_token) > 128 then
+  raise exception 'Invitation invalid or expired' using errcode='22023';
+ end if;
+ select lower(btrim(u.email)),u.email_confirmed_at into actor_email,actor_verified
+ from auth.users u where u.id=actor;
+ if actor_email is null or actor_verified is null then
+  raise exception 'Invitation requires a verified email address' using errcode='28000';
+ end if;
+ select * into invitation from public.crm_app_invitations i
+ where i.token_hash=encode(sha256(convert_to(invite_token,'UTF8')),'hex')
+  and i.accepted_at is null and i.expires_at>now()
+  and i.invited_email=actor_email
+ for update;
+ if not found then
+  raise exception 'Invitation invalid or expired' using errcode='22023';
+ end if;
+ insert into public.crm_app_members(workspace_id,member_user_id,role,active)
+ values(invitation.workspace_id,actor,invitation.invited_role,true)
+ on conflict(workspace_id,member_user_id) do update
+ set role=excluded.role,active=true,updated_at=now();
+ update public.crm_app_invitations
+ set accepted_at=now(),accepted_by=actor where id=invitation.id;
+ return invitation.workspace_id;
+end;
+$invite$;
+revoke all on function public.crm_app_accept_invite(text) from public,anon,authenticated;
+grant execute on function public.crm_app_accept_invite(text) to authenticated;
