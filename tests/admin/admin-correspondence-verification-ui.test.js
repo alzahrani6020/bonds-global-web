@@ -54,7 +54,8 @@ describe('correspondence verification module UI contracts', () => {
     const correspondence = read('lib/api/correspondence.js');
     expect(correspondence).toContain('const verifier = await resolveUser(req)');
     expect(correspondence).toContain('if (!verifier || verifier.is_anonymous)');
-    expect(correspondence).toContain('actor_user_id: verifier.id');
+    expect(correspondence).toContain('p_actor_user_id: verifier.id');
+    expect(correspondence).toContain("sb.rpc('record_correspondence_verification'");
     const api = read('api/admin.js');
     expect(api).toContain("select('id,email,phone').in('id', actorIds)");
     expect(api).toContain('verifier_email: contactById.get(event.actor_user_id)?.email');
