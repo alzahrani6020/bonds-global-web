@@ -82,6 +82,9 @@
    <section id="records-section" class="section" hidden>
     <div class="section-actions">
       <input id="search" type="search" placeholder="Search records" aria-label="Search section">
+      <button type="button" class="secondary" id="csv-export" hidden>Export contacts CSV</button>
+      <button type="button" class="secondary" id="csv-import" hidden>Import contacts CSV</button>
+      <input type="file" id="csv-file" accept=".csv,text/csv" hidden aria-label="Import contacts CSV">
       <button type="button" class="primary" id="new-record">Add new</button>
     </div>
     <div class="panel overflow"><table><thead id="records-head"></thead><tbody id="records-body"></tbody></table></div>
