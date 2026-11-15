@@ -4,7 +4,7 @@ jest.mock('@supabase/supabase-js',()=>({createClient:jest.fn()}));
 jest.mock('../../lib/api/auth-helper',()=>({verifyBearer:jest.fn()}));
 const {createClient}=require('@supabase/supabase-js');
 const {verifyBearer}=require('../../lib/api/auth-helper');
-const handler=require('../../api/company-programs');
+const handler=require('../../lib/api/company-programs');
 const WS='11111111-1111-4111-8111-111111111111';
 const USER='22222222-2222-4222-8222-222222222222';
 function res(){
