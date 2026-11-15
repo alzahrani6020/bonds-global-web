@@ -38,7 +38,7 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(js).toContain('translations');
  });
  test('not-null enum selects never default to empty and deletions cannot cascade from account',()=>{
-  expect(js).toContain("(!reference?' required':'')");
+  expect(js).toContain("(!reference||required?' required':'')");
   expect(js).toContain("const selected=value==null?(reference?'':");
   const sql=read('supabase/migrations/20261115020000_crm_client_app_isolated_workspaces.sql');
   expect(sql).toContain('owner_user_id uuid not null references auth.users(id) on delete restrict');
