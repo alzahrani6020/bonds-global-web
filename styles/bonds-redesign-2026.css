@@ -30,7 +30,7 @@ body.bonds-redesign .dropdown-menu{z-index:1200}
 .bonds-hero__actions a{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:12px 24px;border:2px solid #e3bb6b;border-radius:11px;color:#fff!important;text-decoration:none;font-weight:800}
 .bonds-hero__actions a:first-child{background:linear-gradient(135deg,#efc36b,#a46e15)}
 .bonds-hero__image{position:relative;overflow:hidden;min-height:405px;background:linear-gradient(120deg,#1c3855,#607e92);border-right:7px solid #c99b40;border-radius:48% 0 0 0 / 90% 0 0 0}
-.bonds-hero__image img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.bonds-hero__image img.bonds-hero__photo{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center}
 .bonds-hero__credit{position:absolute;bottom:7px;left:10px;background:rgba(3,17,30,.75);padding:3px 7px;border-radius:5px;font-size:10px;color:#fff}
 .bonds-hero__credit a{color:inherit;text-decoration:underline}
 .bonds-quicklinks{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:13px;padding:30px clamp(12px,2vw,30px);background:#fff}
