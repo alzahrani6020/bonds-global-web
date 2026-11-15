@@ -212,7 +212,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain("row.style.marginBottom = '8mm'");
     expect(client).toContain('const pageHeightPx = Math.floor(canvas.width * 297 / 210)');
     expect(client).toContain('const totalPages = 1');
-    expect(client).toContain('canvas.height > pageHeightPx + 1');
+    expect(client).toContain('canvas.height > pageHeightPx + 8');
     expect(read('components/bonds-official-seal.js')).toContain('تصديق الختم الإلكتروني');
     expect(read('components/bonds-official-seal.js')).toContain('ELECTRONIC STAMP CERTIFICATION');
     expect(read('components/bonds-official-seal.js')).toContain('رقم السجل 39733');
@@ -413,7 +413,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
     const client = read('components/letterhead-correspondence.js');
     const ar = read('letterhead.html');
     const en = read('en/letterhead.html');
-    expect(client).toContain('canvas.height > pageHeightPx + 1');
+    expect(client).toContain('canvas.height > pageHeightPx + 8');
     expect(client).toContain('onclone: clonedDocument =>');
     expect(client).toContain('contentBottom > footerTop + 1');
     expect(client).toContain('clonedSheet.scrollHeight > clonedSheet.clientHeight + 1');
