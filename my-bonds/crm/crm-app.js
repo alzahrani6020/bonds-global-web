@@ -106,8 +106,9 @@
    if(!['lead','prospect','customer','active','inactive','archived'].includes(status))throw Error('CSV row '+(i+2)+': invalid status');
    const email=entry.email?.toLowerCase();
    if(email){
-    if(seen.has(email))throw Error('CSV row '+(i+2)+': repeated email');
-    seen.add(email);
+    const identity=entry.name.toLowerCase()+'\\u0000'+email;
+    if(seen.has(identity))throw Error('CSV row '+(i+2)+': repeated contact');
+    seen.add(identity);
    }
    const yes=String(entry.is_decision_maker||'').toLowerCase();
    if(yes&&!['true','false','1','0','yes','no'].includes(yes))throw Error('CSV row '+(i+2)+': invalid boolean');
