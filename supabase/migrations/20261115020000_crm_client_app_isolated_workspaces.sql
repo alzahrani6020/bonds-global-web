@@ -86,6 +86,49 @@ create table public.crm_app_success (
  foreign key(workspace_id,company_id) references public.crm_app_companies(workspace_id,id),
  foreign key(workspace_id,contact_id) references public.crm_app_contacts(workspace_id,id)
 );
+-- Independent company-owned pipelines and configurable stages, matching Makkin.
+create table public.crm_app_pipelines (
+ id uuid primary key default gen_random_uuid(),
+ workspace_id uuid not null references public.crm_app_workspaces(id) on delete cascade,
+ name text not null check (char_length(btrim(name)) between 1 and 160),
+ description text,
+ is_active boolean not null default true,
+ is_default boolean not null default false,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now(),
+ unique(workspace_id,id),
+ unique(workspace_id,name)
+);
+create unique index crm_app_pipelines_one_default_idx
+ on public.crm_app_pipelines(workspace_id) where is_default;
+create table public.crm_app_pipeline_stages (
+ id uuid primary key default gen_random_uuid(),
+ workspace_id uuid not null references public.crm_app_workspaces(id) on delete cascade,
+ pipeline_id uuid not null,
+ name text not null check(char_length(btrim(name)) between 1 and 160),
+ sort_order integer not null default 0 check(sort_order between 0 and 10000),
+ probability integer not null default 10 check(probability between 0 and 100),
+ is_won boolean not null default false,
+ is_lost boolean not null default false,
+ is_active boolean not null default true,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now(),
+ foreign key(workspace_id,pipeline_id) references public.crm_app_pipelines(workspace_id,id),
+ unique(workspace_id,id),
+ unique(workspace_id,pipeline_id,id),
+ check(not(is_won and is_lost))
+);
+alter table public.crm_app_deals
+ add column pipeline_id uuid,
+ add column pipeline_stage_id uuid,
+ add constraint crm_app_deal_stage_requires_pipeline check(pipeline_stage_id is null or pipeline_id is not null),
+ add constraint crm_app_deal_pipeline_fk
+   foreign key(workspace_id,pipeline_id) references public.crm_app_pipelines(workspace_id,id),
+ add constraint crm_app_deal_pipeline_stage_fk
+   foreign key(workspace_id,pipeline_id,pipeline_stage_id)
+   references public.crm_app_pipeline_stages(workspace_id,pipeline_id,id);
+create index crm_app_pipelines_workspace_idx on public.crm_app_pipelines(workspace_id,is_active);
+create index crm_app_pipeline_stages_pipeline_idx on public.crm_app_pipeline_stages(workspace_id,pipeline_id,sort_order);
 create index crm_app_companies_workspace_idx on public.crm_app_companies(workspace_id,updated_at desc);
 create index crm_app_contacts_workspace_idx on public.crm_app_contacts(workspace_id,updated_at desc);
 create index crm_app_deals_workspace_idx on public.crm_app_deals(workspace_id,updated_at desc);
@@ -108,7 +151,7 @@ grant select,insert,update on public.crm_app_workspaces to authenticated;
 do $$
 declare t text;
 begin
- foreach t in array array['crm_app_companies','crm_app_contacts','crm_app_deals','crm_app_activities','crm_app_renewals','crm_app_success'] loop
+ foreach t in array array['crm_app_companies','crm_app_contacts','crm_app_deals','crm_app_activities','crm_app_renewals','crm_app_success','crm_app_pipelines','crm_app_pipeline_stages'] loop
   execute format('alter table public.%I enable row level security',t);
   execute format('revoke all on public.%I from PUBLIC,anon,authenticated',t);
   execute format('grant select,insert,update on public.%I to authenticated',t);
