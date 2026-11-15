@@ -80,3 +80,10 @@ html[dir="ltr"] body.bonds-redesign .bonds-hero__globe{left:auto;right:-12%;tran
 .bonds-topbar__links{display:flex;align-items:center;gap:13px}
 .bonds-topbar__iconlink{font-size:19px;line-height:1;text-decoration:none;display:inline-grid;place-items:center;width:27px;height:27px}
 @media(max-width:700px){.bonds-topbar__links{display:none}.bonds-topbar__local{gap:6px}}
+
+/* Override legacy header-footer fixed logo sizing only on redesigned homepages. */
+body.bonds-redesign .main-header .header-brand img.header-brand__image{width:145px!important;max-width:145px!important;height:auto!important;object-fit:contain!important}
+body.bonds-redesign .bonds-brand-map{display:block;flex:0 0 clamp(70px,9vw,140px);width:clamp(70px,9vw,140px);height:67px;background:url("/assets/bonds-world-dots.svg") center/contain no-repeat}
+@media(max-width:1500px){body.bonds-redesign .bonds-brand-map{flex-basis:75px;width:75px}body.bonds-redesign .main-header .header-brand img.header-brand__image{width:100px!important;max-width:100px!important}}
+@media(max-width:1280px){body.bonds-redesign .bonds-brand-map{display:none}body.bonds-redesign .main-header .header-brand img.header-brand__image{width:74px!important;max-width:74px!important}}
+@media(max-width:700px){body.bonds-redesign .main-header .header-brand img.header-brand__image{width:55px!important;max-width:55px!important}body.bonds-redesign .bonds-search-placeholder{display:none}}
