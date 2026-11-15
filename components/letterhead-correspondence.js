@@ -197,7 +197,10 @@
 
   function isOwner() {
     if (!state.document) return false;
-    if (typeof state.serverIsOwner === 'boolean') return state.serverIsOwner;
+    // A server true is authoritative; a server false must not override an
+    // exact owner/id match, because a stale flag from a previously opened
+    // document must never lock the current owner out of their own draft.
+    if (state.serverIsOwner === true) return true;
     return !!state.userId && state.document.owner_user_id === state.userId;
   }
 
@@ -479,6 +482,9 @@
     state.events = result.events || [];
     state.role = result.role || 'user';
     state.permissions = Array.isArray(result.permissions) ? result.permissions : [];
+    // Reset BEFORE assigning so a stale flag from a previously opened
+    // document can never leak into the new document's ownership checks.
+    state.serverIsOwner = null;
     state.serverIsOwner = typeof result.is_owner === 'boolean' ? result.is_owner : null;
     state.relatedDocumentId = state.document?.related_document_id || null;
     state.workspaceContext = state.document?.workspace_context && typeof state.document.workspace_context === 'object'

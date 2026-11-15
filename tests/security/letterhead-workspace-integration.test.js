@@ -191,7 +191,11 @@ describe('Letterhead governed workspace integration', () => {
     const client = read('components/letterhead-correspondence.js');
     const api = read('lib/api/correspondence.js');
     expect(client).toContain('serverIsOwner: null');
-    expect(client).toContain("typeof state.serverIsOwner === 'boolean'");
+    // A server TRUE is authoritative; a server FALSE must not lock the actual
+    // owner out when the ids match (stale-flag hardening), so the boolean is
+    // only consulted for the positive case and the id comparison is the fallback.
+    expect(client).toContain('if (state.serverIsOwner === true) return true;');
+    expect(client).toContain('state.document.owner_user_id === state.userId');
     expect(client).toContain("state.serverIsOwner = typeof result.is_owner === 'boolean' ? result.is_owner : null");
     expect(api).toContain('is_owner: doc.owner_user_id === user.id');
   });
