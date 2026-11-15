@@ -295,6 +295,14 @@
       "destination": "/api/platform"
     },
     {
+      "source": "/api/crm-invite",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/crm-invite/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/contact",
       "destination": "/api/platform"
     },

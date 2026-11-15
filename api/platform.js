@@ -4,6 +4,7 @@
 // ============================================
 
 const getSupabase = require('../lib/api/supabase');
+const crmInviteHandler = require('../lib/api/crm-invite');
 const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
 const { sendEmail } = require('../lib/api/email');
@@ -2357,6 +2358,12 @@ module.exports = async function handler(req, res) {
       req.query = req.query || {}; req.query.action = 'send-letter';
       if (await checkRateLimit('auth', req, res)) return;
       return siteHandler(req, res);
+    }
+
+    // Owner-only CRM email invitations; no separate serverless function.
+    if (pathname === '/api/crm-invite' || pathname === '/api/crm-invite/') {
+      if (await checkRateLimit('auth', req, res)) return;
+      return crmInviteHandler(req, res);
     }
 
     // Site

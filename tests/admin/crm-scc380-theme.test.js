@@ -8,7 +8,7 @@ const css = fs.readFileSync(path.join(ROOT, 'admin/crm-scc380-theme.css'), 'utf8
 describe('Bonds CRM retains functionality with Makkin SCC380 visual identity', () => {
   test('loads a standalone, scoped CRM-only stylesheet after existing styling', () => {
     expect(html).toContain('<body class="crm-scc380">');
-    expect(html).toContain('<link rel="stylesheet" href="/admin/crm-scc380-theme.css?v=1">');
+    expect(html).toMatch(/<link rel="stylesheet" href="\/admin\/crm-scc380-theme\.css\?v=[1-9][0-9]*">/);
     expect(html.indexOf('crm-scc380-theme.css')).toBeGreaterThan(html.indexOf('</style>'));
     expect(css).toContain('body.crm-scc380');
     expect(css).toContain('html:has(body.crm-scc380)');

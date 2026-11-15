@@ -2647,7 +2647,8 @@ async function getCrmOverview(sb) {
     oppsRes,
     renewalsRes,
     successRes,
-    serviceRequestsRes
+    serviceRequestsRes,
+    activitiesRes
   ] = await Promise.all([
     sb.from('crm_organizations').select('*').order('created_at', { ascending: false }).limit(500),
     sb.from('advisory_clients').select('id, name, email, phone, company_name, status, source, organization_id, is_decision_maker, relationship_role, account_owner, created_at, updated_at').order('created_at', { ascending: false }).limit(1000),
@@ -2657,10 +2658,19 @@ async function getCrmOverview(sb) {
     sb.from('service_requests')
       .select('id,request_reference,user_id,client_id,service_id,status,country_code,region_name,locality_name,crm_opportunity_id,submitted_at,completed_at,created_at,updated_at')
       .order('created_at', { ascending: false })
-      .limit(1000)
+      .limit(1000),
+    sb.from('crm_activities').select('id,organization_id,client_id,opportunity_id,activity_type,subject,details,status,scheduled_at,completed_at,created_at,updated_at')
+      .is('deleted_at',null).order('created_at',{ascending:false}).limit(1000)
   ]);
   for (const result of [orgsRes, clientsRes, oppsRes, renewalsRes, successRes, serviceRequestsRes]) {
     if (result.error) throw result.error;
+  }
+  // A staged rollout must not take the existing administrative CRM offline
+  // before the additive crm_activities migration is verified. Only tolerate
+  // the specific missing-table errors; do not mask auth, network or SQL faults.
+  const activitiesUnavailable = Boolean(activitiesRes.error);
+  if (activitiesRes.error && !['42P01', 'PGRST205'].includes(activitiesRes.error.code)) {
+    throw activitiesRes.error;
   }
 
   const opportunities = oppsRes.data || [];
@@ -2732,11 +2742,153 @@ async function getCrmOverview(sb) {
     renewals,
     customerSuccessRecords: success,
     serviceRequests: serviceRequestQueue,
+    activities: activitiesRes.data || [],
+    activitiesUnavailable,
     pipeline,
     renewalSummary,
     customerSuccess,
     commercialScoring: commercialScoring.summary
   };
+}
+
+// Additional CRM workflows use the existing advisory_clients and
+// crm_organizations tables. Never update client auth links or delete records.
+const CRM_CLIENT_STATUSES = new Set(['active','inactive','prospect','lead','customer','archived']);
+function crmOptionalText(value, limit) {
+  if (value == null || value === '') return null;
+  return String(value).trim().slice(0, limit) || null;
+}
+function crmOptionalUuid(value, field) {
+  if (value == null || value === '') return null;
+  const str = String(value).trim();
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str)) throw badRequest(field + ' must be UUID');
+  return str;
+}
+function crmClientPayload(body, existing) {
+  const allowed = ['name','email','phone','company_name','status','source','organization_id','relationship_role','is_decision_maker','country','city','sector'];
+  const row = {};
+  for (const key of allowed) {
+    if (!Object.prototype.hasOwnProperty.call(body || {},key)) continue;
+    if (key === 'organization_id') row[key] = crmOptionalUuid(body[key],key);
+    else if (key === 'is_decision_maker') {
+      if (typeof body[key] !== 'boolean') throw badRequest('is_decision_maker must be boolean');
+      row[key] = body[key];
+    } else if (key === 'status') {
+      const val = String(body[key] || '').toLowerCase();
+      if (!CRM_CLIENT_STATUSES.has(val)) throw badRequest('invalid client status');
+      row[key] = val;
+    } else {
+      row[key] = crmOptionalText(body[key], key === 'email' ? 254 : key === 'name' ? 240 : 160);
+    }
+  }
+  if ((!existing && !row.name) || (existing && Object.prototype.hasOwnProperty.call(row,'name') && !row.name)) throw badRequest('name required');
+  if (row.email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(row.email)) throw badRequest('invalid email');
+  if (existing && !Object.keys(row).length) throw badRequest('no editable fields');
+  return row;
+}
+async function createCrmClient(sb, body, admin, req) {
+  const fields = crmClientPayload(body,false);
+  const row = {...fields, status: fields.status || 'active', created_by: admin.id};
+  const { data, error } = await sb.from('advisory_clients').insert([row])
+    .select('id,name,email,phone,company_name,status,source,organization_id,relationship_role,is_decision_maker,created_at').single();
+  if (error) throw error;
+  await logAdminAction(sb,admin,'crm_client_create','advisory_client',data.id,null,{name:data.name},req);
+  return {success:true,client:data};
+}
+async function updateCrmClient(sb, body, admin, req) {
+  const id = crmOptionalUuid(body?.id,'id');
+  if (!id) throw badRequest('id required');
+  const updates = {...crmClientPayload(body,true), updated_at:new Date().toISOString(),updated_by:admin.id};
+  const { data, error } = await sb.from('advisory_clients').update(updates).eq('id',id).is('deleted_at',null)
+    .select('id,name,email,phone,company_name,status,source,organization_id,relationship_role,is_decision_maker,updated_at').maybeSingle();
+  if (error) throw error;
+  if (!data) throw new HttpError(404,'CRM client not found');
+  await logAdminAction(sb,admin,'crm_client_update','advisory_client',id,null,{fields:Object.keys(updates)},req);
+  return {success:true,client:data};
+}
+async function updateCrmOrganization(sb, body, admin, req) {
+  const id = crmOptionalUuid(body?.id,'id');
+  if (!id) throw badRequest('id required');
+  const fields=['name','legal_name','domain','country','city','sector','tax_number','status'];
+  const update={};
+  for(const key of fields) if (Object.prototype.hasOwnProperty.call(body||{},key)) update[key]=crmOptionalText(body[key],key==='name'?240:160);
+  if(Object.prototype.hasOwnProperty.call(update,'name') && !update.name) throw badRequest('name required');
+  if(update.status!==undefined && !new Set(['prospect','active','inactive','customer','archived']).has(update.status)) throw badRequest('invalid organization status');
+  if(!Object.keys(update).length) throw badRequest('no editable fields');
+  update.updated_at=new Date().toISOString();
+  const {data,error}=await sb.from('crm_organizations').update(update).eq('id',id)
+    .select('id,name,legal_name,domain,country,city,sector,tax_number,status,updated_at').maybeSingle();
+  if(error) throw error;
+  if(!data) throw new HttpError(404,'CRM organization not found');
+  await logAdminAction(sb,admin,'crm_organization_update','crm_organization',id,null,{fields:Object.keys(update)},req);
+  return {success:true,organization:data};
+}
+
+const CRM_ACTIVITY_TYPES = new Set(['call','meeting','email','task','note','whatsapp','sms','visit']);
+const CRM_ACTIVITY_STATUSES = new Set(['open','completed','cancelled']);
+function crmActivityInput(body, update=false) {
+  const row = {};
+  const input=body||{};
+  if(!update || Object.prototype.hasOwnProperty.call(input,'subject')){
+    const subject=String(input.subject||'').trim();
+    if(!subject || subject.length>300) throw badRequest('subject required (max 300)');
+    row.subject=subject;
+  }
+  if(!update || Object.prototype.hasOwnProperty.call(input,'activity_type')){
+    const t=String(input.activity_type||'task');
+    if(!CRM_ACTIVITY_TYPES.has(t))throw badRequest('invalid activity type');
+    row.activity_type=t;
+  }
+  if(!update || Object.prototype.hasOwnProperty.call(input,'status')){
+    const status=String(input.status||'open');
+    if(!CRM_ACTIVITY_STATUSES.has(status))throw badRequest('invalid activity status');
+    row.status=status;
+    row.completed_at=status==='completed' ? new Date().toISOString() : null;
+  }
+  for(const key of ['organization_id','client_id','opportunity_id']) {
+    if(Object.prototype.hasOwnProperty.call(input,key))row[key]=crmOptionalUuid(input[key],key);
+  }
+  if(Object.prototype.hasOwnProperty.call(input,'details'))row.details=crmOptionalText(input.details,8000);
+  if(Object.prototype.hasOwnProperty.call(input,'scheduled_at')) {
+    const value=input.scheduled_at;
+    if(value===null || value==='')row.scheduled_at=null;
+    else {
+      const d=new Date(value);
+      if(!Number.isFinite(d.getTime())) throw badRequest('invalid scheduled_at');
+      row.scheduled_at=d.toISOString();
+    }
+  }
+  if(update && !Object.keys(row).length) throw badRequest('no activity changes');
+  return row;
+}
+async function createCrmActivity(sb, body, admin, req) {
+  const row={...crmActivityInput(body),created_by:admin.id};
+  const {data,error}=await sb.from('crm_activities').insert([row])
+    .select('id,organization_id,client_id,opportunity_id,activity_type,subject,details,status,scheduled_at,completed_at,created_at').single();
+  if(error)throw error;
+  await logAdminAction(sb,admin,'crm_activity_create','crm_activity',data.id,null,{type:data.activity_type,status:data.status},req);
+  return {success:true,activity:data};
+}
+async function updateCrmActivity(sb, body, admin, req) {
+  const id=crmOptionalUuid(body?.id,'id');
+  if(!id)throw badRequest('id required');
+  const row={...crmActivityInput(body,true),updated_by:admin.id,updated_at:new Date().toISOString()};
+  const {data,error}=await sb.from('crm_activities').update(row).eq('id',id).is('deleted_at',null)
+    .select('id,organization_id,client_id,opportunity_id,activity_type,subject,details,status,scheduled_at,completed_at,updated_at').maybeSingle();
+  if(error)throw error;
+  if(!data)throw new HttpError(404,'CRM activity not found');
+  await logAdminAction(sb,admin,'crm_activity_update','crm_activity',id,null,{fields:Object.keys(row)},req);
+  return {success:true,activity:data};
+}
+async function deleteCrmActivity(sb, body, admin, req) {
+  const id=crmOptionalUuid(body?.id,'id');
+  if(!id)throw badRequest('id required');
+  const {data,error}=await sb.from('crm_activities').update({deleted_at:new Date().toISOString(),updated_by:admin.id})
+    .eq('id',id).is('deleted_at',null).select('id').maybeSingle();
+  if(error)throw error;
+  if(!data)throw new HttpError(404,'CRM activity not found');
+  await logAdminAction(sb,admin,'crm_activity_soft_delete','crm_activity',id,null,{soft_deleted:true},req);
+  return {success:true,id};
 }
 
 async function createCrmOrganization(sb, body, admin, req) {
@@ -5090,6 +5242,30 @@ async function handler(req, res) {
       if (action === 'support-note-add') {
         const access = await requireAdminPermission(req, sb, 'support.manage');
         return res.status(200).json(await addSupportNote(sb, req.body, access.user, req));
+      }
+      if (action === 'crm-activity-create') {
+        const access=await requireAdminPermission(req,sb,'crm.write');
+        return res.status(200).json(await createCrmActivity(sb,req.body,access.user,req));
+      }
+      if (action === 'crm-activity-update') {
+        const access=await requireAdminPermission(req,sb,'crm.write');
+        return res.status(200).json(await updateCrmActivity(sb,req.body,access.user,req));
+      }
+      if (action === 'crm-activity-delete') {
+        const access=await requireAdminPermission(req,sb,'crm.write');
+        return res.status(200).json(await deleteCrmActivity(sb,req.body,access.user,req));
+      }
+      if (action === 'crm-client-create') {
+        const access = await requireAdminPermission(req, sb, 'crm.write');
+        return res.status(200).json(await createCrmClient(sb, req.body, access.user, req));
+      }
+      if (action === 'crm-client-update') {
+        const access = await requireAdminPermission(req, sb, 'crm.write');
+        return res.status(200).json(await updateCrmClient(sb, req.body, access.user, req));
+      }
+      if (action === 'crm-organization-update') {
+        const access = await requireAdminPermission(req, sb, 'crm.write');
+        return res.status(200).json(await updateCrmOrganization(sb, req.body, access.user, req));
       }
       if (action === 'crm-organization-create') {
         const access = await requireAdminPermission(req, sb, 'crm.write');

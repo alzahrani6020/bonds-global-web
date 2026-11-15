@@ -214,3 +214,112 @@ body.crm-scc380 .status {
   body.crm-scc380 .btn,
   body.crm-scc380 .kpi { transition: none; }
 }
+
+/* CRM extension forms and install control. All selectors remain CRM-scoped. */
+body.crm-scc380 #bonds-crm-extensions [hidden] { display:none !important; }
+body.crm-scc380 .crm-extended-title { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+body.crm-scc380 .crm-extended-title h2 { margin:0 0 .4rem; }
+body.crm-scc380 .crm-extended-title p { margin:0; }
+body.crm-scc380 .crm-extended-title > div { min-width:0; }
+body.crm-scc380 .crm-extended-actions { display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; margin:.8rem 0 1rem; }
+body.crm-scc380 .crm-extended-actions > input,
+body.crm-scc380 .crm-extended-actions > select { width:auto; min-width:min(100%,220px); margin:0; }
+body.crm-scc380 .crm-form-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+body.crm-scc380 .crm-field { display:flex; flex-direction:column; gap:.35rem; color:#cbd5e1; font-size:.9rem; min-width:0; }
+body.crm-scc380 .crm-field input,
+body.crm-scc380 .crm-field select,
+body.crm-scc380 .crm-field textarea { margin:0; width:100%; min-width:0; }
+body.crm-scc380 .crm-field textarea { background:#1e293b; color:#f8fafc; border:1px solid #64748b; border-radius:12px; padding:.75rem; resize:vertical; font:inherit; }
+body.crm-scc380 .crm-field textarea:focus-visible { outline:2px solid #3385d6; outline-offset:2px; }
+body.crm-scc380 .crm-field-wide { grid-column:1/-1; }
+body.crm-scc380 .crm-field.crm-checkbox { justify-content:center; flex-direction:row; align-items:center; }
+body.crm-scc380 .crm-field.crm-checkbox input { margin:0; width:1rem; height:1rem; accent-color:#0066cc; }
+body.crm-scc380 #crm-install-hint { max-width:350px; line-height:1.5; margin:.35rem 0 0; font-size:.76rem; }
+body.crm-scc380 #crm-editor-section { scroll-margin-top:1rem; border-color:rgba(51,133,214,.65); }
+body.crm-scc380 #bonds-crm-extensions table { white-space:nowrap; }
+body.crm-scc380 #bonds-crm-extensions td { overflow-wrap:anywhere; }
+body.crm-scc380 #bonds-crm-extensions .btn { white-space:nowrap; }
+@media(max-width:640px) {
+  body.crm-scc380 .crm-form-fields { grid-template-columns:1fr; }
+  body.crm-scc380 .crm-extended-actions > input,
+  body.crm-scc380 .crm-extended-actions > select { width:100%; }
+}
+
+/* Real SCC380 dashboard shell: fixed slate sidebar + constrained responsive content.
+   Mirrors SCC380 globals.css and dashboard layout; no admin API behavior changes. */
+html:has(body.crm-scc380) { scroll-behavior: smooth; }
+body.crm-scc380 .crm-admin-sidebar {
+  position:fixed;
+  z-index:20;
+  inset:0 0 0 auto;
+  width:248px;
+  display:flex;
+  flex-direction:column;
+  gap:.35rem;
+  padding:1.25rem .95rem;
+  background:rgba(15,23,42,.98);
+  border-left:1px solid rgba(100,116,139,.5);
+  box-shadow:-5px 0 24px rgba(2,6,23,.17);
+  overflow-y:auto;
+}
+body.crm-scc380 .crm-admin-brand {
+  display:flex;align-items:center;gap:.7rem;padding:.2rem .55rem 1.2rem;
+  margin-bottom:.65rem;border-bottom:1px solid rgba(100,116,139,.4);min-width:0;
+}
+body.crm-scc380 .crm-admin-brand strong,
+body.crm-scc380 .crm-admin-brand small { display:block; }
+body.crm-scc380 .crm-admin-brand strong { color:#f8fafc;font-size:1rem;letter-spacing:.02em; }
+body.crm-scc380 .crm-admin-brand small { color:#94a3b8;font-size:.75rem; }
+body.crm-scc380 .crm-admin-mark {
+  display:grid;place-items:center;flex:0 0 40px;height:40px;
+  border-radius:12px;background:linear-gradient(130deg,#0066cc,#004499);
+  box-shadow:0 6px 18px rgba(0,102,204,.22);color:white;font-weight:850;font-size:1.35rem;
+}
+body.crm-scc380 .crm-admin-nav-link {
+  display:block;text-decoration:none;color:#cbd5e1;
+  padding:.72rem .82rem;border-radius:10px;border-right:3px solid transparent;
+  font-size:.91rem;font-weight:600;transition:background .16s,color .16s;
+}
+body.crm-scc380 .crm-admin-nav-link:hover,
+body.crm-scc380 .crm-admin-nav-link:focus-visible {
+  color:#fff;background:rgba(51,65,85,.75);
+}
+body.crm-scc380 .crm-admin-nav-link.active {
+  background:rgba(0,102,204,.22);color:#93c5fd;border-right-color:#3385d6;
+}
+body.crm-scc380 .crm-admin-nav-primary {
+  background:linear-gradient(120deg,#0066cc,#004499);
+  border:1px solid rgba(96,165,250,.5);color:#fff;text-align:center;margin-top:.7rem;
+}
+body.crm-scc380 .crm-admin-nav-primary:hover { background:#0066cc; }
+body.crm-scc380 .crm-admin-nav-back { margin-top:auto;border-top:1px solid rgba(100,116,139,.3); }
+body.crm-scc380 main { max-width:none; margin-right:248px; min-width:0; }
+body.crm-scc380 .crm-top-actions { display:flex;flex-wrap:wrap;align-items:center;gap:.7rem; }
+body.crm-scc380 .crm-top-actions .btn { text-decoration:none;display:inline-flex;align-items:center;justify-content:center; }
+body.crm-scc380 .crm-app-link { background:linear-gradient(120deg,#0066cc,#004499); }
+body.crm-scc380 #crm-scoring .kpi b {
+  font-size:clamp(1.1rem,1.7vw,1.5rem);line-height:1.65;overflow-wrap:anywhere;
+  white-space:normal;unicode-bidi:plaintext;
+}
+body.crm-scc380 #crm-scoring .kpi {min-width:0;}
+body.crm-scc380 #crm-scoring .kpi .muted {line-height:1.6;overflow-wrap:anywhere;}
+body.crm-scc380 [id^="crm-"] {scroll-margin-top:1rem;}
+@media(max-width:1000px) {
+  body.crm-scc380 .crm-admin-sidebar {
+    position:relative;inset:auto;width:auto;max-height:none;flex-direction:row;
+    align-items:center;flex-wrap:wrap;padding:.8rem 1rem;gap:.3rem;
+    border-left:0;border-bottom:1px solid rgba(100,116,139,.4);
+  }
+  body.crm-scc380 .crm-admin-brand {width:100%;margin:0 0 .4rem;padding-bottom:.5rem;}
+  body.crm-scc380 .crm-admin-nav-back {margin-top:0;}
+  body.crm-scc380 main {margin-right:0;}
+}
+@media(max-width:640px) {
+  body.crm-scc380 .crm-admin-nav-link {font-size:.8rem;padding:.55rem .65rem;}
+  body.crm-scc380 .crm-top-actions {width:100%;}
+  body.crm-scc380 .crm-top-actions .btn {flex:1 1 auto;}
+}
+@media(prefers-reduced-motion:reduce) {
+  html:has(body.crm-scc380) {scroll-behavior:auto;}
+  body.crm-scc380 .crm-admin-nav-link {transition:none;}
+}

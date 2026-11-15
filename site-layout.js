@@ -805,6 +805,7 @@
     // CRM is the administrative workspace; My Bonds is the client workspace.
     const companyProgramsDropdown = [
       { label: isEn ? 'Customer Relationship Management (CRM)' : 'إدارة علاقات العملاء (CRM)', href: '/admin/crm.html' },
+      { label: isEn ? 'Company CRM Application' : 'برنامج CRM للشركات', href: isEn ? '/en/my-bonds/crm/' : '/my-bonds/crm/' },
       { label: isEn ? 'My Bonds Workspace' : 'مساحة عمل بوندز', href: isEn ? '/en/my-bonds/' : '/my-bonds/' },
     ];
 
