@@ -14,6 +14,7 @@ create table if not exists public.company_program_workspaces (
 );
 alter table public.company_program_workspaces enable row level security;
 revoke all on public.company_program_workspaces from public,anon,authenticated;
+grant select,insert on public.company_program_workspaces to service_role;
 -- Only server-side authorization after verified Supabase session, workspace
 -- ownership/membership and active company state can read this registry.
 
@@ -41,6 +42,7 @@ create index if not exists company_program_entitlements_workspace_idx
  on public.company_program_entitlements(workspace_link_id,status,program_key);
 alter table public.company_program_entitlements enable row level security;
 revoke all on public.company_program_entitlements from public,anon,authenticated;
+grant select,insert,update on public.company_program_entitlements to service_role;
 -- Paid entitlements cannot be self-assigned by owner or employee via browser.
 
 create table if not exists public.company_program_entitlement_audit (
@@ -55,6 +57,7 @@ create table if not exists public.company_program_entitlement_audit (
 );
 alter table public.company_program_entitlement_audit enable row level security;
 revoke all on public.company_program_entitlement_audit from public,anon,authenticated;
+grant select on public.company_program_entitlement_audit to service_role;
 create or replace function crm_private.record_program_entitlement()
 returns trigger language plpgsql security definer set search_path = ''
 as $$
