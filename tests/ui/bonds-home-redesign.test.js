@@ -33,6 +33,11 @@ describe('Bonds bilingual homepage redesign', () => {
     expect(js).toContain("if (!document.body.classList.contains('bonds-redesign')) ensurePublicHeritageIdentity();");
     expect(js).toContain('setupBondsLocalClock(headerContainer, lang)');
   });
+  test('redesign-only brand elements do not alter other pages', () => {
+    const js = read('site-layout.js');
+    expect(js).toContain("redesignNav ? '<span class=\"bonds-brand-map\"");
+    expect(js).toContain("redesignNav ? '<span class=\"bonds-brand-wordmark\"");
+  });
   test('clock uses browser timezone with user override and no geolocation', () => {
     const js = read('site-layout.js');
     expect(js).toContain('Intl.DateTimeFormat().resolvedOptions().timeZone');
