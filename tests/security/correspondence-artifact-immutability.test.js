@@ -10,6 +10,37 @@ jest.mock('../../lib/api/supabase',()=>jest.fn(()=>mockCurrentScenario.sb));
 
 const {handler}=require('../../lib/api/correspondence');
 
+describe('Atomic successor activation migration safety',()=>{
+  const sql=read('supabase/migrations/20261115030000_correspondence_atomic_successor_activation.sql');
+  test('old issue is not superseded by the issuance trigger before PDF finalization',()=>{
+    const capture=sql.split('create or replace function public.capture_correspondence_issue()')[1]
+      .split('create or replace function public.activate_correspondence_issue_after_final_pdf()')[0];
+    expect(capture).toContain("'pending'");
+    expect(capture).toContain('new.related_document_id');
+    expect(capture).not.toContain("set state = 'superseded'");
+    expect(capture).not.toContain("set pdf_hash = new.artifact_hash");
+  });
+  test('new issue activation and previous issue supersession occur in the same DB trigger transaction',()=>{
+    const activate=sql.split('create or replace function public.activate_correspondence_issue_after_final_pdf()')[1];
+    expect(activate).toContain('old.artifact_hash is null and new.artifact_hash is not null');
+    expect(activate).toContain('for update');
+    expect(activate).toContain("current_issue.state <> 'pending'");
+    expect(activate).toContain("new.artifact_document_hash is distinct from new.document_hash");
+    expect(activate).toContain("new.artifact_issued_hash is distinct from new.issued_hash");
+    expect(activate).toContain("new.artifact_version is distinct from new.current_version");
+    expect(activate).toContain("set pdf_hash = new.artifact_hash,");
+    expect(activate).toContain("state = 'active'");
+    expect(activate).toContain("set state = 'superseded'");
+    expect(activate).toContain("where id = current_issue.supersedes_issue_id");
+    expect(activate.indexOf("state = 'active'")).toBeLessThan(activate.indexOf("set state = 'superseded'"));
+  });
+  test('migration does not rewrite archived issue rows or grant direct public access',()=>{
+    expect(sql).not.toMatch(/\\b(delete|truncate)\\s+from\\s+public\\.correspondence_issues/i);
+    expect(sql).toContain('revoke execute on function public.activate_correspondence_issue_after_final_pdf()');
+    expect(sql).toContain('to service_role');
+  });
+});
+
 describe('Correspondence issuance integrity boundaries',()=>{
   const api=read('lib/api/correspondence.js');
   const ui=read('components/letterhead-correspondence.js');
