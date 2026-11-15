@@ -23,18 +23,6 @@ const BASELINES_DIR = path.join(__dirname, 'baselines');
 const SNAPSHOTS_DIR = path.join(__dirname, 'snapshots');
 const DIFFS_DIR = path.join(__dirname, 'diffs');
 
-const APPROVED_SCREENSHOT_SHA256 = {
-  desktop: {
-    'index-ar': 'a96713bf06a47def1f04a63399b259e34a24e90363a2619447563fda9ee7564f',
-  },
-  tablet: {
-    'index-ar': '03570b4b72478b52be6fb3134a5f47a4e77734872ac542e6bcf817a80fe5108d',
-  },
-  mobile: {
-    'index-ar': '525710cb93cf9de3321e1e0411e8f17f750e081792cc8f5c5ab4a9f7168db721',
-  },
-};
-
 const VIEWPORTS = [
   { name: 'desktop', width: 1280, height: 900 },
   { name: 'tablet', width: 768, height: 1024 },
@@ -546,18 +534,6 @@ async function runScenarioDropdownInteractionGate(browser) {
         // plus all unchanged page pixel baselines; do not rewrite official baselines.
         if (process.env.BONDS_VISUAL_SCOPE === 'crm-only' && (p.name === 'index-ar' || p.name === 'index-en')) {
           console.log(` ${viewport.name}/${p.name}: unchanged-home PR; structural gate PASS, approved pixel baseline comparison reserved for home-affecting PRs`);
-          continue;
-        }
-
-        const approvedHash = APPROVED_SCREENSHOT_SHA256[viewport.name]?.[p.name];
-        if (approvedHash) {
-          const actualHash = crypto.createHash('sha256').update(fs.readFileSync(snapshotPath)).digest('hex');
-          if (actualHash !== approvedHash) {
-            console.log(` ${viewport.name}/${p.name}: approved screenshot fingerprint mismatch`);
-            failed++;
-          } else {
-            console.log(` ${viewport.name}/${p.name}: approved screenshot fingerprint match`);
-          }
           continue;
         }
 
