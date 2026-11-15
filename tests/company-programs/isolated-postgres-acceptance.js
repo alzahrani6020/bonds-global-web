@@ -38,7 +38,8 @@ async function main(){
     }
     const required=[
       'company_program_workspaces','company_program_entitlements',
-      'company_program_entitlement_audit','company_program_makkin_links'
+      'company_program_entitlement_audit','company_program_makkin_links',
+      'company_program_makkin_user_links'
     ];
     for(const table of required){
       const q=await db.query('select relrowsecurity from pg_class where oid=$1::regclass',['public.'+table]);
@@ -70,13 +71,46 @@ async function main(){
     const mapping=await db.query("insert into public.company_program_makkin_links(workspace_link_id,makkin_tenant_id) values($1,'unverified-tenant') returning state",[c]);
     assert.equal(mapping.rows[0].state,'pending');
     await assert.rejects(()=>db.query("update public.company_program_makkin_links set state='verified' where workspace_link_id=$1",[c]),e=>e.code==='23514');
+    const userLink=(await db.query(
+      "insert into public.company_program_makkin_user_links(workspace_link_id,bonds_user_id,makkin_user_id) values($1,$2,'makkin-user-a') returning id,state",
+      [c,userA]
+    )).rows[0];
+    assert.equal(userLink.state,'pending');
+    await assert.rejects(
+      ()=>db.query("update public.company_program_makkin_user_links set state='verified' where id=$1",[userLink.id]),
+      e=>e.code==='23514'
+    );
+    await assert.rejects(
+      ()=>db.query("insert into public.company_program_makkin_user_links(workspace_link_id,bonds_user_id,makkin_user_id) values($1,$2,'makkin-user-b')",[c,userA]),
+      e=>e.code==='23505'
+    );
+    await assert.rejects(
+      ()=>db.query('delete from public.company_program_makkin_user_links where id=$1',[userLink.id]),
+      e=>e.code==='P0001'
+    );
+    await assert.rejects(
+      ()=>db.query("delete from public.company_program_makkin_links where workspace_link_id=$1",[c]),
+      e=>e.code==='P0001'
+    );
+    // Verified status requires an explicit verifier and timestamp. This
+    // checks the schema contract, not whether an external SCC user exists.
+    await db.query(
+      "update public.company_program_makkin_user_links set state='verified',verified_at=now(),verified_by=$1 where id=$2",
+      [userB,userLink.id]
+    );
+    const verified=(await db.query('select state,verified_by from public.company_program_makkin_user_links where id=$1',[userLink.id])).rows[0];
+    assert.equal(verified.state,'verified');
+    assert.equal(verified.verified_by,userB);
+    // Suspend instead of destroying history.
+    await db.query("update public.company_program_makkin_user_links set state='suspended' where id=$1",[userLink.id]);
     await db.query('begin');
     try{
       await db.query('set local role authenticated');
       await assert.rejects(()=>db.query('select id from public.company_program_entitlements'),e=>e.code==='42501');
       await assert.rejects(()=>db.query('select id from public.company_program_makkin_links'),e=>e.code==='25P02'||e.code==='42501');
+      await assert.rejects(()=>db.query('select id from public.company_program_makkin_user_links'),e=>e.code==='25P02'||e.code==='42501');
     } finally {await db.query('rollback');}
-    console.log('COMPANY PROGRAMS ISOLATED POSTGRES: PASS — real workspace FKs, fail-closed grants, immutable entitlement history, link verification');
+    console.log('COMPANY PROGRAMS ISOLATED POSTGRES: PASS — real workspace FKs, fail-closed grants, immutable entitlement history, link verification and explicit user mapping');
   }finally{await db.end();}
 }
 main().catch(e=>{console.error('COMPANY PROGRAMS ISOLATED POSTGRES: FAIL',e.message,'SQLSTATE='+String(e.code||'unknown'));process.exitCode=1;});
