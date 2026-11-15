@@ -62,7 +62,7 @@
  function buildField(def,record){
   const [key,label,spec='text',required=false]=def,value=record?.[key];
   const head='<label class="field">'+escape(t(label)),tail='</label>';
-  if(spec==='checkbox')return head+'<input type="checkbox" name="'+key+'" '+(value?'checked':'')+'>'+tail;
+  if(spec==='checkbox')return head+'<input type="checkbox" name="'+key+'" '+((record?Boolean(value):key==='is_active')?'checked':'')+'>'+tail;
   if(spec==='textarea')return head+'<textarea name="'+key+'" rows="3">'+escape(value||'')+'</textarea>'+tail;
   if(spec.startsWith('select:')||spec.startsWith('ref:')){
    const reference=spec.startsWith('ref:');
