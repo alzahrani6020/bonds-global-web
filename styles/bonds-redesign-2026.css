@@ -148,3 +148,19 @@ html body.bonds-redesign #site-header .main-header__inner{
     box-shadow:inset 8px 0 0 #edc66c;
   }
 }
+
+/* Gold arc and globe positioning parity with the supplied 1773x887 image.
+   The generic hero-image rule sets inset:0 on all img nodes. For a positioned
+   globe, inherited right:0 can override left:-12% in RTL over-constraint. */
+@media (min-width:1281px){
+  html[dir="rtl"] body.bonds-redesign .bonds-hero{grid-template-columns:47% 53%}
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__image{
+    border-radius:0 22% 0 0 / 0 95% 0 0;
+  }
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__globe{
+    right:auto!important;left:-12%!important;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__globe{
+    left:auto!important;right:-12%!important;
+  }
+}
