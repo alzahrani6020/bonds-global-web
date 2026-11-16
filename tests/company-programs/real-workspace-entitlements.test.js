@@ -35,7 +35,8 @@ describe('Company programs - no phantom capabilities',()=>{
     expect(ui).toContain("location.pathname.startsWith('/en/')");
     expect(ui).toContain('window.BondsAuth.authenticatedFetch');
     expect(ui).toContain('program-read');
-    expect(ui).toContain("card.append(h,badge,note,button)");
+    expect(ui).toContain("card.append(h,badge,note,operationSelect,button)");
+    expect(ui).toContain("operationSelect.disabled=!program.entitled||!available.length");
     expect(ui).toContain("button.disabled=!program.entitled");
     expect(ui).toContain("result').textContent");
     expect(ui).not.toContain('BONDS_MAKKIN_SIGNING_PRIVATE_KEY');
@@ -46,8 +47,10 @@ describe('Company programs - no phantom capabilities',()=>{
     for(const program of PROGRAMS){
       const lines=ui.split('\n').filter(line=>line.trim().startsWith(program.key+':'));
       expect(lines).toHaveLength(1);
-      const operationKey=lines[0].split("'")[1];
-      expect(ops[operationKey]?.program).toBe(program.key);
+      const operationKeys=[...lines[0].matchAll(/'([^']+)'/g)].map(m=>m[1]);
+      expect(operationKeys.length).toBeGreaterThan(0);
+      for(const operationKey of operationKeys)expect(ops[operationKey]?.program).toBe(program.key);
+      expect(new Set(operationKeys).size).toBe(operationKeys.length);
     }
   });
   test('company programs API permits only vetted mapping, audited reads and staged writes',()=>{
