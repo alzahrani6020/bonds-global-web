@@ -32,6 +32,10 @@ describe('Single CRM shell with isolated administrative operations',()=>{
   expect(internal).toContain("open.click()");
   expect(internal).toContain("el('onboarding').hidden=true");
  });
+ test('internal mode waits for customer workspace initialization to prevent overlapping screens',()=>{
+  expect(read('my-bonds/crm/crm-app.js')).toContain("document.dispatchEvent(new Event('bonds-crm-workspace-initialized'))");
+  expect(internal).toContain("document.addEventListener('bonds-crm-workspace-initialized',initialize,{once:true})");
+ });
  test('internal panel is permission gated before becoming visible',()=>{
   expect(internal).toContain('if(!auth.data?.user)return');
   expect(internal).toContain("const data=await api('crm-overview')");
