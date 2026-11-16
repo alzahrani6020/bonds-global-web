@@ -1555,13 +1555,48 @@
         meta.style.cssText = 'color:#64748b;font-size:11px';
         meta.textContent = statusLabel(doc.status) + ' · ' + new Date(doc.updated_at).toLocaleString(isEn ? 'en-US' : 'ar-SA');
         row.append(title, document.createElement('br'), meta);
-        row.addEventListener('click', () => loadDocument(doc.id).catch(e => toast('⚠️ ' + e.message)));
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap';
+        const open = document.createElement('button');
+        open.type = 'button';
+        open.className = 'draft-btn';
+        open.style.cssText = 'width:auto;padding:5px 10px';
+        open.textContent = isEn ? 'Open correspondence' : 'فتح المراسلة';
+        const openSelected = async () => {
+          await loadDocument(doc.id);
+          document.getElementById('inbox-panel')?.classList.remove('open');
+          document.getElementById('corr-reference')?.scrollIntoView({ block: 'nearest' });
+        };
+        open.addEventListener('click', event => {
+          event.stopPropagation();
+          openSelected().catch(e => toast('⚠️ ' + e.message));
+        });
+        row.addEventListener('click', () => openSelected().catch(e => toast('⚠️ ' + e.message)));
+        actions.appendChild(open);
+        if (doc.artifact_hash) {
+          const download = document.createElement('button');
+          download.type = 'button';
+          download.className = 'draft-btn';
+          download.style.cssText = 'width:auto;padding:5px 10px';
+          download.textContent = isEn ? 'Official PDF' : 'تنزيل PDF الرسمي';
+          download.addEventListener('click', event => {
+            event.stopPropagation();
+            loadDocument(doc.id).then(() => downloadOfficialPdf()).catch(e => toast('⚠️ ' + e.message));
+          });
+          actions.appendChild(download);
+        } else if (['issued', 'sent', 'archived'].includes(doc.status)) {
+          const pending = document.createElement('span');
+          pending.style.cssText = 'font-size:11px;color:#7c5a20';
+          pending.textContent = isEn ? 'Official PDF not finalized' : 'ملف PDF الرسمي لم يُثبّت بعد';
+          actions.appendChild(pending);
+        }
+        row.appendChild(actions);
         el.appendChild(row);
       });
     }
 
-    renderList(draftsList, state.list.filter(d => !['sent','archived'].includes(d.status)), isEn ? 'No active correspondence on this page' : 'لا توجد مراسلات نشطة في هذه الصفحة');
-    renderList(sentList, state.list.filter(d => ['sent','archived'].includes(d.status)), isEn ? 'No sent correspondence on this page' : 'لا توجد مراسلات مرسلة في هذه الصفحة');
+    renderList(draftsList, state.list.filter(d => !['issued','sent','archived'].includes(d.status)), isEn ? 'No active correspondence on this page' : 'لا توجد مراسلات نشطة في هذه الصفحة');
+    renderList(sentList, state.list.filter(d => ['issued','sent','archived'].includes(d.status)), isEn ? 'No issued or archived correspondence on this page' : 'لا توجد مراسلات صادرة أو مؤرشفة في هذه الصفحة');
 
     let pager = document.getElementById('corr-inbox-pagination');
     if (!pager) {
