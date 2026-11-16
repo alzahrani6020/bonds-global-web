@@ -1,0 +1,834 @@
+{
+  "source": {
+    "repository": "alzahrani6020/scc380",
+    "file": "apps/web/src/components/layout/Sidebar.tsx",
+    "blobSha": "4ac1f90652c3772ce8a959f2b1ee82ba930dfa1f"
+  },
+  "warning": "Coverage inventory only. Null BONDS routes are intentionally not user-facing and must not be published as migrated applications.",
+  "routes": [
+    {
+      "sccRoute": "/dashboard",
+      "sccLabel": "لوحة التحكم",
+      "sccSection": "الرئيسية",
+      "ownerPrograms": [
+        "shared"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/analytics",
+      "sccLabel": "التحليلات",
+      "sccSection": "الرئيسية",
+      "ownerPrograms": [
+        "shared"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/notifications",
+      "sccLabel": "التنبيهات والإشعارات",
+      "sccSection": "الرئيسية",
+      "ownerPrograms": [
+        "shared"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/crm",
+      "sccLabel": "نظرة عامة",
+      "sccSection": "العملاء (CRM)",
+      "ownerPrograms": [
+        "crm"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/crm/contacts",
+      "sccLabel": "جهات الاتصال",
+      "sccSection": "العملاء (CRM)",
+      "ownerPrograms": [
+        "crm"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/crm/companies",
+      "sccLabel": "الشركات",
+      "sccSection": "العملاء (CRM)",
+      "ownerPrograms": [
+        "crm"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/crm/deals",
+      "sccLabel": "الصفقات",
+      "sccSection": "العملاء (CRM)",
+      "ownerPrograms": [
+        "crm"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/crm/pipelines",
+      "sccLabel": "مسارات المبيعات",
+      "sccSection": "العملاء (CRM)",
+      "ownerPrograms": [
+        "crm"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/crm/activities",
+      "sccLabel": "الأنشطة",
+      "sccSection": "العملاء (CRM)",
+      "ownerPrograms": [
+        "crm"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/projects",
+      "sccLabel": "المشاريع",
+      "sccSection": "العملاء (CRM)",
+      "ownerPrograms": [
+        "projects"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr",
+      "sccLabel": "نظرة عامة",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/self-service",
+      "sccLabel": "الخدمة الذاتية",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/employees",
+      "sccLabel": "الموظفون",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/requests",
+      "sccLabel": "طلبات الموارد البشرية",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/lifecycle",
+      "sccLabel": "الانضمام والمغادرة",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/attendance",
+      "sccLabel": "الحضور",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/shifts",
+      "sccLabel": "الورديات",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/leaves",
+      "sccLabel": "الإجازات",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/leave-balances",
+      "sccLabel": "أرصدة الإجازات",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/contracts",
+      "sccLabel": "العقود",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/documents",
+      "sccLabel": "مستندات الموظفين",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/assets",
+      "sccLabel": "العهد والأصول",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/loans",
+      "sccLabel": "السلف والقروض",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/recruitment",
+      "sccLabel": "التوظيف",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/performance",
+      "sccLabel": "إدارة الأداء",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/training",
+      "sccLabel": "التدريب والتطوير",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/settlements",
+      "sccLabel": "نهاية الخدمة والمخالصة",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/governance/violations",
+      "sccLabel": "البلاغات والمخالفات",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr",
+        "governance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/governance/investigations",
+      "sccLabel": "التحقيقات الإدارية والمالية",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr",
+        "governance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/governance/evidence",
+      "sccLabel": "الأدلة والإفادات",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr",
+        "governance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/governance/discipline",
+      "sccLabel": "الإنذارات والتظلمات",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr",
+        "governance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/governance/conflicts",
+      "sccLabel": "المنافسة وتعارض المصالح",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr",
+        "governance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/governance/claims",
+      "sccLabel": "المطالبات والتعويضات",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr",
+        "governance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/governance/legal",
+      "sccLabel": "المنازعات والقضايا",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr",
+        "governance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/governance/offboarding",
+      "sccLabel": "إخلاء الطرف وتسليم الأعمال",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr",
+        "governance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/governance/compliance",
+      "sccLabel": "الرقابة الوظيفية",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr",
+        "governance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/payroll-runs",
+      "sccLabel": "مسيرات الرواتب",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/payroll",
+      "sccLabel": "سجلات الرواتب",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/hr/departments",
+      "sccLabel": "الإدارات",
+      "sccSection": "الموارد البشرية (مكين)",
+      "ownerPrograms": [
+        "hr"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/real-estate",
+      "sccLabel": "نظرة عامة",
+      "sccSection": "العقارات",
+      "ownerPrograms": [
+        "real_estate"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/real-estate/properties",
+      "sccLabel": "قائمة العقارات",
+      "sccSection": "العقارات",
+      "ownerPrograms": [
+        "real_estate"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/real-estate/units",
+      "sccLabel": "الوحدات",
+      "sccSection": "العقارات",
+      "ownerPrograms": [
+        "real_estate"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/real-estate/contracts",
+      "sccLabel": "العقود",
+      "sccSection": "العقارات",
+      "ownerPrograms": [
+        "real_estate"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/real-estate/payments",
+      "sccLabel": "دفعات الإيجار",
+      "sccSection": "العقارات",
+      "ownerPrograms": [
+        "real_estate"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/fleet",
+      "sccLabel": "المركبات",
+      "sccSection": "الأسطول",
+      "ownerPrograms": [
+        "fleet"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/fleet/trips",
+      "sccLabel": "الرحلات",
+      "sccSection": "الأسطول",
+      "ownerPrograms": [
+        "fleet"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/fleet/drivers",
+      "sccLabel": "السائقون",
+      "sccSection": "الأسطول",
+      "ownerPrograms": [
+        "fleet"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/fleet/maintenance",
+      "sccLabel": "الصيانة",
+      "sccSection": "الأسطول",
+      "ownerPrograms": [
+        "fleet"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/fleet/fuel",
+      "sccLabel": "الوقود",
+      "sccSection": "الأسطول",
+      "ownerPrograms": [
+        "fleet"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/erp",
+      "sccLabel": "الفواتير",
+      "sccSection": "المبيعات",
+      "ownerPrograms": [
+        "sales"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/pos",
+      "sccLabel": "الكاشير",
+      "sccSection": "المبيعات",
+      "ownerPrograms": [
+        "sales"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/suppliers",
+      "sccLabel": "الموردون",
+      "sccSection": "المشتريات والموردون",
+      "ownerPrograms": [
+        "purchasing"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/supplier-invoices",
+      "sccLabel": "فواتير الموردين",
+      "sccSection": "المشتريات والموردون",
+      "ownerPrograms": [
+        "purchasing"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/finance/purchase-orders",
+      "sccLabel": "أوامر الشراء",
+      "sccSection": "المشتريات والموردون",
+      "ownerPrograms": [
+        "purchasing"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/inventory",
+      "sccLabel": "الأصناف والمخزون",
+      "sccSection": "المخزون",
+      "ownerPrograms": [
+        "inventory"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/stock-transfers",
+      "sccLabel": "تحويلات المخزون",
+      "sccSection": "المخزون",
+      "ownerPrograms": [
+        "inventory"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/finance",
+      "sccLabel": "نظرة عامة",
+      "sccSection": "المالية",
+      "ownerPrograms": [
+        "finance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/finance/payments",
+      "sccLabel": "المدفوعات",
+      "sccSection": "المالية",
+      "ownerPrograms": [
+        "finance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/finance/expenses",
+      "sccLabel": "المصروفات",
+      "sccSection": "المالية",
+      "ownerPrograms": [
+        "finance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/finance/bank-accounts",
+      "sccLabel": "الحسابات البنكية",
+      "sccSection": "المالية",
+      "ownerPrograms": [
+        "finance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/financial-reports",
+      "sccLabel": "التقارير المالية",
+      "sccSection": "المالية",
+      "ownerPrograms": [
+        "finance",
+        "accounting"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/finance/journal-entries",
+      "sccLabel": "القيود اليومية",
+      "sccSection": "المحاسبة",
+      "ownerPrograms": [
+        "accounting"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/finance/general-ledger",
+      "sccLabel": "دفتر الأستاذ",
+      "sccSection": "المحاسبة",
+      "ownerPrograms": [
+        "accounting"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/finance/chart-of-accounts",
+      "sccLabel": "دليل الحسابات",
+      "sccSection": "المحاسبة",
+      "ownerPrograms": [
+        "accounting"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/branches",
+      "sccLabel": "إدارة الفروع",
+      "sccSection": "الفروع",
+      "ownerPrograms": [
+        "shared"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/government",
+      "sccLabel": "التكاملات الحكومية",
+      "sccSection": "النظام",
+      "ownerPrograms": [
+        "shared"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/ai",
+      "sccLabel": "المساعد الذكي",
+      "sccSection": "النظام",
+      "ownerPrograms": [
+        "shared"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/approvals",
+      "sccLabel": "طلبات الموافقة",
+      "sccSection": "النظام",
+      "ownerPrograms": [
+        "governance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/compliance",
+      "sccLabel": "الامتثال",
+      "sccSection": "النظام",
+      "ownerPrograms": [
+        "governance"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/security",
+      "sccLabel": "الأمان",
+      "sccSection": "النظام",
+      "ownerPrograms": [
+        "shared"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/users",
+      "sccLabel": "المستخدمون",
+      "sccSection": "النظام",
+      "ownerPrograms": [
+        "shared"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/templates",
+      "sccLabel": "النماذج الإلكترونية",
+      "sccSection": "النظام",
+      "ownerPrograms": [
+        "shared"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/billing",
+      "sccLabel": "الاشتراكات",
+      "sccSection": "النظام",
+      "ownerPrograms": [
+        "shared"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    },
+    {
+      "sccRoute": "/dashboard/settings",
+      "sccLabel": "الإعدادات",
+      "sccSection": "النظام",
+      "ownerPrograms": [
+        "shared"
+      ],
+      "bondsRoute": null,
+      "transferStatus": "NOT_IMPLEMENTED",
+      "fieldAndWorkflowParity": "NOT_TESTED"
+    }
+  ]
+}
