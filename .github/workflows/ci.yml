@@ -150,7 +150,9 @@ jobs:
           test "$connected" -eq 1
           docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < tests/security/correspondence-ledger-bootstrap.pg.sql
           docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < supabase/migrations/20261115030000_correspondence_atomic_successor_activation.sql
+          docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < supabase/migrations/20261116180000_correspondence_successor_state_validation.sql
           docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < tests/security/correspondence-ledger-acceptance.pg.sql
+          docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < tests/security/correspondence-historical-recovery.pg.sql
 
 
       - name: Run Accessibility Tests

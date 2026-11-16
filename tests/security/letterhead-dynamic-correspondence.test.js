@@ -75,7 +75,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain("api('send'");
     expect(client).toContain("verification_token");
     expect(client).toContain("Import legacy drafts");
-    expect(client).toContain("for (let i = 0; i < sheets.length; i++)");
+    expect(client).toContain("for (let i = 0; i < positions.length; i++)");
+    expect(client).toContain("positions.length !== sheets.length");
     expect(client).toContain("renderGovernanceArtifacts");
     expect(client).toContain("signature_data_url");
     expect(client).toContain("Word-compatible .doc");
@@ -210,9 +211,9 @@ describe('Dynamic letterhead correspondence architecture', () => {
     }
 
     expect(client).toContain("row.style.marginBottom = '8mm'");
-    expect(client).toContain('const pageHeightPx = Math.floor(canvas.width * 297 / 210)');
-    expect(client).toContain('const totalPages = 1');
-    expect(client).toContain('canvas.height > pageHeightPx + 8');
+    expect(client).toContain('const canvas = await html2canvas(container, {');
+    expect(client).toContain('positions.length !== sheets.length');
+    expect(client).toContain("err.code = 'BONDS_PDF_A4_CAPTURE_BOUNDS'");
     expect(read('components/bonds-official-seal.js')).toContain('تصديق الختم الإلكتروني');
     expect(read('components/bonds-official-seal.js')).toContain('ELECTRONIC STAMP CERTIFICATION');
     expect(read('components/bonds-official-seal.js')).toContain('رقم السجل 39733');
@@ -380,7 +381,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(ar).toContain('.doc-content[dir="rtl"] ol[dir="ltr"]');
     expect(ar).toContain('.doc-content[dir="rtl"] ol > li[dir="ltr"]');
     expect(en).toContain('.doc-content ol[dir="rtl"]');
-    expect(governed).toContain('const totalPages = 1');
+    expect(governed).toContain('if (i) pdf.addPage();');
+    expect(governed).toContain('positions.length !== sheets.length');
     expect(governed).toContain('if (state.document?.artifact_hash)');
     expect(governed).toContain('await downloadOfficialPdf()');
   });
@@ -415,13 +417,16 @@ describe('Dynamic letterhead correspondence architecture', () => {
     const client = read('components/letterhead-correspondence.js');
     const ar = read('letterhead.html');
     const en = read('en/letterhead.html');
-    expect(client).toContain('canvas.height > pageHeightPx + 8');
-    expect(client).toContain('onclone: clonedDocument =>');
-    expect(client).toContain('contentBottom > footerTop + 1');
-    expect(client).toContain('clonedSheet.scrollHeight > clonedSheet.clientHeight + 1');
+    expect(client).toContain('const canvas = await html2canvas(container, {');
+    expect(client).toContain('onclone: copy =>');
+    expect(client).toContain('painted.some(b => overlap(b, footerBounds))');
+    expect(client).toContain('painted.some(b => qr.some(q => overlap(b, q)))');
+    expect(client).toContain('rebalanceIssuedClone(copy)');
+    expect(client).not.toContain('contentBottom > footerTop + 1');
+    expect(client).toContain('page.scrollHeight > page.clientHeight + 1');
     expect(client).toContain('windowWidth: Math.max(1280, window.innerWidth)');
-    expect(client).toContain('const totalPages = 1');
-    expect(client).toContain('overflows A4');
+    expect(client).toContain("err.code = 'BONDS_PDF_A4_CLIPPED'");
+    expect(client).toContain("err.code = 'BONDS_PDF_A4_CAPTURE_BOUNDS'");
     expect(ar).toContain('.doc-content[dir="rtl"] ol');
     expect(ar).toContain('direction: rtl; text-align: right');
     expect(en).toContain('ol[dir="rtl"]');

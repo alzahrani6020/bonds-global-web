@@ -46,10 +46,12 @@ describe('letterhead automatic pagination', () => {
     expect(client).toContain('guard < 200');
   });
 
-  test('the PDF export auto-heals: locked docs fail explicitly, overflow re-paginates once', () => {
+  test('PDF export paginates drafts before capture and rejects invalid issued sheets', () => {
     expect(client).toContain('cannot be split automatically');
-    expect(client).toContain('retriedAfterPagination');
-    expect(client).toContain('paginateEditableSheets();');
-    expect(client).toContain('sheets.push(...document.querySelectorAll(\'.sheet\'))');
+    expect(client).toContain('if (canEditCurrent()) paginateEditableSheets();');
+    expect(client).toContain('rebalanceIssuedClone(copy)');
+    expect(client).toContain('html2canvas(container,');
+    expect(client).toContain("err.code = 'BONDS_PDF_A4_CLIPPED'");
+    expect(client).toContain("err.code = 'BONDS_PDF_A4_CAPTURE_BOUNDS'");
   });
 });
