@@ -61,6 +61,7 @@ function Assert-NoSecret([string]$path, [string]$relative) {
     # Neutralize only these exact verified fixture expressions for scanning.
     $content = $content.Replace("JWT_SECRET='accounting-smoke-ci-only-not-production-secret'", 'JWT_SECRET=$(isolated-fixture)')
     $content = $content.Replace('SMOKE_PASSWORD=$SMOKE_PASSWORD', 'SMOKE_PASSWORD=$(runtime-generated)')
+    $content = $content.Replace('SMOKE_PASSWORD="$SMOKE_PASSWORD"', 'SMOKE_PASSWORD=runtime-variable')
 
   }
   $signals = @(
