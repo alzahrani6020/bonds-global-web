@@ -1405,7 +1405,7 @@
       const viewer = String(state.userId || 'غير مسجل').slice(0, 8);
       throw new Error(isEn
         ? `This document is locked, so overflowing pages cannot be split automatically. Restore editing rights or shorten the content. (owner ${owner} / you ${viewer})`
-        : `هذا المستند مقفل ولا يمكن تقسيم صفحاته المتجاوزة تلقائياً. استعد صلاحية التحرير أو قصّر المحتوى. (المالك ${owner} / أنت ${viewer})`);
+        : `هذا المستند صادر ومقفل؛ لا يمكن تغيير توزيع صفحاته. يلزم فحص تخطيط A4 للنسخة المعتمدة، أو إنشاء إصدار لاحق مخول دون تعديل الأصل. (المالك ${owner} / أنت ${viewer})`);
     }
     const container = document.getElementById('pages-container');
     if (!container) throw new Error('Letterhead pages container missing');
@@ -1513,7 +1513,7 @@
         const overflowError = () => clippedContent
           ? new Error(isEn
             ? `Page ${i + 1} content overlaps its footer or is clipped. Move content to a new page.`
-            : `محتوى الصفحة ${i + 1} متداخل مع التذييل أو مقصوص. انقل جزءًا من المحتوى إلى صفحة جديدة.`)
+            : (canEditCurrent() ? `محتوى الصفحة ${i + 1} متداخل مع التذييل أو مقصوص. انقل جزءًا من المحتوى إلى صفحة جديدة قبل الاعتماد.` : `تجاوز A4 في الصفحة الصادرة ${i + 1}: المحتوى متداخل مع التذييل أو مقصوص. لا يمكن تعديل النسخة المعتمدة؛ يلزم إصلاح تخطيط التصدير دون تعديل الأصل أو إصدار لاحق مخول.`))
           : null;
         const pageHeightPx = Math.floor(canvas.width * 297 / 210);
         // Issued documents must have one physical PDF page per numbered sheet.
@@ -1523,7 +1523,7 @@
         const a4Error = canvas.height > pageHeightPx + 8
           ? new Error(isEn
             ? `Page ${i + 1} overflows A4. Split the content into another letterhead page before finalizing the PDF.`
-            : `الصفحة ${i + 1} تتجاوز حدود A4. وزّع المحتوى على صفحة مراسلات إضافية قبل اعتماد PDF النهائي.`)
+            : (canEditCurrent() ? `الصفحة ${i + 1} تتجاوز حدود A4. وزّع المحتوى على صفحة مراسلات إضافية قبل الاعتماد.` : `الصفحة الصادرة ${i + 1} تتجاوز حدود A4. لا يمكن تعديل الصفحات المعتمدة؛ يلزم إصلاح هندسة التصدير أو إصدار لاحق مخول.`))
           : null;
         if ((clippedContent || a4Error) && !retriedAfterPagination && canEditCurrent()) {
           // Automation: re-run the pagination pass (content may have been edited
