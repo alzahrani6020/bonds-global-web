@@ -51,10 +51,10 @@ try {
   Check 'Official PDF requests signed URL' (ContainsText $ui "api('artifact-download-url'") 'No archive download API'
 
   $htmlText = Get-Content -LiteralPath (Join-Path $root $html) -Raw
-  $exportMatches = [regex]::Matches($htmlText, '<button[^>]*onclick="exportPDF\\(\\)"[^>]*>')
+  $exportMatches = [regex]::Matches($htmlText, '<button[^>]*onclick="exportPDF\(\)"[^>]*>')
   Write-Host ("PDF_EXPORT_CONTROLS=" + $exportMatches.Count)
   Check 'PDF export action present' ($exportMatches.Count -ge 1) 'No exportPDF button found'
-  $printMatches = [regex]::Matches($htmlText, '<button[^>]*onclick="exportPDF\\(\\)"[^>]*class="[^"]*btn-print')
+  $printMatches = [regex]::Matches($htmlText, '<button[^>]*onclick="exportPDF\(\)"[^>]*class="[^"]*btn-print')
   if ($printMatches.Count -gt 0) {
     Write-Host 'FAIL | Print button invokes exportPDF rather than a print-only action'
     $problems.Add('Print action wrongly wired')
