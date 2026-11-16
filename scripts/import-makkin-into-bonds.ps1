@@ -56,6 +56,12 @@ function Assert-NoSecret([string]$path, [string]$relative) {
   if ($relative -ceq '.github/workflows/accounting-production-image-smoke.yml') {
     $runtimePassword = 'SMOKE_PASSWORD="AccountingSmoke-$(openssl rand -hex 12)-Aa1!"'
     $content = $content.Replace($runtimePassword, 'SMOKE_PASSWORD=$(runtime-generated)')
+    # The same isolated smoke fixture assigns a non-production JWT test key
+    # and forwards the freshly generated password through GITHUB_ENV.
+    # Neutralize only these exact verified fixture expressions for scanning.
+    $content = $content.Replace("JWT_SECRET='accounting-smoke-ci-only-not-production-secret'", 'JWT_SECRET=$(isolated-fixture)')
+    $content = $content.Replace('SMOKE_PASSWORD=$SMOKE_PASSWORD', 'SMOKE_PASSWORD=$(runtime-generated)')
+
   }
   $signals = @(
     '-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----',
