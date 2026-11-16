@@ -1386,7 +1386,10 @@
       throw new Error(isEn ? 'PDF libraries unavailable' : 'مكتبات PDF غير متوفرة');
     }
     await waitForVerificationQr();
-    paginateEditableSheets();
+    // Only draft/returned documents may be repaginated. Issued documents are
+    // immutable: export their approved sheets as-is and let the A4 overflow
+    // checks below reject invalid layouts rather than changing issued content.
+    if (canEditCurrent()) paginateEditableSheets();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     const integrityMarker = state.document?.issued_hash
