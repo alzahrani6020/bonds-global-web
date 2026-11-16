@@ -26,6 +26,7 @@ beforeEach(()=>{
  jest.clearAllMocks();
  process.env.SUPABASE_SERVICE_ROLE_KEY='test-only-dummy';
  process.env.SUPABASE_URL='https://unit-test.supabase.co';
+ process.env.VERCEL_ENV='preview';
  verifyBearer.mockResolvedValue({id:USER});
 });
 afterAll(()=>{process.env=originalEnv;});
@@ -376,6 +377,20 @@ afterEach(()=>{
  delete process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED;
  delete process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL;
  delete process.env.VERCEL_ENV;
+});
+test.each(['production','development',''])('write bridge requires explicit preview environment (%s)',async(stage)=>{
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ if(stage)process.env.VERCEL_ENV=stage;
+ else delete process.env.VERCEL_ENV;
+ global.fetch=jest.fn();
+ const response=res();
+ await handler({method:'POST',query:{action:'program-write'},body:{
+   workspace_id:WS,program_key:'projects',operation:'projects.tasks.create',data:{title:'Must deny'}
+ }},response);
+ expect(response.statusCode).toBe(503);
+ expect(response.body.error).toBe('STAGING_WRITES_DISABLED');
+ expect(createClient).not.toHaveBeenCalled();
+ expect(global.fetch).not.toHaveBeenCalled();
 });
 test('write bridge is disabled by default before DB, auth or network',async()=>{
  const response=res();
