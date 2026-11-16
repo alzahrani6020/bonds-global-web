@@ -186,5 +186,5 @@
   }catch(err){status((en?'Save failed: ':'فشل الحفظ: ')+err.message,true);}
   finally{button.disabled=false;}
  });
- initialize();
+ document.addEventListener('bonds-crm-workspace-initialized',initialize,{once:true});
 })();
