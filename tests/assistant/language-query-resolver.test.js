@@ -72,7 +72,7 @@ describe('BONDS language and query resolver', () => {
   test('recognizes colloquial Arabic search commands', () => {
     expect(stripSearchCommand('دور لي في النت عن بوندز')).toBe('بوندز');
     expect(classifyGeneralIntent('شوف لي أخبار بوندز')).toEqual(expect.objectContaining({
-      intent:'web_research',
+      intent:'current_fact',
       requires_research:true
     }));
   });
@@ -99,6 +99,26 @@ describe('BONDS language and query resolver', () => {
     }));
     expect(result.selected_query).toBe('الموقع الرسمي لوزارة المالية السعودية');
     expect(result.query_variants[0]).toBe('الموقع الرسمي لوزارة المالية السعودية');
+  });
+
+  test('routes news questions to deterministic live research instead of the conversational planner', () => {
+    for (const question of [
+      'ماهي اخبار الفنان عادل امام',
+      'اخبار الفنان عادل امام',
+      'ما هي أخبار الشركات اليوم',
+      'آخر المستجدات في سوق الأسهم'
+    ]) {
+      const result = resolveLanguageQuery(question);
+      expect(result.intent).toBe('current_fact');
+      expect(result.requires_research).toBe(true);
+    }
+    // Non-news lookups keep their specific intents.
+    expect(resolveLanguageQuery('من هو عادل امام').intent).toBe('person_lookup');
+    // Search commands strip first, then the bare news topic classifies as current_fact.
+    expect(resolveLanguageQuery('شوف لي أخبار بوندز').intent).toBe('current_fact');
+    expect(resolveLanguageQuery('شوف لي أخبار بوندز').requires_research).toBe(true);
+    // Non-news explicit search keeps web_research.
+    expect(resolveLanguageQuery('شوف لي أسعار الذهب').intent).toBe('web_research');
   });
 
   test('does not strip semantic comparison constraints that are part of the research subject', () => {
