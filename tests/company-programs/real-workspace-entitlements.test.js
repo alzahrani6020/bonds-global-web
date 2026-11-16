@@ -18,11 +18,11 @@ describe('Company programs - no phantom capabilities',()=>{
     expect(isActiveEntitlement({...base,valid_until:'2026-11-15T15:00:00Z'},date)).toBe(false);
     expect(isActiveEntitlement({...base,program_key:'unknown'},date)).toBe(false);
   });
-  test('company programs API only permits authenticated inventory and scoped mapping probes',()=>{
+  test('company programs API permits only inventory, vetted mapping, and a single allowlisted CRM read',()=>{
     const fs=require('fs');
     const api=fs.readFileSync(require('path').join(__dirname,'../../lib/api/company-programs.js'),'utf8');
     expect(api).toContain("if(!['GET','POST'].includes(req.method))");
-    expect(api).toContain("['probe-mapping','session-check'].includes(req.query?.action)");
+    expect(api).toContain("['probe-mapping','session-check','program-read'].includes(req.query?.action)");
     expect(api).toContain('VERIFIED_EMAIL_REQUIRED');
     expect(api).toContain('PROGRAM_ENTITLEMENT_REQUIRED');
     expect(api).toContain('operationalReady:false');
