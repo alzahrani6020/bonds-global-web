@@ -22,3 +22,8 @@ feasibility-study-*.md
 دراسة-جدوى-*.md
 dropdown-test*.png
 dropdown-forced.png
+
+# Never publish raw SCC380 source or local staging files
+/.makkin-import/
+/integrations/makkin/source/
+/integrations/makkin/import-manifest.json
