@@ -31,7 +31,7 @@
    failed:'تعذر إكمال الطلب',success:'اكتملت القراءة من مسار التكامل المقيّد.',
    noItems:'لا توجد مساحات قابلة للعرض',errorPrefix:'رمز الخطأ',
    taskCreateTitle:'إنشاء مهمة تجريبية في مساحة الشركة',taskCreateHelp:'بيئة اختبار معزولة فقط. لا يعمل على الإنتاج ولا ينفذ اعتمادات مالية.',
-   taskTitleLabel:'عنوان المهمة',taskDescriptionLabel:'الوصف',taskCreateButton:'إنشاء المهمة',
+   taskTitleLabel:'عنوان المهمة',taskDescriptionLabel:'الوصف',taskStatusLabel:'الحالة',taskPriorityLabel:'الأولوية',taskDueLabel:'تاريخ الاستحقاق',taskHoursLabel:'الساعات المقدرة',taskCreateButton:'إنشاء المهمة',
    taskCreating:'جارٍ إنشاء المهمة والتحقق من حفظها...',taskSaved:'تم إنشاء المهمة والتحقق من حفظها في بيئة الاختبار فقط.'
   },
   en:{
@@ -50,7 +50,7 @@
    failed:'Request could not complete',success:'The scoped integration read completed.',
    noItems:'No accessible workspaces',errorPrefix:'Error code',
    taskCreateTitle:'Create a staging task in this workspace',taskCreateHelp:'Isolated staging only; never enabled in production or used for financial approval.',
-   taskTitleLabel:'Task title',taskDescriptionLabel:'Description',taskCreateButton:'Create task',
+   taskTitleLabel:'Task title',taskDescriptionLabel:'Description',taskStatusLabel:'Status',taskPriorityLabel:'Priority',taskDueLabel:'Due date',taskHoursLabel:'Estimated hours',taskCreateButton:'Create task',
    taskCreating:'Creating task and verifying persistence...',taskSaved:'Task created and verified in isolated staging only.'
   }
  };
@@ -86,6 +86,8 @@
    'toggle-lang':'lang',
    'task-create-title':'taskCreateTitle','task-create-help':'taskCreateHelp',
    'task-title-label':'taskTitleLabel','task-description-label':'taskDescriptionLabel',
+   'task-status-label':'taskStatusLabel','task-priority-label':'taskPriorityLabel',
+   'task-due-label':'taskDueLabel','task-hours-label':'taskHoursLabel',
    'task-create-button':'taskCreateButton'
   };
   for(const [id,key] of Object.entries(ids))$(id).textContent=t(key);
@@ -233,13 +235,25 @@
   const title=$('task-title').value.trim();
   const description=$('task-description').value;
   if(!title||title.length>160||description.length>2000)return;
+  const taskStatus=$('task-status').value;
+  const priority=$('task-priority').value;
+  const dueDate=$('task-due').value;
+  const rawHours=$('task-hours').value.trim();
+  const estimatedHours=rawHours===''?undefined:Number(rawHours);
+  if(!['TODO','IN_PROGRESS','IN_REVIEW'].includes(taskStatus)||
+     !['LOW','MEDIUM','HIGH','URGENT'].includes(priority)||
+     (dueDate&&!/^\d{4}-\d{2}-\d{2}$/.test(dueDate))||
+     (estimatedHours!==undefined&&(!Number.isFinite(estimatedHours)||estimatedHours<0||
+       estimatedHours>999.99||Math.abs(estimatedHours*100-Math.round(estimatedHours*100))>1e-7)))return;
   const button=$('task-create-button');
   button.disabled=true;
   $('task-create-status').textContent=t('taskCreating');
   try{
    const result=await fetchProgram('/api/company-programs?action=program-write',{
     workspace_id:workspace.id,workspace_type:workspace.source,
-    program_key:'projects',operation:'projects.tasks.create',data:{title,description}
+    program_key:'projects',operation:'projects.tasks.create',data:{title,description,
+      status:taskStatus,priority,...(dueDate?{dueDate}:{}),
+      ...(estimatedHours!==undefined?{estimatedHours}:{})}
    });
    if(!sameWorkspace(workspace,epoch))return;
    if(result.workspace?.id!==workspace.id||result.workspace?.source!==workspace.source||
