@@ -48,7 +48,7 @@
    noItems:'No accessible workspaces',errorPrefix:'Error code'
   }
  };
- let lang=/^en\b/i.test(navigator.language)?'en':'ar';
+ let lang=location.pathname.startsWith('/en/')?'en':'ar';
  let selected=null;
  const t=k=>dictionary[lang][k]||k;
  function status(message,problem){
