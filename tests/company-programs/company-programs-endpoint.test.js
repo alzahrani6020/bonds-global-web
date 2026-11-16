@@ -632,7 +632,7 @@ test('staged purchase draft validates decimal totals and rejects foreign links b
  expect(createClient).not.toHaveBeenCalled();
  expect(global.fetch).not.toHaveBeenCalled();
 });
-test.each([false,true])('staged purchase order verifies persisted PO totals and tenant (tampered=%s)',async(tampered)=>{
+test.each(['none','total','notes'])('staged purchase order verifies persisted PO totals, notes and tenant (tampered=%s)',async(tampered)=>{
  process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
  process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL='https://scc380-acceptance.onrender.com/integrations/bonds/verify-mapping';
  process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM=signingPair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
@@ -657,14 +657,15 @@ test.each([false,true])('staged purchase order verifies persisted PO totals and 
    })};
    if(url.endsWith('/finance/purchase-orders')&&opt.method==='POST'){
      expect(JSON.parse(opt.body)).toEqual({
-       poNumber:'PO-2026-TEST',subtotal:0.29,taxAmount:0.06,total:0.35
+       poNumber:'PO-2026-TEST',subtotal:0.29,taxAmount:0.06,total:0.35,notes:'Draft purchase'
      });
      return {ok:true,json:async()=>({id,poNumber:'PO-2026-TEST',status:'DRAFT'})};
    }
    expect(url).toBe('https://scc380-acceptance.onrender.com/finance/purchase-orders/'+id);
    return {ok:true,json:async()=>({
      id,tenantId:'tenant-private',poNumber:'PO-2026-TEST',status:'DRAFT',
-     subtotal:'0.29',taxAmount:'0.06',total:tampered?'0.36':'0.35'
+     subtotal:'0.29',taxAmount:'0.06',total:tampered==='total'?'0.36':'0.35',
+     notes:tampered==='notes'?'Altered purchase':'Draft purchase'
    })};
  });
  const response=res();
@@ -672,8 +673,8 @@ test.each([false,true])('staged purchase order verifies persisted PO totals and 
    workspace_id:WS,program_key:'purchasing',operation:'purchasing.orders.create',
    data:{poNumber:' PO-2026-TEST ',subtotal:0.29,taxAmount:0.06,total:0.35}
  }},response);
- expect(response.statusCode).toBe(tampered?502:201);
- expect(response.body).toMatchObject(tampered?{error:'WRITE_PERSISTENCE_MISMATCH'}:{
+ expect(response.statusCode).toBe(tampered==='none'?201:502);
+ expect(response.body).toMatchObject(tampered!=='none'?{error:'WRITE_PERSISTENCE_MISMATCH'}:{
    persisted:true,program_key:'purchasing',record:{id,poNumber:'PO-2026-TEST',status:'DRAFT'}
  });
  expect(global.fetch).toHaveBeenCalledTimes(4);
