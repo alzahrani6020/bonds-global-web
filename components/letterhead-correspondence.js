@@ -1470,6 +1470,54 @@
     // immutable: export their approved sheets as-is and let the A4 overflow
     // checks below reject invalid layouts rather than changing issued content.
     if (canEditCurrent()) paginateEditableSheets();
+    else {
+      // Issued HTML is immutable. Fit the *rendered copy* within the approved
+      // four A4 sheets; never move, delete, truncate or persist approved nodes.
+      // A QR pair rises 25mm above the footer, so it is the true content limit.
+      const issuedSheets = Array.from(document.querySelectorAll('#pages-container .sheet'));
+      for (let pageIndex = 0; pageIndex < issuedSheets.length; pageIndex++) {
+        const sheet = issuedSheets[pageIndex];
+        const content = sheet.querySelector('.doc-content');
+        const footer = sheet.querySelector('.letterhead-footer');
+        if (!content || !footer) throw new Error('Issued A4 structure incomplete');
+        // Reset previous export's fit before measuring to avoid cumulative shrink.
+        content.style.zoom = '1';
+        const fits = () => {
+          const blocks = Array.from(content.children);
+          const lastBottom = blocks.length
+            ? Math.max(...blocks.map(el => el.getBoundingClientRect().bottom))
+            : content.getBoundingClientRect().top;
+          const qr = sheet.querySelector('.footer-qr-pair');
+          const safeBottom = qr && getComputedStyle(qr).display !== 'none'
+            ? Math.min(footer.getBoundingClientRect().top, qr.getBoundingClientRect().top) - 4
+            : footer.getBoundingClientRect().top - 4;
+          const a4Height = sheet.getBoundingClientRect().width * 297 / 210;
+          return lastBottom <= safeBottom &&
+            sheet.getBoundingClientRect().height <= a4Height + 1 &&
+            sheet.scrollHeight <= sheet.clientHeight + 1;
+        };
+        if (fits()) continue;
+        // Do not silently produce unreadably small official text. Rendering
+        // changes only the CSS zoom, not the signed HTML, its order, or its hash.
+        let low = 0.85;
+        let high = 1;
+        content.style.zoom = String(low);
+        if (!fits()) {
+          content.style.zoom = '1';
+          throw new Error(isEn
+            ? `Issued page ${pageIndex + 1} cannot fit A4 without changing the approved layout. Create an authorized successor issue.`
+            : `الصفحة الصادرة ${pageIndex + 1} لا تتسع داخل A4 دون تغيير التخطيط المعتمد. يلزم إصدار لاحق معتمد.`);
+        }
+        for (let iteration = 0; iteration < 10; iteration++) {
+          const mid = (low + high) / 2;
+          content.style.zoom = String(mid);
+          if (fits()) low = mid;
+          else high = mid;
+        }
+        content.style.zoom = String(low - 0.0005);
+        if (!fits()) throw new Error('Issued A4 fit failed final geometry check');
+      }
+    }
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     const integrityMarker = state.document?.issued_hash
