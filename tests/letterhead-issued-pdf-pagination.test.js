@@ -54,17 +54,21 @@ describe('letterhead PDF export / issued immutability', () => {
     expect(paginate).not.toHaveBeenCalled();
   });
 
-  test('A4 clipping and overflow remain hard failures for locked documents', () => {
+  test('issued A4 capture rejects collisions without mutating approved source', () => {
     const source = readExportSource();
-    expect(source).toContain("error.code = 'BONDS_PDF_A4_CLIPPED'");
-    expect(source).toContain("a4Error.code = 'BONDS_PDF_A4_OVERFLOW'");
-    expect(source).toContain("clonedSheet.style.height = '297mm'");
-    expect(source).toContain('const walker = clonedDocument.createTreeWalker(content');
-    expect(source).toContain('const qrCollision = paintedRects.some');
+    expect(source).toContain("err.code = 'BONDS_PDF_A4_CLIPPED'");
+    expect(source).toContain("err.code = 'BONDS_PDF_A4_CAPTURE_BOUNDS'");
+    expect(source).toContain("height: '297mm'");
+    expect(source).toContain('const walker = copy.createTreeWalker(content');
+    expect(source).toContain('painted.some(b => overlap(b, footerBounds))');
+    expect(source).toContain('painted.some(b => qr.some(q => overlap(b, q)))');
+    expect(source).toContain('page.scrollHeight > page.clientHeight + 1');
     expect(source).not.toContain('content.style.zoom');
-    expect(source).toContain('if (clippedContent) {');
-    expect(source).toContain('if (a4Error) {');
-    expect(source).toContain('&& canEditCurrent())');
+    expect(source).toContain('if (failure) {');
+    expect(source).toContain('if (canEditCurrent()) paginateEditableSheets();');
+    expect(source).toContain('rebalanceIssuedClone(copy)');
+    expect(source).toContain('html2canvas(container,');
+    expect(source).not.toContain('html2canvas(sheets[i]');
   });
 
   test('official PDF artifact and finalization flows remain intact', () => {
