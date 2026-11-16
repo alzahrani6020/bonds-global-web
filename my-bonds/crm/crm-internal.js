@@ -115,6 +115,7 @@
  }
  open.addEventListener('click',async()=>{
   if(!ready)return;
+  el('workspace-content').dataset.internalPrevHidden=String(el('workspace-content').hidden);
   el('workspace-content').hidden=true;
   el('onboarding').dataset.internalPrevHidden=String(el('onboarding').hidden);
   el('onboarding').hidden=true;
@@ -124,7 +125,7 @@
  });
  el('internal-crm-back').addEventListener('click',()=>{
   el('internal-crm-panel').hidden=true;
-  el('workspace-content').hidden=false;
+  el('workspace-content').hidden=el('workspace-content').dataset.internalPrevHidden!=='false';
   el('onboarding').hidden=el('onboarding').dataset.internalPrevHidden!=='false';
   open.setAttribute('aria-expanded','false');
  });
