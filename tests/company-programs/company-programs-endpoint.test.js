@@ -315,6 +315,63 @@ test('program-read rejects unsubscribed and disallowed operations before SCC cal
  expect(response.body.error).toBe('PROGRAM_ENTITLEMENT_REQUIRED');
  expect(global.fetch).not.toHaveBeenCalled();
 });
+test.each([
+ ['crm','crm.contacts.list','/crm/contacts'],
+ ['hr','hr.employees.list','/hr/employees'],
+ ['hr','hr.contracts.list','/hr/contracts'],
+ ['real_estate','real_estate.properties.list','/real-estate/properties'],
+ ['real_estate','real_estate.contracts.list','/real-estate/contracts'],
+ ['fleet','fleet.vehicles.list','/fleet/vehicles'],
+ ['sales','sales.invoices.list','/erp/invoices'],
+ ['purchasing','purchasing.orders.list','/finance/purchase-orders'],
+ ['inventory','inventory.products.list','/inventory/products'],
+ ['finance','finance.payments.list','/finance/payments'],
+ ['accounting','accounting.journals.list','/finance/journal-entries'],
+ ['projects','projects.tasks.list','/projects/tasks'],
+ ['governance','governance.approvals.pending','/approvals/pending']
+])('scoped %s operation %s targets only audited SCC read route',async(program,operation,route)=>{
+ const owner=qb({id:WS,name:'Company A'}),link=qb({id:WS});
+ const grants=qb([{program_key:program,status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ const tenant=qb({workspace_link_id:WS,makkin_tenant_id:'tenant-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ const member=qb({workspace_link_id:WS,bonds_user_id:USER,makkin_user_id:'user-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ createClient.mockReturnValue({from:table=>({
+   crm_app_workspaces:owner,company_program_workspaces:link,company_program_entitlements:grants,
+   company_program_makkin_links:tenant,company_program_makkin_user_links:member
+ })[table]});
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-01-01'});
+ process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM=signingPair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
+ process.env.MAKKIN_MAPPING_VERIFY_URL='https://scc380-api.onrender.com/integrations/bonds/verify-mapping';
+ const token='scoped-token-test-long-'.repeat(5);
+ global.fetch=jest.fn(async(url,opt)=>{
+   if(url.endsWith('/program-session'))return {ok:true,json:async()=>({accessToken:token,programKey:program,expiresInSeconds:110})};
+   expect(opt.headers.authorization).toBe('Bearer '+token);
+   if(url.endsWith('/auth/me'))return {ok:true,json:async()=>({id:'user-private',tenantId:'tenant-private'})};
+   expect(url).toBe('https://scc380-api.onrender.com'+route);
+   expect(opt.method).toBe('GET');
+   return {ok:true,headers:{get:()=> 'application/json'},text:async()=>JSON.stringify({items:[],total:0})};
+ });
+ const response=res();
+ await handler({method:'POST',query:{action:'program-read'},body:{
+   workspace_id:WS,program_key:program,operation
+ }},response);
+ expect(response.statusCode).toBe(200);
+ expect(response.body).toMatchObject({program_key:program,operation,tokenExposed:false,
+   operationalParityVerified:false,data:{total:0}});
+ expect(JSON.stringify(response.body)).not.toContain(token);
+ expect(global.fetch).toHaveBeenCalledTimes(3);
+});
+test('cross-program operation is rejected without issuing a token or querying data',async()=>{
+ createClient.mockReturnValue({from:jest.fn()});
+ global.fetch=jest.fn();
+ const response=res();
+ await handler({method:'POST',query:{action:'program-read'},body:{
+   workspace_id:WS,program_key:'crm',operation:'accounting.journals.list'
+ }},response);
+ expect(response.statusCode).toBe(400);
+ expect(response.body.error).toBe('OPERATION_NOT_APPROVED');
+ expect(createClient).not.toHaveBeenCalled();
+ expect(global.fetch).not.toHaveBeenCalled();
+});
 test('session-check rejects pending mappings before any remote call',async()=>{
  const owner=qb({id:WS,name:'Company A'}),link=qb({id:WS});
  const grants=qb([{program_key:'hr',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
