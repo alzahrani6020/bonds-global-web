@@ -56,15 +56,25 @@ async function main() {
         const page = await context.newPage();
         try {
           const target = new URL(language.route, APPROVED_ORIGIN);
-          const response = await page.goto(target.toString(), { waitUntil: 'networkidle', timeout: 45000 });
+          const response = await page.goto(target.toString(), { waitUntil: 'domcontentloaded', timeout: 45000 });
           if (!response || response.status() !== 200 || new URL(page.url()).origin !== APPROVED_ORIGIN) {
             throw Error('APPROVED_PRODUCTION_HTTP_ORIGIN_INVALID: ' + language.id + ' ' + device.id);
           }
           await page.evaluate(async () => {
             await document.fonts.ready;
-            const images = [...document.images];
+            const images = [...document.images].filter(img => {
+              const r = img.getBoundingClientRect();
+              return r.width > 0 && r.height > 0 && r.bottom > 0 &&
+                r.top < innerHeight && r.right > 0 && r.left < innerWidth;
+            });
             await Promise.all(images.map(async img => {
-              if (!img.complete || !img.naturalWidth) throw Error('PRODUCTION_IMAGE_UNAVAILABLE');
+              if (!img.complete) {
+                await new Promise((resolve, reject) => {
+                  img.addEventListener('load', resolve, { once: true });
+                  img.addEventListener('error', () => reject(Error('PRODUCTION_IMAGE_UNAVAILABLE')), { once: true });
+                });
+              }
+              if (!img.naturalWidth) throw Error('PRODUCTION_IMAGE_UNAVAILABLE');
               if (img.decode) await img.decode();
             }));
           });
