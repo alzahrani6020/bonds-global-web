@@ -210,9 +210,9 @@ describe('Dynamic letterhead correspondence architecture', () => {
     }
 
     expect(client).toContain("row.style.marginBottom = '8mm'");
-    expect(client).toContain('const pageHeightPx = Math.floor(canvas.width * 297 / 210)');
-    expect(client).toContain('const totalPages = 1');
-    expect(client).toContain('canvas.height > pageHeightPx + 8');
+    expect(client).toContain('const canvas = await html2canvas(container, {');
+    expect(client).toContain('positions.length !== sheets.length');
+    expect(client).toContain("err.code = 'BONDS_PDF_A4_CAPTURE_BOUNDS'");
     expect(read('components/bonds-official-seal.js')).toContain('تصديق الختم الإلكتروني');
     expect(read('components/bonds-official-seal.js')).toContain('ELECTRONIC STAMP CERTIFICATION');
     expect(read('components/bonds-official-seal.js')).toContain('رقم السجل 39733');
@@ -415,17 +415,16 @@ describe('Dynamic letterhead correspondence architecture', () => {
     const client = read('components/letterhead-correspondence.js');
     const ar = read('letterhead.html');
     const en = read('en/letterhead.html');
-    expect(client).toContain('canvas.height > pageHeightPx + 8');
-    expect(client).toContain('onclone: clonedDocument =>');
-    // Painted text/media collision replaces the earlier blank-container height check.
-    expect(client).toContain('const footerCollision = paintedRects.some');
-    expect(client).toContain('const qrCollision = paintedRects.some');
-    expect(client).toContain('rebalanceIssuedClone(clonedDocument)');
+    expect(client).toContain('const canvas = await html2canvas(container, {');
+    expect(client).toContain('onclone: copy =>');
+    expect(client).toContain('painted.some(b => overlap(b, footerBounds))');
+    expect(client).toContain('painted.some(b => qr.some(q => overlap(b, q)))');
+    expect(client).toContain('rebalanceIssuedClone(copy)');
     expect(client).not.toContain('contentBottom > footerTop + 1');
-    expect(client).toContain('clonedSheet.scrollHeight > clonedSheet.clientHeight + 1');
+    expect(client).toContain('page.scrollHeight > page.clientHeight + 1');
     expect(client).toContain('windowWidth: Math.max(1280, window.innerWidth)');
-    expect(client).toContain('const totalPages = 1');
-    expect(client).toContain('overflows A4');
+    expect(client).toContain("err.code = 'BONDS_PDF_A4_CLIPPED'");
+    expect(client).toContain("err.code = 'BONDS_PDF_A4_CAPTURE_BOUNDS'");
     expect(ar).toContain('.doc-content[dir="rtl"] ol');
     expect(ar).toContain('direction: rtl; text-align: right');
     expect(en).toContain('ol[dir="rtl"]');
