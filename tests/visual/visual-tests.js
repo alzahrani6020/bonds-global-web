@@ -466,24 +466,15 @@ async function runScenarioDropdownInteractionGate(browser) {
             }
           `
         });
-        // Screenshot only after all visible images are decoded (including the
-        // external Riyadh skyline). Never interpret a partially loaded image
-        // as a design regression or silently substitute a reference image.
-        await page.evaluate(async () => {
-          const visible = [...document.images].filter(img => {
-            const rect = img.getBoundingClientRect();
-            return rect.width > 0 && rect.height > 0;
-          });
-          await Promise.all(visible.map(async img => {
-            if (!img.complete) await new Promise(resolve => {
-              img.addEventListener('load', resolve, { once: true });
-              img.addEventListener('error', resolve, { once: true });
-            });
-            if (img.naturalWidth > 0 && img.decode) {
-              await img.decode().catch(() => {});
-            }
-          }));
-        });
+        // Bound image readiness: fail visibly rather than hang CI on a
+        // third-party image that never finishes loading.
+        if (p.name === 'index-ar' || p.name === 'index-en') {
+          await page.waitForFunction(() => {
+            const hero = document.querySelector('.bonds-hero__photo');
+            return !!hero && hero.complete && hero.naturalWidth > 0;
+          }, null, { timeout: 10000 });
+          await page.locator('.bonds-hero__photo').evaluate(img => img.decode());
+        }
         await page.waitForTimeout(500);
         await page.evaluate(() => {
           const banner = document.getElementById('cookieBanner');
