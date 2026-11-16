@@ -510,6 +510,68 @@ test('production environment rejects write even if staging flag is explicitly se
  expect(response.body.error).toBe('STAGING_WRITES_DISABLED');
  expect(global.fetch).not.toHaveBeenCalled();
 });
+test('staged HR contract rejects foreign relation fields and invalid dates before any DB access',async()=>{
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ global.fetch=jest.fn();
+ for(const data of [
+   {employeeId:'ckemployee123456789012',contractNumber:'EMP-1',startDate:'2026-13-01'},
+   {employeeId:'ckemployee123456789012',contractNumber:'EMP-1',startDate:'2026-11-16',endDate:'2026-11-15'},
+   {employeeId:'ckemployee123456789012',contractNumber:'EMP-1',startDate:'2026-11-16',tenantId:'foreign-tenant'},
+   {employeeId:'ckemployee123456789012',contractNumber:'EMP-1',startDate:'2026-11-16',status:'ACTIVE'}
+ ]){
+   const response=res();
+   await handler({method:'POST',query:{action:'program-write'},body:{
+     workspace_id:WS,program_key:'hr',operation:'hr.contracts.create',data
+   }},response);
+   expect(response.statusCode).toBe(400);
+   expect(response.body.error).toBe('OPERATION_NOT_APPROVED');
+ }
+ expect(createClient).not.toHaveBeenCalled();
+ expect(global.fetch).not.toHaveBeenCalled();
+});
+test.each(['DRAFT','ACTIVE'])('staged HR draft contract verifies returned tenant, employee and draft state (%s)',async(status)=>{
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL='https://scc380-acceptance.onrender.com/integrations/bonds/verify-mapping';
+ process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM=signingPair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
+ const owner=qb({id:WS,name:'Workspace A'}),link=qb({id:WS});
+ const grants=qb([{program_key:'hr',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ const tenant=qb({workspace_link_id:WS,makkin_tenant_id:'tenant-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ const member=qb({workspace_link_id:WS,bonds_user_id:USER,makkin_user_id:'user-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ createClient.mockReturnValue({from:table=>({
+   crm_app_workspaces:owner,company_program_workspaces:link,company_program_entitlements:grants,
+   company_program_makkin_links:tenant,company_program_makkin_user_links:member
+ })[table]});
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-01-01'});
+ const token='staging-contract-token-'.repeat(5);
+ const id='ckcontract123456789012';
+ const employeeId='ckemployee123456789012';
+ global.fetch=jest.fn(async(url,opt)=>{
+   expect(url.startsWith('https://scc380-acceptance.onrender.com/')).toBe(true);
+   if(url.endsWith('/program-session')){
+     return {ok:true,json:async()=>({accessToken:token,programKey:'hr',expiresInSeconds:110})};
+   }
+   expect(opt.headers.authorization).toBe('Bearer '+token);
+   if(url.endsWith('/auth/me'))
+     return {ok:true,json:async()=>({id:'user-private',tenantId:'tenant-private'})};
+   if(url.endsWith('/hr/contracts')&&opt.method==='POST'){
+     expect(JSON.parse(opt.body)).toEqual({employeeId,contractNumber:'HR-TEST-01',startDate:'2026-11-16'});
+     return {ok:true,json:async()=>({id,tenantId:'tenant-private',contractNumber:'HR-TEST-01'})};
+   }
+   expect(url).toBe('https://scc380-acceptance.onrender.com/hr/contracts/'+id);
+   return {ok:true,json:async()=>({id,tenantId:'tenant-private',employeeId,contractNumber:'HR-TEST-01',status})};
+ });
+ const response=res();
+ await handler({method:'POST',query:{action:'program-write'},body:{
+   workspace_id:WS,program_key:'hr',operation:'hr.contracts.create',
+   data:{employeeId,contractNumber:' HR-TEST-01 ',startDate:'2026-11-16'}
+ }},response);
+ expect(response.statusCode).toBe(status==='DRAFT'?201:502);
+ expect(response.body).toMatchObject(status==='DRAFT'
+    ?{persisted:true,program_key:'hr',record:{id,contractNumber:'HR-TEST-01',status:'DRAFT'}}
+    :{error:'WRITE_PERSISTENCE_MISMATCH'});
+ expect(JSON.stringify(response.body)).not.toContain(token);
+ expect(global.fetch).toHaveBeenCalledTimes(4);
+});
 test('session-check rejects pending mappings before any remote call',async()=>{
  const owner=qb({id:WS,name:'Company A'}),link=qb({id:WS});
  const grants=qb([{program_key:'hr',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
