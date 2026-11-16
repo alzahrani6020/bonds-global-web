@@ -45,7 +45,7 @@ function Is-Excluded([string]$relative) {
   return $false
 }
 function Assert-NoSecret([string]$path, [string]$relative) {
-  $size = (Get-Item -LiteralPath $path).Length
+  $size = (Get-Item -LiteralPath $path -Force -ErrorAction Stop).Length
   if ($size -gt 10485760) { throw "Manual review required: file over 10 MB: $relative" }
   $bytes = [IO.File]::ReadAllBytes($path)
   if ([Array]::IndexOf($bytes,[byte]0) -ge 0) { return } # Binary is not scanned, only hashed.
