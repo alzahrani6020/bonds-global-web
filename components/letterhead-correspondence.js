@@ -698,6 +698,7 @@
     addButton(actions, 'corr-issue', t.issue, () => transition('issued'), { primary: true });
     addButton(actions, 'corr-stamp', t.stamp, () => window.insertStamp(), { primary: true });
     addButton(actions, 'corr-finalize-pdf', isEn ? 'Secure final PDF' : 'تثبيت النسخة النهائية', () => persistIssuedPdfArtifact(), { primary: true });
+    addButton(actions, 'corr-download-official-pdf', isEn ? 'Download official PDF' : 'تنزيل PDF الرسمي', () => downloadOfficialPdf());
     addButton(actions, 'corr-send', isEn ? 'Send to recipient' : 'إرسال للمستلم', () => window.sendToManager(), { primary: true });
     addButton(actions, 'corr-archive', t.archive, () => transition('archived'), { primary: true });
     addButton(actions, 'corr-reissue', isEn ? 'Reissue' : 'إعادة إصدار', () => startOfficialReissue(), { primary: true });
@@ -977,13 +978,14 @@
     } else if (can('archive') && (status === 'sent' || (status === 'issued' && doc?.direction === 'internal'))) {
       visible.add('corr-archive');
     }
+    if (['issued','sent','archived'].includes(status) && !!doc?.artifact_hash) visible.add('corr-download-official-pdf');
     if (['issued','sent','archived'].includes(status) && (isOwner() || can('issue'))) visible.add('corr-reissue');
     if (['issued','sent','archived'].includes(status) && can('issue') && state.latestIssue?.state !== 'revoked') visible.add('corr-revoke-issue');
 
     [
       'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel','corr-workspace-return',
       'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive','corr-reissue','corr-revoke-issue',
-      'corr-new','corr-revise-copy','corr-details-toggle','corr-command-open'
+      'corr-new','corr-revise-copy','corr-details-toggle','corr-command-open','corr-download-official-pdf'
     ].forEach(id => {
       const el = document.getElementById(id);
       if (el) {
