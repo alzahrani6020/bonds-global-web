@@ -75,7 +75,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain("api('send'");
     expect(client).toContain("verification_token");
     expect(client).toContain("Import legacy drafts");
-    expect(client).toContain("for (let i = 0; i < sheets.length; i++)");
+    expect(client).toContain("for (let i = 0; i < positions.length; i++)");
+    expect(client).toContain("positions.length !== sheets.length");
     expect(client).toContain("renderGovernanceArtifacts");
     expect(client).toContain("signature_data_url");
     expect(client).toContain("Word-compatible .doc");
@@ -380,7 +381,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(ar).toContain('.doc-content[dir="rtl"] ol[dir="ltr"]');
     expect(ar).toContain('.doc-content[dir="rtl"] ol > li[dir="ltr"]');
     expect(en).toContain('.doc-content ol[dir="rtl"]');
-    expect(governed).toContain('const totalPages = 1');
+    expect(governed).toContain('if (i) pdf.addPage();');
+    expect(governed).toContain('positions.length !== sheets.length');
     expect(governed).toContain('if (state.document?.artifact_hash)');
     expect(governed).toContain('await downloadOfficialPdf()');
   });
