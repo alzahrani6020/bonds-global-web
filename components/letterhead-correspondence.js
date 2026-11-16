@@ -1488,6 +1488,7 @@
       let retriedAfterPagination = false;
       while (true) {
         let clippedContent = false;
+        let clippingReason = '';
         const canvas = await html2canvas(sheets[i], {
           scale: 1.6,
           useCORS: true,
@@ -1503,11 +1504,47 @@
               clippedContent = true;
               return;
             }
-            // An overflow:hidden A4 sheet can clip content without growing the canvas.
-            const contentBottom = content.getBoundingClientRect().bottom;
-            const footerTop = footer.getBoundingClientRect().top;
-            clippedContent = contentBottom > footerTop + 1 ||
-              clonedSheet.scrollHeight > clonedSheet.clientHeight + 1;
+            // Render the desktop A4 geometry irrespective of the caller's
+            // responsive viewport. Never scale or alter approved HTML nodes.
+            clonedSheet.style.width = '210mm';
+            clonedSheet.style.height = '297mm';
+            clonedSheet.style.minHeight = '297mm';
+            clonedSheet.style.maxHeight = '297mm';
+            clonedSheet.style.flexShrink = '0';
+            clonedSheet.style.overflow = 'hidden';
+            const sheetRect = clonedSheet.getBoundingClientRect();
+            const footerRect = footer.getBoundingClientRect();
+            const contentRect = content.getBoundingClientRect();
+            // The 170mm content min-height is not evidence of actual text.
+            // Inspect visible descendants, including nested lists and stamps.
+            const blocks = Array.from(content.querySelectorAll('*')).filter(el => {
+              const css = clonedDocument.defaultView.getComputedStyle(el);
+              return css.display !== 'none' && css.visibility !== 'hidden' &&
+                el.getClientRects().length && el.getBoundingClientRect().height > 0;
+            });
+            const qrBoxes = Array.from(clonedSheet.querySelectorAll('.footer-qr-box'))
+              .filter(el => clonedDocument.defaultView.getComputedStyle(el).display !== 'none')
+              .map(el => el.getBoundingClientRect());
+            const collide = (a, b) => a.right > b.left + 1 && a.left < b.right - 1 &&
+              a.bottom > b.top + 1 && a.top < b.bottom - 1;
+            const footerCollision = blocks.some(el =>
+              collide(el.getBoundingClientRect(), footerRect));
+            const qrCollision = blocks.some(el =>
+              qrBoxes.some(qr => collide(el.getBoundingClientRect(), qr)));
+            const escapedPage = blocks.some(el => {
+              const box = el.getBoundingClientRect();
+              return box.top < sheetRect.top - 1 || box.bottom > sheetRect.bottom + 1 ||
+                box.left < sheetRect.left - 1 || box.right > sheetRect.right + 1;
+            });
+            const sheetOverflow = clonedSheet.scrollHeight > clonedSheet.clientHeight + 1;
+            clippedContent = footerCollision || qrCollision || escapedPage || sheetOverflow;
+            if (clippedContent) clippingReason = footerCollision ? 'footer' :
+              qrCollision ? 'qr' : escapedPage ? 'page' : 'scroll';
+            // A missing body is an invalid page even if no descendant overflows.
+            if (!contentRect.width || !footerRect.height) {
+              clippedContent = true;
+              clippingReason = 'structure';
+            }
           }
         });
         const overflowError = () => clippedContent
@@ -1534,8 +1571,18 @@
           sheets.push(...document.querySelectorAll('.sheet'));
           if (i < sheets.length) continue;
         }
-        if (clippedContent) throw overflowError();
-        if (a4Error) throw a4Error;
+        if (clippedContent) {
+          const error = overflowError();
+          error.code = 'BONDS_PDF_A4_CLIPPED';
+          error.page = i + 1;
+          error.reason = clippingReason;
+          throw error;
+        }
+        if (a4Error) {
+          a4Error.code = 'BONDS_PDF_A4_OVERFLOW';
+          a4Error.page = i + 1;
+          throw a4Error;
+        }
       const totalPages = 1;
       for (let page = 0; page < totalPages; page++) {
         const y = page * pageHeightPx;
