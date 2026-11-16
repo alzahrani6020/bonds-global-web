@@ -696,6 +696,7 @@
     addButton(actions, 'corr-issue', t.issue, () => transition('issued'), { primary: true });
     addButton(actions, 'corr-stamp', t.stamp, () => window.insertStamp(), { primary: true });
     addButton(actions, 'corr-finalize-pdf', isEn ? 'Secure final PDF' : 'تثبيت النسخة النهائية', () => persistIssuedPdfArtifact(), { primary: true });
+    addButton(actions, 'corr-download-official-pdf', isEn ? 'Download official PDF' : 'تنزيل PDF الرسمي', () => downloadOfficialPdf());
     addButton(actions, 'corr-send', isEn ? 'Send to recipient' : 'إرسال للمستلم', () => window.sendToManager(), { primary: true });
     addButton(actions, 'corr-archive', t.archive, () => transition('archived'), { primary: true });
     addButton(actions, 'corr-reissue', isEn ? 'Reissue' : 'إعادة إصدار', () => startOfficialReissue(), { primary: true });
@@ -975,13 +976,14 @@
     } else if (can('archive') && (status === 'sent' || (status === 'issued' && doc?.direction === 'internal'))) {
       visible.add('corr-archive');
     }
+    if (['issued','sent','archived'].includes(status) && !!doc?.artifact_hash) visible.add('corr-download-official-pdf');
     if (['issued','sent','archived'].includes(status) && (isOwner() || can('issue'))) visible.add('corr-reissue');
     if (['issued','sent','archived'].includes(status) && can('issue') && state.latestIssue?.state !== 'revoked') visible.add('corr-revoke-issue');
 
     [
       'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel','corr-workspace-return',
       'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive','corr-reissue','corr-revoke-issue',
-      'corr-new','corr-revise-copy','corr-details-toggle','corr-command-open'
+      'corr-new','corr-revise-copy','corr-details-toggle','corr-command-open','corr-download-official-pdf'
     ].forEach(id => {
       const el = document.getElementById(id);
       if (el) {
@@ -1010,13 +1012,32 @@
       const row = document.createElement('div');
       row.style.cssText = 'padding:7px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;';
       const d = issue.document || {};
-      row.textContent = [
+      const label = document.createElement('div');
+      label.textContent = [
         issue.issue_number,
         (isEn ? 'v' : 'إصدار ') + issue.issue_version,
         d.subject || d.title || '',
         d.recipient_organization || '',
         issue.state
       ].filter(Boolean).join(' · ');
+      row.appendChild(label);
+      const docId = d.id || issue.document_id;
+      if (docId) {
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px';
+        const open = document.createElement('button');
+        open.type = 'button';
+        open.className = 'corr-btn';
+        // The issue ledger may contain historical versions. Opening the
+        // document loads its current version; never label it as opening the
+        // immutable historical issue or download a potentially different PDF.
+        open.textContent = isEn ? 'Open current document' : 'فتح المستند الحالي';
+        open.addEventListener('click', () => {
+          loadDocument(docId).then(() => setCommandDrawer(false)).catch(e => toast('⚠️ ' + e.message));
+        });
+        actions.appendChild(open);
+        row.appendChild(actions);
+      }
       target.appendChild(row);
     });
     if (!target.children.length) target.textContent = isEn ? 'No official issues' : 'لا توجد إصدارات رسمية';
@@ -1384,7 +1405,10 @@
       throw new Error(isEn ? 'PDF libraries unavailable' : 'مكتبات PDF غير متوفرة');
     }
     await waitForVerificationQr();
-    paginateEditableSheets();
+    // Only draft/returned documents may be repaginated. Issued documents are
+    // immutable: export their approved sheets as-is and let the A4 overflow
+    // checks below reject invalid layouts rather than changing issued content.
+    if (canEditCurrent()) paginateEditableSheets();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     const integrityMarker = state.document?.issued_hash
@@ -1550,13 +1574,48 @@
         meta.style.cssText = 'color:#64748b;font-size:11px';
         meta.textContent = statusLabel(doc.status) + ' · ' + new Date(doc.updated_at).toLocaleString(isEn ? 'en-US' : 'ar-SA');
         row.append(title, document.createElement('br'), meta);
-        row.addEventListener('click', () => loadDocument(doc.id).catch(e => toast('⚠️ ' + e.message)));
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap';
+        const open = document.createElement('button');
+        open.type = 'button';
+        open.className = 'draft-btn';
+        open.style.cssText = 'width:auto;padding:5px 10px';
+        open.textContent = isEn ? 'Open correspondence' : 'فتح المراسلة';
+        const openSelected = async () => {
+          await loadDocument(doc.id);
+          document.getElementById('inbox-panel')?.classList.remove('open');
+          document.getElementById('corr-reference')?.scrollIntoView({ block: 'nearest' });
+        };
+        open.addEventListener('click', event => {
+          event.stopPropagation();
+          openSelected().catch(e => toast('⚠️ ' + e.message));
+        });
+        row.addEventListener('click', () => openSelected().catch(e => toast('⚠️ ' + e.message)));
+        actions.appendChild(open);
+        if (doc.artifact_hash) {
+          const download = document.createElement('button');
+          download.type = 'button';
+          download.className = 'draft-btn';
+          download.style.cssText = 'width:auto;padding:5px 10px';
+          download.textContent = isEn ? 'Official PDF' : 'تنزيل PDF الرسمي';
+          download.addEventListener('click', event => {
+            event.stopPropagation();
+            loadDocument(doc.id).then(() => downloadOfficialPdf()).catch(e => toast('⚠️ ' + e.message));
+          });
+          actions.appendChild(download);
+        } else if (['issued', 'sent', 'archived'].includes(doc.status)) {
+          const pending = document.createElement('span');
+          pending.style.cssText = 'font-size:11px;color:#7c5a20';
+          pending.textContent = isEn ? 'Official PDF not finalized' : 'ملف PDF الرسمي لم يُثبّت بعد';
+          actions.appendChild(pending);
+        }
+        row.appendChild(actions);
         el.appendChild(row);
       });
     }
 
-    renderList(draftsList, state.list.filter(d => !['sent','archived'].includes(d.status)), isEn ? 'No active correspondence on this page' : 'لا توجد مراسلات نشطة في هذه الصفحة');
-    renderList(sentList, state.list.filter(d => ['sent','archived'].includes(d.status)), isEn ? 'No sent correspondence on this page' : 'لا توجد مراسلات مرسلة في هذه الصفحة');
+    renderList(draftsList, state.list.filter(d => !['issued','sent','archived'].includes(d.status)), isEn ? 'No active correspondence on this page' : 'لا توجد مراسلات نشطة في هذه الصفحة');
+    renderList(sentList, state.list.filter(d => ['issued','sent','archived'].includes(d.status)), isEn ? 'No issued or archived correspondence on this page' : 'لا توجد مراسلات صادرة أو مؤرشفة في هذه الصفحة');
 
     let pager = document.getElementById('corr-inbox-pagination');
     if (!pager) {

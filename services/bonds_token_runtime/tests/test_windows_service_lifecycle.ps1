@@ -66,6 +66,32 @@ function Get-ServiceSnapshot {
     }
 }
 
+# Record the original Windows SCM failure before cleanup makes the service disappear.
+# Read-only diagnostics: do not include service environment values or secrets.
+function Get-ScmStartEvidence([datetime]$Since) {
+    $entries = @()
+    try {
+        $logs = @(Get-WinEvent -FilterHashtable @{
+            LogName = "System"
+            ProviderName = "Service Control Manager"
+            StartTime = $Since
+        } -ErrorAction Stop)
+        foreach ($event in $logs) {
+            if ([string]$event.Message -notmatch 'BondsTokenRuntimeService|Bonds Token Runtime') { continue }
+            $entries += [ordered]@{
+                id = $event.Id
+                timestamp_utc = $event.TimeCreated.ToUniversalTime().ToString("o")
+                message = ([string]$event.Message).Substring(0, [Math]::Min(700, ([string]$event.Message).Length))
+            }
+            if ($entries.Count -ge 12) { break }
+        }
+    } catch {
+        # Failure to read the event log must not replace the primary installer error.
+        $entries += [ordered]@{ diagnostic_error = $_.Exception.GetType().Name }
+    }
+    return @($entries)
+}
+
 function Get-TokenListeners {
     return @(Get-NetTCPConnection -State Listen -ErrorAction Stop |
         Where-Object { $_.LocalPort -eq 8771 })
@@ -540,6 +566,7 @@ try {
     }
     Invoke-Case "clean_reviewed_source_installs_and_starts_the_managed_scm_service" {
         $script:activationAttempted = $true
+        $startEvidenceSince = [DateTime]::Now.AddSeconds(-5)
         $attempt = Invoke-Installer $originalInstaller
         if ($attempt.exit_code -ne 0) {
             $installerStdout = [string]$attempt.stdout
@@ -550,6 +577,7 @@ try {
                 installer_exit_code = $attempt.exit_code
                 installer_stdout = $installerStdout
                 installer_stderr = $installerStderr
+                scm_events = @(Get-ScmStartEvidence $startEvidenceSince)
             }
             Write-Report
         }
