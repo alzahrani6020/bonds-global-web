@@ -82,6 +82,8 @@ async function runFourPageIssuedPdfGate(browser) {
       if (!template) throw new Error('Letterhead A4 sheet template missing');
       while (container.querySelectorAll('.sheet').length < 4) container.appendChild(template.cloneNode(true));
       const sheets = Array.from(container.querySelectorAll('.sheet'));
+      // Issued documents reserve a full printable QR safety zone on each sheet.
+      sheets.forEach(sheet => sheet.classList.add('has-verification-zone'));
       for (let i = 0; i < sheets.length; i++) {
         sheets[i].querySelector('.doc-content').innerHTML =
           '<p dir="rtl">مستند اختباري غير رسمي للتحقق من سلامة تصدير الصفحات الأربع.</p>' +
