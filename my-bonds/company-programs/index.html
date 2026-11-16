@@ -72,6 +72,10 @@
   <form id="task-create-form" class="controls">
    <label><span id="task-title-label">Task title</span><input id="task-title" maxlength="160" required autocomplete="off"></label>
    <label><span id="task-description-label">Description</span><input id="task-description" maxlength="2000" autocomplete="off"></label>
+   <label><span id="task-status-label">Status</span><select id="task-status"><option value="TODO">TODO</option><option value="IN_PROGRESS">IN_PROGRESS</option><option value="IN_REVIEW">IN_REVIEW</option></select></label>
+   <label><span id="task-priority-label">Priority</span><select id="task-priority"><option value="LOW">LOW</option><option value="MEDIUM" selected>MEDIUM</option><option value="HIGH">HIGH</option><option value="URGENT">URGENT</option></select></label>
+   <label><span id="task-due-label">Due date</span><input id="task-due" type="date"></label>
+   <label><span id="task-hours-label">Estimated hours</span><input id="task-hours" type="number" min="0" max="999.99" step="0.01"></label>
    <button id="task-create-button" type="submit" class="primary">Create draft task</button>
   </form>
   <p id="task-create-status" role="status" aria-live="polite" class="status"></p>
