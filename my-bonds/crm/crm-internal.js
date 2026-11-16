@@ -81,8 +81,8 @@
    '<tr><td>'+esc(o.name)+'</td><td>'+esc(o.sector||'—')+'</td><td>'+esc(o.country||'—')+'</td><td>'+esc(o.status||'—')+'</td></tr>'
   ).join('')||'<tr><td colspan="4">'+(en?'No organizations':'لا توجد مؤسسات')+'</td></tr>';
   el('internal-crm-activities').innerHTML=(data.activities||[]).filter(a=>!a.deleted_at).map(a=>
-   '<tr><td>'+esc(a.subject)+'</td><td>'+esc(a.activity_type||'—')+'</td><td>'+esc(a.status||'—')+'</td><td>'+esc(a.scheduled_at||'—')+'</td></tr>'
-  ).join('')||'<tr><td colspan="4">'+(en?'No activities':'لا توجد أنشطة')+'</td></tr>';
+   '<tr><td>'+esc(a.subject)+'</td><td>'+esc(a.activity_type||'—')+'</td><td>'+esc(a.status||'—')+'</td><td>'+esc(a.scheduled_at||'—')+'</td><td><button type="button" class="secondary" data-activity-archive="'+esc(a.id)+'">'+(en?'Archive':'أرشفة')+'</button></td></tr>'
+  ).join('')||'<tr><td colspan="5">'+(en?'No activities':'لا توجد أنشطة')+'</td></tr>';
   el('internal-crm-clients').innerHTML=clients.map(c=>{
    const score=c.commercial_score||{};
    return '<tr><td>'+esc(c.name)+'</td><td>'+esc(c.company_name||'—')+'</td><td>'+esc(c.status||'—')+'</td><td>'+
@@ -159,6 +159,17 @@
   finally{button.disabled=false;}
  });
 
+ el('internal-crm-activities').addEventListener('click',async event=>{
+  const button=event.target.closest('[data-activity-archive]');
+  if(!button)return;
+  if(!window.confirm(en?'Archive this activity?':'أرشفة هذا النشاط؟'))return;
+  button.disabled=true;
+  try{
+   await api('crm-activity-delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:button.dataset.activityArchive})});
+   await reload();status(en?'Activity archived':'تمت أرشفة النشاط');
+  }catch(err){status((en?'Archive failed: ':'فشلت الأرشفة: ')+err.message,true);}
+  finally{button.disabled=false;}
+ });
  el('internal-crm-requests').addEventListener('click',async event=>{
   const button=event.target.closest('[data-request-save]');
   if(!button)return;
