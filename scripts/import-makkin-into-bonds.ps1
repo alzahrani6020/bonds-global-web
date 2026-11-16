@@ -72,9 +72,10 @@ function Assert-NoSecret([string]$path, [string]$relative) {
     '(?i)\bAKIA[0-9A-Z]{16}\b',
     '(?i)(?:password|api[_-]?key|client[_-]?secret|private[_-]?key|access[_-]?token)\s*[:=]\s*["''][^"''\r\n]{12,}["'']'
   )
-  foreach ($signal in $signals) {
-    if ([regex]::IsMatch($content,$signal)) {
-      throw "Possible credential in tracked source file (no value shown): $relative"
+  for ($signalIndex = 0; $signalIndex -lt $signals.Count; $signalIndex++) {
+    if ([regex]::IsMatch($content,$signals[$signalIndex])) {
+      # Signal index is diagnostic metadata; never print matched secret content.
+      throw "Possible credential signature $signalIndex in tracked source file (no value shown): $relative"
     }
   }
   if ($content.StartsWith('version https://git-lfs.github.com/spec/v1')) {
