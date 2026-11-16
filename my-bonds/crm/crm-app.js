@@ -550,5 +550,7 @@
  });
  window.addEventListener('appinstalled',()=>{install.hidden=true;hint.textContent='اكتمل تثبيت التطبيق';});
  if('serviceWorker' in navigator){/* Existing site worker only; never register a caching worker for CRM records. */}
- await initialize();
+ try { await initialize(); } finally {
+  document.dispatchEvent(new Event('bonds-crm-workspace-initialized'));
+ }
 })();
