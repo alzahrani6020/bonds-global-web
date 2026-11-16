@@ -404,7 +404,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain("continuation.setAttribute('start', String(nextNumber))");
     expect(client).toContain("if (++moves > 500 || sheets().length > 50)");
     expect(client).toContain('paginateEditableSheets();\n    const snap = persistedSnapshot()');
-    expect(client).toContain("await waitForVerificationQr();\n    await waitForLetterheadBrandImages();\n    // Only draft/returned documents may be repaginated.");
+    expect(client).toContain("await waitForVerificationQr();\n    await waitForLetterheadBrandImages();\n    // Pagination and PDF capture must use the same final font metrics.");
+    expect(client).toContain('if (document.fonts?.ready) await document.fonts.ready;');
     expect(client).toContain("if (canEditCurrent()) paginateEditableSheets();");
     expect(client).not.toContain("await waitForVerificationQr();\n    paginateEditableSheets();");
     expect(client).toContain("if (state.document?.artifact_hash)");
