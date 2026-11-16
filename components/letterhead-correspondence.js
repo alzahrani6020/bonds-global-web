@@ -1470,9 +1470,9 @@
     // immutable: export their approved sheets as-is and let the A4 overflow
     // checks below reject invalid layouts rather than changing issued content.
     if (canEditCurrent()) paginateEditableSheets();
+    const sheets = Array.from(document.querySelectorAll('.sheet'));
     // Font metrics must be stable before producing the immutable PDF image.
     if (document.fonts?.ready) await document.fonts.ready;
-    const sheets = Array.from(document.querySelectorAll('.sheet'));
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     const integrityMarker = state.document?.issued_hash
       ? ['BONDS-DOC', state.document.id, state.document.current_version, state.document.document_hash, state.document.issued_hash].join(':')
