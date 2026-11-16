@@ -64,6 +64,12 @@ function Assert-NoSecret([string]$path, [string]$relative) {
       '(?m)JWT_SECRET=["' + "'" + '][a-zA-Z0-9-]+-ci-only-not-production-secret["' + "'" + ']',
       'JWT_SECRET=audited-ci-fixture')
   }
+  # Replace only audited literal placeholders used by SCC380 test fixtures.
+  # This affects scanner input, never the source bytes written or hashed.
+  if ($relative -ceq 'apps/api/test/auth-rate-limit-guard.spec.ts') {
+    $content = $content.Replace("'test-only-placeholder'", 'fixture-token')
+    $content = $content.Replace("'correct-only-for-test'", 'fixture-password')
+  }
   $signals = @(
     '-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----',
     '-----BEGIN PGP PRIVATE KEY BLOCK-----',
