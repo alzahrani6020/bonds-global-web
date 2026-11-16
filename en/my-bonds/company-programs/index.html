@@ -66,6 +66,16 @@
   <p class="hint" id="program-help">Read actions require an active entitlement, verified identity mapping and current permissions. Unmigrated features are not presented as ready.</p>
   <div class="grid" id="programs"></div>
  </section>
+ <section id="task-create-panel" class="panel" hidden aria-labelledby="task-create-title">
+  <h2 id="task-create-title">Stage-only task creation</h2>
+  <p id="task-create-help" class="hint">Isolated acceptance only. Disabled on production; creates a task in the authorized company workspace if the verified SCC staging bridge is enabled.</p>
+  <form id="task-create-form" class="controls">
+   <label><span id="task-title-label">Task title</span><input id="task-title" maxlength="160" required autocomplete="off"></label>
+   <label><span id="task-description-label">Description</span><input id="task-description" maxlength="2000" autocomplete="off"></label>
+   <button id="task-create-button" type="submit" class="primary">Create draft task</button>
+  </form>
+  <p id="task-create-status" role="status" aria-live="polite" class="status"></p>
+ </section>
  <section id="result-panel" class="panel" hidden aria-labelledby="result-title">
   <h2 id="result-title">Operational read result</h2>
   <p class="hint" id="result-help">Current workspace data only. Makkin session tokens remain server-side.</p>
