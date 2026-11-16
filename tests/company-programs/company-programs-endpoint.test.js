@@ -671,7 +671,7 @@ test.each(['none','total','notes'])('staged purchase order verifies persisted PO
  const response=res();
  await handler({method:'POST',query:{action:'program-write'},body:{
    workspace_id:WS,program_key:'purchasing',operation:'purchasing.orders.create',
-   data:{poNumber:' PO-2026-TEST ',subtotal:0.29,taxAmount:0.06,total:0.35}
+   data:{poNumber:' PO-2026-TEST ',subtotal:0.29,taxAmount:0.06,total:0.35,notes:'Draft purchase'}
  }},response);
  expect(response.statusCode).toBe(tampered==='none'?201:502);
  expect(response.body).toMatchObject(tampered!=='none'?{error:'WRITE_PERSISTENCE_MISMATCH'}:{
