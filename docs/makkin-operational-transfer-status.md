@@ -17,13 +17,14 @@ All eleven programs must be fully operational in actual BONDS company workspaces
 - Strict parity gate (expected to FAIL until real route, field and E2E evidence exists).
 
 ## Explicit release blockers
-- No operating program UI/API wiring has been migrated in this recovery change.
+- The protected BONDS program API is wired through /api/platform and Vercel rewrites; eleven catalog entries and thirteen audited read operations are available behind membership, entitlement, SCC scoped identity and permissions. This is not feature parity.
+- A stage-only projects.tasks.create UI form has been added with workspace-change isolation, BONDS subscription/owner-or-admin checks, SCC scoped session and a read-after-write persistence proof. Its actual execution against an authorized isolated SCC tenant is not verified; the feature remains hidden in production.
 - No Supabase migration applied; production and staging unchanged.
 - No authenticated SCC operational session exchange verified.
-- Source routes (74), models (108), fields (1966), API modules (33) need one-by-one reconciliation, including omitted controller operations.
+- Source routes (74), models (108), fields (1966), API modules (33) need one-by-one reconciliation, including omitted controller operations. The current inventory still records all 74 as NOT_IMPLEMENTED and all 1966 fields as NOT_VERIFIED.
 - Functional transactions, files, approvals, multi-company and accounting acceptance not completed.
 - Prior source branch CI failed (admin module page and Windows Token Runtime service). These are not considered resolved.
-- No CI or real-user end-to-end run was executed for this new branch as part of the recovery step.
+- GitHub Actions has run unit/integration/Windows PowerShell acceptance on this branch. These CI tests do not substitute for user-authenticated SCC staging E2E with a real tenant or final production visual comparison.
 
 ## Conditions before merge/release
 1. Complete each source-to-destination route/field/workflow mapping; preserve test evidence.
