@@ -198,6 +198,34 @@ jobs:
           if-no-files-found: ignore
           retention-days: 1
 
+  makkin-transfer-windows-acceptance:
+    name: Makkin operational parity (Windows PowerShell, fail-closed)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout BONDS candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Validate PowerShell syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'scripts/verify-makkin-transfer.ps1').Path,[ref]$tokens,[ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+      - name: Check transfer parity without bypassing release blockers
+        shell: pwsh
+        run: ./scripts/verify-makkin-transfer.ps1
+
   token-runtime-windows-acceptance:
     name: Token Runtime Windows service acceptance (isolated)
     runs-on: windows-latest
