@@ -291,7 +291,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 ) { throw "INVALID_MANIFEST" }
-          $files = @(Get-ChildItem -LiteralPath $source -File -Recurse)
+          $files = @(Get-ChildItem -LiteralPath $source -File -Recurse -Force)
           if ($files.Count -lt 1 -or $files.Count -ne [int]$manifest.imported_file_count) { throw "FILE_COUNT_MISMATCH" }
           foreach ($entry in $manifest.files) {
             $target = [IO.Path]::GetFullPath((Join-Path $source $entry.path))
