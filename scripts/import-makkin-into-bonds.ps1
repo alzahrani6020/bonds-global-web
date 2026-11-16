@@ -141,7 +141,7 @@ try {
     files=@($copied)
     status='SOURCE_IMPORTED_ONLY_NOT_INTEGRATED_OR_DEPLOYED'
   }
-  [IO.File]::WriteAllText($temporaryManifest,(ConvertTo-Json -InputObject $manifest -Depth 6),(New-Object Text.UTF8Encoding($false)))
+  [IO.File]::WriteAllText($temporaryManifest,(ConvertTo-Json -InputObject $manifest -Depth 6),([Text.UTF8Encoding]::new($false)))
   if (-not (Test-Path -LiteralPath $importBase)) { New-Item -ItemType Directory -Path $importBase -Force | Out-Null }
   Assert-DirectoryNotLink $importBase
   if ((Test-Path -LiteralPath $target) -or (Test-Path -LiteralPath $manifestPath)) { throw 'Import target appeared during preflight.' }
