@@ -134,20 +134,21 @@ jobs:
           set -euo pipefail
           docker run --rm --name bonds-correspondence-test-pg -e POSTGRES_PASSWORD=isolated-fixture -d postgres:17-alpine
           trap 'docker rm -f bonds-correspondence-test-pg >/dev/null 2>&1 || true' EXIT
+          # The official PostgreSQL image first starts a temporary database
+          # for initdb and then shuts it down before starting the final server.
+          # A successful pg_isready/psql against that temporary process is NOT
+          # a safe readiness signal for the following fixture imports.
           ready=0
           for attempt in $(seq 1 45); do
-            if docker exec bonds-correspondence-test-pg pg_isready -U postgres >/dev/null 2>&1; then ready=1; break; fi
+            if docker logs bonds-correspondence-test-pg 2>&1 | grep -F 'PostgreSQL init process complete; ready for start up.' >/dev/null &&
+               docker exec bonds-correspondence-test-pg pg_isready -U postgres >/dev/null 2>&1 &&
+               docker exec bonds-correspondence-test-pg psql -U postgres -Atqc 'select 1' >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
             sleep 1
           done
           test "$ready" -eq 1
-          # pg_isready can win the race against the unix socket on first boot;
-          # prove a real connection before feeding the fixture scripts.
-          connected=0
-          for attempt in $(seq 1 30); do
-            if docker exec -i bonds-correspondence-test-pg psql -U postgres -c 'select 1' >/dev/null 2>&1; then connected=1; break; fi
-            sleep 1
-          done
-          test "$connected" -eq 1
           docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < tests/security/correspondence-ledger-bootstrap.pg.sql
           docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < supabase/migrations/20261115030000_correspondence_atomic_successor_activation.sql
           docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < tests/security/correspondence-ledger-acceptance.pg.sql

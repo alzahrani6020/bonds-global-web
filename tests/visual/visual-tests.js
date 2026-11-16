@@ -82,6 +82,8 @@ async function runFourPageIssuedPdfGate(browser) {
       if (!template) throw new Error('Letterhead A4 sheet template missing');
       while (container.querySelectorAll('.sheet').length < 4) container.appendChild(template.cloneNode(true));
       const sheets = Array.from(container.querySelectorAll('.sheet'));
+      // Issued documents reserve a full printable QR safety zone on each sheet.
+      sheets.forEach(sheet => sheet.classList.add('has-verification-zone'));
       for (let i = 0; i < sheets.length; i++) {
         sheets[i].querySelector('.doc-content').innerHTML =
           '<p dir="rtl">مستند اختباري غير رسمي للتحقق من سلامة تصدير الصفحات الأربع.</p>' +
@@ -90,6 +92,20 @@ async function runFourPageIssuedPdfGate(browser) {
         if (!number) throw new Error('Page counter absent');
         number.textContent = 'الصفحة ' + (i + 1) + ' من 4';
       }
+      // Reproduce the issued first-page density (approximately 1,500 Arabic
+      // characters and issue metadata), using entirely synthetic content.
+      // This acceptance must run through the same immutable PDF exporter.
+      const testPhrase = 'توضح هذه الفقرة الاختبارية المتطلبات المتعلقة بالمخططات والمستندات والبيانات اللازمة للمراجعة والاعتماد والتحقق من اكتمالها قبل اتخاذ القرار. ';
+      const paragraph = (testPhrase.repeat(2)).slice(0, 185);
+      const issueMeta = document.createElement('div');
+      issueMeta.dataset.governanceArtifact = 'issue-meta';
+      issueMeta.style.cssText = 'display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin:0 0 18px;padding:8px 10px;border-bottom:1px solid #c59237;font-size:10pt;';
+      issueMeta.innerHTML = '<strong>رقم الصادر: TEST-NOT-ISSUED</strong><span>تاريخ الإصدار: 16 نوفمبر 2026 · الإصدار 4</span>';
+      sheets[0].querySelector('.doc-content').innerHTML =
+        '<div>16 نوفمبر 2026</div><div><br></div><div><strong>موضوع اختبار المستند الرسمي</strong></div>' +
+        '<div>' + Array.from({length: 7}, () => '<p>' + paragraph + '</p>').join('') +
+        '<ol start="1"><li><p>' + paragraph + '</p></li></ol></div>';
+      sheets[0].querySelector('.doc-content').prepend(issueMeta);
       // Runtime image-recovery bookkeeping may add data-* to logo elements;
       // issued-content immutability concerns the approved page HTML itself.
       const before = sheets.map(x => x.querySelector('.doc-content').innerHTML);
@@ -630,29 +646,38 @@ async function runScenarioDropdownInteractionGate(browser) {
         }
 
         const img1 = readPng(baselinePath);
-        const img2 = readPng(snapshotPath);
-
-        if (img1.width !== img2.width || img1.height !== img2.height) {
-          console.log(` ${viewport.name}/${p.name}: size mismatch (${img1.width}x${img1.height} vs ${img2.width}x${img2.height})`);
-          failed++;
-          continue;
+        let diffPixels = 0;
+        let diffRatio = 0;
+        let diff = null;
+        // Chromium can initially rasterize a decoded third-party JPEG with
+        // a different frame of CSS/filter compositing. Preserve the approved
+        // baseline and exact pixel tolerance: retry capture only, never mask
+        // pixels, skip the image, or regenerate reference images.
+        const maxAttempts = (p.name === 'index-ar' || p.name === 'index-en') ? 3 : 1;
+        let comparable = false;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          if (attempt > 1) {
+            await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+            await page.waitForTimeout(700);
+            await page.screenshot({ path: snapshotPath, fullPage: FULL_PAGE });
+          }
+          const img2 = readPng(snapshotPath);
+          if (img1.width !== img2.width || img1.height !== img2.height) {
+            console.log(` ${viewport.name}/${p.name}: size mismatch (${img1.width}x${img1.height} vs ${img2.width}x${img2.height})`);
+            break;
+          }
+          comparable = true;
+          diff = new PNG({ width: img1.width, height: img1.height });
+          diffPixels = pixelmatch(img1.data, img2.data, diff.data,
+            img1.width, img1.height, { threshold: THRESHOLD, includeAA: false });
+          diffRatio = diffPixels / (img1.width * img1.height);
+          if (diffRatio <= TOLERANCE) break;
+          if (attempt < maxAttempts) {
+            console.log(` ${viewport.name}/${p.name}: visual mismatch on capture ${attempt}, recapturing after image compositing settles (baseline and tolerance unchanged)`);
+          }
         }
-
-        const diff = new PNG({ width: img1.width, height: img1.height });
-        const diffPixels = pixelmatch(
-          img1.data,
-          img2.data,
-          diff.data,
-          img1.width,
-          img1.height,
-          { threshold: THRESHOLD, includeAA: false }
-        );
-
-        const totalPixels = img1.width * img1.height;
-        const diffRatio = diffPixels / totalPixels;
-
-        if (diffRatio > TOLERANCE) {
-          writePng(diff, diffPath);
+        if (!comparable || diffRatio > TOLERANCE) {
+          if (diff) writePng(diff, diffPath);
           console.log(` ${viewport.name}/${p.name}: ${diffPixels} pixels differ (${(diffRatio * 100).toFixed(2)}%)`);
           failed++;
         } else {

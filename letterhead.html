@@ -116,7 +116,9 @@
 
     .sheet {
       width: 210mm;
+      height: 297mm;
       min-height: 297mm;
+      flex-shrink: 0;
       margin: 0 auto 12mm;
       display: flex;
       flex-direction: column;
@@ -451,7 +453,7 @@
       .toolbar button, .toolbar select { font-size: 12px; padding: 5px 8px; }
       .toolbar-group { gap: 3px; }
       .toolbar-group-label { display: none; }
-      .sheet { width: 100%; min-height: auto; }
+      .sheet { width: 100%; height: auto; min-height: auto; }
       .letterhead-header { flex-direction: column; align-items: center; text-align: center; padding: 10mm 8mm 6mm; }
       .header-contacts { align-items: center; }
       .contact-cols { flex-direction: column; gap: 8px; }

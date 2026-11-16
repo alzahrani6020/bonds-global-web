@@ -22,8 +22,16 @@ function buildPreflight(source) {
   // Execute the actual PDF preflight extracted from source, not a reimplemented
   // conditional; rendering itself is separately covered by browser acceptance.
   const body = source.slice(start, stop);
-  return new Function('waitForVerificationQr', 'waitForLetterheadBrandImages', 'canEditCurrent', 'paginateEditableSheets',
-    'return (async () => { ' + body + ' })();');
+  // The exporter wraps the preflight in try/finally to restore PDF-only
+  // zoom. Complete that guard in this extracted preflight test scope.
+  const compiled = new Function('waitForVerificationQr', 'waitForLetterheadBrandImages',
+    'canEditCurrent', 'paginateEditableSheets', 'document',
+    'return (async () => { ' + body +
+    '\n} finally { for (const [content, zoom] of originalIssuedZoom) content.style.zoom = zoom; } })();');
+  // The zero-sheet fixture tests the real preflight ownership branch; the
+  // full physical A4 geometry remains covered by browser-based PDF tests.
+  return (qr, brand, canEdit, paginate) =>
+    compiled(qr, brand, canEdit, paginate, { querySelectorAll: () => [] });
 }
 
 describe('letterhead PDF export / issued immutability', () => {

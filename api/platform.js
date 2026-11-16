@@ -2338,7 +2338,13 @@ module.exports = async function handler(req, res) {
     // Dynamic correspondence / Letterhead
     if (pathname === '/api/correspondence' || pathname === '/api/correspondence/') {
       const corrAction = String(req.query?.action || url.searchParams.get('action') || req.body?.action || '');
-      const corrRateCategory = (corrAction === 'verify' || corrAction === 'qr') ? 'public' : 'auth';
+      // Read-only correspondence queries can fan out to the inbox, task list and
+      // issued ledger on page load. The authentication throttle (10/minute)
+      // is reserved for mutations; authenticated reads use the 60/minute
+      // admin_read bucket. Authorization remains enforced by correspondence.handler.
+      const corrRateCategory = (corrAction === 'verify' || corrAction === 'qr')
+        ? 'public'
+        : req.method === 'GET' ? 'admin_read' : 'auth';
       if (await checkRateLimit(corrRateCategory, req, res)) return;
       try {
         return await correspondence.handler(req, res);
