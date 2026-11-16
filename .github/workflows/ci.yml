@@ -60,6 +60,7 @@ jobs:
         shell: pwsh
         run: |
           $files = Get-ChildItem "services/bonds_native_inference", "services/bonds_token_runtime" -Recurse -Filter "*.ps1" -File | Select-Object -ExpandProperty FullName
+          $files += (Resolve-Path "scripts/import-makkin-into-bonds.ps1").Path
           foreach ($file in $files) {
             $tokens = $null
             $errors = $null
@@ -78,6 +79,12 @@ jobs:
           if ([int]$manifest.runtime.n_ctx -le 0 -or [int]$manifest.runtime.n_threads -le 0 -or [int]$manifest.runtime.max_tokens -le 0) {
             throw "canonical model runtime settings must be positive"
           }
+
+      - name: Verify source import dry-run is root-contained
+        shell: pwsh
+        run: |
+          ./scripts/import-makkin-into-bonds.ps1
+          if ($LASTEXITCODE -ne 0) { throw "Import dry run failed" }
 
       - name: Validate 8771 service-token contract
         working-directory: services/bonds_token_runtime
