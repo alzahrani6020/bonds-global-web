@@ -82,6 +82,8 @@ async function runFourPageIssuedPdfGate(browser) {
       if (!template) throw new Error('Letterhead A4 sheet template missing');
       while (container.querySelectorAll('.sheet').length < 4) container.appendChild(template.cloneNode(true));
       const sheets = Array.from(container.querySelectorAll('.sheet'));
+      // All issued pages reserve both verification QR boxes at the footer.
+      sheets.forEach(sheet => sheet.classList.add('has-verification-zone'));
       for (let i = 0; i < sheets.length; i++) {
         sheets[i].querySelector('.doc-content').innerHTML =
           '<p dir="rtl">مستند اختباري غير رسمي للتحقق من سلامة تصدير الصفحات الأربع.</p>' +
@@ -90,6 +92,19 @@ async function runFourPageIssuedPdfGate(browser) {
         if (!number) throw new Error('Page counter absent');
         number.textContent = 'الصفحة ' + (i + 1) + ' من 4';
       }
+      // Exercise near-real issued first-page density. Never use official
+      // documents as public CI fixtures; baseline screenshot files stay intact.
+      const phrase = 'توضح هذه الفقرة الاختبارية متطلبات الوثائق والمخططات والتدقيق والتحقق من البيانات والمستندات قبل اتخاذ القرار. ';
+      const paragraph = phrase.repeat(2).slice(0, 185);
+      const issueMeta = document.createElement('div');
+      issueMeta.dataset.governanceArtifact = 'issue-meta';
+      issueMeta.style.cssText = 'display:flex;justify-content:space-between;gap:16px;margin-bottom:18px;padding:8px 10px;border-bottom:1px solid #c59237;font-size:10pt';
+      issueMeta.innerHTML = '<strong>رقم الصادر: TEST-NOT-ISSUED</strong><span>الإصدار 4</span>';
+      sheets[0].querySelector('.doc-content').innerHTML =
+        '<div>16 نوفمبر 2026</div><div><br></div><div><strong>موضوع اختبار المستند</strong></div>' +
+        '<div>' + Array.from({length: 7}, () => '<p>' + paragraph + '</p>').join('') +
+        '<ol start="1"><li><p>' + paragraph + '</p></li></ol></div>';
+      sheets[0].querySelector('.doc-content').prepend(issueMeta);
       // Runtime image-recovery bookkeeping may add data-* to logo elements;
       // issued-content immutability concerns the approved page HTML itself.
       const before = sheets.map(x => x.querySelector('.doc-content').innerHTML);
