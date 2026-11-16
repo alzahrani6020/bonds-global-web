@@ -77,6 +77,12 @@
    return '<tr><td>'+esc(d.title)+'</td><td>'+esc(d.stage)+'</td><td>'+fmt(d.value_amount)+' '+esc(d.currency||'SAR')+'</td><td>'+
     esc(score.score==null?'UNKNOWN':score.score+'/100')+' · '+esc(String(score.confidence||'UNKNOWN').toUpperCase())+' · '+esc(score.coverage??0)+'%</td></tr>';
   }).join('')||'<tr><td colspan="4">'+(en?'No deals':'لا توجد فرص')+'</td></tr>';
+  el('internal-crm-organizations').innerHTML=(data.organizations||[]).map(o=>
+   '<tr><td>'+esc(o.name)+'</td><td>'+esc(o.sector||'—')+'</td><td>'+esc(o.country||'—')+'</td><td>'+esc(o.status||'—')+'</td></tr>'
+  ).join('')||'<tr><td colspan="4">'+(en?'No organizations':'لا توجد مؤسسات')+'</td></tr>';
+  el('internal-crm-activities').innerHTML=(data.activities||[]).filter(a=>!a.deleted_at).map(a=>
+   '<tr><td>'+esc(a.subject)+'</td><td>'+esc(a.activity_type||'—')+'</td><td>'+esc(a.status||'—')+'</td><td>'+esc(a.scheduled_at||'—')+'</td></tr>'
+  ).join('')||'<tr><td colspan="4">'+(en?'No activities':'لا توجد أنشطة')+'</td></tr>';
   el('internal-crm-clients').innerHTML=clients.map(c=>{
    const score=c.commercial_score||{};
    return '<tr><td>'+esc(c.name)+'</td><td>'+esc(c.company_name||'—')+'</td><td>'+esc(c.status||'—')+'</td><td>'+
