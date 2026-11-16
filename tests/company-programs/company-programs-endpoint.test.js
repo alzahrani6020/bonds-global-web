@@ -412,6 +412,25 @@ test('staging write rejects cross-tenant links and unsupported mutations before 
  expect(createClient).not.toHaveBeenCalled();
  expect(global.fetch).not.toHaveBeenCalled();
 });
+test('ordinary BONDS workspace member cannot create a task even with a subscription',async()=>{
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ const owner=qb(null),member=qb({role:'member'}),workspace=qb({id:WS,name:'A'});
+ let checked=0;
+ createClient.mockReturnValue({from:table=>{
+   if(table==='crm_app_workspaces')return checked++===0?owner:workspace;
+   if(table==='crm_app_members')return member;
+   throw Error('must not read grants or issue sessions for unauthorized writer');
+ }});
+ verifyBearer.mockResolvedValue({id:USER,email:'member@example.org',email_confirmed_at:'2026-01-01'});
+ global.fetch=jest.fn();
+ const response=res();
+ await handler({method:'POST',query:{action:'program-write'},body:{
+   workspace_id:WS,program_key:'projects',operation:'projects.tasks.create',data:{title:'Denied'}
+ }},response);
+ expect(response.statusCode).toBe(403);
+ expect(response.body.error).toBe('WORKSPACE_WRITE_ROLE_REQUIRED');
+ expect(global.fetch).not.toHaveBeenCalled();
+});
 test('staging task creation demands verified persistence in the same SCC tenant',async()=>{
  process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
  process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL='https://scc380-acceptance.onrender.com/integrations/bonds/verify-mapping';
