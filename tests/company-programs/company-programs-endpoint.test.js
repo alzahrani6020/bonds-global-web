@@ -372,6 +372,125 @@ test('cross-program operation is rejected without issuing a token or querying da
  expect(createClient).not.toHaveBeenCalled();
  expect(global.fetch).not.toHaveBeenCalled();
 });
+afterEach(()=>{
+ delete process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED;
+ delete process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL;
+ delete process.env.VERCEL_ENV;
+});
+test('write bridge is disabled by default before DB, auth or network',async()=>{
+ const response=res();
+ global.fetch=jest.fn();
+ await handler({method:'POST',query:{action:'program-write'},body:{
+   workspace_id:WS,program_key:'projects',operation:'projects.tasks.create',data:{title:'Safe task'}
+ }},response);
+ expect(response.statusCode).toBe(503);
+ expect(response.body.error).toBe('STAGING_WRITES_DISABLED');
+ expect(createClient).not.toHaveBeenCalled();
+ expect(global.fetch).not.toHaveBeenCalled();
+});
+test('staging write rejects cross-tenant links and unsupported mutations before DB',async()=>{
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ global.fetch=jest.fn();
+ for(const payload of [
+   {title:'Cross company',projectId:'some-other-company-project'},
+   {title:'Cross user',assignedToId:'another-user'},
+   {title:'',description:'empty'},
+   {title:'Valid',tenantId:'forged-tenant'}
+ ]){
+   const response=res();
+   await handler({method:'POST',query:{action:'program-write'},body:{
+     workspace_id:WS,program_key:'projects',operation:'projects.tasks.create',data:payload
+   }},response);
+   expect(response.statusCode).toBe(400);
+   expect(response.body.error).toBe('OPERATION_NOT_APPROVED');
+ }
+ const financial=res();
+ await handler({method:'POST',query:{action:'program-write'},body:{
+   workspace_id:WS,program_key:'accounting',operation:'accounting.journals.post',data:{}
+ }},financial);
+ expect(financial.statusCode).toBe(400);
+ expect(createClient).not.toHaveBeenCalled();
+ expect(global.fetch).not.toHaveBeenCalled();
+});
+test('staging task creation demands verified persistence in the same SCC tenant',async()=>{
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL='https://scc380-acceptance.onrender.com/integrations/bonds/verify-mapping';
+ process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM=signingPair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
+ const owner=qb({id:WS,name:'Workspace A'}),link=qb({id:WS});
+ const grants=qb([{program_key:'projects',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ const tenant=qb({workspace_link_id:WS,makkin_tenant_id:'tenant-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ const member=qb({workspace_link_id:WS,bonds_user_id:USER,makkin_user_id:'user-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ createClient.mockReturnValue({from:table=>({
+   crm_app_workspaces:owner,company_program_workspaces:link,company_program_entitlements:grants,
+   company_program_makkin_links:tenant,company_program_makkin_user_links:member
+ })[table]});
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-01-01'});
+ const token='staging-scc-token-long-'.repeat(5);
+ const id='cktaskverified1234567890';
+ global.fetch=jest.fn(async(url,opt)=>{
+   expect(url.startsWith('https://scc380-acceptance.onrender.com/')).toBe(true);
+   if(url.endsWith('/program-session')){
+     return {ok:true,json:async()=>({accessToken:token,programKey:'projects',expiresInSeconds:110})};
+   }
+   expect(opt.headers.authorization).toBe('Bearer '+token);
+   if(url.endsWith('/auth/me'))
+     return {ok:true,json:async()=>({id:'user-private',tenantId:'tenant-private'})};
+   if(url.endsWith('/projects/tasks')&&opt.method==='POST'){
+     expect(JSON.parse(opt.body)).toEqual({title:'Verified task',description:'Test'});
+     return {ok:true,json:async()=>({id,title:'Verified task',tenantId:'tenant-private'})};
+   }
+   expect(url).toBe('https://scc380-acceptance.onrender.com/projects/tasks/'+id);
+   return {ok:true,json:async()=>({id,title:'Verified task',tenantId:'tenant-private',status:'TODO'})};
+ });
+ const response=res();
+ await handler({method:'POST',query:{action:'program-write'},body:{
+   workspace_id:WS,program_key:'projects',operation:'projects.tasks.create',
+   data:{title:' Verified task ',description:'Test'}
+ }},response);
+ expect(response.statusCode).toBe(201);
+ expect(response.body).toMatchObject({persisted:true,record:{id,title:'Verified task'}});
+ expect(JSON.stringify(response.body)).not.toContain(token);
+ expect(global.fetch).toHaveBeenCalledTimes(4);
+});
+test('task create fails closed when persistence lookup returns another tenant',async()=>{
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL='https://scc380-acceptance.onrender.com/integrations/bonds/verify-mapping';
+ process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM=signingPair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
+ const owner=qb({id:WS,name:'Workspace A'}),link=qb({id:WS});
+ const grants=qb([{program_key:'projects',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ const tenant=qb({workspace_link_id:WS,makkin_tenant_id:'tenant-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ const member=qb({workspace_link_id:WS,bonds_user_id:USER,makkin_user_id:'user-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ createClient.mockReturnValue({from:table=>({
+   crm_app_workspaces:owner,company_program_workspaces:link,company_program_entitlements:grants,
+   company_program_makkin_links:tenant,company_program_makkin_user_links:member
+ })[table]});
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-01-01'});
+ const id='cktaskverified1234567890';
+ global.fetch=jest.fn(async(url,opt)=>{
+   if(url.endsWith('/program-session'))return {ok:true,json:async()=>({accessToken:'long-token'.repeat(12),programKey:'projects',expiresInSeconds:110})};
+   if(url.endsWith('/auth/me'))return {ok:true,json:async()=>({id:'user-private',tenantId:'tenant-private'})};
+   if(opt.method==='POST')return {ok:true,json:async()=>({id,title:'Task'})};
+   return {ok:true,json:async()=>({id,title:'Task',tenantId:'foreign-tenant'})};
+ });
+ const response=res();
+ await handler({method:'POST',query:{action:'program-write'},body:{
+   workspace_id:WS,program_key:'projects',operation:'projects.tasks.create',data:{title:'Task'}
+ }},response);
+ expect(response.statusCode).toBe(502);
+ expect(response.body.error).toBe('WRITE_PERSISTENCE_MISMATCH');
+});
+test('production environment rejects write even if staging flag is explicitly set',async()=>{
+ process.env.VERCEL_ENV='production';
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ global.fetch=jest.fn();
+ const response=res();
+ await handler({method:'POST',query:{action:'program-write'},body:{
+   workspace_id:WS,program_key:'projects',operation:'projects.tasks.create',data:{title:'Task'}
+ }},response);
+ expect(response.statusCode).toBe(503);
+ expect(response.body.error).toBe('STAGING_WRITES_DISABLED');
+ expect(global.fetch).not.toHaveBeenCalled();
+});
 test('session-check rejects pending mappings before any remote call',async()=>{
  const owner=qb({id:WS,name:'Company A'}),link=qb({id:WS});
  const grants=qb([{program_key:'hr',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
