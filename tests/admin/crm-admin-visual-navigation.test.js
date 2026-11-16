@@ -8,7 +8,7 @@ describe('Bonds CRM admin and company program visual/navigation acceptance',()=>
  const theme=read('admin/crm-scc380-theme.css');
  const customer=read('my-bonds/crm/index.html');
  const layout=read('site-layout.js');
- test('admin dashboard remains separate from customer company application',()=>{
+ test('legacy admin route resolves to unified company CRM, keeping internal data gated',()=>{
   expect(admin).toContain('href="/my-bonds/crm/"');
   expect(admin).toContain('id="crm-install-shortcut"');
   expect(admin).not.toContain('class="btn btn2 crm-install-shortcut" href="#crm-extensions"');
@@ -20,7 +20,9 @@ describe('Bonds CRM admin and company program visual/navigation acceptance',()=>
   expect(extended).toContain('تم قبول طلب التثبيت؛ تحقق من ظهور التطبيق على جهازك');
   expect(customer).toContain('id="crm-nav"');
   expect(layout).toContain("href: isEn ? '/en/my-bonds/crm/' : '/my-bonds/crm/'");
-  expect(layout).toContain("href: '/admin/crm.html'");
+  expect(layout).not.toContain("href: '/admin/crm.html'");
+  expect(admin).toContain("window.location.replace('/my-bonds/crm/?internal=1')");
+  expect(customer).toContain('id="internal-crm-panel"');
  });
  test('admin mirrors Makkin navigation shell and exposes all protected panels',()=>{
   for(const anchor of ['crm-overview','crm-scoring','crm-pipeline','crm-requests','crm-organizations','crm-extensions'])
