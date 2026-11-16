@@ -18,10 +18,10 @@
  let snapshot=null;
  const recordCollections={client:'clients',organization:'organizations',deal:'opportunities',activity:'activities'};
  const fieldSchemas={
-  client:[['name','Name','text',true],['email','Email'],['phone','Phone'],['company_name','Company'],['status','Status'],['source','Source'],['relationship_role','Role'],['is_decision_maker','Decision maker','checkbox']],
+  client:[['name','Name','text',true],['email','Email'],['phone','Phone'],['company_name','Company'],['status','Status'],['source','Source'],['organization_id','Organization','ref:organization'],['relationship_role','Role'],['is_decision_maker','Decision maker','checkbox']],
   organization:[['name','Name','text',true],['legal_name','Legal name'],['sector','Sector'],['country','Country'],['city','City'],['domain','Domain'],['tax_number','Tax number'],['status','Status']],
-  deal:[['title','Title','text',true],['stage','Stage','select:lead|qualified|proposal|negotiation|won|lost'],['value_amount','Value','number'],['probability','Probability %','number'],['next_action','Next action'],['next_action_at','Next action time','datetime-local'],['expected_close_date','Expected close','date']],
-  activity:[['subject','Subject','text',true],['activity_type','Type','select:task|call|meeting|email|note|whatsapp|sms|visit'],['status','Status','select:open|completed|cancelled'],['scheduled_at','Scheduled','datetime-local'],['details','Details','textarea']]
+  deal:[['title','Title','text',true],['organization_id','Organization','ref:organization'],['client_id','Contact','ref:client'],['stage','Stage','select:lead|qualified|proposal|negotiation|won|lost'],['value_amount','Value','number'],['probability','Probability %','number'],['next_action','Next action'],['next_action_at','Next action time','datetime-local'],['expected_close_date','Expected close','date']],
+  activity:[['subject','Subject','text',true],['client_id','Contact','ref:client'],['organization_id','Organization','ref:organization'],['opportunity_id','Deal','ref:deal'],['activity_type','Type','select:task|call|meeting|email|note|whatsapp|sms|visit'],['status','Status','select:open|completed|cancelled'],['scheduled_at','Scheduled','datetime-local'],['details','Details','textarea']]
  };
  const toLocal=value=>{
   if(!value)return '';
@@ -39,6 +39,12 @@
   const record=items.find(item=>item.id===select.value)||{};
   el('internal-crm-fields').innerHTML=fieldSchemas[type].map(([key,label,spec='text',required=false])=>{
    const value=record[key],title=esc(label);
+   if(spec.startsWith('ref:')){
+    const collection=recordCollections[spec.slice(4)];
+    const values=snapshot?.[collection]||[];
+    return '<label>'+title+'<select name="'+key+'"><option value="">—</option>'+
+     values.map(item=>'<option value="'+esc(item.id)+'"'+(String(item.id)===String(value)?' selected':'')+'>'+esc(item.title||item.name||item.id)+'</option>').join('')+'</select></label>';
+   }
    if(spec==='checkbox')return '<label>'+title+'<input name="'+key+'" type="checkbox"'+(value?' checked':'')+'></label>';
    if(spec==='textarea')return '<label>'+title+'<textarea name="'+key+'">'+esc(value||'')+'</textarea></label>';
    if(spec.startsWith('select:'))return '<label>'+title+'<select name="'+key+'">'+spec.slice(7).split('|').map(x=>
