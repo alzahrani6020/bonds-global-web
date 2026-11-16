@@ -695,3 +695,36 @@ test('session-check refuses SCC session belonging to a different tenant',async()
  expect(response.body.error).toBe('SCOPED_IDENTITY_MISMATCH');
  expect(JSON.stringify(response.body)).not.toContain('other-tenant');
 });
+
+test('staging task offer requires exact verified SCC tenant and user mapping',async()=>{
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ process.env.VERCEL_ENV='preview';
+ process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM='unit-only-present';
+ process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL='https://scc380-acceptance.onrender.com/integrations/bonds/verify-mapping';
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-01-01'});
+ const owner=qb({id:WS,name:'Workspace A'}),link=qb({id:WS});
+ const grants=qb([{program_key:'projects',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ const tenant=qb({workspace_link_id:WS,makkin_tenant_id:'tenant-a',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ const member=qb({workspace_link_id:WS,bonds_user_id:USER,makkin_user_id:'user-a',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ const from=jest.fn(table=>({
+  crm_app_workspaces:owner,company_program_workspaces:link,company_program_entitlements:grants,
+  company_program_makkin_links:tenant,company_program_makkin_user_links:member
+ })[table]);
+ createClient.mockReturnValue({from});
+ let response=res();
+ await handler({method:'GET',query:{workspace_id:WS}},response);
+ expect(response.statusCode).toBe(200);
+ expect(response.body.stagingTaskCreateAvailable).toBe(true);
+ member.maybeSingle.mockResolvedValueOnce({data:{workspace_link_id:WS,bonds_user_id:'another-user',makkin_user_id:'user-a',state:'verified',verified_at:'2026-01-01',verified_by:USER},error:null});
+ response=res();
+ await handler({method:'GET',query:{workspace_id:WS}},response);
+ expect(response.statusCode).toBe(200);
+ expect(response.body.stagingTaskCreateAvailable).toBe(false);
+ expect(JSON.stringify(response.body)).not.toContain('tenant-a');
+ expect(JSON.stringify(response.body)).not.toContain('user-a');
+ process.env.VERCEL_ENV='production';
+ response=res();
+ await handler({method:'GET',query:{workspace_id:WS}},response);
+ expect(response.statusCode).toBe(200);
+ expect(response.body.stagingTaskCreateAvailable).toBe(false);
+});
