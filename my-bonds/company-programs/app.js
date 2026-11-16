@@ -2,17 +2,17 @@
  'use strict';
  const $=id=>document.getElementById(id);
  const operations=Object.freeze({
-  crm:'crm.contacts.list',
-  hr:'hr.employees.list',
-  real_estate:'real_estate.properties.list',
-  fleet:'fleet.vehicles.list',
-  sales:'sales.invoices.list',
-  purchasing:'purchasing.orders.list',
-  inventory:'inventory.products.list',
-  finance:'finance.payments.list',
-  accounting:'accounting.journals.list',
-  projects:'projects.tasks.list',
-  governance:'governance.approvals.pending'
+  crm:['crm.contacts.list'],
+  hr:['hr.employees.list','hr.contracts.list'],
+  real_estate:['real_estate.properties.list','real_estate.contracts.list'],
+  fleet:['fleet.vehicles.list'],
+  sales:['sales.invoices.list'],
+  purchasing:['purchasing.orders.list'],
+  inventory:['inventory.products.list'],
+  finance:['finance.payments.list'],
+  accounting:['accounting.journals.list'],
+  projects:['projects.tasks.list'],
+  governance:['governance.approvals.pending']
  });
  const dictionary={
   ar:{
@@ -26,7 +26,7 @@
    lang:'English',auth:'يلزم تسجيل الدخول إلى بوندز قبل عرض المساحات.',
    noWorkspace:'لا توجد مساحة شركة مخولة لهذا الحساب. استخدم صفحة CRM لإنشاء مساحة فعلية.',
    loading:'جارٍ قراءة مساحات العمل المخولة...',inventory:'جارٍ التحقق من استحقاقات مساحة العمل...',
-   active:'اشتراك نشط',inactive:'غير مشترك أو الاشتراك غير نشط',read:'قراءة السجلات',
+   active:'اشتراك نشط',inactive:'غير مشترك أو الاشتراك غير نشط',read:'قراءة السجلات',chooseOperation:'عملية القراءة',
    unavailable:'لا توجد عملية قراءة معتمدة لهذا التخصص',reading:'جارٍ التحقق من الجلسة وقراءة السجلات...',
    failed:'تعذر إكمال الطلب',success:'اكتملت القراءة من مسار التكامل المقيّد.',
    noItems:'لا توجد مساحات قابلة للعرض',errorPrefix:'رمز الخطأ'
@@ -42,7 +42,7 @@
    lang:'العربية',auth:'Sign in to BONDS before accessing company workspaces.',
    noWorkspace:'No authorized company workspace was found. Create one through CRM.',
    loading:'Loading authorized workspaces...',inventory:'Checking workspace entitlements...',
-   active:'Subscription active',inactive:'Not subscribed or inactive',read:'Read records',
+   active:'Subscription active',inactive:'Not subscribed or inactive',read:'Read records',chooseOperation:'Read operation',
    unavailable:'No approved read action',reading:'Verifying identity and reading records...',
    failed:'Request could not complete',success:'The scoped integration read completed.',
    noItems:'No accessible workspaces',errorPrefix:'Error code'
@@ -50,6 +50,17 @@
  };
  let lang=location.pathname.startsWith('/en/')?'en':'ar';
  let selected=null;
+ let generation=0;
+ const sameWorkspace=(item,epoch)=>Boolean(item&&selected&&generation===epoch&&
+   selected.id===item.id&&selected.source===item.source&&
+   $('workspace').value===workspaceValue(item));
+ function clearData(){
+  generation++;
+  window.currentInventory=null;
+  $('programs').replaceChildren();
+  $('result-panel').hidden=true;
+  $('result').textContent='';
+ }
  const t=k=>dictionary[lang][k]||k;
  function status(message,problem){
   $('status').textContent=message;
@@ -122,6 +133,8 @@
   return result;
  }
  async function loadInventory(){
+  clearData();
+  const epoch=generation;
   const val=$('workspace').value;
   selected=null;
   const sep=val.indexOf(':');
@@ -131,7 +144,7 @@
    status('WORKSPACE_REQUIRED',true);return;
   }
   selected={source,id};
-  status(t('inventory'));$('programs').replaceChildren();$('result-panel').hidden=true;
+  status(t('inventory'));
   try{
    const url='/api/company-programs?workspace_type='+encodeURIComponent(source)+
     '&workspace_id='+encodeURIComponent(id);
@@ -139,12 +152,13 @@
      method:'GET',cache:'no-store',redirectOnAuth:false
    });
    const data=await response.json();
+   if(!sameWorkspace({source,id},epoch))return;
    if(!response.ok)throw Error(data?.error||'HTTP_'+response.status);
    if(data?.workspace?.id!==id||data?.workspace?.source!==source||
       !Array.isArray(data.programs))throw Error('WORKSPACE_RESPONSE_MISMATCH');
    window.currentInventory=data;
    render(data);status('');
-  }catch(err){window.currentInventory=null;status(t('failed')+': '+err.message,true);}
+  }catch(err){if(generation===epoch){clearData();status(t('failed')+': '+err.message,true);}}
  }
  function render(data){
   const grid=$('programs');grid.replaceChildren();
@@ -156,32 +170,48 @@
    badge.style.color=program.entitled?'#86efac':'#cbd5e1';
    const note=document.createElement('p');note.className='hint';
    note.textContent=program.entitled?'':String(program.entitlement||'not_subscribed');
+   const available=operations[program.key]||[];
+   const operationSelect=document.createElement('select');
+   operationSelect.setAttribute('aria-label',t('chooseOperation'));
+   for(const key of available){
+    const option=new Option(key.split('.').slice(1).join(' · '),key);
+    operationSelect.add(option);
+   }
+   operationSelect.disabled=!program.entitled||!available.length;
    const button=document.createElement('button');button.type='button';
-   button.textContent=operations[program.key]?t('read'):t('unavailable');
-   button.disabled=!program.entitled||!operations[program.key];
-   button.addEventListener('click',()=>read(program.key,button));
-   card.append(h,badge,note,button);grid.append(card);
+   button.textContent=available.length?t('read'):t('unavailable');
+   button.disabled=!program.entitled||!available.length;
+   button.addEventListener('click',()=>read(program.key,operationSelect.value,button));
+   card.append(h,badge,note,operationSelect,button);grid.append(card);
   }
  }
- async function read(program,button){
-  if(!selected||!operations[program])return;
+ async function read(program,operation,button){
+  if(!selected||!(operations[program]||[]).includes(operation))return;
+  const workspace={...selected};
+  const epoch=generation;
   button.disabled=true;status(t('reading'));$('result-panel').hidden=true;
+  $('result').textContent='';
   try{
    const body={
-    workspace_id:selected.id,workspace_type:selected.source,
-    program_key:program,operation:operations[program]
+    workspace_id:workspace.id,workspace_type:workspace.source,
+    program_key:program,operation
    };
    const result=await fetchProgram('/api/company-programs?action=program-read',body);
-   if(result.workspace?.id!==selected.id||result.program_key!==program||
-      result.operation!==operations[program])throw Error('PROGRAM_RESPONSE_MISMATCH');
+   if(!sameWorkspace(workspace,epoch))return;
+   if(result.workspace?.id!==workspace.id||result.workspace?.source!==workspace.source||
+      result.program_key!==program||result.operation!==operation)
+     throw Error('PROGRAM_RESPONSE_MISMATCH');
    // Render only through textContent: customer data must never become HTML.
    $('result').textContent=JSON.stringify(result.data,null,2);
    $('result-panel').hidden=false;status(t('success'));
-  }catch(err){status(t('failed')+': '+err.message,true);}
-  finally{button.disabled=false;}
+  }catch(err){if(sameWorkspace(workspace,epoch))status(t('failed')+': '+err.message,true);}
+  finally{if(sameWorkspace(workspace,epoch))button.disabled=false;}
  }
  $('toggle-lang').addEventListener('click',()=>{
   lang=lang==='ar'?'en':'ar';language();
+ });
+ $('workspace').addEventListener('change',()=>{
+  clearData();selected=null;status('');
  });
  $('workspace-form').addEventListener('submit',event=>{
   event.preventDefault();loadInventory();
