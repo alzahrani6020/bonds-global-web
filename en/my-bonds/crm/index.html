@@ -133,6 +133,13 @@
    <p class="muted">Administrative records and linked service requests remain under their original protected records and identifiers.</p>
    <p id="internal-crm-status" role="status" aria-live="polite"></p>
    <div id="internal-crm-metrics" class="kpis"></div>
+   <h3>Manage administrative CRM records</h3>
+   <form id="internal-crm-editor" class="panel">
+     <label>Record type<select name="record_type" id="internal-crm-record-type"><option value="client">Contact</option><option value="organization">Organization</option><option value="deal">Deal</option><option value="activity">Task/activity</option></select></label>
+     <label>Existing record (optional)<select name="record_id" id="internal-crm-record-id"><option value="">Create new</option></select></label>
+     <div id="internal-crm-fields" class="editor-fields"></div>
+     <button type="submit" class="primary" id="internal-crm-save">Save record</button>
+   </form>
    <h3>Service requests</h3><div class="overflow"><table><thead><tr><th>Reference</th><th>Service</th><th>Client</th><th>Status</th><th>Action</th></tr></thead><tbody id="internal-crm-requests"></tbody></table></div>
    <h3>Existing deals</h3><div class="overflow"><table><thead><tr><th>Deal</th><th>Stage</th><th>Value</th><th>Commercial score</th></tr></thead><tbody id="internal-crm-deals"></tbody></table></div>
    <h3>Existing contacts</h3><div class="overflow"><table><thead><tr><th>Contact</th><th>Company</th><th>Status</th><th>Commercial score</th></tr></thead><tbody id="internal-crm-clients"></tbody></table></div>
