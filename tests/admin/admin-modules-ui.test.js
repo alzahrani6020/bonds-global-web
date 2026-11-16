@@ -238,7 +238,7 @@ describe('admin linked modules UI', () => {
         // empty module still fails with actionable navigation evidence.
         await page.waitForFunction(() =>
           Boolean(document.body && document.body.innerText.trim()),
-          { timeout: 5000 }
+          null, { timeout: 5000 }
         ).catch(() => {});
         const bodyText = await page.locator('body').innerText().catch(() => '');
 
