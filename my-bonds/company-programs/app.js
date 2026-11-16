@@ -29,7 +29,10 @@
    active:'اشتراك نشط',inactive:'غير مشترك أو الاشتراك غير نشط',read:'قراءة السجلات',chooseOperation:'عملية القراءة',
    unavailable:'لا توجد عملية قراءة معتمدة لهذا التخصص',reading:'جارٍ التحقق من الجلسة وقراءة السجلات...',
    failed:'تعذر إكمال الطلب',success:'اكتملت القراءة من مسار التكامل المقيّد.',
-   noItems:'لا توجد مساحات قابلة للعرض',errorPrefix:'رمز الخطأ'
+   noItems:'لا توجد مساحات قابلة للعرض',errorPrefix:'رمز الخطأ',
+   taskCreateTitle:'إنشاء مهمة تجريبية في مساحة الشركة',taskCreateHelp:'بيئة اختبار معزولة فقط. لا يعمل على الإنتاج ولا ينفذ اعتمادات مالية.',
+   taskTitleLabel:'عنوان المهمة',taskDescriptionLabel:'الوصف',taskCreateButton:'إنشاء المهمة',
+   taskCreating:'جارٍ إنشاء المهمة والتحقق من حفظها...',taskSaved:'تم إنشاء المهمة والتحقق من حفظها في بيئة الاختبار فقط.'
   },
   en:{
    pageTitle:'Company Programs',pageDescription:'Programs available under your actual company workspace and subscription.',
@@ -45,7 +48,10 @@
    active:'Subscription active',inactive:'Not subscribed or inactive',read:'Read records',chooseOperation:'Read operation',
    unavailable:'No approved read action',reading:'Verifying identity and reading records...',
    failed:'Request could not complete',success:'The scoped integration read completed.',
-   noItems:'No accessible workspaces',errorPrefix:'Error code'
+   noItems:'No accessible workspaces',errorPrefix:'Error code',
+   taskCreateTitle:'Create a staging task in this workspace',taskCreateHelp:'Isolated staging only; never enabled in production or used for financial approval.',
+   taskTitleLabel:'Task title',taskDescriptionLabel:'Description',taskCreateButton:'Create task',
+   taskCreating:'Creating task and verifying persistence...',taskSaved:'Task created and verified in isolated staging only.'
   }
  };
  let lang=location.pathname.startsWith('/en/')?'en':'ar';
@@ -57,6 +63,9 @@
  function clearData(){
   generation++;
   window.currentInventory=null;
+  $('task-create-panel').hidden=true;
+  $('task-create-status').textContent='';
+  $('task-create-form').reset();
   $('programs').replaceChildren();
   $('result-panel').hidden=true;
   $('result').textContent='';
@@ -74,7 +83,10 @@
    'workspace-title':'workspaceTitle','workspace-help':'workspaceHelp',
    'load':'load','program-title':'programTitle','program-help':'programHelp',
    'result-title':'resultTitle','result-help':'resultHelp','footer-note':'footerNote',
-   'toggle-lang':'lang'
+   'toggle-lang':'lang',
+   'task-create-title':'taskCreateTitle','task-create-help':'taskCreateHelp',
+   'task-title-label':'taskTitleLabel','task-description-label':'taskDescriptionLabel',
+   'task-create-button':'taskCreateButton'
   };
   for(const [id,key] of Object.entries(ids))$(id).textContent=t(key);
   // Label text is a separate text node so the child select is preserved.
@@ -157,6 +169,7 @@
    if(data?.workspace?.id!==id||data?.workspace?.source!==source||
       !Array.isArray(data.programs))throw Error('WORKSPACE_RESPONSE_MISMATCH');
    window.currentInventory=data;
+   $('task-create-panel').hidden = data.stagingTaskCreateAvailable!==true;
    render(data);status('');
   }catch(err){if(generation===epoch){clearData();status(t('failed')+': '+err.message,true);}}
  }
@@ -209,6 +222,36 @@
  }
  $('toggle-lang').addEventListener('click',()=>{
   lang=lang==='ar'?'en':'ar';language();
+ });
+ $('task-create-form').addEventListener('submit',async event=>{
+  event.preventDefault();
+  const workspace=selected?{...selected}:null;
+  const epoch=generation;
+  if(!workspace||$('task-create-panel').hidden||
+     window.currentInventory?.stagingTaskCreateAvailable!==true||
+     !window.currentInventory.programs.some(p=>p.key==='projects'&&p.entitled))return;
+  const title=$('task-title').value.trim();
+  const description=$('task-description').value;
+  if(!title||title.length>160||description.length>2000)return;
+  const button=$('task-create-button');
+  button.disabled=true;
+  $('task-create-status').textContent=t('taskCreating');
+  try{
+   const result=await fetchProgram('/api/company-programs?action=program-write',{
+    workspace_id:workspace.id,workspace_type:workspace.source,
+    program_key:'projects',operation:'projects.tasks.create',data:{title,description}
+   });
+   if(!sameWorkspace(workspace,epoch))return;
+   if(result.workspace?.id!==workspace.id||result.workspace?.source!==workspace.source||
+      result.program_key!=='projects'||result.operation!=='projects.tasks.create'||
+      result.persisted!==true||result.tokenExposed!==false||
+      !result.record?.id||result.record.title!==title)
+     throw Error('TASK_PERSISTENCE_UNVERIFIED');
+   $('task-create-status').textContent=t('taskSaved')+' '+result.record.id;
+   $('task-create-form').reset();
+  }catch(err){if(sameWorkspace(workspace,epoch))
+    $('task-create-status').textContent=t('failed')+': '+err.message;
+  }finally{if(sameWorkspace(workspace,epoch))button.disabled=false;}
  });
  $('workspace').addEventListener('change',()=>{
   clearData();selected=null;status('');
