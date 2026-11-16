@@ -22,7 +22,7 @@ function buildPreflight(source) {
   // Execute the actual PDF preflight extracted from source, not a reimplemented
   // conditional; rendering itself is separately covered by browser acceptance.
   const body = source.slice(start, stop);
-  return new Function('waitForVerificationQr', 'canEditCurrent', 'paginateEditableSheets',
+  return new Function('waitForVerificationQr', 'waitForLetterheadBrandImages', 'canEditCurrent', 'paginateEditableSheets',
     'return (async () => { ' + body + ' })();');
 }
 
@@ -31,7 +31,9 @@ describe('letterhead PDF export / issued immutability', () => {
     const preflight = buildPreflight(readExportSource());
     const paginate = jest.fn(() => { throw new Error('issued document mutated'); });
     const qr = jest.fn().mockResolvedValue();
-    await expect(preflight(qr, () => false, paginate)).resolves.toBeUndefined();
+    const branded = jest.fn().mockResolvedValue();
+    await expect(preflight(qr, branded, () => false, paginate)).resolves.toBeUndefined();
+    expect(branded).toHaveBeenCalledTimes(1);
     expect(qr).toHaveBeenCalledTimes(1);
     expect(paginate).not.toHaveBeenCalled();
   });
@@ -39,8 +41,17 @@ describe('letterhead PDF export / issued immutability', () => {
   test('editable draft still performs pagination before PDF rendering', async () => {
     const preflight = buildPreflight(readExportSource());
     const paginate = jest.fn();
-    await preflight(async () => {}, () => true, paginate);
+    await preflight(async () => {}, async () => {}, () => true, paginate);
     expect(paginate).toHaveBeenCalledTimes(1);
+  });
+
+  test('branding failure aborts PDF preflight without altering issued pages', async () => {
+    const preflight = buildPreflight(readExportSource());
+    const paginate = jest.fn();
+    await expect(preflight(async () => {}, async () => {
+      throw new Error('Branded image failed');
+    }, () => false, paginate)).rejects.toThrow('Branded image failed');
+    expect(paginate).not.toHaveBeenCalled();
   });
 
   test('A4 clipping and overflow remain hard failures for locked documents', () => {
