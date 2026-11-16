@@ -567,7 +567,7 @@ test('staged HR contract rejects foreign relation fields and invalid dates befor
  expect(createClient).not.toHaveBeenCalled();
  expect(global.fetch).not.toHaveBeenCalled();
 });
-test.each(['DRAFT','ACTIVE'])('staged HR draft contract verifies returned tenant, employee and draft state (%s)',async(status)=>{
+test.each([['DRAFT','2026-11-16',201],['ACTIVE','2026-11-16',502],['DRAFT','2026-11-17',502]])('staged HR draft contract verifies tenant, lifecycle and start date (%s, %s)',async(status,startDate,expectedStatus)=>{
  process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
  process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL='https://scc380-acceptance.onrender.com/integrations/bonds/verify-mapping';
  process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM=signingPair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
@@ -596,15 +596,15 @@ test.each(['DRAFT','ACTIVE'])('staged HR draft contract verifies returned tenant
      return {ok:true,json:async()=>({id,tenantId:'tenant-private',contractNumber:'HR-TEST-01'})};
    }
    expect(url).toBe('https://scc380-acceptance.onrender.com/hr/contracts/'+id);
-   return {ok:true,json:async()=>({id,tenantId:'tenant-private',employeeId,contractNumber:'HR-TEST-01',status})};
+   return {ok:true,json:async()=>({id,tenantId:'tenant-private',employeeId,contractNumber:'HR-TEST-01',status,startDate})};
  });
  const response=res();
  await handler({method:'POST',query:{action:'program-write'},body:{
    workspace_id:WS,program_key:'hr',operation:'hr.contracts.create',
    data:{employeeId,contractNumber:' HR-TEST-01 ',startDate:'2026-11-16'}
  }},response);
- expect(response.statusCode).toBe(status==='DRAFT'?201:502);
- expect(response.body).toMatchObject(status==='DRAFT'
+ expect(response.statusCode).toBe(expectedStatus);
+ expect(response.body).toMatchObject(expectedStatus===201
     ?{persisted:true,program_key:'hr',record:{id,contractNumber:'HR-TEST-01',status:'DRAFT'}}
     :{error:'WRITE_PERSISTENCE_MISMATCH'});
  expect(JSON.stringify(response.body)).not.toContain(token);
