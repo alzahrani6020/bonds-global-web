@@ -90,7 +90,9 @@ async function runFourPageIssuedPdfGate(browser) {
         if (!number) throw new Error('Page counter absent');
         number.textContent = 'الصفحة ' + (i + 1) + ' من 4';
       }
-      const before = sheets.map(x => x.outerHTML);
+      // Runtime image-recovery bookkeeping may add data-* to logo elements;
+      // issued-content immutability concerns the approved page HTML itself.
+      const before = sheets.map(x => x.querySelector('.doc-content').innerHTML);
       const state = { document: {
         id: '00000000-0000-4000-8000-000000000000',
         status: 'issued', current_version: 1,
@@ -110,12 +112,13 @@ async function runFourPageIssuedPdfGate(browser) {
       const blob = await make(state, isEn, waitForVerificationQr, canEditCurrent, paginateEditableSheets);
       const binary = new TextDecoder('latin1').decode(await blob.arrayBuffer());
       const pages = (binary.match(/\/Type\s*\/Page\b/g) || []).length;
-      const after = sheets.map(x => x.outerHTML);
-      return {pages, byteLength: blob.size, paginationCalls,
+      const after = sheets.map(x => x.querySelector('.doc-content').innerHTML);
+      const brandsLoaded = sheets.every(x => Array.from(x.querySelectorAll('.letterhead-header .logo-icon, .watermark-b img')).every(img => img.complete && img.naturalWidth > 0));
+      return {pages, byteLength: blob.size, paginationCalls, brandsLoaded,
         sheetsPreserved: before.every((x, i) => x === after[i]),
         labelCount: sheets.filter((x, i) => x.querySelector('.page-number')?.textContent === 'الصفحة ' + (i + 1) + ' من 4').length};
     }, { exporter: source.slice(start, end), brandGuard });
-    if (result.pages !== 4 || result.labelCount !== 4 || !result.sheetsPreserved ||
+    if (result.pages !== 4 || result.labelCount !== 4 || !result.sheetsPreserved || !result.brandsLoaded ||
         result.paginationCalls !== 0 || result.byteLength < 1000) {
       throw new Error('Four-page locked document PDF acceptance failed: ' + JSON.stringify(result));
     }
