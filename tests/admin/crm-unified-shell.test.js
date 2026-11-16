@@ -17,7 +17,7 @@ describe('Single CRM shell with isolated administrative operations',()=>{
  });
  test('administrative records are accessed inside both CRM languages, not via public data joins',()=>{
   for(const page of [ar,en]){
-   for(const id of ['internal-crm-open','internal-crm-panel','internal-crm-requests','internal-crm-deals','internal-crm-clients','internal-crm-lifecycle','internal-crm-editor'])
+   for(const id of ['internal-crm-open','internal-crm-panel','internal-crm-requests','internal-crm-deals','internal-crm-clients','internal-crm-lifecycle','internal-crm-editor','internal-crm-organizations','internal-crm-activities'])
     expect(page).toContain('id="'+id+'"');
    expect(page).toContain('crm-internal.js?v=1');
   }
@@ -25,6 +25,12 @@ describe('Single CRM shell with isolated administrative operations',()=>{
   expect(internal).toContain("api('service-request-status-update'");
   expect(internal).not.toContain("sb.from('crm_app_");
   expect(internal).not.toContain('service_role');
+ });
+ test('legacy CRM URL routes to integrated mode without dropping protected admin API',()=>{
+  expect(read('admin/crm.html')).toContain("window.location.replace('/my-bonds/crm/?internal=1')");
+  expect(internal).toContain("get('internal')==='1'");
+  expect(internal).toContain("open.click()");
+  expect(internal).toContain("el('onboarding').hidden=true");
  });
  test('internal panel is permission gated before becoming visible',()=>{
   expect(internal).toContain('if(!auth.data?.user)return');
