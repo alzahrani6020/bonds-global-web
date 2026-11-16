@@ -50,6 +50,13 @@ function Assert-NoSecret([string]$path, [string]$relative) {
   $bytes = [IO.File]::ReadAllBytes($path)
   if ([Array]::IndexOf($bytes,[byte]0) -ge 0) { return } # Binary is not scanned, only hashed.
   $content = [Text.Encoding]::UTF8.GetString($bytes)
+  # SCC380 has a CI-only password generated afresh by openssl at test runtime.
+  # This exact source expression is not a stored credential. Mask only this
+  # audited expression, while preserving all other secret signatures and scans.
+  if ($relative -ceq '.github/workflows/accounting-production-image-smoke.yml') {
+    $runtimePassword = 'SMOKE_PASSWORD="AccountingSmoke-$(openssl rand -hex 12)-Aa1!"'
+    $content = $content.Replace($runtimePassword, 'SMOKE_PASSWORD=$(runtime-generated)')
+  }
   $signals = @(
     '-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----',
     '-----BEGIN PGP PRIVATE KEY BLOCK-----',
