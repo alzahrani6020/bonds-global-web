@@ -1470,6 +1470,8 @@
     // immutable: export their approved sheets as-is and let the A4 overflow
     // checks below reject invalid layouts rather than changing issued content.
     if (canEditCurrent()) paginateEditableSheets();
+    // Font metrics must be stable before producing the immutable PDF image.
+    if (document.fonts?.ready) await document.fonts.ready;
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     const integrityMarker = state.document?.issued_hash
@@ -1517,25 +1519,40 @@
             const contentRect = content.getBoundingClientRect();
             // The 170mm content min-height is not evidence of actual text.
             // Inspect visible descendants, including nested lists and stamps.
-            const blocks = Array.from(content.querySelectorAll('*')).filter(el => {
-              const css = clonedDocument.defaultView.getComputedStyle(el);
-              return css.display !== 'none' && css.visibility !== 'hidden' &&
-                el.getClientRects().length && el.getBoundingClientRect().height > 0;
-            });
+            const view = clonedDocument.defaultView;
+            const visible = el => {
+              for (let current = el; current && current !== content; current = current.parentElement) {
+                const css = view.getComputedStyle(current);
+                if (css.display === 'none' || css.visibility === 'hidden') return false;
+              }
+              return true;
+            };
+            // Measure painted text lines, not enclosing DIVs (whose blank area
+            // can overlap the reserved QR zone and cause false failures).
+            const paintedRects = [];
+            const walker = clonedDocument.createTreeWalker(content, 4 /* SHOW_TEXT */);
+            while (walker.nextNode()) {
+              const text = walker.currentNode;
+              if (!text.textContent.trim() || !visible(text.parentElement)) continue;
+              const range = clonedDocument.createRange();
+              range.selectNodeContents(text);
+              paintedRects.push(...Array.from(range.getClientRects()));
+              range.detach?.();
+            }
+            for (const el of content.querySelectorAll('img,svg,canvas,hr,input,textarea,iframe')) {
+              if (visible(el)) paintedRects.push(...Array.from(el.getClientRects()));
+            }
             const qrBoxes = Array.from(clonedSheet.querySelectorAll('.footer-qr-box'))
-              .filter(el => clonedDocument.defaultView.getComputedStyle(el).display !== 'none')
+              .filter(el => view.getComputedStyle(el).display !== 'none')
               .map(el => el.getBoundingClientRect());
             const collide = (a, b) => a.right > b.left + 1 && a.left < b.right - 1 &&
               a.bottom > b.top + 1 && a.top < b.bottom - 1;
-            const footerCollision = blocks.some(el =>
-              collide(el.getBoundingClientRect(), footerRect));
-            const qrCollision = blocks.some(el =>
-              qrBoxes.some(qr => collide(el.getBoundingClientRect(), qr)));
-            const escapedPage = blocks.some(el => {
-              const box = el.getBoundingClientRect();
-              return box.top < sheetRect.top - 1 || box.bottom > sheetRect.bottom + 1 ||
-                box.left < sheetRect.left - 1 || box.right > sheetRect.right + 1;
-            });
+            const footerCollision = paintedRects.some(box => collide(box, footerRect));
+            const qrCollision = paintedRects.some(box =>
+              qrBoxes.some(qr => collide(box, qr)));
+            const escapedPage = paintedRects.some(box =>
+              box.top < sheetRect.top - 1 || box.bottom > sheetRect.bottom + 1 ||
+              box.left < sheetRect.left - 1 || box.right > sheetRect.right + 1);
             const sheetOverflow = clonedSheet.scrollHeight > clonedSheet.clientHeight + 1;
             clippedContent = footerCollision || qrCollision || escapedPage || sheetOverflow;
             if (clippedContent) clippingReason = footerCollision ? 'footer' :
