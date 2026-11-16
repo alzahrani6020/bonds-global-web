@@ -45,7 +45,8 @@ $tests = @(
   'tests/company-programs/makkin-bridge-policy.test.js',
   'tests/company-programs/makkin-mapping-proof.test.js',
   'tests/company-programs/company-programs-endpoint.test.js',
-  'tests/company-programs/real-workspace-entitlements.test.js'
+  'tests/company-programs/real-workspace-entitlements.test.js',
+  'tests/company-programs/tenant-read-client-contract.test.js'
 )
 foreach ($testFile in $tests) {
     if (-not (Test-Path -LiteralPath (Join-Path $root $testFile) -PathType Leaf)) {
