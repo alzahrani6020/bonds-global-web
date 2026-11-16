@@ -459,7 +459,7 @@ test('staging task creation demands verified persistence in the same SCC tenant'
      return {ok:true,json:async()=>({id,title:'Verified task',tenantId:'tenant-private'})};
    }
    expect(url).toBe('https://scc380-acceptance.onrender.com/projects/tasks/'+id);
-   return {ok:true,json:async()=>({id,title:'Verified task',tenantId:'tenant-private',status:'TODO'})};
+   return {ok:true,json:async()=>({id,title:'Verified task',description:'Test',tenantId:'tenant-private',status:'TODO'})};
  });
  const response=res();
  await handler({method:'POST',query:{action:'program-write'},body:{
