@@ -21,6 +21,7 @@ describe('governed A4 PDF export architecture', () => {
     expect((exportPath.match(/\bhtml2canvas\s*\(/g) || [])).toHaveLength(1);
     expect(exportPath).toMatch(/html2canvas\(container,\s*\{/);
     expect(exportPath).not.toMatch(/html2canvas\(sheets\[i\]/);
+    expect(exportPath).toContain("if (root) root.style.transform = 'none'");
     expect(exportPath).toContain('rebalanceIssuedClone(copy)');
     expect(exportPath).toContain("pages.length !== sheets.length");
     expect(exportPath).toContain('positions.length !== sheets.length');
