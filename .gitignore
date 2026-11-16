@@ -71,3 +71,7 @@ v3/workspace-preview-backup-*
 
 # Transient SCC380 clone stays inside BONDS root; never commit it
 /.makkin-import/
+
+# BONDS-local imported source: never commit raw unreviewed vendor code
+/integrations/makkin/source/
+/integrations/makkin/import-manifest.json
