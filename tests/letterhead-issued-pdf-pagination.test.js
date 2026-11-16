@@ -56,8 +56,14 @@ describe('letterhead PDF export / issued immutability', () => {
 
   test('A4 clipping and overflow remain hard failures for locked documents', () => {
     const source = readExportSource();
-    expect(source).toContain('if (clippedContent) throw overflowError();');
-    expect(source).toContain('if (a4Error) throw a4Error;');
+    expect(source).toContain("error.code = 'BONDS_PDF_A4_CLIPPED'");
+    expect(source).toContain("a4Error.code = 'BONDS_PDF_A4_OVERFLOW'");
+    expect(source).toContain("clonedSheet.style.height = '297mm'");
+    expect(source).toContain('const walker = clonedDocument.createTreeWalker(content');
+    expect(source).toContain('const qrCollision = paintedRects.some');
+    expect(source).not.toContain('content.style.zoom');
+    expect(source).toContain('if (clippedContent) {');
+    expect(source).toContain('if (a4Error) {');
     expect(source).toContain('&& canEditCurrent())');
   });
 

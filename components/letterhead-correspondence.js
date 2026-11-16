@@ -1405,7 +1405,7 @@
       const viewer = String(state.userId || 'غير مسجل').slice(0, 8);
       throw new Error(isEn
         ? `This document is locked, so overflowing pages cannot be split automatically. Restore editing rights or shorten the content. (owner ${owner} / you ${viewer})`
-        : `هذا المستند مقفل ولا يمكن تقسيم صفحاته المتجاوزة تلقائياً. استعد صلاحية التحرير أو قصّر المحتوى. (المالك ${owner} / أنت ${viewer})`);
+        : `هذا المستند صادر ومقفل؛ لا يمكن تغيير توزيع صفحاته. يلزم فحص تخطيط A4 للنسخة المعتمدة، أو إنشاء إصدار لاحق مخول دون تعديل الأصل. (المالك ${owner} / أنت ${viewer})`);
     }
     const container = document.getElementById('pages-container');
     if (!container) throw new Error('Letterhead pages container missing');
@@ -1471,6 +1471,105 @@
     // checks below reject invalid layouts rather than changing issued content.
     if (canEditCurrent()) paginateEditableSheets();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
+    // For historical issued pages without a final archived PDF, rebalance only
+    // html2canvas's disposable DOM clone. The signed pages_html, source DOM,
+    // hashes, numbering, signatures and issue records remain untouched.
+    function rebalanceIssuedClone(clonedDocument) {
+      if (!['issued', 'sent', 'archived'].includes(state.document?.status)) return;
+      const clonedSheets = Array.from(clonedDocument.querySelectorAll('#pages-container .sheet'));
+      if (clonedSheets.length !== sheets.length) throw new Error('Issued page count changed during PDF clone');
+      for (const sheet of clonedSheets) {
+        Object.assign(sheet.style, {
+          width: '210mm', height: '297mm', minHeight: '297mm',
+          maxHeight: '297mm', flexShrink: '0', overflow: 'hidden'
+        });
+      }
+      const semanticContent = () => clonedSheets.map(sheet => {
+        const content = sheet.querySelector('.doc-content');
+        if (!content) return '';
+        const walker = clonedDocument.createTreeWalker(content, 4 /* SHOW_TEXT */);
+        let text = '';
+        while (walker.nextNode()) {
+          if (walker.currentNode.textContent.trim()) text += walker.currentNode.textContent;
+        }
+        return text;
+      }).join('');
+      const originalText = semanticContent();
+      const moveLastBlock = (source, destination) => {
+        const tail = source.lastElementChild;
+        if (!tail) return false;
+        const tag = tail.tagName;
+        if ((tag === 'OL' || tag === 'UL') && tail.children.length > 1) {
+          const number = tag === 'OL'
+            ? (Number(tail.getAttribute('start')) || 1) + tail.children.length - 1 : 0;
+          let continuation = destination.firstElementChild;
+          if (!continuation || continuation.tagName !== tag ||
+              continuation.getAttribute('data-letterhead-continuation') !== '1') {
+            continuation = tail.cloneNode(false);
+            continuation.setAttribute('data-letterhead-continuation', '1');
+            destination.insertBefore(continuation, destination.firstChild);
+          }
+          continuation.insertBefore(tail.lastElementChild, continuation.firstChild);
+          if (tag === 'OL') continuation.setAttribute('start', String(number));
+          return true;
+        }
+        if (tag === 'DIV' && tail.children.length &&
+            !Array.from(tail.childNodes).some(node => node.nodeType === 3 && node.textContent.trim())) {
+          let continuation = destination.firstElementChild;
+          if (!continuation || continuation.tagName !== 'DIV' ||
+              continuation.getAttribute('data-letterhead-continuation') !== '1') {
+            continuation = tail.cloneNode(false);
+            continuation.setAttribute('data-letterhead-continuation', '1');
+            destination.insertBefore(continuation, destination.firstChild);
+          }
+          if (!moveLastBlock(tail, continuation)) return false;
+          if (!tail.children.length && !tail.textContent.trim()) tail.remove();
+          return true;
+        }
+        destination.insertBefore(tail, destination.firstChild);
+        return true;
+      };
+      const bottomOfPaintedContent = content => {
+        let bottom = content.getBoundingClientRect().top;
+        const walker = clonedDocument.createTreeWalker(content, 4 /* SHOW_TEXT */);
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          if (!node.textContent.trim()) continue;
+          const range = clonedDocument.createRange();
+          range.selectNodeContents(node);
+          for (const rect of range.getClientRects()) bottom = Math.max(bottom, rect.bottom);
+          range.detach?.();
+        }
+        for (const el of content.querySelectorAll('img,svg,canvas,hr')) {
+          bottom = Math.max(bottom, el.getBoundingClientRect().bottom);
+        }
+        return bottom;
+      };
+      let moves = 0;
+      for (let i = 0; i < clonedSheets.length; i++) {
+        const sheet = clonedSheets[i];
+        const content = sheet.querySelector('.doc-content');
+        const footer = sheet.querySelector('.letterhead-footer');
+        if (!content || !footer) throw new Error('Incomplete A4 clone structure');
+        const next = clonedSheets[i + 1]?.querySelector('.doc-content');
+        const qr = sheet.querySelector('.footer-qr-pair');
+        const safeBottom = Math.min(footer.getBoundingClientRect().top,
+          qr ? qr.getBoundingClientRect().top : footer.getBoundingClientRect().top) - 4;
+        while (bottomOfPaintedContent(content) > safeBottom) {
+          if (++moves > 500 || !next || !moveLastBlock(content, next)) {
+            const error = new Error('Issued A4 cannot be rebalanced into the approved sheet count');
+            error.code = 'BONDS_ISSUED_A4_REBALANCE_FAILED';
+            error.page = i + 1;
+            throw error;
+          }
+        }
+      }
+      if (originalText !== semanticContent()) {
+        throw new Error('A4 clone redistribution changed issued text content');
+      }
+    }
+    // Font metrics must be stable before producing the immutable PDF image.
+    if (document.fonts?.ready) await document.fonts.ready;
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     const integrityMarker = state.document?.issued_hash
       ? ['BONDS-DOC', state.document.id, state.document.current_version, state.document.document_hash, state.document.issued_hash].join(':')
@@ -1488,6 +1587,7 @@
       let retriedAfterPagination = false;
       while (true) {
         let clippedContent = false;
+        let clippingReason = '';
         const canvas = await html2canvas(sheets[i], {
           scale: 1.6,
           useCORS: true,
@@ -1496,6 +1596,7 @@
           // PDF must use desktop A4 layout even when triggered from a phone.
           windowWidth: Math.max(1280, window.innerWidth),
           onclone: clonedDocument => {
+            rebalanceIssuedClone(clonedDocument);
             const clonedSheet = clonedDocument.querySelectorAll('.sheet')[i];
             const content = clonedSheet?.querySelector('.doc-content');
             const footer = clonedSheet?.querySelector('.letterhead-footer');
@@ -1503,17 +1604,68 @@
               clippedContent = true;
               return;
             }
-            // An overflow:hidden A4 sheet can clip content without growing the canvas.
-            const contentBottom = content.getBoundingClientRect().bottom;
-            const footerTop = footer.getBoundingClientRect().top;
-            clippedContent = contentBottom > footerTop + 1 ||
-              clonedSheet.scrollHeight > clonedSheet.clientHeight + 1;
+            // Render the desktop A4 geometry irrespective of the caller's
+            // responsive viewport. Never scale or alter approved HTML nodes.
+            clonedSheet.style.width = '210mm';
+            clonedSheet.style.height = '297mm';
+            clonedSheet.style.minHeight = '297mm';
+            clonedSheet.style.maxHeight = '297mm';
+            clonedSheet.style.flexShrink = '0';
+            clonedSheet.style.overflow = 'hidden';
+            const sheetRect = clonedSheet.getBoundingClientRect();
+            const footerRect = footer.getBoundingClientRect();
+            const contentRect = content.getBoundingClientRect();
+            // The 170mm content min-height is not evidence of actual text.
+            // Inspect visible descendants, including nested lists and stamps.
+            const view = clonedDocument.defaultView;
+            const visible = el => {
+              for (let current = el; current && current !== content; current = current.parentElement) {
+                const css = view.getComputedStyle(current);
+                if (css.display === 'none' || css.visibility === 'hidden') return false;
+              }
+              return true;
+            };
+            // Measure painted text lines, not enclosing DIVs (whose blank area
+            // can overlap the reserved QR zone and cause false failures).
+            const paintedRects = [];
+            const walker = clonedDocument.createTreeWalker(content, 4 /* SHOW_TEXT */);
+            while (walker.nextNode()) {
+              const text = walker.currentNode;
+              if (!text.textContent.trim() || !visible(text.parentElement)) continue;
+              const range = clonedDocument.createRange();
+              range.selectNodeContents(text);
+              paintedRects.push(...Array.from(range.getClientRects()));
+              range.detach?.();
+            }
+            for (const el of content.querySelectorAll('img,svg,canvas,hr,input,textarea,iframe')) {
+              if (visible(el)) paintedRects.push(...Array.from(el.getClientRects()));
+            }
+            const qrBoxes = Array.from(clonedSheet.querySelectorAll('.footer-qr-box'))
+              .filter(el => view.getComputedStyle(el).display !== 'none')
+              .map(el => el.getBoundingClientRect());
+            const collide = (a, b) => a.right > b.left + 1 && a.left < b.right - 1 &&
+              a.bottom > b.top + 1 && a.top < b.bottom - 1;
+            const footerCollision = paintedRects.some(box => collide(box, footerRect));
+            const qrCollision = paintedRects.some(box =>
+              qrBoxes.some(qr => collide(box, qr)));
+            const escapedPage = paintedRects.some(box =>
+              box.top < sheetRect.top - 1 || box.bottom > sheetRect.bottom + 1 ||
+              box.left < sheetRect.left - 1 || box.right > sheetRect.right + 1);
+            const sheetOverflow = clonedSheet.scrollHeight > clonedSheet.clientHeight + 1;
+            clippedContent = footerCollision || qrCollision || escapedPage || sheetOverflow;
+            if (clippedContent) clippingReason = footerCollision ? 'footer' :
+              qrCollision ? 'qr' : escapedPage ? 'page' : 'scroll';
+            // A missing body is an invalid page even if no descendant overflows.
+            if (!contentRect.width || !footerRect.height) {
+              clippedContent = true;
+              clippingReason = 'structure';
+            }
           }
         });
         const overflowError = () => clippedContent
           ? new Error(isEn
             ? `Page ${i + 1} content overlaps its footer or is clipped. Move content to a new page.`
-            : `محتوى الصفحة ${i + 1} متداخل مع التذييل أو مقصوص. انقل جزءًا من المحتوى إلى صفحة جديدة.`)
+            : (canEditCurrent() ? `محتوى الصفحة ${i + 1} متداخل مع التذييل أو مقصوص. انقل جزءًا من المحتوى إلى صفحة جديدة قبل الاعتماد.` : `تجاوز A4 في الصفحة الصادرة ${i + 1}: المحتوى متداخل مع التذييل أو مقصوص. لا يمكن تعديل النسخة المعتمدة؛ يلزم إصلاح تخطيط التصدير دون تعديل الأصل أو إصدار لاحق مخول.`))
           : null;
         const pageHeightPx = Math.floor(canvas.width * 297 / 210);
         // Issued documents must have one physical PDF page per numbered sheet.
@@ -1523,7 +1675,7 @@
         const a4Error = canvas.height > pageHeightPx + 8
           ? new Error(isEn
             ? `Page ${i + 1} overflows A4. Split the content into another letterhead page before finalizing the PDF.`
-            : `الصفحة ${i + 1} تتجاوز حدود A4. وزّع المحتوى على صفحة مراسلات إضافية قبل اعتماد PDF النهائي.`)
+            : (canEditCurrent() ? `الصفحة ${i + 1} تتجاوز حدود A4. وزّع المحتوى على صفحة مراسلات إضافية قبل الاعتماد.` : `الصفحة الصادرة ${i + 1} تتجاوز حدود A4. لا يمكن تعديل الصفحات المعتمدة؛ يلزم إصلاح هندسة التصدير أو إصدار لاحق مخول.`))
           : null;
         if ((clippedContent || a4Error) && !retriedAfterPagination && canEditCurrent()) {
           // Automation: re-run the pagination pass (content may have been edited
@@ -1534,8 +1686,18 @@
           sheets.push(...document.querySelectorAll('.sheet'));
           if (i < sheets.length) continue;
         }
-        if (clippedContent) throw overflowError();
-        if (a4Error) throw a4Error;
+        if (clippedContent) {
+          const error = overflowError();
+          error.code = 'BONDS_PDF_A4_CLIPPED';
+          error.page = i + 1;
+          error.reason = clippingReason;
+          throw error;
+        }
+        if (a4Error) {
+          a4Error.code = 'BONDS_PDF_A4_OVERFLOW';
+          a4Error.page = i + 1;
+          throw a4Error;
+        }
       const totalPages = 1;
       for (let page = 0; page < totalPages; page++) {
         const y = page * pageHeightPx;
