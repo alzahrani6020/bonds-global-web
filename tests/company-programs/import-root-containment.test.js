@@ -36,7 +36,11 @@ describe('BONDS-only source import safety contract', () => {
     expect(script).toMatch(/Windows case-insensitive filename collision/);
     expect(script).toMatch(/Assert-DirectoryNotLink/);
     expect(script).toMatch(/Assert-NoSecret \$src \$file/);
-    expect(script).toMatch(/Possible credential in tracked source file/);
+    // Collect all redacted findings but fail before publishing any source.
+    expect(script).toMatch(/\$script:secretFindings\.Add\(/);
+    expect(script).toMatch(/throw 'IMPORT_BLOCKED_POTENTIAL_CREDENTIALS'/);
+    expect(script.indexOf("throw 'IMPORT_BLOCKED_POTENTIAL_CREDENTIALS'"))
+      .toBeLessThan(script.indexOf('Move-Item -LiteralPath $candidate -Destination $target'));
     expect(script).toMatch(/Git LFS pointer is not a real source file/);
   });
 
