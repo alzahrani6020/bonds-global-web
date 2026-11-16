@@ -112,7 +112,7 @@ try {
   if ($LASTEXITCODE -ne 0) { throw 'Source clone failed.' }
   $sha = (& git -C $stage rev-parse HEAD).Trim()
   if ($LASTEXITCODE -ne 0 -or $sha -notmatch '^[a-f0-9]{40}$') { throw 'Source HEAD verification failed.' }
-  $index = @(& git -C $stage ls-files --stage)
+  $index = @(& git -C $stage -c core.quotePath=false ls-files --stage)
   if ($LASTEXITCODE -ne 0 -or $index.Count -eq 0) { throw 'No tracked source files.' }
   $paths = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
   New-Item -ItemType Directory -Path $candidate | Out-Null
