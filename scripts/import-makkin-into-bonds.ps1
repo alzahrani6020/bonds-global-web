@@ -170,8 +170,8 @@ try {
     imported_utc=[DateTime]::UtcNow.ToString('o')
     imported_file_count=$copied.Count
     skipped_sensitive_file_count=$skip.Count
-    skipped_sensitive_paths=@($skip)
-    files=@($copied)
+    skipped_sensitive_paths=$skip.ToArray()
+    files=$copied.ToArray()
     status='SOURCE_IMPORTED_ONLY_NOT_INTEGRATED_OR_DEPLOYED'
   }
   [IO.File]::WriteAllText($temporaryManifest,(ConvertTo-Json -InputObject $manifest -Depth 6),([Text.UTF8Encoding]::new($false)))
