@@ -41,7 +41,11 @@ describe('Company programs - no phantom capabilities',()=>{
     expect(ui).toContain("result').textContent");
     expect(ui).not.toContain('BONDS_MAKKIN_SIGNING_PRIVATE_KEY');
     expect(ui).not.toContain('scc380-api.onrender.com');
-    expect(ui).not.toContain('program-write');
+    expect(ui).toContain("window.currentInventory?.stagingTaskCreateAvailable!==true");
+    expect(ui).toContain("'/api/company-programs?action=program-write'");
+    expect(ui).toContain("$('task-create-panel').hidden = data.stagingTaskCreateAvailable!==true");
+    expect(ui).toContain("result.persisted!==true");
+    expect(ui).toContain("result.tokenExposed!==false");
     expect(ui).not.toMatch(/innerHTML\s*=/);
     expect(()=>new Function(ui)).not.toThrow();
     for(const program of PROGRAMS){
