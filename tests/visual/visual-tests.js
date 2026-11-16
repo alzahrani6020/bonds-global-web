@@ -56,6 +56,69 @@ function writePng(png, filePath) {
 
 
 
+// Synthetic issued-document acceptance: run the REAL PDF exporter with four
+// already-numbered A4 letterhead sheets. No API, user document, or archive write.
+async function runFourPageIssuedPdfGate(browser) {
+  const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  const source = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
+  const start = source.indexOf('  async function createPdfBlob() {');
+  const end = source.indexOf('  async function persistIssuedPdfArtifact()', start);
+  if (start < 0 || end <= start) throw new Error('Actual governed exporter missing');
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    await page.addScriptTag({ url: 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js' });
+    await page.addScriptTag({ url: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js' });
+    const result = await page.evaluate(async exporter => {
+      const container = document.getElementById('pages-container');
+      const template = container?.querySelector('.sheet');
+      if (!template) throw new Error('Letterhead A4 sheet template missing');
+      while (container.querySelectorAll('.sheet').length < 4) container.appendChild(template.cloneNode(true));
+      const sheets = Array.from(container.querySelectorAll('.sheet'));
+      for (let i = 0; i < sheets.length; i++) {
+        sheets[i].querySelector('.doc-content').innerHTML =
+          '<p dir="rtl">مستند اختباري غير رسمي للتحقق من سلامة تصدير الصفحات الأربع.</p>' +
+          '<p dir="rtl">الصفحة الاختبارية ' + (i + 1) + ' من أربع صفحات.</p>';
+        const number = sheets[i].querySelector('.page-number');
+        if (!number) throw new Error('Page counter absent');
+        number.textContent = 'الصفحة ' + (i + 1) + ' من 4';
+      }
+      const before = sheets.map(x => x.outerHTML);
+      const state = { document: {
+        id: '00000000-0000-4000-8000-000000000000',
+        status: 'issued', current_version: 1,
+        reference_number: 'TEST-NOT-ISSUED',
+        document_hash: 'synthetic-content', issued_hash: 'synthetic-issue'
+      }};
+      const isEn = false;
+      const waitForVerificationQr = async () => {};
+      const canEditCurrent = () => false;
+      let paginationCalls = 0;
+      const paginateEditableSheets = () => {
+        paginationCalls++;
+        throw new Error('Issued sheets must never be repaginated');
+      };
+      const make = new Function('state', 'isEn', 'waitForVerificationQr', 'canEditCurrent',
+        'paginateEditableSheets', exporter + '\nreturn createPdfBlob();');
+      const blob = await make(state, isEn, waitForVerificationQr, canEditCurrent, paginateEditableSheets);
+      const binary = new TextDecoder('latin1').decode(await blob.arrayBuffer());
+      const pages = (binary.match(/\/Type\s*\/Page\b/g) || []).length;
+      const after = sheets.map(x => x.outerHTML);
+      return {pages, byteLength: blob.size, paginationCalls,
+        sheetsPreserved: before.every((x, i) => x === after[i]),
+        labelCount: sheets.filter((x, i) => x.querySelector('.page-number')?.textContent === 'الصفحة ' + (i + 1) + ' من 4').length};
+    }, source.slice(start, end));
+    if (result.pages !== 4 || result.labelCount !== 4 || !result.sheetsPreserved ||
+        result.paginationCalls !== 0 || result.byteLength < 1000) {
+      throw new Error('Four-page locked document PDF acceptance failed: ' + JSON.stringify(result));
+    }
+    console.log(' Synthetic issued four-sheet PDF: 4 physical A4 pages, immutable sheets, numbered 1-4 PASS');
+  } finally {
+    await page.close();
+  }
+}
+
 async function runLetterheadNestedPaginationGate(browser) {
   const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
@@ -410,6 +473,9 @@ async function runScenarioDropdownInteractionGate(browser) {
       deviceScaleFactor: 1,
     });
 
+    // Lock the approved screenshot fixture's clock. The public site's clock
+    // remains live; this affects only the headless visual test page.
+    await page.clock.setFixedTime(new Date('2026-11-15T18:43:30.000Z'));
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.route(/(\/global-auth-gate|\/calculators\/auth-gate)\.js(?:\?.*)?$/, route => route.abort());
     await page.context().addInitScript(() => {
@@ -463,6 +529,15 @@ async function runScenarioDropdownInteractionGate(browser) {
             }
           `
         });
+        // Bound image readiness: fail visibly rather than hang CI on a
+        // third-party image that never finishes loading.
+        if (p.name === 'index-ar' || p.name === 'index-en') {
+          await page.waitForFunction(() => {
+            const hero = document.querySelector('.bonds-hero__photo');
+            return !!hero && hero.complete && hero.naturalWidth > 0;
+          }, null, { timeout: 10000 });
+          await page.locator('.bonds-hero__photo').evaluate(img => img.decode());
+        }
         await page.waitForTimeout(500);
         await page.evaluate(() => {
           const banner = document.getElementById('cookieBanner');
@@ -583,6 +658,14 @@ async function runScenarioDropdownInteractionGate(browser) {
     await page.close();
   }
 
+  // Run the heavy html2canvas/jsPDF acceptance after screenshots, in its own
+  // browser page, so PDF rasterization cannot perturb approved home snapshots.
+  try {
+    await runFourPageIssuedPdfGate(browser);
+  } catch (err) {
+    console.error(' Synthetic issued four-sheet PDF acceptance failed: ' + err.message);
+    failed++;
+  }
   await browser.close();
 
   if (UPDATE_BASELINE) {
