@@ -29,7 +29,7 @@ jobs:
           $root = [IO.Path]::GetFullPath((Resolve-Path '.').Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
           $source = [IO.Path]::GetFullPath((Resolve-Path 'integrations/makkin/source').Path)
           if (-not $source.StartsWith($root + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal)) { throw "IMPORT_OUTSIDE_BONDS_ROOT" }
-          $files = @(Get-ChildItem -LiteralPath $source -File -Recurse)
+          $files = @(Get-ChildItem -LiteralPath $source -File -Recurse -Force)
           if ($files.Count -ne [int]$m.imported_file_count -or $files.Count -eq 0) { throw "IMPORT_FILE_COUNT_MISMATCH" }
           foreach ($entry in $m.files) {
             $target = [IO.Path]::GetFullPath((Join-Path $source $entry.path))
