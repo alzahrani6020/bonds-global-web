@@ -110,11 +110,14 @@
    if(!auth.data?.user)return;
    const data=await api('crm-overview');
    ready=true;open.hidden=false;render(data);
+   if(new URLSearchParams(location.search).get('internal')==='1')open.click();
   }catch(_err){open.hidden=true;ready=false;}
  }
  open.addEventListener('click',async()=>{
   if(!ready)return;
   el('workspace-content').hidden=true;
+  el('onboarding').dataset.internalPrevHidden=String(el('onboarding').hidden);
+  el('onboarding').hidden=true;
   el('internal-crm-panel').hidden=false;
   open.setAttribute('aria-expanded','true');
   await reload();
@@ -122,6 +125,7 @@
  el('internal-crm-back').addEventListener('click',()=>{
   el('internal-crm-panel').hidden=true;
   el('workspace-content').hidden=false;
+  el('onboarding').hidden=el('onboarding').dataset.internalPrevHidden!=='false';
   open.setAttribute('aria-expanded','false');
  });
  el('internal-crm-refresh').addEventListener('click',reload);
