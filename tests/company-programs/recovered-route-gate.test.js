@@ -14,8 +14,8 @@ test('company programs route is uniquely routed through existing platform API',(
   expect(vercel.rewrites.filter(r=>r.source===url)).toEqual([{source:url,destination:'/api/platform'}]);
  }
 });
-test('unauthorized or production writes stay closed',()=>{
- expect(handler).toContain("process.env.VERCEL_ENV==='production'");
+test('unauthorized or non-preview writes stay closed',()=>{
+ expect(handler).toContain("process.env.VERCEL_ENV!=='preview'");
  expect(handler).toContain("process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED!=='true'");
  expect(handler).toContain('accessToSourceWorkspace(sb,user,workspaceType,workspaceId)');
  expect(handler).toContain('verifyBearer(req)');
