@@ -22,6 +22,7 @@ describe('Company programs - no phantom capabilities',()=>{
     const fs=require('fs');
     const path=require('path');
     const html=fs.readFileSync(path.join(__dirname,'../../my-bonds/company-programs/index.html'),'utf8');
+    const english=fs.readFileSync(path.join(__dirname,'../../en/my-bonds/company-programs/index.html'),'utf8');
     const ui=fs.readFileSync(path.join(__dirname,'../../my-bonds/company-programs/app.js'),'utf8');
     const ops=require('../../lib/company-programs/makkin-read-operations').MAKKIN_READ_OPERATIONS;
     expect(html).toContain('id="workspace"');
@@ -29,6 +30,9 @@ describe('Company programs - no phantom capabilities',()=>{
     expect(html).toContain('aria-live="polite"');
     expect(html).toContain('/my-bonds/company-programs/app.js');
     expect(html).toContain('lang="ar" dir="rtl"');
+    expect(english).toContain('lang="en" dir="ltr"');
+    expect(english).toContain('/my-bonds/company-programs/app.js');
+    expect(ui).toContain("location.pathname.startsWith('/en/')");
     expect(ui).toContain('window.BondsAuth.authenticatedFetch');
     expect(ui).toContain('program-read');
     expect(ui).toContain("card.append(h,badge,note,button)");
