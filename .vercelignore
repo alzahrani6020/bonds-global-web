@@ -27,3 +27,6 @@ dropdown-forced.png
 /.makkin-import/
 /integrations/makkin/source/
 /integrations/makkin/import-manifest.json
+
+# Captured live-site reference evidence; local to BONDS repository, never shipped
+/tests/visual/production-reference/
