@@ -25,7 +25,7 @@ describe('governed correspondence rate-limit routing', () => {
   });
 
   test('public verification continues to use public bucket', () => {
-    expect(correspondenceRoute[1]).toMatch(/corrAction\s*===\s*'verify'\s*\|\|\s*corrAction\s*===\s*'qr'/);
+    expect(correspondenceRoute[1]).toMatch(/corrAction\s*===\s*'verify'\s*\|\|\s*corrAction\s*===\s*'qr'\s*\|\|\s*corrAction\s*===\s*'site-qr'/);
     expect(correspondenceRoute[1]).toMatch(/\?\s*'public'/);
   });
 });
