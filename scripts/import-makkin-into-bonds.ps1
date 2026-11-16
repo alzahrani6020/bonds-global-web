@@ -21,6 +21,7 @@ $temporaryManifest = Join-Path $stageParent ('manifest-' + $run + '.json')
 $skip = New-Object 'System.Collections.Generic.List[string]'
 $copied = New-Object 'System.Collections.Generic.List[object]'
 $committed = $false
+$script:secretFindings = New-Object 'System.Collections.Generic.List[string]'
 
 function Assert-DirectoryNotLink([string]$path) {
   $full = [IO.Path]::GetFullPath($path)
@@ -82,7 +83,7 @@ function Assert-NoSecret([string]$path, [string]$relative) {
   for ($signalIndex = 0; $signalIndex -lt $signals.Count; $signalIndex++) {
     if ([regex]::IsMatch($content,$signals[$signalIndex])) {
       # Signal index is diagnostic metadata; never print matched secret content.
-      throw "Possible credential signature $signalIndex in tracked source file (no value shown): $relative"
+      $script:secretFindings.Add("$relative [signature $signalIndex]")
     }
   }
   if ($content.StartsWith('version https://git-lfs.github.com/spec/v1')) {
@@ -147,6 +148,11 @@ try {
       throw "SHA256 integrity mismatch: $file"
     }
     $copied.Add([pscustomobject]@{ path=$file; sha256=$hash })
+  }
+  if ($script:secretFindings.Count -gt 0) {
+    Write-Host "IMPORT_BLOCKED_POTENTIAL_CREDENTIALS count=$($script:secretFindings.Count)"
+    foreach ($finding in $script:secretFindings) { Write-Host "REVIEW_REQUIRED $finding" }
+    throw 'IMPORT_BLOCKED_POTENTIAL_CREDENTIALS'
   }
   if ($copied.Count -eq 0) { throw 'No eligible source code.' }
   $manifest = [ordered]@{
