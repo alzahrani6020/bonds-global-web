@@ -1484,8 +1484,17 @@
           maxHeight: '297mm', flexShrink: '0', overflow: 'hidden'
         });
       }
-      const originals = clonedSheets.map(sheet => sheet.querySelector('.doc-content')?.textContent || '');
-      const normalizedText = values => values.join(' ').replace(/\\s+/g, ' ').trim();
+      const semanticContent = () => clonedSheets.map(sheet => {
+        const content = sheet.querySelector('.doc-content');
+        if (!content) return '';
+        const walker = clonedDocument.createTreeWalker(content, 4 /* SHOW_TEXT */);
+        let text = '';
+        while (walker.nextNode()) {
+          if (walker.currentNode.textContent.trim()) text += walker.currentNode.textContent;
+        }
+        return text;
+      }).join('');
+      const originalText = semanticContent();
       const moveLastBlock = (source, destination) => {
         const tail = source.lastElementChild;
         if (!tail) return false;
@@ -1555,8 +1564,7 @@
           }
         }
       }
-      const after = clonedSheets.map(sheet => sheet.querySelector('.doc-content')?.textContent || '');
-      if (normalizedText(originals) !== normalizedText(after)) {
+      if (originalText !== semanticContent()) {
         throw new Error('A4 clone redistribution changed issued text content');
       }
     }
