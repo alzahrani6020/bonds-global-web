@@ -223,6 +223,93 @@ jobs:
           if-no-files-found: ignore
           retention-days: 1
 
+  makkin-root-only-import:
+    name: Makkin source import into isolated BONDS root (no deploy)
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 1111
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout BONDS candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Import and hash-verify tracked SCC380 source under repository root
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ./scripts/import-makkin-into-bonds.ps1 -Apply
+          $manifest = Get-Content "integrations/makkin/import-manifest.json" -Raw | ConvertFrom-Json
+          $root = [IO.Path]::GetFullPath((Resolve-Path '.').Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
+          $source = [IO.Path]::GetFullPath((Resolve-Path 'integrations/makkin/source').Path)
+          if (-not $source.StartsWith($root + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal)) { throw "OUTSIDE_BONDS_ROOT" }
+          if ($manifest.status -ne 'SOURCE_IMPORTED_ONLY_NOT_INTEGRATED_OR_DEPLOYED' -or $manifest.source_sha -notmatch '^[a-f0-9]{40}    name: Token Runtime Windows service acceptance (isolated)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      BONDS_TOKEN_WINDOWS_ISOLATED_ACCEPTANCE: '1'
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Set up Python for the isolated service
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+          architecture: x64
+
+      - name: Install Windows service dependency on the disposable runner
+        run: |
+          python -m pip install pywin32==312
+          if ($LASTEXITCODE -ne 0) { throw "pywin32 installation failed" }
+          # The pinned wheel contains two script copies and one canonical entry point.
+          python -c "import importlib.metadata as m, sys; entries = [p for p in m.distribution('pywin32').entry_points if p.group == 'console_scripts' and p.name == 'pywin32_postinstall']; assert len(entries) == 1, 'Installed pywin32 postinstall entry point is missing or ambiguous'; print('Running pywin32 postinstall entry point:', entries[0].value); sys.argv = ['pywin32_postinstall', '-install']; sys.exit(entries[0].load()())"
+          if ($LASTEXITCODE -ne 0) { throw "pywin32 service registration prerequisites failed" }
+
+      - name: Verify SCM restart, revocation persistence and failed rollout recovery
+        run: ./services/bonds_token_runtime/tests/test_windows_service_lifecycle.ps1
+
+      - name: Report isolated acceptance evidence
+        if: always()
+        run: |
+          $report = Join-Path $env:RUNNER_TEMP "bonds-windows-token-lifecycle-acceptance.json"
+          if (-not (Test-Path -LiteralPath $report -PathType Leaf)) { throw "Windows acceptance report is missing" }
+          Get-Content -LiteralPath $report -Raw
+
+      - name: Upload sanitized isolated acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: token-runtime-windows-acceptance
+          path: ${{ runner.temp }}/bonds-windows-token-lifecycle-acceptance.json
+          if-no-files-found: error
+          retention-days: 14
+) { throw "INVALID_MANIFEST" }
+          $files = @(Get-ChildItem -LiteralPath $source -File -Recurse)
+          if ($files.Count -lt 1 -or $files.Count -ne [int]$manifest.imported_file_count) { throw "FILE_COUNT_MISMATCH" }
+          foreach ($entry in $manifest.files) {
+            $target = [IO.Path]::GetFullPath((Join-Path $source $entry.path))
+            if (-not $target.StartsWith($source + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal)) { throw "PATH_ESCAPE" }
+            if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "HASH_MISMATCH" }
+          }
+          $state = @(git status --porcelain --untracked-files=all)
+          if ($LASTEXITCODE -ne 0 -or $state.Count -gt 0) { throw "UNEXPECTED_GIT_CHANGES" }
+          Write-Host "SOURCE_IMPORT_VERIFIED files=$($files.Count) sha=$($manifest.source_sha) rootContained=true"
+      - name: Upload root-contained source import proof
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: makkin-source-root-import-proof
+          path: integrations/makkin/import-manifest.json
+          if-no-files-found: warn
+          retention-days: 7
+
   token-runtime-windows-acceptance:
     name: Token Runtime Windows service acceptance (isolated)
     runs-on: windows-latest
