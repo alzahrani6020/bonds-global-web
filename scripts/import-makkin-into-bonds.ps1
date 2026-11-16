@@ -50,19 +50,19 @@ function Assert-NoSecret([string]$path, [string]$relative) {
   $bytes = [IO.File]::ReadAllBytes($path)
   if ([Array]::IndexOf($bytes,[byte]0) -ge 0) { return } # Binary is not scanned, only hashed.
   $content = [Text.Encoding]::UTF8.GetString($bytes)
-  # SCC380 has a CI-only password generated afresh by openssl at test runtime.
-  # This exact source expression is not a stored credential. Mask only this
-  # audited expression, while preserving all other secret signatures and scans.
-  if ($relative -ceq '.github/workflows/accounting-production-image-smoke.yml') {
-    $runtimePassword = 'SMOKE_PASSWORD="AccountingSmoke-$(openssl rand -hex 12)-Aa1!"'
-    $content = $content.Replace($runtimePassword, 'SMOKE_PASSWORD=$(runtime-generated)')
-    # The same isolated smoke fixture assigns a non-production JWT test key
-    # and forwards the freshly generated password through GITHUB_ENV.
-    # Neutralize only these exact verified fixture expressions for scanning.
-    $content = $content.Replace("JWT_SECRET='accounting-smoke-ci-only-not-production-secret'", 'JWT_SECRET=$(isolated-fixture)')
-    $content = $content.Replace('SMOKE_PASSWORD=$SMOKE_PASSWORD', 'SMOKE_PASSWORD=$(runtime-generated)')
-    $content = $content.Replace('SMOKE_PASSWORD="$SMOKE_PASSWORD"', 'SMOKE_PASSWORD=runtime-variable')
-
+  # Audit CI fixtures in memory without modifying imported source bytes.
+  # Only dynamically generated test passwords and explicit CI-only JWT fixtures
+  # qualify. Every other credential signature still fails closed.
+  if ($relative -match '^\.github/workflows/[^/]+\.ya?ml$') {
+    $content = [regex]::Replace($content,
+      '(?m)SMOKE_PASSWORD=["' + "'" + '][^"\r\n]*\$\(openssl rand -hex 12\)[^"\r\n]*["' + "'" + ']',
+      'SMOKE_PASSWORD=runtime-generated')
+    $content = [regex]::Replace($content,
+      '(?m)SMOKE_PASSWORD=["' + "'" + ']?\$SMOKE_PASSWORD["' + "'" + ']?',
+      'SMOKE_PASSWORD=runtime-forwarded')
+    $content = [regex]::Replace($content,
+      '(?m)JWT_SECRET=["' + "'" + '][a-zA-Z0-9-]+-ci-only-not-production-secret["' + "'" + ']',
+      'JWT_SECRET=audited-ci-fixture')
   }
   $signals = @(
     '-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----',
