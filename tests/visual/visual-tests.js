@@ -483,6 +483,24 @@ async function runScenarioDropdownInteractionGate(browser) {
             }
           `
         });
+        // The home hero photo is served from Wikimedia. Require full decode,
+        // rather than comparing a transient GPU paint against approved pixels.
+        // This does not mask any region or change the baseline threshold.
+        if (p.name === 'index-ar' || p.name === 'index-en') {
+          await page.evaluate(async () => {
+            const images = Array.from(document.querySelectorAll(
+              '.bonds-hero__photo, .bonds-hero__globe'
+            ));
+            for (const img of images) {
+              if (typeof img.decode === 'function') await img.decode();
+              if (!img.complete || !img.naturalWidth || !img.naturalHeight) {
+                throw new Error('Home hero asset did not decode completely');
+              }
+            }
+            await new Promise(resolve => requestAnimationFrame(() =>
+              requestAnimationFrame(resolve)));
+          });
+        }
         await page.waitForTimeout(500);
         await page.evaluate(() => {
           const banner = document.getElementById('cookieBanner');
