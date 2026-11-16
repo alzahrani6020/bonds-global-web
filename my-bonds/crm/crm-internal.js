@@ -37,7 +37,7 @@
   if(items.some(item=>item.id===keep))select.value=keep;
   delete select.dataset.keep;
   const record=items.find(item=>item.id===select.value)||{};
-  el('internal-crm-fields').innerHTML=fieldSchemas[type].map(([key,label,spec='text',required=false])=>{
+  el('internal-crm-fields').innerHTML=fieldSchemas[type].filter(([key])=>!(type==='deal'&&record.id&&['title','organization_id','client_id'].includes(key))).map(([key,label,spec='text',required=false])=>{
    const value=record[key],title=esc(label);
    if(spec.startsWith('ref:')){
     const collection=recordCollections[spec.slice(4)];
@@ -143,6 +143,9 @@
    body[key]=value===''?null:value;
   }
   if(id)body.id=id;
+  // The existing administrative API only updates deal stage/value/follow-up;
+  // do not silently submit unsupported title or relationship changes.
+  if(type==='deal'&&id){delete body.title;delete body.organization_id;delete body.client_id;}
   if(type==='deal'&&id=== ''){delete body.probability;if(body.value_amount===null)body.value_amount=0;}
   const actions={
    client:id?'crm-client-update':'crm-client-create',
