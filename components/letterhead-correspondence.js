@@ -1466,14 +1466,14 @@
     }
     await waitForVerificationQr();
     await waitForLetterheadBrandImages();
+    // Pagination and PDF capture must use the same final font metrics.
+    // This only awaits fonts; it does not modify issued document data.
+    if (document.fonts?.ready) await document.fonts.ready;
     // Only draft/returned documents may be repaginated. Issued documents are
     // immutable: export their approved sheets as-is and let the A4 overflow
     // checks below reject invalid layouts rather than changing issued content.
     if (canEditCurrent()) paginateEditableSheets();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
-    // The editor may use a fallback or asynchronously loaded font. Freeze its
-    // metrics before validating PDF geometry; never mutate the approved pages.
-    if (document.fonts?.ready) await document.fonts.ready;
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     const integrityMarker = state.document?.issued_hash
       ? ['BONDS-DOC', state.document.id, state.document.current_version, state.document.document_hash, state.document.issued_hash].join(':')
