@@ -15,7 +15,41 @@
   return result;
  };
  const fmt=n=>Number(n||0).toLocaleString(en?'en-US':'ar-SA');
+ let snapshot=null;
+ const recordCollections={client:'clients',organization:'organizations',deal:'opportunities',activity:'activities'};
+ const fieldSchemas={
+  client:[['name','Name','text',true],['email','Email'],['phone','Phone'],['company_name','Company'],['status','Status'],['source','Source'],['relationship_role','Role'],['is_decision_maker','Decision maker','checkbox']],
+  organization:[['name','Name','text',true],['legal_name','Legal name'],['sector','Sector'],['country','Country'],['city','City'],['domain','Domain'],['tax_number','Tax number'],['status','Status']],
+  deal:[['title','Title','text',true],['stage','Stage','select:lead|qualified|proposal|negotiation|won|lost'],['value_amount','Value','number'],['probability','Probability %','number'],['next_action','Next action'],['next_action_at','Next action time','datetime-local'],['expected_close_date','Expected close','date']],
+  activity:[['subject','Subject','text',true],['activity_type','Type','select:task|call|meeting|email|note|whatsapp|sms|visit'],['status','Status','select:open|completed|cancelled'],['scheduled_at','Scheduled','datetime-local'],['details','Details','textarea']]
+ };
+ const toLocal=value=>{
+  if(!value)return '';
+  const d=new Date(value);if(!Number.isFinite(d.getTime()))return '';
+  const pad=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+ };
+ function updateEditor(){
+  const type=el('internal-crm-record-type').value,items=snapshot?.[recordCollections[type]]||[];
+  const choices=items.map(item=>'<option value="'+esc(item.id)+'">'+esc(item.title||item.name||item.subject||item.id)+'</option>').join('');
+  const select=el('internal-crm-record-id'),keep=select.dataset.keep||'';
+  select.innerHTML='<option value="">'+(en?'Create new':'إضافة جديد')+'</option>'+choices;
+  if(items.some(item=>item.id===keep))select.value=keep;
+  delete select.dataset.keep;
+  const record=items.find(item=>item.id===select.value)||{};
+  el('internal-crm-fields').innerHTML=fieldSchemas[type].map(([key,label,spec='text',required=false])=>{
+   const value=record[key],title=esc(label);
+   if(spec==='checkbox')return '<label>'+title+'<input name="'+key+'" type="checkbox"'+(value?' checked':'')+'></label>';
+   if(spec==='textarea')return '<label>'+title+'<textarea name="'+key+'">'+esc(value||'')+'</textarea></label>';
+   if(spec.startsWith('select:'))return '<label>'+title+'<select name="'+key+'">'+spec.slice(7).split('|').map(x=>
+    '<option value="'+esc(x)+'"'+(x===value?' selected':'')+'>'+esc(x)+'</option>').join('')+'</select></label>';
+   const v=spec==='datetime-local'?toLocal(value):value??'';
+   return '<label>'+title+'<input name="'+key+'" type="'+spec+'" value="'+esc(v)+'"'+(required?' required':'')+'></label>';
+  }).join('');
+ }
+
  const render=data=>{
+  snapshot=data;updateEditor();
   const deals=data.opportunities||[],clients=data.clients||[],requests=data.serviceRequests||[];
   el('internal-crm-metrics').innerHTML=[
    [en?'Organizations':'المؤسسات',(data.organizations||[]).length],
@@ -79,6 +113,35 @@
   open.setAttribute('aria-expanded','false');
  });
  el('internal-crm-refresh').addEventListener('click',reload);
+ el('internal-crm-record-type').addEventListener('change',()=>{el('internal-crm-record-id').value='';updateEditor();});
+ el('internal-crm-record-id').addEventListener('change',updateEditor);
+ el('internal-crm-editor').addEventListener('submit',async event=>{
+  event.preventDefault();
+  const type=el('internal-crm-record-type').value,id=el('internal-crm-record-id').value;
+  const fd=new FormData(event.currentTarget),body={},fields=fieldSchemas[type];
+  for(const [key,,spec='text'] of fields){
+   let value=spec==='checkbox'?fd.has(key):String(fd.get(key)||'').trim();
+   if(spec==='number'){value=value===''?null:Number(value);if(value!==null&&!Number.isFinite(value))return status('Invalid number',true);}
+   if(spec==='datetime-local'&&value)value=new Date(value).toISOString();
+   body[key]=value===''?null:value;
+  }
+  if(id)body.id=id;
+  if(type==='deal'&&id=== ''){delete body.probability;if(body.value_amount===null)body.value_amount=0;}
+  const actions={
+   client:id?'crm-client-update':'crm-client-create',
+   organization:id?'crm-organization-update':'crm-organization-create',
+   deal:id?'crm-opportunity-update':'crm-opportunity-create',
+   activity:id?'crm-activity-update':'crm-activity-create'
+  };
+  const action=actions[type],button=el('internal-crm-save');
+  button.disabled=true;
+  try{
+   await api(action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+   await reload();status(en?'Record saved successfully':'حُفظ السجل بنجاح');
+  }catch(err){status((en?'Save failed: ':'فشل حفظ السجل: ')+err.message,true);}
+  finally{button.disabled=false;}
+ });
+
  el('internal-crm-requests').addEventListener('click',async event=>{
   const button=event.target.closest('[data-request-save]');
   if(!button)return;
