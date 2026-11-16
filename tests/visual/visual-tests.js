@@ -410,6 +410,9 @@ async function runScenarioDropdownInteractionGate(browser) {
       deviceScaleFactor: 1,
     });
 
+    // Lock the approved screenshot fixture's clock. The public site's clock
+    // remains live; this affects only the headless visual test page.
+    await page.clock.setFixedTime(new Date('2026-11-15T18:43:30.000Z'));
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.route(/(\/global-auth-gate|\/calculators\/auth-gate)\.js(?:\?.*)?$/, route => route.abort());
     await page.context().addInitScript(() => {
@@ -462,6 +465,24 @@ async function runScenarioDropdownInteractionGate(browser) {
               display: none !important;
             }
           `
+        });
+        // Screenshot only after all visible images are decoded (including the
+        // external Riyadh skyline). Never interpret a partially loaded image
+        // as a design regression or silently substitute a reference image.
+        await page.evaluate(async () => {
+          const visible = [...document.images].filter(img => {
+            const rect = img.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0;
+          });
+          await Promise.all(visible.map(async img => {
+            if (!img.complete) await new Promise(resolve => {
+              img.addEventListener('load', resolve, { once: true });
+              img.addEventListener('error', resolve, { once: true });
+            });
+            if (img.naturalWidth > 0 && img.decode) {
+              await img.decode().catch(() => {});
+            }
+          }));
         });
         await page.waitForTimeout(500);
         await page.evaluate(() => {
