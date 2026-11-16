@@ -465,8 +465,6 @@ async function runScenarioDropdownInteractionGate(browser) {
     console.error(' Arabic letterhead list geometry failed: ' + err.message);
     failed++;
   }
-  let created = 0;
-
   for (const viewport of VIEWPORTS) {
     const page = await browser.newPage({
       viewport: { width: viewport.width, height: viewport.height },
@@ -651,10 +649,10 @@ async function runScenarioDropdownInteractionGate(browser) {
         }
 
         if (!fs.existsSync(baselinePath)) {
-          ensureDir(path.dirname(baselinePath));
-          fs.copyFileSync(snapshotPath, baselinePath);
-          created++;
-          console.log(`  baseline created: ${viewport.name}/${p.name}`);
+          // Missing approved baselines must never be invented by ordinary CI.
+          // User-approved production appearance requires separately reviewed captures.
+          console.error(` ${viewport.name}/${p.name}: APPROVED_BASELINE_MISSING (${baselinePath})`);
+          failed++;
           continue;
         }
 
@@ -711,9 +709,6 @@ async function runScenarioDropdownInteractionGate(browser) {
     return;
   }
 
-  if (created) {
-    console.log(`\n Created ${created} missing baseline(s). Review them, then run 'npm run test:visual:update' to commit.`);
-  }
 
   if (failed) {
     console.error(`\n ${failed} screenshot(s) failed or differed. See ${DIFFS_DIR}`);
