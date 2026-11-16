@@ -29,11 +29,11 @@ test('task creation is guarded by stage capability, subscription and workspace g
  expect(()=>new Function(app)).not.toThrow();
 });
 test('server never enables stage write capability in production and insists on owner/admin',()=>{
- expect(api).toContain("process.env.VERCEL_ENV!=='production'");
+ expect(api).toContain("process.env.VERCEL_ENV==='preview'");
  expect(api).toContain("process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED==='true'");
  expect(api).toContain("['owner','admin'].includes(access.role)");
  expect(api).toContain("isActiveEntitlement(byKey.get('projects'))");
- expect(api).toContain("process.env.VERCEL_ENV==='production'");
+ expect(api).toContain("process.env.VERCEL_ENV!=='preview'");
  expect(api).toContain("STAGING_WRITES_DISABLED");
  expect(api).toContain("WORKSPACE_WRITE_ROLE_REQUIRED");
  expect(tests).toContain("STAGING_WRITES_DISABLED");
