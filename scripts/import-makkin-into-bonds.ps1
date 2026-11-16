@@ -71,7 +71,13 @@ function Assert-NoSecret([string]$path, [string]$relative) {
     $content = $content.Replace("'test-only-placeholder'", 'fixture-token')
     $content = $content.Replace("'correct-only-for-test'", 'fixture-password')
   }
-  if ($relative -match '^apps/web/e2e/[^/]+\.mjs
+  if ($relative.StartsWith('apps/web/e2e/')) {
+    $content = $content.Replace("accessToken: 'test-access-' +", 'accessToken: runtime-fixture +')
+    $content = $content.Replace("password: 'test-only-pass'", 'password: fixture')
+    $content = $content.Replace("password: 'test-only-placeholder'", 'password: fixture')
+    $content = $content.Replace("accessToken=' + encodeURIComponent(value) + '", 'accessToken=runtime-expression')
+  }
+  $signals = @(
     '-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----',
     '-----BEGIN PGP PRIVATE KEY BLOCK-----',
     '(?i)\b(?:ghp|gho|ghu|ghs|ghr)_[a-z0-9]{30,}\b',
