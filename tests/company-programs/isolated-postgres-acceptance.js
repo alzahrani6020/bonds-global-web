@@ -125,6 +125,80 @@ async function main(){
       await assert.rejects(()=>db.query('select id from public.company_program_makkin_links'),e=>e.code==='25P02'||e.code==='42501');
       await assert.rejects(()=>db.query('select id from public.company_program_makkin_user_links'),e=>e.code==='25P02'||e.code==='42501');
     } finally {await db.query('rollback');}
+    // Independently licensed products must never inherit subscriptions from a
+    // different source workspace (CRM vs company) or another tenant.
+    const productKeys=[
+      'crm','hr','real_estate','fleet','sales','purchasing','inventory',
+      'finance','accounting','projects','governance'
+    ];
+    for(const workspace of [c,b]){
+      for(const key of productKeys){
+        await db.query(
+          "insert into public.company_program_entitlements(workspace_link_id,program_key,status) values($1,$2,'pending') on conflict (workspace_link_id,program_key) do nothing",
+          [workspace,key]
+        );
+      }
+      const snapshot=await db.query(
+        "select program_key,status from public.company_program_entitlements where workspace_link_id=$1 order by program_key",
+        [workspace]
+      );
+      assert.deepEqual(
+        snapshot.rows.map(row=>row.program_key),
+        [...productKeys].sort(),
+        'Every workspace must have eleven independently provisioned slots'
+      );
+      assert.equal(
+        snapshot.rows.filter(row=>row.status==='active').length,0,
+        'Pending and suspended products must not accidentally become active'
+      );
+    }
+    await db.query(
+      "update public.company_program_entitlements set status='active' where workspace_link_id=$1 and program_key='finance'",
+      [c]
+    );
+    await db.query(
+      "update public.company_program_entitlements set status='active' where workspace_link_id=$1 and program_key='hr'",
+      [b]
+    );
+    const available=async (workspace)=>(
+      await db.query(
+        "select program_key from public.company_program_entitlements where workspace_link_id=$1 and status='active' order by program_key",
+        [workspace]
+      )
+    ).rows.map(row=>row.program_key);
+    assert.deepEqual(await available(c),['finance']);
+    assert.deepEqual(await available(b),['hr']);
+    await db.query(
+      "update public.company_program_entitlements set status='suspended' where workspace_link_id=$1 and program_key='finance'",
+      [c]
+    );
+    assert.deepEqual(await available(c),[],'Revocation must affect only the owning workspace');
+    assert.deepEqual(await available(b),['hr'],'Independent company license must remain intact');
+    const crossCompany=await db.query(
+      "select count(*)::int as total from public.company_program_entitlements where workspace_link_id=$1 and program_key='hr' and status='active'",
+      [c]
+    );
+    assert.equal(crossCompany.rows[0].total,0,'Another company entitlement must never be inherited');
+    // A privileged operator still cannot link one tenant to two workspace IDs.
+    await assert.rejects(
+      ()=>db.query(
+        "insert into public.company_program_makkin_links(workspace_link_id,makkin_tenant_id) values($1,'unverified-tenant')",
+        [b]
+      ),
+      e=>e.code==='23505'
+    );
+    // An authenticated browser remains unable to change subscription state.
+    await db.query('begin');
+    try{
+      await db.query('set local role authenticated');
+      await assert.rejects(
+        ()=>db.query(
+          "update public.company_program_entitlements set status='active' where workspace_link_id=$1",
+          [b]
+        ), e=>e.code==='42501'
+      );
+    }finally{await db.query('rollback');}
+    console.log('COMPANY PROGRAMS 11-PRODUCT TWO-WORKSPACE ISOLATION: PASS — independent licenses, revocation, mapping uniqueness and browser write denial');
     console.log('COMPANY PROGRAMS ISOLATED POSTGRES: PASS — real workspace FKs, fail-closed grants, immutable entitlement history, link verification and explicit user mapping');
   }finally{await db.end();}
 }
