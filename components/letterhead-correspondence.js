@@ -1014,13 +1014,39 @@
       const row = document.createElement('div');
       row.style.cssText = 'padding:7px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;';
       const d = issue.document || {};
-      row.textContent = [
+      const label = document.createElement('div');
+      label.textContent = [
         issue.issue_number,
         (isEn ? 'v' : 'إصدار ') + issue.issue_version,
         d.subject || d.title || '',
         d.recipient_organization || '',
         issue.state
       ].filter(Boolean).join(' · ');
+      row.appendChild(label);
+      const docId = d.id || issue.document_id;
+      if (docId) {
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px';
+        const open = document.createElement('button');
+        open.type = 'button';
+        open.className = 'corr-btn';
+        open.textContent = isEn ? 'Open issue' : 'فتح الإصدار';
+        open.addEventListener('click', () => {
+          loadDocument(docId).then(() => setCommandDrawer(false)).catch(e => toast('⚠️ ' + e.message));
+        });
+        actions.appendChild(open);
+        if (d.artifact_hash) {
+          const download = document.createElement('button');
+          download.type = 'button';
+          download.className = 'corr-btn';
+          download.textContent = isEn ? 'Official PDF' : 'تنزيل PDF الرسمي';
+          download.addEventListener('click', () => {
+            loadDocument(docId).then(() => downloadOfficialPdf()).catch(e => toast('⚠️ ' + e.message));
+          });
+          actions.appendChild(download);
+        }
+        row.appendChild(actions);
+      }
       target.appendChild(row);
     });
     if (!target.children.length) target.textContent = isEn ? 'No official issues' : 'لا توجد إصدارات رسمية';
