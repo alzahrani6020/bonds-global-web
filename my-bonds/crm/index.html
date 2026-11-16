@@ -130,6 +130,13 @@
    <p class="muted">السجلات الإدارية وطلبات الخدمات المرتبطة بها محفوظة بمعرفاتها الأصلية، ولا تُنقل إلى مساحة عميل أخرى.</p>
    <p id="internal-crm-status" role="status" aria-live="polite"></p>
    <div id="internal-crm-metrics" class="kpis"></div>
+   <h3>إدارة سجلات بوندز</h3>
+   <form id="internal-crm-editor" class="panel">
+     <label>نوع السجل<select name="record_type" id="internal-crm-record-type"><option value="client">جهة اتصال</option><option value="organization">مؤسسة</option><option value="deal">فرصة</option><option value="activity">نشاط أو مهمة</option></select></label>
+     <label>السجل الحالي (اختياري)<select name="record_id" id="internal-crm-record-id"><option value="">إضافة جديد</option></select></label>
+     <div id="internal-crm-fields" class="editor-fields"></div>
+     <button type="submit" class="primary" id="internal-crm-save">حفظ السجل</button>
+   </form>
    <h3>طلبات الخدمات</h3><div class="overflow"><table><thead><tr><th>المرجع</th><th>الخدمة</th><th>العميل</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="internal-crm-requests"></tbody></table></div>
    <h3>الفرص القائمة</h3><div class="overflow"><table><thead><tr><th>الفرصة</th><th>المرحلة</th><th>القيمة</th><th>التقييم التجاري</th></tr></thead><tbody id="internal-crm-deals"></tbody></table></div>
    <h3>جهات الاتصال القائمة</h3><div class="overflow"><table><thead><tr><th>الاسم</th><th>الشركة</th><th>الحالة</th><th>التقييم التجاري</th></tr></thead><tbody id="internal-crm-clients"></tbody></table></div>
