@@ -1594,8 +1594,10 @@
       backgroundColor: '#ffffff',
       windowWidth: Math.max(1280, window.innerWidth),
       onclone: copy => {
-        rebalanceIssuedClone(copy);
         const root = copy.querySelector('#pages-container');
+        // The editor's zoom is presentation-only; PDF A4 geometry must be unscaled.
+        if (root) root.style.transform = 'none';
+        rebalanceIssuedClone(copy);
         const pages = Array.from(root?.querySelectorAll('.sheet') || []);
         if (!root || pages.length !== sheets.length) {
           failure = { page: 0, reason: 'page-count' };
