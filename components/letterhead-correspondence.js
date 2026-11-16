@@ -1471,6 +1471,9 @@
     // checks below reject invalid layouts rather than changing issued content.
     if (canEditCurrent()) paginateEditableSheets();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
+    // The editor may use a fallback or asynchronously loaded font. Freeze its
+    // metrics before validating PDF geometry; never mutate the approved pages.
+    if (document.fonts?.ready) await document.fonts.ready;
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     const integrityMarker = state.document?.issued_hash
       ? ['BONDS-DOC', state.document.id, state.document.current_version, state.document.document_hash, state.document.issued_hash].join(':')
@@ -1496,6 +1499,11 @@
           // PDF must use desktop A4 layout even when triggered from a phone.
           windowWidth: Math.max(1280, window.innerWidth),
           onclone: clonedDocument => {
+            // Editor zoom is visual-only. A transformed parent scales all
+            // getBoundingClientRect() measurements and causes false A4 errors.
+            // Normalize only the disposable capture clone, never the live DOM.
+            const captureRoot = clonedDocument.getElementById('pages-container');
+            if (captureRoot) captureRoot.style.transform = 'none';
             const clonedSheet = clonedDocument.querySelectorAll('.sheet')[i];
             const content = clonedSheet?.querySelector('.doc-content');
             const footer = clonedSheet?.querySelector('.letterhead-footer');
