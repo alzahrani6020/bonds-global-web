@@ -32,7 +32,7 @@
  function updateEditor(){
   const type=el('internal-crm-record-type').value,items=snapshot?.[recordCollections[type]]||[];
   const choices=items.map(item=>'<option value="'+esc(item.id)+'">'+esc(item.title||item.name||item.subject||item.id)+'</option>').join('');
-  const select=el('internal-crm-record-id'),keep=select.dataset.keep||'';
+  const select=el('internal-crm-record-id'),keep=select.dataset.keep||select.value||'';
   select.innerHTML='<option value="">'+(en?'Create new':'إضافة جديد')+'</option>'+choices;
   if(items.some(item=>item.id===keep))select.value=keep;
   delete select.dataset.keep;
