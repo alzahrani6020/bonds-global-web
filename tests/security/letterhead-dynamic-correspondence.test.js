@@ -417,7 +417,11 @@ describe('Dynamic letterhead correspondence architecture', () => {
     const en = read('en/letterhead.html');
     expect(client).toContain('canvas.height > pageHeightPx + 8');
     expect(client).toContain('onclone: clonedDocument =>');
-    expect(client).toContain('contentBottom > footerTop + 1');
+    // Painted text/media collision replaces the earlier blank-container height check.
+    expect(client).toContain('const footerCollision = paintedRects.some');
+    expect(client).toContain('const qrCollision = paintedRects.some');
+    expect(client).toContain('rebalanceIssuedClone(clonedDocument)');
+    expect(client).not.toContain('contentBottom > footerTop + 1');
     expect(client).toContain('clonedSheet.scrollHeight > clonedSheet.clientHeight + 1');
     expect(client).toContain('windowWidth: Math.max(1280, window.innerWidth)');
     expect(client).toContain('const totalPages = 1');
