@@ -196,6 +196,19 @@ jobs:
           BONDS_VISUAL_SCOPE: ${{ steps.visual-scope.outputs.scope }}
         run: npm run test:visual
 
+      - name: Capture approved production visual evidence (PR 1111 only)
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.number == 1111
+        run: node scripts/capture-approved-production-visuals.js
+
+      - name: Upload production visual reference evidence
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.number == 1111
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: approved-production-visual-evidence
+          path: tests/visual/production-reference/
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Validate service manifests and token policies
         run: npm run services:check
 
