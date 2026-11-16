@@ -5,6 +5,7 @@
 
 const getSupabase = require('../lib/api/supabase');
 const crmInviteHandler = require('../lib/api/crm-invite');
+const companyProgramsHandler = require('../lib/api/company-programs');
 const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
 const { sendEmail } = require('../lib/api/email');
@@ -2361,6 +2362,12 @@ module.exports = async function handler(req, res) {
     }
 
     // Owner-only CRM email invitations; no separate serverless function.
+    // Scoped company programs endpoint; permission checks run in the handler.
+    if (pathname === '/api/company-programs' || pathname === '/api/company-programs/') {
+      if (await checkRateLimit('auth', req, res)) return;
+      return companyProgramsHandler(req, res);
+    }
+
     if (pathname === '/api/crm-invite' || pathname === '/api/crm-invite/') {
       if (await checkRateLimit('auth', req, res)) return;
       return crmInviteHandler(req, res);
