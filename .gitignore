@@ -75,3 +75,6 @@ v3/workspace-preview-backup-*
 # BONDS-local imported source: never commit raw unreviewed vendor code
 /integrations/makkin/source/
 /integrations/makkin/import-manifest.json
+
+# Captured live-site reference evidence; local to BONDS repository, never shipped
+/tests/visual/production-reference/
