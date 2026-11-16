@@ -233,7 +233,13 @@ describe('admin linked modules UI', () => {
         await stabilizePage(page);
 
         const status = response ? response.status() : null;
-
+        // A clean-URL redirect or deferred page body can land after
+        // DOMContentLoaded. Wait for actual rendered content; a genuinely
+        // empty module still fails with actionable navigation evidence.
+        await page.waitForFunction(() =>
+          Boolean(document.body && document.body.innerText.trim()),
+          { timeout: 5000 }
+        ).catch(() => {});
         const bodyText = await page.locator('body').innerText().catch(() => '');
 
         if (status && status >= 400) {
@@ -247,7 +253,10 @@ describe('admin linked modules UI', () => {
         if (!bodyText.trim()) {
           failures.push({
             target,
-            type: 'empty-page'
+            type: 'empty-page',
+            status,
+            currentUrl: page.url(),
+            readyState: await page.evaluate(() => document.readyState).catch(() => 'unavailable')
           });
         }
 
