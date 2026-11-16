@@ -453,12 +453,6 @@ async function runScenarioDropdownInteractionGate(browser) {
     failed++;
   }
   try {
-    await runFourPageIssuedPdfGate(browser);
-  } catch (err) {
-    console.error(' Synthetic issued four-sheet PDF acceptance failed: ' + err.message);
-    failed++;
-  }
-  try {
     await runLetterheadNestedPaginationGate(browser);
   } catch (err) {
     console.error(' Arabic nested letter A4 pagination failed: ' + err.message);
@@ -664,6 +658,14 @@ async function runScenarioDropdownInteractionGate(browser) {
     await page.close();
   }
 
+  // Run the heavy html2canvas/jsPDF acceptance after screenshots, in its own
+  // browser page, so PDF rasterization cannot perturb approved home snapshots.
+  try {
+    await runFourPageIssuedPdfGate(browser);
+  } catch (err) {
+    console.error(' Synthetic issued four-sheet PDF acceptance failed: ' + err.message);
+    failed++;
+  }
   await browser.close();
 
   if (UPDATE_BASELINE) {
