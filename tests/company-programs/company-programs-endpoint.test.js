@@ -262,6 +262,59 @@ test('session-check verifies approved mapping and keeps SCC token server-only',a
  expect(global.fetch).toHaveBeenCalledTimes(2);
  expect(checkRateLimit).toHaveBeenCalledWith('strict',expect.any(Object),expect.any(Object),'scc-session:'+USER+':'+WS,true);
 });
+test('approved CRM contacts list reads SCC through trusted server without leaking scoped token',async()=>{
+ const owner=qb({id:WS,name:'Company A'}),link=qb({id:WS});
+ const grants=qb([{program_key:'crm',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ const tenant=qb({workspace_link_id:WS,makkin_tenant_id:'tenant-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ const member=qb({workspace_link_id:WS,bonds_user_id:USER,makkin_user_id:'user-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ createClient.mockReturnValue({from:table=>({
+   crm_app_workspaces:owner,company_program_workspaces:link,company_program_entitlements:grants,
+   company_program_makkin_links:tenant,company_program_makkin_user_links:member
+ })[table]});
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-01-01'});
+ process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM=signingPair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
+ process.env.MAKKIN_MAPPING_VERIFY_URL='https://scc380-api.onrender.com/integrations/bonds/verify-mapping';
+ const token='scc-access-token-long-'.repeat(5);
+ global.fetch=jest.fn(async(url,opt)=>{
+   if(url.endsWith('/program-session')){
+     const claims=JSON.parse(Buffer.from(JSON.parse(opt.body).assertion.split('.')[0],'base64url').toString());
+     expect(claims).toMatchObject({programKey:'crm',purpose:'issue-program-session'});
+     return {ok:true,json:async()=>({accessToken:token,programKey:'crm',expiresInSeconds:110})};
+   }
+   expect(opt.headers.authorization).toBe('Bearer '+token);
+   if(url.endsWith('/auth/me'))
+     return {ok:true,json:async()=>({id:'user-private',tenantId:'tenant-private'})};
+   expect(url).toBe('https://scc380-api.onrender.com/crm/contacts');
+   expect(opt.method).toBe('GET');
+   return {ok:true,headers:{get:()=> 'application/json; charset=utf-8'},
+     text:async()=>JSON.stringify({items:[{id:'contact-1',name:'Example'}],total:1})};
+ });
+ const response=res();
+ await handler({method:'POST',query:{action:'program-read'},body:{
+   workspace_id:WS,workspace_type:'crm',program_key:'crm',operation:'crm.contacts.list'
+ }},response);
+ expect(response.statusCode).toBe(200);
+ expect(response.body).toMatchObject({operation:'crm.contacts.list',program_key:'crm',
+   tokenExposed:false,operationalParityVerified:false,data:{total:1}});
+ expect(JSON.stringify(response.body)).not.toContain(token);
+ expect(global.fetch).toHaveBeenCalledTimes(3);
+});
+test('program-read rejects unsubscribed and disallowed operations before SCC calls',async()=>{
+ const owner=qb({id:WS,name:'Company A'}),link=qb({id:WS});
+ const grants=qb([{program_key:'crm',status:'suspended',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ createClient.mockReturnValue({from:table=>({
+   crm_app_workspaces:owner,company_program_workspaces:link,company_program_entitlements:grants
+ })[table]||(()=>{throw Error('unexpected lookup '+table)})()});
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-01-01'});
+ global.fetch=jest.fn();
+ const response=res();
+ await handler({method:'POST',query:{action:'program-read'},body:{
+   workspace_id:WS,program_key:'crm',operation:'crm.contacts.list'
+ }},response);
+ expect(response.statusCode).toBe(403);
+ expect(response.body.error).toBe('PROGRAM_ENTITLEMENT_REQUIRED');
+ expect(global.fetch).not.toHaveBeenCalled();
+});
 test('session-check rejects pending mappings before any remote call',async()=>{
  const owner=qb({id:WS,name:'Company A'}),link=qb({id:WS});
  const grants=qb([{program_key:'hr',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
