@@ -1273,6 +1273,64 @@
     });
   }
 
+  // The letterhead logo and watermark are part of the official PDF. A failed
+  // load must never be silently rendered as a broken-image placeholder.
+  // Retry transient failures once with a fresh URL; do not change issued text,
+  // stored page HTML, signature or version metadata.
+  function installLetterheadBrandImageRecovery() {
+    document.querySelectorAll('.letterhead-header .logo-icon, .watermark-b img').forEach(img => {
+      if (img.dataset.bondsBrandRecoveryInstalled) return;
+      img.dataset.bondsBrandRecoveryInstalled = '1';
+      const retry = () => {
+        if (img.dataset.bondsBrandRetried) return;
+        img.dataset.bondsBrandRetried = '1';
+        const original = img.getAttribute('src') || '/assets/bonds-logo-icon-only.webp';
+        const url = new URL(original, location.origin);
+        if (url.origin !== location.origin) return;
+        url.searchParams.set('brand_retry', '1');
+        img.src = url.pathname + url.search;
+      };
+      img.addEventListener('error', retry);
+      if (img.complete && img.naturalWidth === 0) retry();
+    });
+  }
+
+  async function waitForLetterheadBrandImages() {
+    installLetterheadBrandImageRecovery();
+    const images = Array.from(document.querySelectorAll('.sheet .letterhead-header .logo-icon, .sheet .watermark-b img'));
+    if (!images.length) {
+      throw new Error(isEn ? 'Official letterhead images are missing' : 'صور هوية بوندز الرسمية غير موجودة');
+    }
+    const ready = await Promise.all(images.map(img => {
+      if (img.complete && img.naturalWidth > 0) return true;
+      return new Promise(resolve => {
+        let settled = false;
+        const finish = ok => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          img.removeEventListener('load', onLoad);
+          img.removeEventListener('error', onError);
+          resolve(ok);
+        };
+        const onLoad = () => finish(img.naturalWidth > 0);
+        const onError = () => {
+          // Recovery listener runs first; wait for the retry when applicable.
+          if (img.dataset.bondsBrandRetried && img.src.includes('brand_retry=1') && !img.complete) return;
+          finish(false);
+        };
+        const timer = setTimeout(() => finish(false), 12000);
+        img.addEventListener('load', onLoad);
+        img.addEventListener('error', onError);
+      });
+    }));
+    if (ready.some(ok => !ok)) {
+      throw new Error(isEn
+        ? 'PDF blocked: Bonds letterhead logo or watermark failed to load'
+        : 'تعذر إنشاء PDF: شعار بوندز أو العلامة المائية لم يكتمل تحميلهما');
+    }
+  }
+
   async function waitForVerificationQr() {
     const images = Array.from(document.querySelectorAll('.footer-qr-box img')).filter(img => img.style.visibility !== 'hidden');
     const ready = await Promise.all(images.map(img => {
@@ -1407,6 +1465,7 @@
       throw new Error(isEn ? 'PDF libraries unavailable' : 'مكتبات PDF غير متوفرة');
     }
     await waitForVerificationQr();
+    await waitForLetterheadBrandImages();
     // Only draft/returned documents may be repaginated. Issued documents are
     // immutable: export their approved sheets as-is and let the A4 overflow
     // checks below reject invalid layouts rather than changing issued content.
@@ -2235,6 +2294,7 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    installLetterheadBrandImageRecovery();
     initialize().catch(e => toast('⚠️ ' + e.message));
   });
 

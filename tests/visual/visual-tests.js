@@ -65,12 +65,18 @@ async function runFourPageIssuedPdfGate(browser) {
   const start = source.indexOf('  async function createPdfBlob() {');
   const end = source.indexOf('  async function persistIssuedPdfArtifact()', start);
   if (start < 0 || end <= start) throw new Error('Actual governed exporter missing');
+  const guardStart = source.indexOf('  function installLetterheadBrandImageRecovery()');
+  const guardEnd = source.indexOf('  async function waitForVerificationQr()', guardStart);
+  if (guardStart < 0 || guardEnd <= guardStart) throw new Error('Official brand-image guard missing');
+  const brandGuard = source.slice(guardStart, guardEnd);
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   try {
-    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    // setContent uses about:blank; a base URL lets canonical /assets images
+    // resolve against the local CI server without touching real documents.
+    await page.setContent(html.replace('<head>', '<head><base href="' + BASE_URL + '/">'), { waitUntil: 'domcontentloaded' });
     await page.addScriptTag({ url: 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js' });
     await page.addScriptTag({ url: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js' });
-    const result = await page.evaluate(async exporter => {
+    const result = await page.evaluate(async ({ exporter, brandGuard }) => {
       const container = document.getElementById('pages-container');
       const template = container?.querySelector('.sheet');
       if (!template) throw new Error('Letterhead A4 sheet template missing');
@@ -84,7 +90,9 @@ async function runFourPageIssuedPdfGate(browser) {
         if (!number) throw new Error('Page counter absent');
         number.textContent = 'الصفحة ' + (i + 1) + ' من 4';
       }
-      const before = sheets.map(x => x.outerHTML);
+      // Runtime image-recovery bookkeeping may add data-* to logo elements;
+      // issued-content immutability concerns the approved page HTML itself.
+      const before = sheets.map(x => x.querySelector('.doc-content').innerHTML);
       const state = { document: {
         id: '00000000-0000-4000-8000-000000000000',
         status: 'issued', current_version: 1,
@@ -100,16 +108,17 @@ async function runFourPageIssuedPdfGate(browser) {
         throw new Error('Issued sheets must never be repaginated');
       };
       const make = new Function('state', 'isEn', 'waitForVerificationQr', 'canEditCurrent',
-        'paginateEditableSheets', exporter + '\nreturn createPdfBlob();');
+        'paginateEditableSheets', brandGuard + exporter + '\nreturn createPdfBlob();');
       const blob = await make(state, isEn, waitForVerificationQr, canEditCurrent, paginateEditableSheets);
       const binary = new TextDecoder('latin1').decode(await blob.arrayBuffer());
       const pages = (binary.match(/\/Type\s*\/Page\b/g) || []).length;
-      const after = sheets.map(x => x.outerHTML);
-      return {pages, byteLength: blob.size, paginationCalls,
+      const after = sheets.map(x => x.querySelector('.doc-content').innerHTML);
+      const brandsLoaded = sheets.every(x => Array.from(x.querySelectorAll('.letterhead-header .logo-icon, .watermark-b img')).every(img => img.complete && img.naturalWidth > 0));
+      return {pages, byteLength: blob.size, paginationCalls, brandsLoaded,
         sheetsPreserved: before.every((x, i) => x === after[i]),
         labelCount: sheets.filter((x, i) => x.querySelector('.page-number')?.textContent === 'الصفحة ' + (i + 1) + ' من 4').length};
-    }, source.slice(start, end));
-    if (result.pages !== 4 || result.labelCount !== 4 || !result.sheetsPreserved ||
+    }, { exporter: source.slice(start, end), brandGuard });
+    if (result.pages !== 4 || result.labelCount !== 4 || !result.sheetsPreserved || !result.brandsLoaded ||
         result.paginationCalls !== 0 || result.byteLength < 1000) {
       throw new Error('Four-page locked document PDF acceptance failed: ' + JSON.stringify(result));
     }
