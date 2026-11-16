@@ -2341,7 +2341,7 @@ module.exports = async function handler(req, res) {
       // Governed GET reads are not login attempts. Preserve the global limiter,
       // public verification limiter, and the stricter auth limit on mutations.
       // Authorization and tenant isolation remain enforced by correspondence.handler.
-      const corrRateCategory = (corrAction === 'verify' || corrAction === 'qr')
+      const corrRateCategory = (corrAction === 'verify' || corrAction === 'qr' || corrAction === 'site-qr')
         ? 'public'
         : req.method === 'GET' ? 'admin_read' : 'auth';
       if (await checkRateLimit(corrRateCategory, req, res)) return;
