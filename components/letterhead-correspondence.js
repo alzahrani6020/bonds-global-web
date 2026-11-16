@@ -1471,6 +1471,95 @@
     // checks below reject invalid layouts rather than changing issued content.
     if (canEditCurrent()) paginateEditableSheets();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
+    // For historical issued pages without a final archived PDF, rebalance only
+    // html2canvas's disposable DOM clone. The signed pages_html, source DOM,
+    // hashes, numbering, signatures and issue records remain untouched.
+    function rebalanceIssuedClone(clonedDocument) {
+      if (!['issued', 'sent', 'archived'].includes(state.document?.status)) return;
+      const clonedSheets = Array.from(clonedDocument.querySelectorAll('#pages-container .sheet'));
+      if (clonedSheets.length !== sheets.length) throw new Error('Issued page count changed during PDF clone');
+      for (const sheet of clonedSheets) {
+        Object.assign(sheet.style, {
+          width: '210mm', height: '297mm', minHeight: '297mm',
+          maxHeight: '297mm', flexShrink: '0', overflow: 'hidden'
+        });
+      }
+      const originals = clonedSheets.map(sheet => sheet.querySelector('.doc-content')?.textContent || '');
+      const normalizedText = values => values.join(' ').replace(/\\s+/g, ' ').trim();
+      const moveLastBlock = (source, destination) => {
+        const tail = source.lastElementChild;
+        if (!tail) return false;
+        const tag = tail.tagName;
+        if ((tag === 'OL' || tag === 'UL') && tail.children.length > 1) {
+          const number = tag === 'OL'
+            ? (Number(tail.getAttribute('start')) || 1) + tail.children.length - 1 : 0;
+          let continuation = destination.firstElementChild;
+          if (!continuation || continuation.tagName !== tag ||
+              continuation.getAttribute('data-letterhead-continuation') !== '1') {
+            continuation = tail.cloneNode(false);
+            continuation.setAttribute('data-letterhead-continuation', '1');
+            destination.insertBefore(continuation, destination.firstChild);
+          }
+          continuation.insertBefore(tail.lastElementChild, continuation.firstChild);
+          if (tag === 'OL') continuation.setAttribute('start', String(number));
+          return true;
+        }
+        if (tag === 'DIV' && tail.children.length &&
+            !Array.from(tail.childNodes).some(node => node.nodeType === 3 && node.textContent.trim())) {
+          let continuation = destination.firstElementChild;
+          if (!continuation || continuation.tagName !== 'DIV' ||
+              continuation.getAttribute('data-letterhead-continuation') !== '1') {
+            continuation = tail.cloneNode(false);
+            continuation.setAttribute('data-letterhead-continuation', '1');
+            destination.insertBefore(continuation, destination.firstChild);
+          }
+          if (!moveLastBlock(tail, continuation)) return false;
+          if (!tail.children.length && !tail.textContent.trim()) tail.remove();
+          return true;
+        }
+        destination.insertBefore(tail, destination.firstChild);
+        return true;
+      };
+      const bottomOfPaintedContent = content => {
+        let bottom = content.getBoundingClientRect().top;
+        const walker = clonedDocument.createTreeWalker(content, 4 /* SHOW_TEXT */);
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          if (!node.textContent.trim()) continue;
+          const range = clonedDocument.createRange();
+          range.selectNodeContents(node);
+          for (const rect of range.getClientRects()) bottom = Math.max(bottom, rect.bottom);
+          range.detach?.();
+        }
+        for (const el of content.querySelectorAll('img,svg,canvas,hr')) {
+          bottom = Math.max(bottom, el.getBoundingClientRect().bottom);
+        }
+        return bottom;
+      };
+      let moves = 0;
+      for (let i = 0; i < clonedSheets.length; i++) {
+        const sheet = clonedSheets[i];
+        const content = sheet.querySelector('.doc-content');
+        const footer = sheet.querySelector('.letterhead-footer');
+        if (!content || !footer) throw new Error('Incomplete A4 clone structure');
+        const next = clonedSheets[i + 1]?.querySelector('.doc-content');
+        const qr = sheet.querySelector('.footer-qr-pair');
+        const safeBottom = Math.min(footer.getBoundingClientRect().top,
+          qr ? qr.getBoundingClientRect().top : footer.getBoundingClientRect().top) - 4;
+        while (bottomOfPaintedContent(content) > safeBottom) {
+          if (++moves > 500 || !next || !moveLastBlock(content, next)) {
+            const error = new Error('Issued A4 cannot be rebalanced into the approved sheet count');
+            error.code = 'BONDS_ISSUED_A4_REBALANCE_FAILED';
+            error.page = i + 1;
+            throw error;
+          }
+        }
+      }
+      const after = clonedSheets.map(sheet => sheet.querySelector('.doc-content')?.textContent || '');
+      if (normalizedText(originals) !== normalizedText(after)) {
+        throw new Error('A4 clone redistribution changed issued text content');
+      }
+    }
     // Font metrics must be stable before producing the immutable PDF image.
     if (document.fonts?.ready) await document.fonts.ready;
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
@@ -1499,6 +1588,7 @@
           // PDF must use desktop A4 layout even when triggered from a phone.
           windowWidth: Math.max(1280, window.innerWidth),
           onclone: clonedDocument => {
+            rebalanceIssuedClone(clonedDocument);
             const clonedSheet = clonedDocument.querySelectorAll('.sheet')[i];
             const content = clonedSheet?.querySelector('.doc-content');
             const footer = clonedSheet?.querySelector('.letterhead-footer');
