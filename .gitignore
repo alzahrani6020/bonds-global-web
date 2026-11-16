@@ -68,3 +68,6 @@ v3/workspace-preview-backup-*
 /calculators/feasibility-report.pdf
 /reports/food-manufacturing-jeddah-feasibility.pdf
 
+
+# Transient SCC380 clone stays inside BONDS root; never commit it
+/.makkin-import/
