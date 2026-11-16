@@ -57,7 +57,7 @@ function Assert-NoSecret([string]$path, [string]$relative) {
     '(?i)\bgithub_pat_[a-z0-9_]{30,}\b',
     '(?i)\b(?:sk_live|rk_live)_[a-z0-9]{16,}\b',
     '(?i)\bAKIA[0-9A-Z]{16}\b',
-    '(?i)(?:password|api[_-]?key|client[_-]?secret|private[_-]?key|access[_-]?token)\s*[:=]\s*["' + "'" + '][^"' + "'" + '\r\n]{12,}["' + "'" + ']'
+    '(?i)(?:password|api[_-]?key|client[_-]?secret|private[_-]?key|access[_-]?token)\s*[:=]\s*["''][^"''\r\n]{12,}["'']'
   )
   foreach ($signal in $signals) {
     if ([regex]::IsMatch($content,$signal)) {
