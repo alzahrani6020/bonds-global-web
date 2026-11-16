@@ -471,6 +471,44 @@ test('staging task creation demands verified persistence in the same SCC tenant'
  expect(JSON.stringify(response.body)).not.toContain(token);
  expect(global.fetch).toHaveBeenCalledTimes(4);
 });
+test.each([false,true])('staged task verifies lifecycle priority deadline and effort in SCC readback (tampered=%s)',async(tampered)=>{
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL='https://scc380-acceptance.onrender.com/integrations/bonds/verify-mapping';
+ process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM=signingPair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
+ const owner=qb({id:WS,name:'Workspace A'}),link=qb({id:WS});
+ const grants=qb([{program_key:'projects',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ const tenant=qb({workspace_link_id:WS,makkin_tenant_id:'tenant-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ const member=qb({workspace_link_id:WS,bonds_user_id:USER,makkin_user_id:'user-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ createClient.mockReturnValue({from:table=>({
+   crm_app_workspaces:owner,company_program_workspaces:link,company_program_entitlements:grants,
+   company_program_makkin_links:tenant,company_program_makkin_user_links:member
+ })[table]});
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-01-01'});
+ const id='cktaskverified1234567890';
+ const submitted={title:'Planned task',description:'Staging only',status:'IN_PROGRESS',priority:'HIGH',
+  dueDate:'2026-12-02',estimatedHours:2.5};
+ global.fetch=jest.fn(async(url,opt)=>{
+  if(url.endsWith('/program-session'))
+   return {ok:true,json:async()=>({accessToken:'long-token'.repeat(12),programKey:'projects',expiresInSeconds:110})};
+  if(url.endsWith('/auth/me'))
+   return {ok:true,json:async()=>({id:'user-private',tenantId:'tenant-private'})};
+  if(opt.method==='POST'){
+   expect(JSON.parse(opt.body)).toEqual(submitted);
+   return {ok:true,json:async()=>({id,title:submitted.title})};
+  }
+  return {ok:true,json:async()=>({...submitted,id,tenantId:'tenant-private',
+   dueDate:'2026-12-02T00:00:00.000Z',estimatedHours:'2.50',
+   priority:tampered?'URGENT':submitted.priority})};
+ });
+ const response=res();
+ await handler({method:'POST',query:{action:'program-write'},body:{
+  workspace_id:WS,program_key:'projects',operation:'projects.tasks.create',data:submitted
+ }},response);
+ expect(response.statusCode).toBe(tampered?502:201);
+ expect(response.body).toMatchObject(tampered
+  ?{error:'WRITE_PERSISTENCE_MISMATCH'}:{persisted:true,record:{id,title:submitted.title}});
+ expect(global.fetch).toHaveBeenCalledTimes(4);
+});
 test('task create fails closed when persistence lookup returns another tenant',async()=>{
  process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
  process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL='https://scc380-acceptance.onrender.com/integrations/bonds/verify-mapping';
