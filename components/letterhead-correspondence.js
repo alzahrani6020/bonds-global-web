@@ -1469,6 +1469,8 @@
     // Only draft/returned documents may be repaginated. Issued documents are
     // immutable: export their approved sheets as-is and let the A4 overflow
     // checks below reject invalid layouts rather than changing issued content.
+    const originalIssuedZoom = new Map();
+    try {
     if (canEditCurrent()) paginateEditableSheets();
     else {
       // Issued HTML is immutable. Fit the *rendered copy* within the approved
@@ -1480,7 +1482,8 @@
         const content = sheet.querySelector('.doc-content');
         const footer = sheet.querySelector('.letterhead-footer');
         if (!content || !footer) throw new Error('Issued A4 structure incomplete');
-        // Reset previous export's fit before measuring to avoid cumulative shrink.
+        // Remember and restore DOM styles after rendering (even on failure).
+        originalIssuedZoom.set(content, content.style.zoom);
         content.style.zoom = '1';
         const fits = () => {
           const blocks = Array.from(content.children);
@@ -1602,6 +1605,9 @@
     }
     }
     return pdf.output('blob');
+    } finally {
+      for (const [content, zoom] of originalIssuedZoom) content.style.zoom = zoom;
+    }
   }
 
   async function persistIssuedPdfArtifact() {
