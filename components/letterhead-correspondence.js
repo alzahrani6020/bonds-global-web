@@ -1030,21 +1030,14 @@
         const open = document.createElement('button');
         open.type = 'button';
         open.className = 'corr-btn';
-        open.textContent = isEn ? 'Open issue' : 'فتح الإصدار';
+        // The issue ledger may contain historical versions. Opening the
+        // document loads its current version; never label it as opening the
+        // immutable historical issue or download a potentially different PDF.
+        open.textContent = isEn ? 'Open current document' : 'فتح المستند الحالي';
         open.addEventListener('click', () => {
           loadDocument(docId).then(() => setCommandDrawer(false)).catch(e => toast('⚠️ ' + e.message));
         });
         actions.appendChild(open);
-        if (d.artifact_hash) {
-          const download = document.createElement('button');
-          download.type = 'button';
-          download.className = 'corr-btn';
-          download.textContent = isEn ? 'Official PDF' : 'تنزيل PDF الرسمي';
-          download.addEventListener('click', () => {
-            loadDocument(docId).then(() => downloadOfficialPdf()).catch(e => toast('⚠️ ' + e.message));
-          });
-          actions.appendChild(download);
-        }
         row.appendChild(actions);
       }
       target.appendChild(row);
