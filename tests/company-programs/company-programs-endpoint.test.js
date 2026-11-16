@@ -572,6 +572,75 @@ test.each(['DRAFT','ACTIVE'])('staged HR draft contract verifies returned tenant
  expect(JSON.stringify(response.body)).not.toContain(token);
  expect(global.fetch).toHaveBeenCalledTimes(4);
 });
+test('staged purchase draft validates decimal totals and rejects foreign links before DB',async()=>{
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ global.fetch=jest.fn();
+ for(const data of [
+   {poNumber:'PO-1',subtotal:100,taxAmount:15,total:114},
+   {poNumber:'PO-1',subtotal:100,taxAmount:15,total:115,tenantId:'foreign'},
+   {poNumber:'PO-1',subtotal:100,taxAmount:15,total:115,vendorId:'foreign'},
+   {poNumber:'PO-1',subtotal:-1,taxAmount:0,total:-1},
+   {poNumber:'PO-1',subtotal:0.123,taxAmount:0,total:0.123},
+   {poNumber:'PO-1',subtotal:100,taxAmount:15,total:115,status:'APPROVED'}
+ ]){
+   const response=res();
+   await handler({method:'POST',query:{action:'program-write'},body:{
+      workspace_id:WS,program_key:'purchasing',
+      operation:'purchasing.orders.create',data
+   }},response);
+   expect(response.statusCode).toBe(400);
+   expect(response.body.error).toBe('OPERATION_NOT_APPROVED');
+ }
+ expect(createClient).not.toHaveBeenCalled();
+ expect(global.fetch).not.toHaveBeenCalled();
+});
+test.each([false,true])('staged purchase order verifies persisted PO totals and tenant (tampered=%s)',async(tampered)=>{
+ process.env.BONDS_MAKKIN_STAGING_WRITES_ENABLED='true';
+ process.env.MAKKIN_STAGING_MAPPING_VERIFY_URL='https://scc380-acceptance.onrender.com/integrations/bonds/verify-mapping';
+ process.env.BONDS_MAKKIN_SIGNING_PRIVATE_KEY_PEM=signingPair.privateKey.export({type:'pkcs8',format:'pem'}).toString();
+ const owner=qb({id:WS,name:'Company A'}),link=qb({id:WS});
+ const grants=qb([{program_key:'purchasing',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ const tenant=qb({workspace_link_id:WS,makkin_tenant_id:'tenant-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ const member=qb({workspace_link_id:WS,bonds_user_id:USER,makkin_user_id:'user-private',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ createClient.mockReturnValue({from:table=>({
+   crm_app_workspaces:owner,company_program_workspaces:link,company_program_entitlements:grants,
+   company_program_makkin_links:tenant,company_program_makkin_user_links:member
+ })[table]});
+ verifyBearer.mockResolvedValue({id:USER,email:'owner@example.org',email_confirmed_at:'2026-01-01'});
+ const token='staging-purchasing-token-'.repeat(5),id='ckpurchaseorder123456789';
+ global.fetch=jest.fn(async(url,opt)=>{
+   expect(url.startsWith('https://scc380-acceptance.onrender.com/')).toBe(true);
+   if(url.endsWith('/program-session'))return {ok:true,json:async()=>({
+     accessToken:token,programKey:'purchasing',expiresInSeconds:110
+   })};
+   expect(opt.headers.authorization).toBe('Bearer '+token);
+   if(url.endsWith('/auth/me'))return {ok:true,json:async()=>({
+     id:'user-private',tenantId:'tenant-private'
+   })};
+   if(url.endsWith('/finance/purchase-orders')&&opt.method==='POST'){
+     expect(JSON.parse(opt.body)).toEqual({
+       poNumber:'PO-2026-TEST',subtotal:0.29,taxAmount:0.06,total:0.35
+     });
+     return {ok:true,json:async()=>({id,poNumber:'PO-2026-TEST',status:'DRAFT'})};
+   }
+   expect(url).toBe('https://scc380-acceptance.onrender.com/finance/purchase-orders/'+id);
+   return {ok:true,json:async()=>({
+     id,tenantId:'tenant-private',poNumber:'PO-2026-TEST',status:'DRAFT',
+     subtotal:'0.29',taxAmount:'0.06',total:tampered?'0.36':'0.35'
+   })};
+ });
+ const response=res();
+ await handler({method:'POST',query:{action:'program-write'},body:{
+   workspace_id:WS,program_key:'purchasing',operation:'purchasing.orders.create',
+   data:{poNumber:' PO-2026-TEST ',subtotal:0.29,taxAmount:0.06,total:0.35}
+ }},response);
+ expect(response.statusCode).toBe(tampered?502:201);
+ expect(response.body).toMatchObject(tampered?{error:'WRITE_PERSISTENCE_MISMATCH'}:{
+   persisted:true,program_key:'purchasing',record:{id,poNumber:'PO-2026-TEST',status:'DRAFT'}
+ });
+ expect(global.fetch).toHaveBeenCalledTimes(4);
+ expect(JSON.stringify(response.body)).not.toContain(token);
+});
 test('session-check rejects pending mappings before any remote call',async()=>{
  const owner=qb({id:WS,name:'Company A'}),link=qb({id:WS});
  const grants=qb([{program_key:'hr',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
