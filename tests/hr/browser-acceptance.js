@@ -20,6 +20,7 @@ async function run(){
    await page.addInitScript(({isLicensed,scenario})=>{
     const user={id:'10000000-0000-4000-8000-000000000001'};
     const tables={
+     crm_app_workspaces:[],
      company_program_entitlements:isLicensed?[{owner_user_id:user.id,product_code:'hr',status:'active',starts_at:'2020-01-01T00:00:00.000Z',ends_at:null}]:[],
      hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[],hr_saas_entitlements:[],hr_saas_leave_ledger:[],hr_saas_leave_balance_summary:[],
      hr_saas_invitations:[],hr_saas_rule_sets:[],hr_saas_calculation_drafts:[],
@@ -155,17 +156,21 @@ async function run(){
     assert.equal(await page.locator('#hr-workspace option').count(),2);
     assert.equal(await page.locator('#hr-count').textContent(),'0','New workspace leaked first company employees');
     const firstWorkspace=await page.evaluate(()=>window.__hrTest.tables.hr_saas_workspaces[0].id);
-    await page.locator('#hr-workspace').selectOption(firstWorkspace);
+    const firstCompany=await page.evaluate(()=>window.__hrTest.tables.crm_app_workspaces[0].id);
+    assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_workspaces[0])).crm_workspace_id,firstCompany);
+    await page.locator('#hr-workspace').selectOption(firstCompany);
     await page.waitForFunction(()=>document.querySelector('#hr-count').textContent==='1');
     assert.equal(await page.locator('#hr-app').isVisible(),true,'Returning to first workspace hid HR application');
     // Delayed reads from the old workspace cannot repopulate the new one.
     await page.evaluate(()=>{window.__hrTest.delayNextEmployeesRead=true;});
     await page.locator('#hr-refresh').click();
     const secondWorkspace=await page.evaluate(()=>window.__hrTest.tables.hr_saas_workspaces[1].id);
-    await page.locator('#hr-workspace').selectOption(secondWorkspace);
+    const secondCompany=await page.evaluate(()=>window.__hrTest.tables.crm_app_workspaces[1].id);
+    assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_workspaces[1])).crm_workspace_id,secondCompany);
+    await page.locator('#hr-workspace').selectOption(secondCompany);
     await page.waitForTimeout(300);
     assert.equal(await page.locator('#hr-count').textContent(),'0','Stale first-workspace read leaked into the second workspace');
-    await page.locator('#hr-workspace').selectOption(firstWorkspace);
+    await page.locator('#hr-workspace').selectOption(firstCompany);
     await page.waitForFunction(()=>document.querySelector('#hr-count').textContent==='1');
 
     // Owner policy lifecycle: company-reviewed version, then persisted calculation draft.
