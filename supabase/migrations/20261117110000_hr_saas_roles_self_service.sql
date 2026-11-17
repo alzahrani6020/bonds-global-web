@@ -34,7 +34,7 @@ create trigger hr_saas_membership_guard before update on public.hr_saas_membersh
 -- Private authorization check: only owner or active member of a licensed
 -- workspace. It reveals one boolean, never license, payroll or employee data.
 create function hr_saas_private.has_active_access(target_workspace uuid)
-returns boolean language sql stable security definer set search_path='' as $
+returns boolean language sql stable security definer set search_path='' as $$
  select (select auth.uid()) is not null and exists(
   select 1 from public.hr_saas_workspaces w
   join public.company_program_entitlements e on e.owner_user_id=w.owner_user_id
@@ -46,7 +46,7 @@ returns boolean language sql stable security definer set search_path='' as $
     where m.workspace_id=w.id and m.user_id=(select auth.uid()) and m.status='active'
    ))
  );
-$;
+$$;
 revoke all on function hr_saas_private.has_active_access(uuid) from public,anon,authenticated;
 grant usage on schema hr_saas_private to authenticated;
 grant execute on function hr_saas_private.has_active_access(uuid) to authenticated;
