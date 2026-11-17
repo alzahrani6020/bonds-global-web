@@ -178,3 +178,98 @@ $$;
 revoke all on function hr_saas_private.audit_change() from public,anon,authenticated;
 create trigger hr_saas_employees_audit after insert or update on public.hr_saas_employees for each row execute function hr_saas_private.audit_change();
 create trigger hr_saas_records_audit after insert or update on public.hr_saas_records for each row execute function hr_saas_private.audit_change();
+
+-- Isolated commercial ledger for company programs only (not legacy Bonds Pro).
+-- A signature-verified provider webhook must invoke the service-role-only RPC.
+-- No customer browser can create an entitlement, replay an event or fake a charge.
+create table public.company_program_billing_events (
+ provider_event_id text primary key check(length(provider_event_id) between 8 and 200),
+ provider_subscription_id text not null,
+ owner_user_id uuid not null references auth.users(id) on delete restrict,
+ product_code text not null check(product_code in ('crm','hr','finance','suite')),
+ provider_status text not null,
+ event_created timestamptz not null,
+ processed_at timestamptz not null default now()
+);
+alter table public.company_program_billing_events enable row level security;
+revoke all on public.company_program_billing_events from public,anon,authenticated;
+create table public.company_program_subscriptions (
+ id uuid primary key default gen_random_uuid(),
+ owner_user_id uuid not null references auth.users(id) on delete restrict,
+ product_code text not null check(product_code in ('crm','hr','finance','suite')),
+ provider text not null default 'stripe' check(provider='stripe'),
+ provider_subscription_id text not null unique,
+ provider_price_id text not null,
+ provider_status text not null,
+ last_event_created timestamptz not null,
+ period_end timestamptz,
+ updated_at timestamptz not null default now(),
+ unique(owner_user_id,product_code)
+);
+alter table public.company_program_subscriptions enable row level security;
+create policy company_program_subscription_owner_select on public.company_program_subscriptions
+ for select to authenticated using(owner_user_id=(select auth.uid()));
+revoke all on public.company_program_subscriptions from public,anon,authenticated;
+grant select on public.company_program_subscriptions to authenticated;
+create function public.company_program_apply_stripe_event(
+ p_event_id text,p_subscription_id text,p_owner_user_id uuid,p_product_code text,
+ p_price_id text,p_provider_status text,p_event_created timestamptz,p_period_end timestamptz
+) returns text language plpgsql security definer set search_path='' as $$
+declare
+ prior public.company_program_subscriptions%rowtype;
+ mapped_status text;
+ inserted_event text;
+begin
+ if p_event_id is null or p_event_id !~ '^evt_[A-Za-z0-9_]+$'
+   or length(p_event_id)>200 or p_subscription_id is null or
+   p_subscription_id !~ '^sub_[A-Za-z0-9_]+$'
+   or p_owner_user_id is null or p_product_code not in ('crm','hr','finance','suite')
+   or p_price_id is null or p_price_id !~ '^price_[A-Za-z0-9_]+$'
+   or p_provider_status not in ('active','trialing','past_due','unpaid','canceled','incomplete','incomplete_expired','paused')
+   or p_event_created is null or p_event_created>now()+interval '5 minutes' then
+  raise exception 'Invalid verified Stripe event' using errcode='22023';
+ end if;
+ if p_provider_status in ('active','trialing') and (p_period_end is null or p_period_end<=now()) then
+  raise exception 'Active entitlement requires a future provider period' using errcode='22023';
+ end if;
+ insert into public.company_program_billing_events(
+   provider_event_id,provider_subscription_id,owner_user_id,product_code,provider_status,event_created)
+ values(p_event_id,p_subscription_id,p_owner_user_id,p_product_code,p_provider_status,p_event_created)
+ on conflict(provider_event_id) do nothing returning provider_event_id into inserted_event;
+ if inserted_event is null then return 'duplicate'; end if;
+ select * into prior from public.company_program_subscriptions
+  where owner_user_id=p_owner_user_id and product_code=p_product_code for update;
+ if found then
+  if prior.provider_subscription_id<>p_subscription_id then
+   raise exception 'Subscription replacement requires reconciliation' using errcode='23514';
+  end if;
+  if p_event_created<=prior.last_event_created then return 'stale'; end if;
+  if prior.provider_price_id<>p_price_id then
+   raise exception 'Subscription plan change requires reconciliation' using errcode='23514';
+  end if;
+ end if;
+ mapped_status:=case
+  when p_provider_status='active' then 'active'
+  when p_provider_status='trialing' then 'trial'
+  when p_provider_status='canceled' then 'cancelled'
+  when p_provider_status='incomplete_expired' then 'expired'
+  else 'suspended' end;
+ insert into public.company_program_subscriptions(
+   owner_user_id,product_code,provider_subscription_id,provider_price_id,provider_status,
+   last_event_created,period_end)
+ values(p_owner_user_id,p_product_code,p_subscription_id,p_price_id,p_provider_status,p_event_created,p_period_end)
+ on conflict(owner_user_id,product_code) do update set
+  provider_status=excluded.provider_status,
+  last_event_created=excluded.last_event_created,
+  period_end=excluded.period_end,updated_at=now();
+ insert into public.company_program_entitlements(owner_user_id,product_code,status,starts_at,ends_at)
+ values(p_owner_user_id,p_product_code,mapped_status,now(),
+  case when mapped_status in ('active','trial') then p_period_end else null end)
+ on conflict(owner_user_id,product_code) do update set status=excluded.status,
+  ends_at=excluded.ends_at;
+ return 'applied';
+end $$;
+revoke all on function public.company_program_apply_stripe_event(
+ text,text,uuid,text,text,text,timestamptz,timestamptz) from public,anon,authenticated;
+grant execute on function public.company_program_apply_stripe_event(
+ text,text,uuid,text,text,text,timestamptz,timestamptz) to service_role;
