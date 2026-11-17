@@ -181,5 +181,7 @@
    $('hr-app').hidden=false;ev.target.reset();await changeCategory('employees');status(t('أُنشئت مساحة الموارد البشرية','HR workspace created'));
   }catch(e){status(e.message,true);}finally{btn.disabled=false;}
  });
- document.addEventListener('bonds-crm-workspace-initialized',initialize,{once:true});
+ // Product data/auth initialization is independent of CRM workspace readiness.
+ // Waiting for a CRM-specific event can strand an HR-only subscriber.
+ initialize();
 })();
