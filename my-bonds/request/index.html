@@ -98,16 +98,15 @@ window.addEventListener('load', async function () {
     }
     const actions = add(content,'div','', 'request-detail-actions');
     add(actions,'a','العودة إلى مساحتي','bonds-btn bonds-btn-secondary').href = '/my-bonds/';
-    const workspace = request.workspace || {};
+    const workspace = request.service_workspace || {};
     const route = workspace.route_ar;
     const code = request.service?.code;
     if (code && typeof route === 'string' &&
         /^\/(?:my-bonds\/workspace\/|service-request\.html|v3\/)/.test(route) && !route.startsWith('//')) {
       const url = new URL(route,location.origin);
       url.searchParams.set('service',code);
-      url.searchParams.set('request_id',request.id);
       url.searchParams.set('return_to','/my-bonds/');
-      add(actions,'a','فتح مساحة الخدمة','bonds-btn bonds-btn-primary').href = url.pathname + url.search;
+      add(actions,'a','فتح نموذج الخدمة','bonds-btn bonds-btn-primary').href = url.pathname + url.search;
     }
     status.hidden = true;
     content.hidden = false;
