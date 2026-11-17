@@ -454,12 +454,54 @@
     await saveVersion(true);
   }
 
+  // Validate the actual approved signature/seal geometry before allocating
+  // an irreversible official reference number. This is read-only except for
+  // a transient issue-header reservation removed in finally.
+  async function assertApprovedA4BeforeIssuance() {
+    if (state.document?.status !== 'approved') return;
+    if (document.fonts?.ready) await document.fonts.ready;
+    await waitForLetterheadBrandImages();
+    const sheets = Array.from(document.querySelectorAll('#pages-container .sheet'));
+    if (!sheets.length) throw new Error('Letterhead pages missing');
+    const firstContent = sheets[0].querySelector('.doc-content');
+    if (!firstContent) throw new Error('Letterhead content missing');
+    const reserved = document.createElement('div');
+    reserved.dataset.a4Reservation = 'issue-meta';
+    reserved.style.cssText = 'min-height:64px;margin:0 0 18px;padding:8px 10px;border-bottom:1px solid #c59237;';
+    firstContent.prepend(reserved);
+    try {
+      for (let index = 0; index < sheets.length; index++) {
+        const sheet = sheets[index];
+        const body = sheet.querySelector('.doc-content');
+        const footer = sheet.querySelector('.letterhead-footer');
+        if (!body || !footer) throw new Error('Letterhead page structure missing');
+        const last = body.lastElementChild;
+        const contentBottom = Math.max(
+          body.getBoundingClientRect().bottom,
+          last ? last.getBoundingClientRect().bottom : body.getBoundingClientRect().bottom
+        );
+        const footerTop = footer.getBoundingClientRect().top - 4;
+        const heightLimit = sheet.getBoundingClientRect().width * 297 / 210;
+        if (contentBottom > footerTop ||
+            sheet.scrollHeight > sheet.clientHeight + 1 ||
+            sheet.getBoundingClientRect().height > heightLimit + 1) {
+          throw new Error(isEn
+            ? `A4 page ${index + 1} cannot contain the approved signature and seal. Return the letter to editing before issuance.`
+            : `صفحة A4 رقم ${index + 1} لا تتسع للتوقيع والختم المعتمدين. أعد الخطاب للتعديل قبل الإصدار.`);
+        }
+      }
+    } finally {
+      reserved.remove();
+    }
+  }
+
   async function transition(target, note) {
     if (state.transitionPending) return state.document;
 
     const doc = await ensureDocument();
     if (doc.status === target) return doc;
     if (target === 'submitted') await prepareDraftA4ForIssuance();
+    if (target === 'issued') await assertApprovedA4BeforeIssuance();
 
     if (['returned', 'rejected', 'cancelled'].includes(target) && !String(note || '').trim()) {
       const reason = window.prompt(isEn ? 'Reason is required for this action:' : 'سبب الإجراء إلزامي:');
