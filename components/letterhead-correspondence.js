@@ -1517,7 +1517,18 @@
         continuation.setAttribute('data-letterhead-continuation', '1');
         destination.insertBefore(continuation, destination.firstChild);
       }
-      if (tail.children.length === 1 &&
+      const sheet = source.closest('.sheet');
+      const pageContent = sheet?.querySelector('.doc-content');
+      const footer = sheet?.querySelector('.letterhead-footer');
+      const fullPageCapacity = pageContent && footer
+        ? footer.getBoundingClientRect().top - pageContent.getBoundingClientRect().top - 8
+        : 0;
+      const itemTooTallForAnySheet = fullPageCapacity > 0 &&
+        item.getBoundingClientRect().height > fullPageCapacity;
+      // Keep ordinary numbered items atomic. Only split a single LI when it
+      // genuinely exceeds the height of a WHOLE A4 content area; otherwise
+      // moving it intact avoids duplicating list items and renumbering.
+      if (tail.children.length === 1 && itemTooTallForAnySheet &&
           splitOversizedDraftParagraph(tail, continuation)) {
         // The long final LI was split in place; the suffix becomes the
         // continuation's first LI instead of moving the entire long item.
