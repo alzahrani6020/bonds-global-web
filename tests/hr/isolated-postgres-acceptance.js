@@ -18,6 +18,8 @@ async function main(){
   await db.query(payrollMigration);
   const contractMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117080000_hr_saas_employment_contracts.sql'),'utf8');
   await db.query(contractMigration);
+  const rightsMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117090000_hr_saas_entitlements.sql'),'utf8');
+  await db.query(rightsMigration);
 
   const ids=[randomUUID(),randomUUID(),randomUUID()];
   await db.query('insert into auth.users(id) values($1),($2),($3)',ids);
@@ -158,10 +160,30 @@ async function main(){
   assert.equal(otherContracts.rowCount,0,'Contracts must not leak to another company');
   const originalContracts=await db.query("select count(*)::int as n from hr_saas_employment_contracts where workspace_id=$1",[wa]);
   assert.equal(originalContracts.rows[0].n,2,'Closed contracts remain stored');
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "insert into hr_saas_entitlements(workspace_id,employee_id,claim_reference,claim_type,description,amount,effective_date,status) values($1,$2,'R-001','bonus','Test bonus',300,'2026-11-17','approved')",[wa,employee])),
+   e=>e.code==='23514','Rights claim must begin as draft');
+  const claim=(await as(owner,()=>db.query(
+   "insert into hr_saas_entitlements(workspace_id,employee_id,claim_reference,claim_type,description,amount,effective_date) values($1,$2,'R-001','bonus','Test bonus',300,'2026-11-17') returning id",[wa,employee]))).rows[0].id;
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_entitlements set status='approved' where id=$1",[claim])),
+   e=>e.code==='23514','Rights require submission before approval');
+  await as(owner,()=>db.query("update hr_saas_entitlements set status='submitted' where id=$1",[claim]));
+  await as(owner,()=>db.query("update hr_saas_entitlements set status='approved' where id=$1",[claim]));
+  const approvedClaim=await as(owner,()=>db.query("select status,decided_at from hr_saas_entitlements where id=$1",[claim]));
+  assert.equal(approvedClaim.rows[0].status,'approved');
+  assert.ok(approvedClaim.rows[0].decided_at);
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_entitlements set amount=350 where id=$1",[claim])),
+   e=>e.code==='23514','Approved rights may not be rewritten');
+  const otherRights=await as(other,()=>db.query("select id from hr_saas_entitlements where workspace_id=$1",[wa]));
+  assert.equal(otherRights.rowCount,0,'Entitlements must remain company private');
+  const stillStored=await db.query("select count(*)::int as n from hr_saas_entitlements where workspace_id=$1",[wa]);
+  assert.equal(stillStored.rows[0].n,1,'Rights history must not be deleted');
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
-  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, attendance, leave approvals, payroll approval, employee contracts, tenant FK, audit, revocation');
+  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, attendance, leave approvals, payroll approval, employee contracts, entitlements, tenant FK, audit, revocation');
  }finally{await db.end();}
 }
 main().catch(e=>{console.error('HR SAAS POSTGRES ACCEPTANCE: FAIL',e.message,'SQLSTATE='+String(e.code||'unknown'));process.exitCode=1;});
