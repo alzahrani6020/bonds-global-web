@@ -46,6 +46,19 @@ describe('new correspondence issuance A4 and final PDF', () => {
     expect(source).toContain("splitOversizedDraftParagraph(tail, continuation)");
   });
 
+  test('new pasted correspondence can save and submit without bypassing ownership', () => {
+    expect(source).toContain("if (!doc && canEditCurrent()) visible.add('corr-save-submit')");
+    expect(source).toContain("addButton(actions, 'corr-save-submit'");
+    const start = source.indexOf("addButton(actions, 'corr-save-submit'");
+    const end = source.indexOf("addButton(actions, 'corr-submit'", start);
+    const handler = source.slice(start, end);
+    expect(handler).toContain('await saveVersion(false)');
+    expect(handler).toContain("!isOwner()");
+    expect(handler).toContain("await transition('submitted')");
+    expect(handler.indexOf('await saveVersion(false)')).toBeLessThan(handler.indexOf("await transition('submitted')"));
+    expect(source).toContain("'corr-save','corr-save-submit','corr-submit'");
+  });
+
   test('issuance and finalizer permissions remain separate', () => {
     const transition = source.slice(source.indexOf('async function transition('), source.indexOf('async function mark('));
     expect(transition).not.toContain('await persistIssuedPdfArtifact()');
