@@ -56,6 +56,9 @@ async function run(){
    await page.locator('#hr-product-tab').waitFor();
    await page.waitForFunction(()=>!document.querySelector('#hr-section').hidden);
    assert.equal(await page.locator('#crm-nav').isVisible(),false,'CRM navigation must hide in HR mode');
+   assert.equal(await page.locator('#refresh').isVisible(),false,'CRM refresh must be hidden in HR mode');
+   assert.equal(await page.locator('#install').isVisible(),false,'CRM installer must not be presented as an HR installer');
+
    assert.equal(await page.locator('#hr-nav').isVisible(),true,'HR navigation must remain in the same sidebar');
    if(!licensed){
     await page.waitForFunction(()=>!document.querySelector('#hr-license').hidden);
