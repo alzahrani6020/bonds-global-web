@@ -157,6 +157,7 @@
   }catch(error){notify(error.message,true);}
  }
  document.addEventListener('bonds-hr-ready',bootstrap);
+ if(window.BondsHRContext)bootstrap({detail:window.BondsHRContext});
  document.addEventListener('bonds-hr-owner-workspace',event=>ownerWorkspaceSelected(event.detail?.workspace||null));
  $('hr-member-form').addEventListener('submit',addMember);
  $('hr-members-table').addEventListener('click',revokeMember);
