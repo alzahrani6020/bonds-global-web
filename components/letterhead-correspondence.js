@@ -1441,6 +1441,46 @@
 
   // Paginate editable drafts by whole content blocks before rendering physical A4 pages.
   // Never mutate issued, sent or archived documents; those must retain their issued bytes.
+  // Split a single oversized pasted paragraph at a word boundary while
+  // preserving all text and inline formatting. Moving the range's contents
+  // rather than replacing innerHTML avoids losing clipboard material.
+  function splitOversizedDraftParagraph(source, destination) {
+    const tail = source.lastElementChild;
+    if (!tail || !['P', 'DIV', 'BLOCKQUOTE'].includes(tail.tagName) ||
+        tail.querySelector('table,img,video,svg,ol,ul,hr,[contenteditable="false"]')) return false;
+    const nodes = [];
+    const walker = document.createTreeWalker(tail, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.textContent) nodes.push(node);
+    }
+    const fullText = nodes.map(n => n.textContent).join('');
+    if (fullText.trim().length < 2) return false;
+    const middle = Math.floor(fullText.length / 2);
+    let point = fullText.lastIndexOf(' ', middle);
+    if (point < Math.floor(fullText.length / 4)) point = fullText.indexOf(' ', middle);
+    if (point <= 0 || point >= fullText.length - 1) point = middle;
+    let offset = point;
+    let splitNode = null;
+    let splitOffset = 0;
+    for (const current of nodes) {
+      if (offset <= current.textContent.length) {
+        splitNode = current;
+        splitOffset = offset;
+        break;
+      }
+      offset -= current.textContent.length;
+    }
+    if (!splitNode || (splitNode === nodes[0] && splitOffset === 0)) return false;
+    const range = document.createRange();
+    range.selectNodeContents(tail);
+    range.setStart(splitNode, splitOffset);
+    const continuation = tail.cloneNode(false);
+    continuation.appendChild(range.extractContents());
+    destination.insertBefore(continuation, destination.firstChild);
+    return true;
+  }
+
   function moveLastDraftBlock(source, destination) {
     const tail = source.lastElementChild;
     if (!tail) return false;
@@ -1476,6 +1516,9 @@
       if (!tail.children.length && !tail.textContent.trim()) tail.remove();
       return true;
     }
+    // Paragraphs that are taller than the A4 content area must be split;
+    // moving them intact merely transfers the overflow to another page.
+    if (source.children.length === 1 && splitOversizedDraftParagraph(source, destination)) return true;
     destination.insertBefore(tail, destination.firstChild);
     return true;
   }
@@ -1513,15 +1556,26 @@
         const a4Height = sheet.getBoundingClientRect().width * 297 / 210;
         const physicalOverflow = sheet.getBoundingClientRect().height > a4Height + 1;
         if (!physicalOverflow && contentBottom <= footerTop && sheet.scrollHeight <= sheet.clientHeight + 1) break;
-        const canSplitLast = !!last && (last.tagName === 'DIV' && last.children.length > 0 ||
-          (last.tagName === 'OL' || last.tagName === 'UL') && last.children.length > 1);
+        const canSplitLast = !!last && (
+          (last.tagName === 'DIV' && last.children.length > 0) ||
+          ((last.tagName === 'OL' || last.tagName === 'UL') && last.children.length > 1) ||
+          (['P', 'DIV', 'BLOCKQUOTE'].includes(last.tagName) &&
+            (last.textContent || '').trim().length > 1));
         if (!last || (doc.children.length === 1 && !canSplitLast)) {
           throw new Error(isEn
             ? `A4 page ${pageIndex + 1} has a block that cannot fit. Split that paragraph before issuing.`
             : `تحتوي صفحة A4 رقم ${pageIndex + 1} على فقرة طويلة لا تتسع لها. قسّم الفقرة قبل الإصدار.`);
         }
         if (pageIndex + 1 >= sheets().length) {
-          setPages([...pagesHtml(), '']);
+          // Do not recreate already-pasted editable DOM: setPages() rewrites
+          // innerHTML and can destroy the browser's paste selection.
+          const clone = sheet.cloneNode(true);
+          const blank = clone.querySelector('.doc-content');
+          if (!blank) throw new Error('Letterhead content missing');
+          blank.innerHTML = '';
+          blank.contentEditable = 'true';
+          blank.setAttribute('aria-readonly', 'false');
+          container.appendChild(clone);
         }
         const current = sheets()[pageIndex].querySelector('.doc-content');
         const destination = sheets()[pageIndex + 1].querySelector('.doc-content');
@@ -1881,6 +1935,28 @@
       const actions = document.getElementById('corr-actions');
       if (actions) addButton(actions, 'corr-import-legacy', isEn ? 'Import legacy drafts' : 'استيراد المسودات القديمة', importLegacyDrafts);
     }
+
+    // Native paste inserts the entire clipboard before the next task.
+    // Repaginate after that insertion; never intercept or truncate clipboard
+    // content and never mark a failed A4 layout as saved.
+    let pastePaginationTimer = null;
+    document.addEventListener('paste', e => {
+      if (!e.target.closest?.('.doc-content') || !canEditCurrent()) return;
+      if (pastePaginationTimer) clearTimeout(pastePaginationTimer);
+      pastePaginationTimer = setTimeout(() => {
+        pastePaginationTimer = null;
+        if (!canEditCurrent()) return;
+        try {
+          paginateEditableSheets();
+          const current = persistedSnapshot();
+          try { localStorage.setItem('bonds_letterhead_offline_backup', current); } catch (_) {}
+          toast(isEn ? 'Pasted text distributed across A4 pages' : 'تم توزيع النص الملصق على صفحات A4');
+        } catch (error) {
+          // Keep all pasted DOM and warn instead of silently dropping text.
+          toast('⚠️ ' + (isEn ? 'Pasted text needs A4 adjustment: ' : 'النص الملصق يحتاج ضبط A4: ') + error.message);
+        }
+      }, 0);
+    }, true);
 
     document.addEventListener('input', e => {
       if (!e.target.closest?.('.doc-content')) return;
