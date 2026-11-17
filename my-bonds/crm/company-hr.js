@@ -122,6 +122,7 @@
    const valid=check(await db.from('company_program_entitlements').select('product_code,status,starts_at,ends_at').in('product_code',['hr','suite']).eq('owner_user_id',user.id));
    license=valid.some(x=>['active','trial'].includes(x.status)&&new Date(x.starts_at)<=new Date()&&(!x.ends_at||new Date(x.ends_at)>new Date()));
    $('hr-license').hidden=license;
+   if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
    if(!license)return;
    $('hr-setup').hidden=false;
    const workspaces=check(await db.from('hr_saas_workspaces').select('id,name,owner_user_id').order('created_at',{ascending:true}));
@@ -129,7 +130,7 @@
    select.innerHTML=workspaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
    if(workspaces.length){workspace=workspaces[0];$('hr-app').hidden=false;await changeCategory(category);}
    select.addEventListener('change',async()=>{workspace=workspaces.find(w=>w.id===select.value)||null;await changeCategory(category);});
-   if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
+
   }catch(e){status(t('تعذر فتح الموارد البشرية: ','Cannot open HR: ')+e.message,true);}
  }
  // CRM workspace initialization is asynchronous. Preserve its state on every switch.
