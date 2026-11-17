@@ -385,6 +385,39 @@ async function main(){
    ['in_hr_001',billingOwner,'hr','sub_hr_001','SAR',10000,0,'open',null]),
    e=>e.code==='23514','Paid invoice must never be reverted to unpaid');
 
+
+  // Reviewed company policy is tenant-scoped, effective-dated and immutable.
+  const tiers=JSON.stringify([{through_days:365,wage_days_per_service_day:0.5/365},{through_days:3650,wage_days_per_service_day:1/365}]);
+  const policyId=(await as(owner,()=>db.query(
+   "insert into hr_saas_rule_sets(workspace_id,jurisdiction,effective_from,effective_to,annual_leave_days,accrual_year_days,service_tiers,created_by) values($1,'SA','2026-01-01','2027-12-31',30,365,$2::jsonb,$3) returning id",
+   [wa,tiers,owner]))).rows[0].id;
+  const unapprovedView=await as(other,()=>db.query(
+   "select id from hr_saas_rule_sets where id=$1",[policyId]));
+  assert.equal(unapprovedView.rowCount,0,'Other tenant can read confidential HR policy');
+  await as(owner,()=>db.query(
+   "update hr_saas_rule_sets set status='approved' where id=$1",[policyId]));
+  const companyPolicy=await as(owner,()=>db.query(
+   "select approved_by,approved_at,status from hr_saas_rule_sets where id=$1",[policyId]));
+  assert.equal(companyPolicy.rows[0].approved_by,owner);
+  assert.ok(companyPolicy.rows[0].approved_at);
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_rule_sets set annual_leave_days=31 where id=$1",[policyId])),
+   e=>e.code==='23514','Approved company policy must not be silently changed');
+  const secondPolicy=(await as(owner,()=>db.query(
+   "insert into hr_saas_rule_sets(workspace_id,jurisdiction,effective_from,effective_to,annual_leave_days,accrual_year_days,service_tiers,created_by) values($1,'SA','2027-01-01','2028-01-01',30,365,$2::jsonb,$3) returning id",
+   [wa,tiers,owner]))).rows[0].id;
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_rule_sets set status='approved' where id=$1",[secondPolicy])),
+   e=>e.code==='23514','Overlapping company policies should not be approved');
+  const drafted=(await as(owner,()=>db.query(
+   "insert into hr_saas_calculation_drafts(workspace_id,employee_id,policy_id,kind,jurisdiction,inputs,result,created_by) values($1,$2,$3,'leave_accrual','SA',$4::jsonb,$5::jsonb,$6) returning id",
+   [wa,employee,policyId,JSON.stringify({as_of:'2026-11-17',eligible_days:365}),JSON.stringify({accrued_days:30,status:'draft_review_required'}),owner]))).rows[0].id;
+  const draftVisible=await as(owner,()=>db.query(
+   "select status from hr_saas_calculation_drafts where id=$1",[drafted]));
+  assert.equal(draftVisible.rows[0].status,'draft');
+  const draftHidden=await as(other,()=>db.query(
+   "select id from hr_saas_calculation_drafts where id=$1",[drafted]));
+  assert.equal(draftHidden.rowCount,0,'Other company can view draft HR calculations');
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
