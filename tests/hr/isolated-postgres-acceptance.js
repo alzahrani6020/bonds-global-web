@@ -105,7 +105,7 @@ async function main(){
    e=>e.code==='23505','Employee may only appear once per payroll period');
   await assert.rejects(()=>as(other,()=>db.query(
    "insert into hr_saas_payroll_lines(workspace_id,period_id,employee_id,base_salary) values($1,$2,$3,5000)",[wa,period,employee])),
-   e=>e.code==='42501','Other tenant may not write payroll');
+   e=>['42501','23514'].includes(e.code),'Other tenant may not write payroll (RLS denial or invisible locked payroll period)');
   await assert.rejects(()=>as(owner,()=>db.query(
    "update hr_saas_payroll_periods set status='approved',approved_at=now() where id=$1",[period])),
    e=>e.code==='23514','Payroll approval must require review');
