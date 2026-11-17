@@ -115,6 +115,7 @@ async function runFourPageIssuedPdfGate(browser) {
       for (const zoom of [0.5, 1, 2]) {
         container.style.transform = 'scale(' + zoom + ')';
         const blob = await make(state, isEn, waitForVerificationQr, canEditCurrent, paginateEditableSheets);
+        if (zoom === 1) window.__syntheticIssuedPdfDownloadBlob = blob;
         const binary = new TextDecoder('latin1').decode(await blob.arrayBuffer());
         captures.push({ zoom, pages: (binary.match(/\/Type\s*\/Page\b/g) || []).length, bytes: blob.size });
       }
@@ -131,6 +132,39 @@ async function runFourPageIssuedPdfGate(browser) {
         result.captures.length !== 3 || result.captures.some(c => c.pages !== 4 || c.bytes < 1000)) {
       throw new Error('Four-page locked document PDF acceptance failed: ' + JSON.stringify(result));
     }
+    // Two real Chromium download events for the exact bytes emitted by the
+    // governed exporter. Do not read/write real correspondence or issue IDs.
+    await page.evaluate(() => {
+      const blob = window.__syntheticIssuedPdfDownloadBlob;
+      if (!blob || blob.type !== 'application/pdf') throw new Error('PDF blob missing');
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.id = 'synthetic-issued-pdf-download';
+      anchor.href = url;
+      anchor.download = 'TEST-NOT-ISSUED.pdf';
+      anchor.textContent = 'Download synthetic four-page PDF';
+      document.body.appendChild(anchor);
+    });
+    const fingerprints = [];
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const pending = page.waitForEvent('download', { timeout: 15000 });
+      await page.locator('#synthetic-issued-pdf-download').click();
+      const download = await pending;
+      if (download.suggestedFilename() !== 'TEST-NOT-ISSUED.pdf') {
+        throw new Error('Unexpected PDF download filename: ' + download.suggestedFilename());
+      }
+      const downloadedFile = await download.path();
+      if (!downloadedFile) throw new Error('Chromium download path missing');
+      const bytes = fs.readFileSync(downloadedFile);
+      const data = bytes.toString('latin1');
+      const pageCount = (data.match(/\\/Type\\s*\\/Page\\b/g) || []).length;
+      if (bytes.subarray(0, 5).toString('ascii') !== '%PDF-' || pageCount !== 4 || bytes.length < 1000) {
+        throw new Error('Browser downloaded PDF corrupted: ' + JSON.stringify({pageCount, bytes: bytes.length}));
+      }
+      fingerprints.push(crypto.createHash('sha256').update(bytes).digest('hex'));
+    }
+    if (fingerprints[0] !== fingerprints[1]) throw new Error('Repeat browser PDF download hash mismatch');
+    console.log(' Browser PDF download: 2 complete real Chromium downloads; four A4 pages, identical SHA-256 PASS');
     console.log(' Synthetic issued four-sheet PDF: 4 physical A4 pages, immutable sheets, numbered 1-4 PASS');
   } finally {
     await page.close();
@@ -801,7 +835,7 @@ async function runScenarioDropdownInteractionGate(browser) {
         }
 
         const img1 = readPng(baselinePath);
-        const img2 = readPng(snapshotPath);
+        let img2 = readPng(snapshotPath);
 
         if (img1.width !== img2.width || img1.height !== img2.height) {
           console.log(` ${viewport.name}/${p.name}: size mismatch (${img1.width}x${img1.height} vs ${img2.width}x${img2.height})`);
@@ -809,25 +843,36 @@ async function runScenarioDropdownInteractionGate(browser) {
           continue;
         }
 
-        const diff = new PNG({ width: img1.width, height: img1.height });
-        const diffPixels = pixelmatch(
-          img1.data,
-          img2.data,
-          diff.data,
-          img1.width,
-          img1.height,
-          { threshold: THRESHOLD, includeAA: false }
-        );
-
-        const totalPixels = img1.width * img1.height;
-        const diffRatio = diffPixels / totalPixels;
-
+        // The home hero loads from an external image host. Retry only if
+        // the FIRST fully-decoded capture differs, and always require the
+        // unchanged approved baseline and exact same pixel threshold.
+        // Never regenerate or rewrite official reference screenshots.
+        let diff;
+        let diffPixels;
+        let diffRatio;
+        for (let captureAttempt = 0; captureAttempt < 3; captureAttempt++) {
+          diff = new PNG({ width: img1.width, height: img1.height });
+          diffPixels = pixelmatch(img1.data, img2.data, diff.data, img1.width, img1.height,
+            { threshold: THRESHOLD, includeAA: false });
+          diffRatio = diffPixels / (img1.width * img1.height);
+          if (diffRatio <= TOLERANCE || !['index-ar','index-en'].includes(p.name) || captureAttempt === 2) break;
+          console.log(` ${viewport.name}/${p.name}: unstable external hero capture ${captureAttempt + 1}, diff ${(diffRatio * 100).toFixed(2)}%, verifying a new fully decoded frame`);
+          await page.waitForTimeout(1200);
+          await page.locator('.bonds-hero__photo').evaluate(async img => {
+            if (!img.complete || img.naturalWidth <= 0) throw new Error('Hero unavailable');
+            await img.decode();
+          });
+          await page.screenshot({ path: snapshotPath, fullPage: FULL_PAGE });
+          img2 = readPng(snapshotPath);
+          if (img1.width !== img2.width || img1.height !== img2.height)
+            throw new Error('Re-captured home screenshot has inconsistent dimensions');
+        }
         if (diffRatio > TOLERANCE) {
           writePng(diff, diffPath);
-          console.log(` ${viewport.name}/${p.name}: ${diffPixels} pixels differ (${(diffRatio * 100).toFixed(2)}%)`);
+          console.log(` ${viewport.name}/${p.name}: ${diffPixels} pixels differ (${(diffRatio * 100).toFixed(2)}%) after strict capture verification`);
           failed++;
         } else {
-          console.log(` ${viewport.name}/${p.name}: no diff`);
+          console.log(` ${viewport.name}/${p.name}: approved baseline match PASS`);
         }
       } catch (err) {
         console.error(` ${viewport.name}/${p.name}: ${err.message}`);
