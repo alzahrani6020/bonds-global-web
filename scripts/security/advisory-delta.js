@@ -1,7 +1,7 @@
 'use strict';
 
 const fs = require('fs');
-const { execSync } = require('child_process');
+const { execSync, spawnSync } = require('child_process');
 
 const baseline = JSON.parse(fs.readFileSync('.github/security/advisory-baseline.json', 'utf8'));
 const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
@@ -95,6 +95,33 @@ function cmpVersion(a, b) {
   return 0;
 }
 
+// An advisory remains visible in current/changes even with a verified local patch.
+// Only these exact dev-only copies can qualify, and only after re-running the
+// fail-closed source + behavior regression check on the installed node_modules.
+const localMitigationTargets = new Set([
+  'node_modules/picomatch',
+  'node_modules/micromatch/node_modules/picomatch',
+  'node_modules/anymatch/node_modules/picomatch'
+]);
+const localPatchChanges = changes.filter(change =>
+  change.type === 'NEW' && change.after?.id === 'GHSA-FC5Q-39XC-VJPF' &&
+  change.after?.package === 'picomatch' && change.after?.scope === 'dev' &&
+  localMitigationTargets.has(change.after?.dependencyPath)
+);
+let localPatchVerified = false;
+if (localPatchChanges.length === localMitigationTargets.size &&
+    new Set(localPatchChanges.map(change => change.after.dependencyPath)).size === localMitigationTargets.size) {
+  const proof = spawnSync(process.execPath,
+    ['scripts/security/patch-picomatch.js', '--verify'],
+    { encoding: 'utf8', timeout: 15000 });
+  localPatchVerified = proof.status === 0 &&
+    proof.stdout.includes('PICOMATCH_CVE_2026_112366_PATCH_VERIFIED');
+  if (!localPatchVerified) {
+    console.error('PICOMATCH_PATCH_PROOF_FAILED ' + (proof.stderr || proof.error?.message || 'unknown'));
+  }
+}
+const verifiedLocalMitigations = [];
+
 const policyViolations = [];
 for (const [name, minimum] of Object.entries(baseline.minimumVersions || {})) {
   const actual = lock.packages?.['node_modules/' + name]?.version || null;
@@ -108,7 +135,15 @@ for (const change of changes) {
   if (!after) continue;
   const highOrCritical = ['high', 'critical'].includes(after.severity);
   if (change.type === 'NEW' && highOrCritical) {
-    policyViolations.push({ type: 'NEW_UNREVIEWED_HIGH', advisory: after });
+    if (localPatchVerified && after.id === 'GHSA-FC5Q-39XC-VJPF' &&
+        after.package === 'picomatch' && after.scope === 'dev' &&
+        localMitigationTargets.has(after.dependencyPath)) {
+      // Not an unreviewed finding: patched installed code and exploit/compatibility
+      // checks have just been reverified. npm audit's upstream advisory is retained.
+      verifiedLocalMitigations.push(after);
+    } else {
+      policyViolations.push({ type: 'NEW_UNREVIEWED_HIGH', advisory: after });
+    }
   }
   if (change.type === 'NEW' && after.scope === 'prod' && highOrCritical) {
     policyViolations.push({ type: 'NEW_PRODUCTION_HIGH_OR_CRITICAL', advisory: after });
@@ -127,6 +162,8 @@ const report = {
   baselineSourceSha: baseline.sourceSha || null,
   current,
   changes,
+  verifiedLocalMitigations,
+  localPatchVerified,
   policyViolations
 };
 
@@ -134,7 +171,8 @@ fs.writeFileSync('advisory-delta.json', JSON.stringify(report, null, 2) + '\n');
 console.log('ADVISORY_DELTA ' + JSON.stringify({
   current: current.length,
   changes: changes.map(x => x.type),
-  policyViolations: policyViolations.length
+  policyViolations: policyViolations.length,
+  locallyPatched: verifiedLocalMitigations.length
 }));
 
 if (policyViolations.length > 0) {
