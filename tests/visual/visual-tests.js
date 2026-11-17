@@ -924,6 +924,12 @@ async function runScenarioDropdownInteractionGate(browser) {
             throw new Error('Re-captured home screenshot has inconsistent dimensions');
         }
         if (diffRatio > TOLERANCE) {
+          // Attach a COPY of the approved reference to CI evidence, never
+          // change baselines. Required to distinguish a real image mismatch
+          // from CSS/scale/asset instability without disguising failure.
+          const evidencePath = path.join(DIFFS_DIR, 'approved-reference', viewport.name, `${p.name}.png`);
+          ensureDir(path.dirname(evidencePath));
+          fs.copyFileSync(baselinePath, evidencePath);
           writePng(diff, diffPath);
           console.log(` ${viewport.name}/${p.name}: ${diffPixels} pixels differ (${(diffRatio * 100).toFixed(2)}%) after strict capture verification`);
           failed++;
