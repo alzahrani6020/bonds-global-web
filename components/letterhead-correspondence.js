@@ -1449,7 +1449,7 @@
     // Word and browser paste frequently wrap a full paragraph in a single
     // list item, heading, span or blockquote. Treat those as splittable text,
     // preserving inline markup and the parent list numbering.
-    if (!tail || !['P', 'DIV', 'BLOCKQUOTE', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE'].includes(tail.tagName) ||
+    if (!tail || !['P', 'DIV', 'BLOCKQUOTE', 'LI', 'SPAN', 'FONT', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE'].includes(tail.tagName) ||
         tail.querySelector('table,img,video,svg,ol,ul,hr,[contenteditable="false"]')) return false;
     const nodes = [];
     const walker = document.createTreeWalker(tail, NodeFilter.SHOW_TEXT);
@@ -1550,6 +1550,7 @@
     const sheets = () => Array.from(container.querySelectorAll('.sheet'));
     let changed = false;
     let moves = 0;
+    try {
     for (let pageIndex = 0; pageIndex < sheets().length; pageIndex++) {
       while (true) {
         if (++moves > 500 || sheets().length > 50) {
@@ -1569,7 +1570,7 @@
         const canSplitLast = !!last && (
           (last.tagName === 'DIV' && last.children.length > 0) ||
           ((last.tagName === 'OL' || last.tagName === 'UL') && last.children.length > 0) ||
-          (['P', 'DIV', 'BLOCKQUOTE', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE'].includes(last.tagName) &&
+          (['P', 'DIV', 'BLOCKQUOTE', 'LI', 'SPAN', 'FONT', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE'].includes(last.tagName) &&
             (last.textContent || '').trim().length > 1));
         if (!last || (doc.children.length === 1 && !canSplitLast)) {
           throw new Error(isEn
@@ -1595,6 +1596,9 @@
         changed = true;
       }
     }
+    } finally {
+    // A blocked paste can still have created multiple A4 sheets. Keep their
+    // numbers accurate even when a later unsplittable block throws.
     if (changed) {
       const count = sheets().length;
       sheets().forEach((sheet, index) => {
@@ -1605,6 +1609,7 @@
           : `الصفحة ${index + 1} من ${count}`;
       });
       state.lastHistorySnapshot = snapshot();
+    }
     }
     return changed;
   }
@@ -1962,8 +1967,10 @@
           try { localStorage.setItem('bonds_letterhead_offline_backup', current); } catch (_) {}
           toast(isEn ? 'Pasted text distributed across A4 pages' : 'تم توزيع النص الملصق على صفحات A4');
         } catch (error) {
-          // Keep all pasted DOM and warn instead of silently dropping text.
+          // Never discard the original paste when a block needs manual repair.
           toast('⚠️ ' + (isEn ? 'Pasted text needs A4 adjustment: ' : 'النص الملصق يحتاج ضبط A4: ') + error.message);
+        } finally {
+          try { localStorage.setItem('bonds_letterhead_offline_backup', persistedSnapshot()); } catch (_) {}
         }
       }, 0);
     }, true);
