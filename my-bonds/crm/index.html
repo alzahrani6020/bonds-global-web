@@ -25,6 +25,7 @@
  <script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
  <script src="/my-bonds/crm/crm-app.js?v=3" defer></script>
  <script src="/my-bonds/crm/company-hr.js?v=1" defer></script>
+ <script src="/my-bonds/crm/company-hr-self-service.js?v=1" defer></script>
  <script src="/my-bonds/crm/crm-internal.js?v=1" defer></script>
 </head>
 <body>
@@ -172,6 +173,40 @@
     </form>
    </section>
    <p id="hr-status" class="notice" role="status" aria-live="polite" hidden></p>
+   <section id="hr-membership-admin" class="panel" hidden>
+    <div class="section-actions"><h2>صلاحيات الموظفين وإدارة الوصول</h2>
+     <button type="button" class="secondary" id="hr-member-refresh">تحديث</button></div>
+    <p class="muted">مالك الشركة وحده يمنح الصلاحيات ويوقفها. يتطلب الربط معرّف UUID لحساب مسجل بالفعل. يراجع مسؤول الموارد البشرية الطلبات دون الاطلاع على سجلات الرواتب أو إدارة العضويات.</p>
+    <form id="hr-member-form" class="editor-fields">
+     <label>معرّف حساب المستخدم UUID<input name="user_id" required maxlength="36" autocomplete="off"></label>
+     <label>ملف الموظف<select id="hr-member-employee" name="employee_id" required><option value="">اختر الموظف</option></select></label>
+     <label>صلاحية الوصول<select name="role" required><option value="employee">موظف</option><option value="hr_manager">مسؤول الموارد البشرية</option></select></label>
+     <button type="submit" class="primary">منح العضوية</button>
+    </form>
+    <div class="overflow"><table><thead><tr><th>الموظف</th><th>الحساب</th><th>الدور</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="hr-members-table"></tbody></table></div>
+   </section>
+   <section id="hr-self-section" class="panel" hidden>
+    <h2>الخدمة الذاتية للموظف</h2>
+    <p class="muted">طلبات الموظفين منفصلة عن الرواتب والوثائق والبيانات الحساسة. الاعتماد يسجل القرار ولا يغيّر الرواتب أو الحضور أو أرصدة الإجازات تلقائيًا.</p>
+    <label>مساحة عملي<select id="hr-self-workspace"></select></label>
+    <div id="hr-self-app" hidden>
+     <p>صفتي: <strong id="hr-self-role"></strong></p>
+     <form id="hr-request-form" class="editor-fields">
+      <label>نوع الطلب<select name="request_type" required>
+       <option value="leave">إجازة</option><option value="attendance_correction">تصحيح الحضور</option><option value="certificate">شهادة وظيفية</option><option value="training">تدريب</option><option value="other">أخرى</option></select></label>
+      <label>الموضوع<input name="subject" required maxlength="180"></label>
+      <label>الشرح<textarea name="description" required maxlength="2000" rows="3"></textarea></label>
+      <label>من تاريخ (اختياري)<input type="date" name="from_date"></label>
+      <label>إلى تاريخ (اختياري)<input type="date" name="to_date"></label>
+      <button type="submit" class="primary">إرسال الطلب</button>
+     </form>
+     <div class="section-actions"><h3>الطلبات والقرارات</h3>
+      <button type="button" class="secondary" id="hr-requests-refresh">تحديث</button></div>
+     <label>ملاحظات القرار (لمسؤول الموارد البشرية)<input id="hr-decision-note" maxlength="1000"></label>
+     <div class="overflow"><table><thead><tr><th>النوع</th><th>الموضوع</th><th>الحالة</th><th>التاريخ</th><th>الإجراء</th></tr></thead><tbody id="hr-request-rows"></tbody></table></div>
+    </div>
+   </section>
+   <p id="hr-self-status" class="notice" role="status" aria-live="polite" hidden></p>
    <section id="hr-app" hidden>
     <div class="section-actions"><h2 id="hr-heading">الملفات الوظيفية</h2>
      <button id="hr-refresh" type="button" class="secondary">تحديث</button>
