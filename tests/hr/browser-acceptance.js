@@ -7,8 +7,8 @@ async function run(){
  const browser=await chromium.launch({headless:true});
  const base=process.env.CRM_TEST_BASE_URL||'http://localhost:3005';
  try{
-  for(const scenario of ['owner','unlicensed','employee','manager']){
-   const licensed=scenario==='owner';
+  for(const scenario of ['owner','existing','unlicensed','employee','manager']){
+   const licensed=['owner','existing'].includes(scenario);
    const page=await browser.newPage({viewport:{width:1050,height:800}});
    const errors=[];
    page.on('pageerror',e=>errors.push(e.message));
@@ -20,7 +20,7 @@ async function run(){
    await page.addInitScript(({isLicensed,scenario})=>{
     const user={id:'10000000-0000-4000-8000-000000000001'};
     const tables={
-     crm_app_workspaces:[],
+     crm_app_workspaces:scenario==='existing'?[{id:'90000000-0000-4000-8000-000000000007',name:'Existing CRM Company',owner_user_id:user.id}]:[],
      company_program_entitlements:isLicensed?[{owner_user_id:user.id,product_code:'hr',status:'active',starts_at:'2020-01-01T00:00:00.000Z',ends_at:null}]:[],
      hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[],hr_saas_entitlements:[],hr_saas_leave_ledger:[],hr_saas_leave_balance_summary:[],
      hr_saas_invitations:[],hr_saas_rule_sets:[],hr_saas_calculation_drafts:[],
@@ -129,6 +129,14 @@ async function run(){
      await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employee_requests[0].status==='approved');
      assert.equal(await page.locator('[data-hr-decision="approved"]').count(),0);
     }
+   }else if(scenario==='existing'){
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_workspaces.length===1);
+    await page.waitForFunction(()=>!document.querySelector('#hr-app').hidden);
+    const tables=await page.evaluate(()=>window.__hrTest.tables);
+    assert.equal(tables.crm_app_workspaces.length,1,'Do not recreate existing CRM company');
+    assert.equal(tables.hr_saas_workspaces[0].crm_workspace_id,tables.crm_app_workspaces[0].id);
+    assert.equal(await page.locator('#hr-workspace').inputValue(),tables.crm_app_workspaces[0].id);
+    assert.equal(tables.hr_saas_employees.length,0,'Do not copy CRM customer contacts as employees');
    }else{
     await page.waitForFunction(()=>!document.querySelector('#hr-setup').hidden);
     await page.locator('#hr-create-workspace input[name="name"]').fill('Independent HR Company');
