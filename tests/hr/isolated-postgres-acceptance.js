@@ -14,6 +14,8 @@ async function main(){
   await db.query(migration);
   const opsMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117060000_hr_saas_attendance_leaves.sql'),'utf8');
   await db.query(opsMigration);
+  const payrollMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117070000_hr_saas_payroll_review.sql'),'utf8');
+  await db.query(payrollMigration);
 
   const ids=[randomUUID(),randomUUID(),randomUUID()];
   await db.query('insert into auth.users(id) values($1),($2),($3)',ids);
@@ -92,10 +94,40 @@ async function main(){
   assert.equal(outsiderAttendance.rowCount,0,'Other company could read attendance');
   const auditOps=await as(owner,()=>db.query("select entity from hr_saas_audit where workspace_id=$1 and entity in ('hr_saas_attendance','hr_saas_leave_requests')",[wa]));
   assert.equal(auditOps.rowCount,2,'Operational writes need an immutable audit');
+  const period=(await as(owner,()=>db.query(
+   "insert into hr_saas_payroll_periods(workspace_id,payroll_year,payroll_month) values($1,2026,11) returning id",[wa]))).rows[0].id;
+  const line=(await as(owner,()=>db.query(
+   "insert into hr_saas_payroll_lines(workspace_id,period_id,employee_id,base_salary,allowance_total,deduction_total) values($1,$2,$3,5000,600,100) returning id,net_salary",
+   [wa,period,employee]))).rows[0];
+  assert.equal(Number(line.net_salary),5500,'Net salary must be basic plus allowances minus deductions');
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "insert into hr_saas_payroll_lines(workspace_id,period_id,employee_id,base_salary) values($1,$2,$3,5000)",[wa,period,employee])),
+   e=>e.code==='23505','Employee may only appear once per payroll period');
+  await assert.rejects(()=>as(other,()=>db.query(
+   "insert into hr_saas_payroll_lines(workspace_id,period_id,employee_id,base_salary) values($1,$2,$3,5000)",[wa,period,employee])),
+   e=>e.code==='42501','Other tenant may not write payroll');
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_payroll_periods set status='approved',approved_at=now() where id=$1",[period])),
+   e=>e.code==='23514','Payroll approval must require review');
+  await as(owner,()=>db.query("update hr_saas_payroll_periods set status='reviewed' where id=$1",[period]));
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_payroll_lines set allowance_total=700 where id=$1",[line.id])),
+   e=>e.code==='23514','Reviewed payroll must freeze line items');
+  await as(owner,()=>db.query("update hr_saas_payroll_periods set status='approved' where id=$1",[period]));
+  const approved=await as(owner,()=>db.query("select status,approved_at from hr_saas_payroll_periods where id=$1",[period]));
+  assert.equal(approved.rows[0].status,'approved');
+  assert.ok(approved.rows[0].approved_at);
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_payroll_periods set status='draft' where id=$1",[period])),
+   e=>e.code==='23514','Approved payroll must be immutable');
+  const notVisible=await as(other,()=>db.query("select id from hr_saas_payroll_lines where period_id=$1",[period]));
+  assert.equal(notVisible.rowCount,0,'Another company read payroll amounts');
+  const auditPayroll=await as(owner,()=>db.query("select entity from hr_saas_audit where workspace_id=$1 and entity in ('hr_saas_payroll_lines','hr_saas_payroll_periods')",[wa]));
+  assert.ok(auditPayroll.rowCount>=4,'Payroll creation/review/approval should be audited');
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
-  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, attendance, leave approvals, tenant FK, audit, revocation');
+  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, attendance, leave approvals, payroll approval, tenant FK, audit, revocation');
  }finally{await db.end();}
 }
 main().catch(e=>{console.error('HR SAAS POSTGRES ACCEPTANCE: FAIL',e.message,'SQLSTATE='+String(e.code||'unknown'));process.exitCode=1;});
