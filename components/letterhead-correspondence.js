@@ -1524,11 +1524,14 @@
         ? footer.getBoundingClientRect().top - pageContent.getBoundingClientRect().top - 8
         : 0;
       const itemTooTallForAnySheet = fullPageCapacity > 0 &&
-        item.getBoundingClientRect().height > fullPageCapacity;
-      // Keep ordinary numbered items atomic. Only split a single LI when it
-      // genuinely exceeds the height of a WHOLE A4 content area; otherwise
-      // moving it intact avoids duplicating list items and renumbering.
-      if (tail.children.length === 1 && itemTooTallForAnySheet &&
+        item.getBoundingClientRect().height > fullPageCapacity - 24;
+      // Once a numbered list is the sole text on its sheet, moving its final
+      // item to yet another empty sheet would never cure an overflow. Split
+      // it instead. Lists sharing a page with earlier paragraphs retain
+      // ordinary items intact as required by the nested-letter test.
+      const soleContentOnSheet = !!pageContent &&
+        pageContent.textContent.trim() === source.textContent.trim();
+      if (tail.children.length === 1 && (itemTooTallForAnySheet || soleContentOnSheet) &&
           splitOversizedDraftParagraph(tail, continuation)) {
         // The long final LI was split in place; the suffix becomes the
         // continuation's first LI instead of moving the entire long item.
