@@ -38,30 +38,45 @@
  const status=(msg,err=false)=>{const n=$('hr-status');n.textContent=msg;n.hidden=!msg;n.style.display=msg?'block':'none';n.classList.toggle('error',err);};
  let db,user,license=false,workspace=null,employees=[],records=[],category='employees',editing=null;
  const check=r=>{if(r.error)throw r.error;return r.data;};
- const table=()=>category==='employees'?'hr_saas_employees':'hr_saas_records';
+ const table=()=>category==='employees'?'hr_saas_employees':category==='attendance'?'hr_saas_attendance':category==='leaves'?'hr_saas_leave_requests':'hr_saas_records';
+ const activeSpecs=()=>specs[category]||specs.records;
+ const isoLocal=v=>{
+  const date=new Date(v);
+  if(!Number.isFinite(date.getTime()))throw Error(t('وقت غير صالح','Invalid time'));
+  return date.toISOString();
+ };
+ const localDateTime=v=>{
+  if(!v)return '';
+  const d=new Date(v);
+  if(!Number.isFinite(d.getTime()))return '';
+  const pad=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+ };
  const specs={
   employees:[['employee_number','الرقم الوظيفي','Employee number','text',true],['full_name','اسم الموظف','Full name','text',true],['department','الإدارة','Department'],['job_title','المسمى الوظيفي','Job title'],['email','البريد','Email','email'],['phone','الهاتف','Phone'],['hire_date','تاريخ التعيين','Hire date','date'],['termination_date','تاريخ الانتهاء','Termination date','date'],['employment_status','الحالة','Status','enum:draft|active|on_leave|suspended|terminated'],['basic_salary','الراتب الأساسي','Basic salary','number'],['salary_currency','العملة','Currency']],
-  records:[['employee_id','الموظف','Employee','employee'],['title','الموضوع','Title','text',true],['status','الحالة','Status'],['effective_date','تاريخ البداية','Start date','date'],['end_date','تاريخ النهاية','End date','date'],['amount','المبلغ','Amount','number'],['currency','العملة','Currency'],['details','تفاصيل إضافية JSON','Additional details JSON','json']]
+  records:[['employee_id','الموظف','Employee','employee'],['title','الموضوع','Title','text',true],['status','الحالة','Status'],['effective_date','تاريخ البداية','Start date','date'],['end_date','تاريخ النهاية','End date','date'],['amount','المبلغ','Amount','number'],['currency','العملة','Currency'],['details','تفاصيل إضافية JSON','Additional details JSON','json']],
+  attendance:[['employee_id','الموظف','Employee','employee'],['work_date','تاريخ الدوام','Work date','date',true],['attendance_status','حالة الدوام','Attendance status','enum:present|absent|leave|remote|holiday'],['clock_in','الحضور','Clock in','datetime-local'],['clock_out','الانصراف','Clock out','datetime-local'],['note','ملاحظات','Notes']],
+  leaves:[['employee_id','الموظف','Employee','employee'],['leave_type','نوع الإجازة','Leave type','enum:annual|sick|unpaid|maternity|paternity|emergency|bereavement|study|other'],['start_date','تاريخ البداية','Start date','date',true],['end_date','تاريخ النهاية','End date','date',true],['status','القرار','Decision','enum:pending|approved|rejected|cancelled'],['reason','السبب','Reason'],['decision_note','ملاحظات القرار','Decision notes']]
  };
  function memberField([key,ar,eng,type='text',needed=false],record={}){
   const name=t(ar,eng),value=record[key]??'';
   if(type==='employee')return '<label class="field">'+name+'<select name="'+key+'"><option value="">'+t('اختر موظفًا','Select employee')+'</option>'+employees.map(e=>'<option value="'+escape(e.id)+'"'+(e.id===value?' selected':'')+'>'+escape(e.employee_number)+' — '+escape(e.full_name)+'</option>').join('')+'</select></label>';
   if(type.startsWith('enum:'))return '<label class="field">'+name+'<select name="'+key+'">'+type.slice(5).split('|').map(v=>'<option value="'+escape(v)+'"'+(v===value?' selected':'')+'>'+escape(v)+'</option>').join('')+'</select></label>';
   if(type==='json')return '<label class="field field-wide">'+name+'<textarea name="'+key+'">'+escape(JSON.stringify(record.details||{}))+'</textarea></label>';
-  return '<label class="field">'+name+'<input name="'+key+'" type="'+type+'" value="'+escape(value)+'"'+(needed?' required':'')+(type==='number'?' min="0" step="0.01"':'')+'></label>';
+  return '<label class="field">'+name+'<input name="'+key+'" type="'+type+'" value="'+escape(type==='datetime-local'?localDateTime(value):value)+'"'+(needed?' required':'')+(type==='number'?' min="0" step="0.01"':'')+'></label>';
  }
  function showEditor(row=null){
   editing=row;
   $('hr-editor').hidden=false;
-  $('hr-fields').innerHTML=(category==='employees'?specs.employees:specs.records).map(x=>memberField(x,row||{})).join('');
+  $('hr-fields').innerHTML=activeSpecs().map(x=>memberField(x,row||{})).join('');
   $('hr-editor-title').textContent=(row?t('تعديل','Edit'):t('إضافة','New'))+' — '+labels[category];
  }
  function render(){
   const isEmployees=category==='employees',source=isEmployees?employees:records;
   $('hr-heading').textContent=labels[category];
   $('hr-add').hidden=category==='audit';
-  const columns=isEmployees?['employee_number','full_name','department','job_title','employment_status']:category==='audit'?['created_at','entity','action','changed_columns']:['employee_id','title','status','effective_date','amount'];
-  const heads={employee_number:t('الرقم الوظيفي','Employee #'),full_name:t('الاسم','Name'),department:t('الإدارة','Department'),job_title:t('المسمى','Position'),employment_status:t('الحالة','Status'),employee_id:t('الموظف','Employee'),title:t('الموضوع','Title'),status:t('الحالة','Status'),effective_date:t('التاريخ','Date'),amount:t('المبلغ','Amount'),created_at:t('التاريخ','Date'),entity:t('السجل','Entity'),action:t('الإجراء','Action'),changed_columns:t('الحقول','Fields')};
+  const columns=isEmployees?['employee_number','full_name','department','job_title','employment_status']:category==='attendance'?['employee_id','work_date','attendance_status','clock_in','clock_out']:category==='leaves'?['employee_id','leave_type','start_date','end_date','status']:category==='audit'?['created_at','entity','action','changed_columns']:['employee_id','title','status','effective_date','amount'];
+  const heads={employee_number:t('الرقم الوظيفي','Employee #'),full_name:t('الاسم','Name'),department:t('الإدارة','Department'),job_title:t('المسمى','Position'),employment_status:t('الحالة','Status'),employee_id:t('الموظف','Employee'),title:t('الموضوع','Title'),status:t('الحالة','Status'),effective_date:t('التاريخ','Date'),amount:t('المبلغ','Amount'),created_at:t('التاريخ','Date'),entity:t('السجل','Entity'),action:t('الإجراء','Action'),changed_columns:t('الحقول','Fields'),work_date:t('تاريخ الدوام','Work date'),attendance_status:t('حالة الدوام','Status'),clock_in:t('الحضور','Clock in'),clock_out:t('الانصراف','Clock out'),leave_type:t('الإجازة','Leave type'),start_date:t('البداية','Start'),end_date:t('النهاية','End')};
   $('hr-head').innerHTML='<tr>'+columns.map(x=>'<th>'+heads[x]+'</th>').join('')+(category==='audit'?'':'<th>'+t('التعديل','Edit')+'</th>')+'</tr>';
   $('hr-body').innerHTML=source.map(row=>'<tr>'+columns.map(key=>{
    let value=row[key];
@@ -77,6 +92,8 @@
   employees=check(await db.from('hr_saas_employees').select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250));
   const q=category==='employees'?null:category==='audit'?
    db.from('hr_saas_audit').select('created_at,entity,action,changed_columns').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250):
+   category==='attendance'||category==='leaves'?
+   db.from(table()).select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250):
    db.from('hr_saas_records').select('*').eq('workspace_id',owner).eq('category',category).order('created_at',{ascending:false}).limit(250);
   records=q?check(await q):[];
   render();
@@ -92,19 +109,32 @@
   if(!license||!workspace)return;
   const btn=$('hr-save');btn.disabled=true;
   try{
-   const data=new FormData(ev.target),isEmployee=category==='employees',spec=isEmployee?specs.employees:specs.records;
+   const data=new FormData(ev.target),isEmployee=category==='employees',operational=category==='attendance'||category==='leaves',spec=activeSpecs();
    const row={workspace_id:workspace.id};
    for(const [name,,,type='text'] of spec){
     let v=String(data.get(name)??'').trim();
     if(type==='number')row[name]=v===''?null:Number(v);
+    else if(type==='datetime-local')row[name]=v?isoLocal(v):null;
     else if(type==='json'){
      const obj=v?JSON.parse(v):{};if(!obj||typeof obj!=='object'||Array.isArray(obj))throw Error('Invalid JSON object');
      row[name]=obj;
     }else row[name]=v||null;
    }
    if(!isEmployee){
-    row.category=category;row.status=row.status||'draft';row.currency=row.currency||'SAR';
-    if(!row.employee_id&&!['departments','recruitment','governance','payroll_runs'].includes(category))throw Error(t('اختر الموظف','Select employee'));
+    if(!operational){row.category=category;row.status=row.status||'draft';row.currency=row.currency||'SAR';}
+    if(!row.employee_id&&(!(!operational&&['departments','recruitment','governance','payroll_runs'].includes(category))))throw Error(t('اختر الموظف','Select employee'));
+    if(category==='attendance'){
+     row.attendance_status=row.attendance_status||'present';
+     if(['absent','leave','holiday'].includes(row.attendance_status)&&(row.clock_in||row.clock_out))throw Error(t('لا يجوز تسجيل حضور لحالة غياب','Absence cannot have clock times'));
+     if(row.clock_out&&!row.clock_in)throw Error(t('الانصراف يتطلب وقت حضور','Clock out needs clock in'));
+     if(row.clock_in&&row.clock_out&&new Date(row.clock_out)<=new Date(row.clock_in))throw Error(t('الانصراف يجب أن يلي الحضور','Clock out must follow clock in'));
+    }
+    if(category==='leaves'){
+     row.status=row.status||'pending';
+     if(row.end_date<row.start_date)throw Error(t('تاريخ النهاية يسبق البداية','End date precedes start date'));
+     if(['approved','rejected'].includes(row.status))row.decided_at=editing?.decided_at||new Date().toISOString();
+     else row.decided_at=null;
+    }
    }else{row.employment_status=row.employment_status||'active';row.salary_currency=row.salary_currency||'SAR';}
    const q=editing?db.from(table()).update({...row,updated_at:new Date().toISOString()}).eq('workspace_id',workspace.id).eq('id',editing.id):
     db.from(table()).insert(row);
