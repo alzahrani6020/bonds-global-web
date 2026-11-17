@@ -62,6 +62,12 @@
         </div>
       </div>
 
+      <!-- Existing tenant workspaces; membership is enforced by Supabase RLS. -->
+      <div class="my-bonds-section" id="workspacesSection" style="display:none;">
+        <h3 class="my-bonds-section__title">مساحات العمل</h3>
+        <div id="workspacesList" class="my-bonds-grid"></div>
+      </div>
+
       <!-- Projects list -->
       <div class="my-bonds-section">
         <h3 class="my-bonds-section__title">مشاريعي المحفوظة</h3>
@@ -244,6 +250,35 @@
           return true;
         }
         return false;
+      }
+
+      async function loadWorkspaces() {
+        const section = document.getElementById('workspacesSection');
+        const container = document.getElementById('workspacesList');
+        if (!section || !container) return;
+        section.style.display = 'block';
+        container.innerHTML = '<div class="bonds-card my-bonds-empty">جارٍ تحميل مساحات العمل...</div>';
+        try {
+          await window.BondsAuth.ensureEnv();
+          const db = window.BondsAuth.getSupabase();
+          if (!db) throw new Error('WORKSPACE_CLIENT_UNAVAILABLE');
+          // RLS is the authority: this list includes only workspaces visible to this authenticated user.
+          const { data, error } = await db.from('crm_app_workspaces')
+            .select('id,name,owner_user_id').order('created_at',{ascending:true}).limit(100);
+          if (error) throw error;
+          if (!data || data.length === 0) {
+            container.innerHTML = '<div class="bonds-card my-bonds-empty">لا توجد مساحات عمل مرتبطة بحسابك حتى الآن. يمكنك إنشاء مساحة من داخل CRM.</div>';
+            return;
+          }
+          container.innerHTML = data.map(function(space) {
+            const name = BondsCommon.escapeHtml(space.name || 'مساحة CRM');
+            const href = '/my-bonds/crm/?workspace_id=' + encodeURIComponent(space.id);
+            return `<div class="bonds-card my-bonds-project"><div class="my-bonds-project__header"><h4 class="my-bonds-project__title">${name}</h4></div><p class="my-bonds-project__summary">إدارة علاقات العملاء</p><div class="my-bonds-project__meta"><a class="bonds-btn bonds-btn-sm bonds-btn-primary" href="${BondsCommon.escapeHtml(href)}">فتح مساحة العمل</a></div></div>`;
+          }).join('');
+        } catch (error) {
+          console.error('[my-bonds] loadWorkspaces failed:', error);
+          container.innerHTML = '<div class="bonds-card my-bonds-empty">تعذر تحميل مساحات العمل. أعد تحميل الصفحة للمحاولة مجددًا.</div>';
+        }
       }
 
       async function loadSupabaseProjects() {
@@ -486,6 +521,7 @@
           const countEl = document.getElementById('projectCount');
           if (countEl) countEl.textContent = String(allProjects.length);
           renderProjects(allProjects, false);
+          await loadWorkspaces();
           try {
             renderServiceRequests(await loadServiceRequests());
           } catch (requestError) {
