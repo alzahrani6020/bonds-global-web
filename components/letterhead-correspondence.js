@@ -1531,7 +1531,9 @@
       // ordinary items intact as required by the nested-letter test.
       const soleContentOnSheet = !!pageContent &&
         pageContent.textContent.trim() === source.textContent.trim();
-      if (tail.children.length === 1 && (itemTooTallForAnySheet || soleContentOnSheet) &&
+      const alreadySplitLongItem = !!item.getAttribute('data-letterhead-split-id');
+      if (tail.children.length === 1 &&
+          (itemTooTallForAnySheet || (soleContentOnSheet && alreadySplitLongItem)) &&
           splitOversizedDraftParagraph(tail, continuation)) {
         // The long final LI was split in place; the suffix becomes the
         // continuation's first LI instead of moving the entire long item.
