@@ -41,7 +41,7 @@ describe('new correspondence issuance A4 and final PDF', () => {
     const paste = source.slice(source.indexOf("document.addEventListener('paste'"),
       source.indexOf("document.addEventListener('input'"));
     expect(paste).toContain('paginateEditableSheets()');
-    expect(source).toContain("['P', 'DIV', 'BLOCKQUOTE', 'LI', 'H1'");
+    expect(source).toContain("['P', 'DIV', 'BLOCKQUOTE', 'LI', 'SPAN', 'FONT', 'H1'");
     expect(source).toContain("tail.children.length === 1 &&");
     expect(source).toContain("splitOversizedDraftParagraph(tail, continuation)");
   });
