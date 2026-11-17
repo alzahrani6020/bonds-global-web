@@ -48,6 +48,9 @@ jobs:
           CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
         run: node tests/crm/isolated-postgres-acceptance.js
 
+      - name: Verify HR approved-policy arithmetic and fail-closed validation
+        run: node --test tests/hr/policy-calculator.test.cjs
+
       - name: Verify independent HR SaaS licensing and tenant isolation (disposable PostgreSQL)
         env:
           CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
