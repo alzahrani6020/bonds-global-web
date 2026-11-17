@@ -362,6 +362,29 @@ async function main(){
   const stillCancelled=await db.query(
    "select status from company_program_entitlements where owner_user_id=$1 and product_code='hr'",[billingOwner]);
   assert.equal(stillCancelled.rows[0].status,'cancelled','Out-of-order Stripe event reactivated cancelled HR');
+  const invoiceFn='public.company_program_record_stripe_invoice(text,uuid,text,text,text,bigint,bigint,text,timestamptz)';
+  const invoicePerms=await db.query("select has_function_privilege('authenticated',$1,'EXECUTE') as browser,has_function_privilege('service_role',$1,'EXECUTE') as service",[invoiceFn]);
+  assert.equal(invoicePerms.rows[0].browser,false,'Customer cannot forge paid invoice');
+  assert.equal(invoicePerms.rows[0].service,true,'Provider service must record invoice');
+  const invoiceArgs=['in_hr_001',billingOwner,'hr','sub_hr_001','SAR',10000,10000,'paid',new Date()];
+  await assert.rejects(()=>as(billingOwner,()=>db.query(
+   "select public.company_program_record_stripe_invoice($1,$2,$3,$4,$5,$6,$7,$8,$9)",invoiceArgs)),
+   e=>e.code==='42501','Browser must not forge invoice');
+  const invoiceWritten=await db.query(
+   "select public.company_program_record_stripe_invoice($1,$2,$3,$4,$5,$6,$7,$8,$9) as result",invoiceArgs);
+  assert.equal(invoiceWritten.rows[0].result,'recorded');
+  const invoiceOwnerView=await as(billingOwner,()=>db.query(
+   "select amount_paid_minor,currency,provider_status from company_program_invoices where provider_invoice_id='in_hr_001'"));
+  assert.equal(invoiceOwnerView.rows[0].amount_paid_minor,'10000');
+  assert.equal(invoiceOwnerView.rows[0].currency,'SAR');
+  const outsideInvoice=await as(owner,()=>db.query(
+   "select provider_invoice_id from company_program_invoices where provider_invoice_id='in_hr_001'"));
+  assert.equal(outsideInvoice.rowCount,0,'Billing invoice leaked to another company');
+  await assert.rejects(()=>db.query(
+   "select public.company_program_record_stripe_invoice($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+   ['in_hr_001',billingOwner,'hr','sub_hr_001','SAR',10000,0,'open',null])),
+   e=>e.code==='23514','Paid invoice must never be reverted to unpaid');
+
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
