@@ -2,7 +2,7 @@
 
 const { resolveGeoContext } = require('../../lib/geo/resolve-context');
 const { executeService, loadExecutionProfile } = require('../../lib/services/service-execution-router');
-const { resolveServiceWorkspace } = require('../../lib/services/service-workspace-resolver');
+const { resolveServiceWorkspace, workspaceTypeFor, routeForWorkspace } = require('../../lib/services/service-workspace-resolver');
 const { parseDocument, DocumentParserError } = require('../../lib/api/document-parser');
 const {
   parseNumeric,
@@ -1253,7 +1253,15 @@ async function handleServiceRequests(req, res, supabase, user) {
       completed_at: row.completed_at,
       created_at: row.created_at,
       updated_at: row.updated_at,
-      service: serviceMap.get(row.service_id) || null
+      service: serviceMap.get(row.service_id) || null,
+      // A category route, not a claim that this request belongs to a tenant CRM workspace.
+      service_workspace: serviceMap.has(row.service_id)
+        ? {
+            type: workspaceTypeFor(serviceMap.get(row.service_id)),
+            route_ar: routeForWorkspace(workspaceTypeFor(serviceMap.get(row.service_id)), 'ar'),
+            route_en: routeForWorkspace(workspaceTypeFor(serviceMap.get(row.service_id)), 'en')
+          }
+        : null
     }));
 
     return sendJson(res, 200, {
