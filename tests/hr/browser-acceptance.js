@@ -20,7 +20,7 @@ async function run(){
     const user={id:'10000000-0000-4000-8000-000000000001'};
     const tables={
      company_program_entitlements:isLicensed?[{owner_user_id:user.id,product_code:'hr',status:'active',starts_at:'2020-01-01T00:00:00.000Z',ends_at:null}]:[],
-     hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[]
+     hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[]
     };
     let next=0;
     window.__hrTest={tables,writes:[]};
@@ -114,6 +114,28 @@ async function run(){
     assert.equal(leave.status,'approved');
     assert.ok(leave.decided_at);
     assert.equal(leave.start_date,'2026-12-01');
+    // Payroll stays independent of CRM and cannot be mistaken for bank settlement.
+    await page.locator('[data-hr-category="payroll_runs"]').click();
+    await page.locator('#hr-add').click();
+    await page.locator('#hr-fields input[name="payroll_year"]').fill('2026');
+    await page.locator('#hr-fields input[name="payroll_month"]').fill('11');
+    await page.locator('#hr-save').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_payroll_periods.length===1);
+    await page.locator('[data-hr-category="payroll"]').click();
+    await page.locator('#hr-add').click();
+    await page.locator('#hr-fields select[name="period_id"]').selectOption({index:1});
+    await page.locator('#hr-fields select[name="employee_id"]').selectOption({index:1});
+    await page.locator('#hr-fields input[name="base_salary"]').fill('5000');
+    await page.locator('#hr-fields input[name="allowance_total"]').fill('600');
+    await page.locator('#hr-fields input[name="deduction_total"]').fill('100');
+    await page.locator('#hr-save').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_payroll_lines.length===1);
+    const payroll=await page.evaluate(()=>window.__hrTest.tables.hr_saas_payroll_lines[0]);
+    assert.equal(payroll.base_salary,5000);
+    assert.equal(payroll.allowance_total,600);
+    assert.equal(payroll.deduction_total,100);
+    assert.equal(await page.locator('#hr-count').textContent(),'1');
+
 
     await page.locator('#crm-product-tab').click();
     assert.equal(await page.locator('#crm-nav').isVisible(),true,'CRM program was not restored');
@@ -126,7 +148,7 @@ async function run(){
    assert.deepEqual(errors,[],'Client runtime error: '+errors.join('; '));
    await page.close();
   }
-  console.log('HR SHARED DASHBOARD BROWSER ACCEPTANCE PASS — license gating, employee/attendance/leave saves and switching programs');
+  console.log('HR SHARED DASHBOARD BROWSER ACCEPTANCE PASS — license gating, employee/attendance/leave/payroll draft saves and switching programs');
  }finally{await browser.close();}
 }
 run().catch(e=>{console.error('HR BROWSER ACCEPTANCE FAIL',e);process.exitCode=1;});
