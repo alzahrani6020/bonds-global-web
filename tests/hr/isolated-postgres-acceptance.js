@@ -12,6 +12,9 @@ async function main(){
  try{
   const migration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117040000_standalone_hr_saas_baseline.sql'),'utf8');
   await db.query(migration);
+  const opsMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117060000_hr_saas_attendance_leaves.sql'),'utf8');
+  await db.query(opsMigration);
+
   const ids=[randomUUID(),randomUUID(),randomUUID()];
   await db.query('insert into auth.users(id) values($1),($2),($3)',ids);
   async function as(user,callback){
@@ -64,10 +67,35 @@ async function main(){
   assert.equal(revoked.rowCount,0,'Cancelled HR subscription must revoke read access');
   await assert.rejects(()=>as(owner,()=>db.query("insert into hr_saas_records(workspace_id,employee_id,category,title) values($1,$2,'leaves','After cancellation')",[wa,employee])),
    error=>error.code==='42501','Cancelled HR subscription must revoke writes');
+  // Restore entitlement in privileged fixture to validate real attendance and leave workflows.
+  await db.query("update company_program_entitlements set status='active' where owner_user_id=$1 and product_code='hr'",[owner]);
+  const attendance=await as(owner,()=>db.query(
+   "insert into hr_saas_attendance(workspace_id,employee_id,work_date,attendance_status,clock_in,clock_out) values($1,$2,'2026-11-17','present','2026-11-17 08:00+03','2026-11-17 16:00+03') returning id",
+   [wa,employee]));
+  assert.equal(attendance.rowCount,1);
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "insert into hr_saas_attendance(workspace_id,employee_id,work_date,attendance_status) values($1,$2,'2026-11-17','absent')",[wa,employee])),
+   e=>e.code==='23505','Duplicate attendance date should be rejected');
+  await assert.rejects(()=>as(other,()=>db.query(
+   "insert into hr_saas_attendance(workspace_id,employee_id,work_date,attendance_status) values($1,$2,'2026-11-18','present')",[wa,employee])),
+   e=>e.code==='42501','Other company must not write attendance');
+  const leave=await as(owner,()=>db.query(
+   "insert into hr_saas_leave_requests(workspace_id,employee_id,leave_type,start_date,end_date,status,decided_at) values($1,$2,'annual','2026-12-01','2026-12-03','approved',now()) returning id",
+   [wa,employee]));
+  assert.equal(leave.rowCount,1);
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "insert into hr_saas_leave_requests(workspace_id,employee_id,leave_type,start_date,end_date,status,decided_at) values($1,$2,'annual','2026-12-02','2026-12-04','approved',now())",[wa,employee])),
+   e=>e.code==='23514','Approved leave intervals must not overlap');
+  const outsiderLeaves=await as(other,()=>db.query("select id from hr_saas_leave_requests where workspace_id=$1",[wa]));
+  assert.equal(outsiderLeaves.rowCount,0,'Other company could read private leave');
+  const outsiderAttendance=await as(other,()=>db.query("select id from hr_saas_attendance where workspace_id=$1",[wa]));
+  assert.equal(outsiderAttendance.rowCount,0,'Other company could read attendance');
+  const auditOps=await as(owner,()=>db.query("select entity from hr_saas_audit where workspace_id=$1 and entity in ('hr_saas_attendance','hr_saas_leave_requests')",[wa]));
+  assert.equal(auditOps.rowCount,2,'Operational writes need an immutable audit');
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
-  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, cross-tenant FK, records, immutable audit, revocation');
+  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, attendance, leave approvals, tenant FK, audit, revocation');
  }finally{await db.end();}
 }
 main().catch(e=>{console.error('HR SAAS POSTGRES ACCEPTANCE: FAIL',e.message,'SQLSTATE='+String(e.code||'unknown'));process.exitCode=1;});
