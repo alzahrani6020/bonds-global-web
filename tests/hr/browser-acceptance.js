@@ -205,6 +205,15 @@ async function run(){
     await page.locator('#crm-product-tab').click();
     assert.equal(await page.locator('#crm-nav').isVisible(),true,'CRM program was not restored');
     assert.equal(await page.locator('#hr-section').isVisible(),false,'HR data displayed while CRM selected');
+    // Clicking the already selected CRM tab must not hide CRM state.
+    const crmBeforeRepeat=await page.locator('#workspace-content').isVisible();
+    await page.locator('#crm-product-tab').click();
+    assert.equal(await page.locator('#workspace-content').isVisible(),crmBeforeRepeat,'Repeated CRM click changed workspace visibility');
+    await page.locator('#hr-product-tab').click();
+    // Clicking active HR again must not overwrite the saved CRM display state.
+    await page.locator('#hr-product-tab').click();
+    await page.locator('#crm-product-tab').click();
+    assert.equal(await page.locator('#workspace-content').isVisible(),crmBeforeRepeat,'Repeated HR click lost CRM workspace state');
     await page.locator('#hr-product-tab').click();
     assert.equal(await page.locator('#hr-app').isVisible(),true,'HR program was not restored');
     const employee=await page.evaluate(()=>window.__hrTest.tables.hr_saas_employees[0]);
