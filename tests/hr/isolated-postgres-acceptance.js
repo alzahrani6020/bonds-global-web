@@ -382,7 +382,7 @@ async function main(){
   assert.equal(outsideInvoice.rowCount,0,'Billing invoice leaked to another company');
   await assert.rejects(()=>db.query(
    "select public.company_program_record_stripe_invoice($1,$2,$3,$4,$5,$6,$7,$8,$9)",
-   ['in_hr_001',billingOwner,'hr','sub_hr_001','SAR',10000,0,'open',null])),
+   ['in_hr_001',billingOwner,'hr','sub_hr_001','SAR',10000,0,'open',null]),
    e=>e.code==='23514','Paid invoice must never be reverted to unpaid');
 
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
