@@ -45,6 +45,10 @@ async function run(){
       update(row){kind='update';value=row;return q;},
       async eval(single=false){
        let data=tables[table].filter(r=>filters.every(f=>f(r))).slice(0,limit);
+       if(kind==='read'&&table==='hr_saas_employees'&&window.__hrTest.delayNextEmployeesRead){
+        window.__hrTest.delayNextEmployeesRead=false;
+        await new Promise(resolve=>setTimeout(resolve,200));
+       }
        if(kind==='insert'){
         const record={...value,id:'20000000-0000-4000-8000-'+String(++next).padStart(12,'0'),created_at:new Date().toISOString()};
         tables[table].push(record);window.__hrTest.writes.push({table,record});
@@ -124,6 +128,15 @@ async function run(){
     await page.locator('#hr-workspace').selectOption(firstWorkspace);
     await page.waitForFunction(()=>document.querySelector('#hr-count').textContent==='1');
     assert.equal(await page.locator('#hr-app').isVisible(),true,'Returning to first workspace hid HR application');
+    // Delayed reads from the old workspace cannot repopulate the new one.
+    await page.evaluate(()=>{window.__hrTest.delayNextEmployeesRead=true;});
+    await page.locator('#hr-refresh').click();
+    const secondWorkspace=await page.evaluate(()=>window.__hrTest.tables.hr_saas_workspaces[1].id);
+    await page.locator('#hr-workspace').selectOption(secondWorkspace);
+    await page.waitForTimeout(300);
+    assert.equal(await page.locator('#hr-count').textContent(),'0','Stale first-workspace read leaked into the second workspace');
+    await page.locator('#hr-workspace').selectOption(firstWorkspace);
+    await page.waitForFunction(()=>document.querySelector('#hr-count').textContent==='1');
 
     // Owner request inbox must read actual self-service requests, not generic HR records.
     await page.evaluate(()=>{
