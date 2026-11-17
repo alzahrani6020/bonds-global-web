@@ -168,6 +168,15 @@ async function run(){
     await page.locator('#hr-save').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employment_contracts.length===1);
     assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_employment_contracts[0])).status,'draft');
+    // Editing a contract must retain immutable employee/contract identity.
+    await page.locator('#hr-body [data-hr-edit]').first().click();
+    await page.locator('#hr-fields input[name="base_salary"]').fill('5200');
+    await page.locator('#hr-save').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employment_contracts[0].base_salary===5200);
+    const revisedContract=await page.evaluate(()=>window.__hrTest.tables.hr_saas_employment_contracts[0]);
+    assert.equal(revisedContract.contract_number,'CT-001','Contract identity changed on edit');
+    assert.equal(revisedContract.employee_id,(await page.evaluate(()=>window.__hrTest.tables.hr_saas_employees[0].id)),'Contract employee identity changed');
+
     // Employee rights are entered as draft claims before review and approval.
     await page.locator('[data-hr-category="claims"]').click();
     await page.locator('#hr-add').click();
@@ -242,6 +251,15 @@ async function run(){
     assert.equal(payroll.base_salary,5000);
     assert.equal(payroll.allowance_total,600);
     assert.equal(payroll.deduction_total,100);
+    // Editing one payroll amount must not null the immutable period/employee keys.
+    await page.locator('#hr-body [data-hr-edit]').first().click();
+    await page.locator('#hr-fields input[name="allowance_total"]').fill('650');
+    await page.locator('#hr-save').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_payroll_lines[0].allowance_total===650);
+    const revisedPayroll=await page.evaluate(()=>window.__hrTest.tables.hr_saas_payroll_lines[0]);
+    assert.equal(revisedPayroll.period_id,(await page.evaluate(()=>window.__hrTest.tables.hr_saas_payroll_periods[0].id)));
+    assert.equal(revisedPayroll.employee_id,(await page.evaluate(()=>window.__hrTest.tables.hr_saas_employees[0].id)));
+
     assert.equal(await page.locator('#hr-count').textContent(),'1');
 
 
