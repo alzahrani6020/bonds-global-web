@@ -20,7 +20,7 @@ async function run(){
     const user={id:'10000000-0000-4000-8000-000000000001'};
     const tables={
      company_program_entitlements:isLicensed?[{owner_user_id:user.id,product_code:'hr',status:'active',starts_at:'2020-01-01T00:00:00.000Z',ends_at:null}]:[],
-     hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[]
+     hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[],hr_saas_entitlements:[]
     };
     let next=0;
     window.__hrTest={tables,writes:[]};
@@ -97,6 +97,19 @@ async function run(){
     await page.locator('#hr-save').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employment_contracts.length===1);
     assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_employment_contracts[0])).status,'draft');
+    // Employee rights are entered as draft claims before review and approval.
+    await page.locator('[data-hr-category="claims"]').click();
+    await page.locator('#hr-add').click();
+    await page.locator('#hr-fields select[name="employee_id"]').selectOption({index:1});
+    await page.locator('#hr-fields input[name="claim_reference"]').fill('BEN-001');
+    await page.locator('#hr-fields input[name="description"]').fill('Annual incentive');
+    await page.locator('#hr-fields input[name="amount"]').fill('300');
+    await page.locator('#hr-fields input[name="effective_date"]').fill('2026-11-17');
+    await page.locator('#hr-save').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_entitlements.length===1);
+    const claim=await page.evaluate(()=>window.__hrTest.tables.hr_saas_entitlements[0]);
+    assert.equal(claim.status,'draft');
+    assert.equal(claim.amount,300);
     // Attendance is an operational record with employee/date and clock timestamps.
     await page.locator('[data-hr-category="attendance"]').click();
     await page.locator('#hr-add').click();
@@ -159,7 +172,7 @@ async function run(){
    assert.deepEqual(errors,[],'Client runtime error: '+errors.join('; '));
    await page.close();
   }
-  console.log('HR SHARED DASHBOARD BROWSER ACCEPTANCE PASS — license gating, employee/contract/attendance/leave/payroll draft saves and switching programs');
+  console.log('HR SHARED DASHBOARD BROWSER ACCEPTANCE PASS — license gating, employee/contract/rights/attendance/leave/payroll draft saves and switching programs');
  }finally{await browser.close();}
 }
 run().catch(e=>{console.error('HR BROWSER ACCEPTANCE FAIL',e);process.exitCode=1;});
