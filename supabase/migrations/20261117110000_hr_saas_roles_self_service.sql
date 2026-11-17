@@ -337,6 +337,8 @@ create policy hr_calculation_owner_insert on public.hr_saas_calculation_drafts
     where p.id=policy_id and p.workspace_id=workspace_id and p.status='approved'
       and p.jurisdiction=jurisdiction));
 revoke all on public.hr_saas_calculation_drafts from public,anon,authenticated;
-grant select,insert on public.hr_saas_calculation_drafts to authenticated;
+grant select on public.hr_saas_calculation_drafts to authenticated;
+-- Only the server's privileged role can store independently recalculated drafts.
+grant select,insert on public.hr_saas_calculation_drafts to service_role;
 create trigger hr_saas_calculation_audit after insert on public.hr_saas_calculation_drafts
  for each row execute function hr_saas_private.audit_change();
