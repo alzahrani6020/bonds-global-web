@@ -23,14 +23,19 @@
  async function loadOwnerMembers(){
   if(!ownerLicense||!ownerWorkspace)return;
   const wid=ownerWorkspace.id;
-  const [memberResponse,employeeResponse]=await Promise.all([
+  const [memberResponse,employeeResponse,inviteResponse]=await Promise.all([
    db.from('hr_saas_memberships').select('id,employee_id,user_id,role,status,created_at').eq('workspace_id',wid).order('created_at',{ascending:false}).limit(250),
-   db.from('hr_saas_employees').select('id,full_name,employee_number').eq('workspace_id',wid).order('created_at',{ascending:false}).limit(250)
+   db.from('hr_saas_employees').select('id,full_name,employee_number').eq('workspace_id',wid).order('created_at',{ascending:false}).limit(250),
+   db.from('hr_saas_invitations').select('id,invited_email,role,status,token,expires_at').eq('workspace_id',wid).order('created_at',{ascending:false}).limit(250)
   ]);
-  const members=requireOk(memberResponse),staff=requireOk(employeeResponse);
+  const members=requireOk(memberResponse),staff=requireOk(employeeResponse),invites=requireOk(inviteResponse);
   if(ownerWorkspace?.id!==wid)return;
   $('hr-member-employee').innerHTML='<option value="">'+t('اختر الموظف','Select employee')+'</option>'+
    staff.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.employee_number)+' — '+esc(x.full_name)+'</option>').join('');
+  $('hr-invite-employee').innerHTML=$('hr-member-employee').innerHTML;
+  $('hr-invites-table').innerHTML=invites.map(inv=>'<tr><td>'+esc(inv.invited_email)+'</td><td>'+esc(inv.role)+'</td><td>'+esc(inv.status)+'</td><td>'+
+   (inv.status==='pending'&&new Date(inv.expires_at)>new Date()?'<button type="button" class="secondary" data-hr-invite-link="'+esc(inv.token)+'">'+t('نسخ الرابط','Copy link')+'</button>':'—')+'</td></tr>').join('')||
+   '<tr><td colspan="4">'+t('لا توجد دعوات','No invitations')+'</td></tr>';
   $('hr-members-table').innerHTML=members.map(m=>{
    const name=staff.find(e=>e.id===m.employee_id)?.full_name||m.employee_id;
    return '<tr><td>'+esc(name)+'</td><td>'+esc(m.user_id)+'</td><td>'+esc(m.role)+
@@ -38,6 +43,37 @@
     '<button class="secondary" type="button" data-revoke-membership="'+esc(m.id)+'">'+
     t('إيقاف العضوية','Revoke')+'</button>':'—')+'</td></tr>';
   }).join('')||'<tr><td colspan="5">'+t('لا توجد عضويات','No memberships')+'</td></tr>';
+ }
+ async function createInvitation(event){
+  event.preventDefault();
+  if(!ownerLicense||!ownerWorkspace)return;
+  const button=event.currentTarget.querySelector('[type="submit"]');button.disabled=true;
+  try{
+   const form=new FormData(event.currentTarget);
+   const email=String(form.get('email')||'').trim().toLowerCase();
+   const employeeId=String(form.get('employee_id')||'');
+   const role=String(form.get('role')||'');
+   if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)||email.length>320)
+    throw Error(t('البريد الإلكتروني غير صحيح','Invalid recipient email'));
+   if(!employeeId||!['employee','hr_manager'].includes(role))
+    throw Error(t('بيانات الدعوة غير مكتملة','Incomplete invitation'));
+   const result=requireOk(await db.from('hr_saas_invitations').insert({
+    workspace_id:ownerWorkspace.id,employee_id:employeeId,invited_email:email,role,created_by:user.id
+   }).select('id,token').single());
+   if(!result?.id||!result.token)throw Error(t('لم يتم تأكيد إنشاء الدعوة','Invitation not confirmed'));
+   event.currentTarget.reset();await loadOwnerMembers();
+   notify(t('أُنشئت الدعوة. انسخ رابطها وشاركه مع المدعو عبر قناة آمنة.','Invitation created. Copy and share its link securely.'));
+  }catch(error){notify(error.message,true);}finally{button.disabled=false;}
+ }
+ async function copyInvitation(event){
+  const button=event.target.closest('[data-hr-invite-link]');
+  if(!button||!ownerLicense)return;
+  const token=button.dataset.hrInviteLink;
+  if(!/^[0-9a-f-]{36}$/i.test(token))return;
+  const url=new URL(location.pathname,location.origin);
+  url.searchParams.set('program','hr');url.searchParams.set('invite',token);
+  try{await navigator.clipboard.writeText(url.toString());notify(t('نُسخ رابط الدعوة','Invitation link copied'));}
+  catch(error){notify(t('تعذر نسخ رابط الدعوة، تحقق من صلاحيات الحافظة','Clipboard permission required'),true);}
  }
  async function addMember(event){
   event.preventDefault();
@@ -141,6 +177,15 @@
   ({db,user,ownerLicense}=event.detail||{});
   if(!db||!user)return;
   try{
+   const inviteToken=new URLSearchParams(location.search).get('invite');
+   if(inviteToken){
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(inviteToken))
+     throw Error(t('رابط الدعوة غير صحيح','Invalid invitation link'));
+    const accepted=requireOk(await db.rpc('hr_saas_accept_invitation',{invite_token:inviteToken}));
+    if(!accepted)throw Error(t('تعذر تأكيد العضوية','Membership not confirmed'));
+    const clean=new URL(location.href);clean.searchParams.delete('invite');history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+    notify(t('تم قبول الدعوة وتفعيل عضوية الموظف','Invitation accepted and staff access activated'));
+   }
    memberships=requireOk(await db.from('hr_saas_memberships')
     .select('id,workspace_id,employee_id,role,status')
     .eq('user_id',user.id).eq('status','active').limit(100));
@@ -162,6 +207,8 @@
  document.addEventListener('bonds-hr-employee-updated',event=>{
   if(ownerWorkspace?.id===event.detail?.workspace?.id)loadOwnerMembers().catch(e=>notify(e.message,true));
  });
+ $('hr-invite-form').addEventListener('submit',createInvitation);
+ $('hr-invites-table').addEventListener('click',copyInvitation);
  $('hr-member-form').addEventListener('submit',addMember);
  $('hr-members-table').addEventListener('click',revokeMember);
  $('hr-member-refresh').addEventListener('click',()=>loadOwnerMembers().catch(e=>notify(e.message,true)));
