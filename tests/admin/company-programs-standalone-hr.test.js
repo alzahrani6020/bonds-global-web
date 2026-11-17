@@ -42,7 +42,16 @@ describe('independent CRM/HR products in one company programs dashboard',()=>{
   expect(controller).toContain("db.from('hr_saas_records')");
   expect(controller).toContain(".eq('workspace_id',owner)");
   expect(controller).toContain(".eq('workspace_id',workspace.id)");
-  expect(controller).not.toContain("db.from('crm_app_");
+  // CRM supplies only the shared company identity; HR data stays in HR tables.
+  expect(controller).toContain("db.from('crm_app_workspaces')");
+  for(const forbidden of ['crm_app_contacts','crm_app_deals','crm_app_companies',
+    'crm_app_activities','crm_app_renewals','crm_app_members']){
+    expect(controller).not.toContain("db.from('"+forbidden+"')");
+  }
+  const shared=read('supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql');
+  expect(shared).toContain('foreign key(owner_user_id,crm_workspace_id)');
+  expect(shared).toContain('references public.crm_app_workspaces(owner_user_id,id)');
+  expect(shared).toContain('unique(crm_workspace_id)');
   expect(controller).not.toMatch(/service_role|stripe\.charges|payment_intents\.create/);
   for(const name of ['attendance','contracts','leaves','payroll','claims','performance','training','settlements','audit'])
     expect(controller).toContain("'"+name+"'");
