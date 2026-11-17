@@ -422,6 +422,36 @@ async function main(){
   const draftHidden=await as(other,()=>db.query(
    "select id from hr_saas_calculation_drafts where id=$1",[drafted]));
   assert.equal(draftHidden.rowCount,0,'Other company can view draft HR calculations');
+  // Unified company identity is additive and does not rewrite existing HR IDs.
+  const sharedMigration=fs.readFileSync(path.resolve(__dirname,
+   '../../supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql'),'utf8');
+  await db.query(sharedMigration);
+  const companyA=(await as(owner,()=>db.query(
+   "insert into crm_app_workspaces(owner_user_id,name) values($1,'Shared Company A') returning id",[owner]))).rows[0].id;
+  const companyB=(await as(other,()=>db.query(
+   "insert into crm_app_workspaces(owner_user_id,name) values($1,'Shared Company B') returning id",[other]))).rows[0].id;
+  const linked=(await as(owner,()=>db.query(
+   "insert into hr_saas_workspaces(owner_user_id,name,crm_workspace_id) values($1,'Shared Company A',$2) returning id,crm_workspace_id",
+   [owner,companyA]))).rows[0];
+  assert.equal(linked.crm_workspace_id,companyA,'HR identity must follow existing company workspace');
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "insert into hr_saas_workspaces(owner_user_id,name,crm_workspace_id) values($1,'Cross-tenant',$2)",[owner,companyB])),
+   e=>e.code==='23503'||e.code==='42501','Cannot link HR to a different company owner');
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "insert into hr_saas_workspaces(owner_user_id,name,crm_workspace_id) values($1,'Duplicate',$2)",[owner,companyA])),
+   e=>e.code==='23505','One company workspace must not create two HR tenants');
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "insert into hr_saas_workspaces(owner_user_id,name) values($1,'Unlinked HR space')",[owner])),
+   e=>e.code==='42501','New HR spaces must be linked to a shared company workspace');
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_workspaces set crm_workspace_id=$1 where id=$2",[companyA,wa])),
+   e=>e.code==='23514','Existing HR tenant must not be silently rebound');
+  const originalLegacy=await db.query("select id,crm_workspace_id from hr_saas_workspaces where id=$1",[wa]);
+  assert.equal(originalLegacy.rows[0].id,wa);
+  assert.equal(originalLegacy.rows[0].crm_workspace_id,null,'Legacy HR workspace preserved without unsafe auto-mapping');
+  const crossTenant=await as(other,()=>db.query(
+   "select id from hr_saas_workspaces where id=$1",[linked.id]));
+  assert.equal(crossTenant.rowCount,0,'Shared company HR still requires tenant isolation');
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
