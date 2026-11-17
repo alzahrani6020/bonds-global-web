@@ -397,7 +397,13 @@
           const reference = BondsCommon.escapeHtml(item.request_reference || '—');
           const status = BondsCommon.escapeHtml(serviceRequestStatusLabel(item.status));
           const date = formatDate(item.submitted_at || item.created_at);
-          return `<div class="bonds-card my-bonds-project"><div class="my-bonds-project__header"><h4 class="my-bonds-project__title">${title}</h4><span class="my-bonds-badge">${status}</span></div><p class="my-bonds-project__summary">رقم المرجع: <strong>${reference}</strong></p><div class="my-bonds-project__meta"><span class="my-bonds-project__date">${date}</span></div></div>`;
+          const detailHref = item.request_reference
+            ? '/my-bonds/request/?reference=' + encodeURIComponent(item.request_reference)
+            : null;
+          const detailAction = detailHref
+            ? `<a class="bonds-btn bonds-btn-sm bonds-btn-secondary" href="${BondsCommon.escapeHtml(detailHref)}">عرض الطلب</a>`
+            : '';
+          return `<div class="bonds-card my-bonds-project"><div class="my-bonds-project__header"><h4 class="my-bonds-project__title">${title}</h4><span class="my-bonds-badge">${status}</span></div><p class="my-bonds-project__summary">رقم المرجع: <strong>${reference}</strong></p><div class="my-bonds-project__meta"><span class="my-bonds-project__date">${date}</span>${detailAction}</div></div>`;
         }).join('');
       }
 
