@@ -157,7 +157,7 @@ async function runFourPageIssuedPdfGate(browser) {
       if (!downloadedFile) throw new Error('Chromium download path missing');
       const bytes = fs.readFileSync(downloadedFile);
       const data = bytes.toString('latin1');
-      const pageCount = (data.match(/\\/Type\\s*\\/Page\\b/g) || []).length;
+      const pageCount = (data.match(/\/Type\s*\/Page\b/g) || []).length;
       if (bytes.subarray(0, 5).toString('ascii') !== '%PDF-' || pageCount !== 4 || bytes.length < 1000) {
         throw new Error('Browser downloaded PDF corrupted: ' + JSON.stringify({pageCount, bytes: bytes.length}));
       }
