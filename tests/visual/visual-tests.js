@@ -109,17 +109,26 @@ async function runFourPageIssuedPdfGate(browser) {
       };
       const make = new Function('state', 'isEn', 'waitForVerificationQr', 'canEditCurrent',
         'paginateEditableSheets', brandGuard + exporter + '\nreturn createPdfBlob();');
-      const blob = await make(state, isEn, waitForVerificationQr, canEditCurrent, paginateEditableSheets);
-      const binary = new TextDecoder('latin1').decode(await blob.arrayBuffer());
-      const pages = (binary.match(/\/Type\s*\/Page\b/g) || []).length;
+      // Exercise the exact exporter at three presentation zoom levels. The
+      // official PDF geometry and issued HTML must not depend on editor zoom.
+      const captures = [];
+      for (const zoom of [0.5, 1, 2]) {
+        container.style.transform = 'scale(' + zoom + ')';
+        const blob = await make(state, isEn, waitForVerificationQr, canEditCurrent, paginateEditableSheets);
+        const binary = new TextDecoder('latin1').decode(await blob.arrayBuffer());
+        captures.push({ zoom, pages: (binary.match(/\/Type\s*\/Page\b/g) || []).length, bytes: blob.size });
+      }
+      container.style.transform = 'none';
+      const pages = captures[1].pages;
       const after = sheets.map(x => x.querySelector('.doc-content').innerHTML);
       const brandsLoaded = sheets.every(x => Array.from(x.querySelectorAll('.letterhead-header .logo-icon, .watermark-b img')).every(img => img.complete && img.naturalWidth > 0));
-      return {pages, byteLength: blob.size, paginationCalls, brandsLoaded,
+      return {pages, captures, byteLength: captures[1].bytes, paginationCalls, brandsLoaded,
         sheetsPreserved: before.every((x, i) => x === after[i]),
         labelCount: sheets.filter((x, i) => x.querySelector('.page-number')?.textContent === 'الصفحة ' + (i + 1) + ' من 4').length};
     }, { exporter: source.slice(start, end), brandGuard });
     if (result.pages !== 4 || result.labelCount !== 4 || !result.sheetsPreserved || !result.brandsLoaded ||
-        result.paginationCalls !== 0 || result.byteLength < 1000) {
+        result.paginationCalls !== 0 || result.byteLength < 1000 ||
+        result.captures.length !== 3 || result.captures.some(c => c.pages !== 4 || c.bytes < 1000)) {
       throw new Error('Four-page locked document PDF acceptance failed: ' + JSON.stringify(result));
     }
     console.log(' Synthetic issued four-sheet PDF: 4 physical A4 pages, immutable sheets, numbered 1-4 PASS');

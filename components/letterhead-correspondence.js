@@ -1466,6 +1466,9 @@
     }
     await waitForVerificationQr();
     await waitForLetterheadBrandImages();
+    // Pagination and PDF capture must use the same final font metrics.
+    // This only awaits fonts; it does not modify issued document data.
+    if (document.fonts?.ready) await document.fonts.ready;
     // Only draft/returned documents may be repaginated. Issued documents are
     // immutable: export their approved sheets as-is and let the A4 overflow
     // checks below reject invalid layouts rather than changing issued content.
@@ -1496,6 +1499,11 @@
           // PDF must use desktop A4 layout even when triggered from a phone.
           windowWidth: Math.max(1280, window.innerWidth),
           onclone: clonedDocument => {
+            // Editor zoom is visual-only. A transformed parent scales all
+            // getBoundingClientRect() measurements and causes false A4 errors.
+            // Normalize only the disposable capture clone, never the live DOM.
+            const captureRoot = clonedDocument.getElementById('pages-container');
+            if (captureRoot) captureRoot.style.transform = 'none';
             const clonedSheet = clonedDocument.querySelectorAll('.sheet')[i];
             const content = clonedSheet?.querySelector('.doc-content');
             const footer = clonedSheet?.querySelector('.letterhead-footer');
