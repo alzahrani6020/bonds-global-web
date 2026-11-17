@@ -428,7 +428,6 @@
     if (document.fonts?.ready) await document.fonts.ready;
     const container = document.getElementById('pages-container');
     if (!container) throw new Error('Letterhead pages container missing');
-    const initialCount = container.querySelectorAll('.sheet').length;
     const first = container.querySelector('.sheet .doc-content');
     const last = container.querySelector('.sheet:last-child .doc-content');
     if (!first || !last) throw new Error('Letterhead content missing');
@@ -440,20 +439,15 @@
     approval.dataset.a4Reservation = 'approval-zone';
     approval.contentEditable = 'false';
     approval.className = 'official-approval-zone';
-    approval.style.cssText = 'height:190px;min-height:190px;margin-bottom:8mm;flex-shrink:0;';
+    approval.style.cssText = 'height:260px;min-height:260px;margin-bottom:8mm;flex-shrink:0;';
     first.prepend(issueMeta);
     last.appendChild(approval);
     try {
       paginateEditableSheets();
     } finally {
       container.querySelectorAll('[data-a4-reservation]').forEach(el => el.remove());
-      // Do not introduce an empty numbered page just for the reservation.
-      const sheets = Array.from(container.querySelectorAll('.sheet'));
-      for (let i = sheets.length - 1; i >= initialCount; i--) {
-        const content = sheets[i].querySelector('.doc-content');
-        if (!content || content.innerHTML.trim()) break;
-        sheets[i].remove();
-      }
+      // Keep any page created to house the eventual signature and seal.
+      // Removing it would reproduce the issued-only A4 overflow.
       renumberSheets();
     }
     // Persist exactly the repaginated draft, never the transient reservations.
