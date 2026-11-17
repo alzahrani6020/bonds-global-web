@@ -3,10 +3,7 @@ module.exports = {
     '<rootDir>/node_modules/',
     '<rootDir>/.vercel/',
     '<rootDir>/bonds-v2/',
-    // Node's built-in test runner executes these files in a separate CI step.
-    '<rootDir>/tests/hr/.*\\.test\\.cjs
-  ]
-};
-
+    // These suites use Node's test runner and are exercised separately in CI.
+    '<rootDir>/tests/hr/.*\\.test\\.cjs$'
   ]
 };
