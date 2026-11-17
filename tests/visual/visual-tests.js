@@ -304,7 +304,7 @@ async function runLetterheadNestedPaginationGate(browser) {
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
   const code = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
   const setPagesCode = code.slice(code.indexOf('  function setPages('), code.indexOf('  function hasMeaningfulDraft()'));
-  const paginateCode = code.slice(code.indexOf('  function moveLastDraftBlock('), code.indexOf('  async function createPdfBlob()'));
+  const paginateCode = code.slice(code.indexOf('  function splitOversizedDraftParagraph('), code.indexOf('  async function createPdfBlob()'));
   if (!setPagesCode.includes('function setPages') || !paginateCode.includes('function paginateEditableSheets')) {
     throw new Error('Actual governed A4 paginator was not found');
   }
