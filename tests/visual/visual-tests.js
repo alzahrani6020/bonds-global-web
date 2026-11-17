@@ -179,6 +179,49 @@ async function runFourPageIssuedPdfGate(browser) {
     if (fingerprints[0] !== fingerprints[1]) throw new Error('Repeat browser PDF download hash mismatch');
     console.log(' Browser PDF download: 2 complete real Chromium downloads; four A4 pages, identical SHA-256 PASS');
     console.log(' Synthetic issued four-sheet PDF: 4 physical A4 pages, immutable sheets, numbered 1-4 PASS');
+    // Cover the issued-document path separately. The draft export gate above
+    // deliberately stubs this path, so its two downloads cannot prove it.
+    const officialStart = source.indexOf('  async function downloadOfficialPdf() {');
+    const officialEnd = source.indexOf('  async function refreshInboxDynamic(', officialStart);
+    if (officialStart < 0 || officialEnd <= officialStart) throw new Error('Official downloader missing');
+    await page.evaluate(downloader => {
+      const blob = window.__syntheticIssuedPdfDownloadBlob;
+      const state = { document: { id: '00000000-0000-4000-8000-000000000000',
+        artifact_hash: 'synthetic-artifact', reference_number: 'TEST-OFFICIAL-PATH' }};
+      window.__officialTestRequests = 0;
+      window.__officialTestUrls = [];
+      const api = async (action, request) => {
+        if (action !== 'artifact-download-url' || request.method !== 'POST' ||
+            request.id !== state.document.id) throw new Error('Wrong artifact request');
+        window.__officialTestRequests++;
+        const url = URL.createObjectURL(blob);
+        window.__officialTestUrls.push(url);
+        return { signed_url: url };
+      };
+      const run = new Function('state', 'isEn', 'api', downloader + '\nreturn downloadOfficialPdf;')(state, false, api);
+      const button = document.createElement('button');
+      button.id = 'test-official-pdf-download';
+      button.textContent = 'Download fixture official PDF';
+      button.onclick = () => run().catch(error => { window.__officialTestError = error.message; });
+      document.body.appendChild(button);
+    }, source.slice(officialStart, officialEnd));
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const pending = page.waitForEvent('download', { timeout: 15000 });
+      await page.locator('#test-official-pdf-download').click();
+      const download = await pending;
+      if (download.suggestedFilename() !== 'TEST-OFFICIAL-PATH.pdf') throw new Error('Official filename mismatch');
+      const downloadedFile = await download.path();
+      if (!downloadedFile) throw new Error('Official browser download path missing');
+      const hash = crypto.createHash('sha256').update(fs.readFileSync(downloadedFile)).digest('hex');
+      if (hash !== fingerprints[0]) throw new Error('Official downloader changed generated PDF bytes');
+    }
+    const official = await page.evaluate(() => {
+      window.__officialTestUrls.forEach(url => URL.revokeObjectURL(url));
+      return { requests: window.__officialTestRequests, error: window.__officialTestError };
+    });
+    if (official.requests !== 2 || official.error) throw new Error('Official downloader failed: ' + JSON.stringify(official));
+    console.log(' Official downloader: 2 browser downloads, generated PDF hash preserved PASS (fixture Storage; live backend untested)');
+
   } finally {
     await page.close();
   }
