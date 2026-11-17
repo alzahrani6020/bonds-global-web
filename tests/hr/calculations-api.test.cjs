@@ -40,13 +40,14 @@ function fixture({employeeWorkspace=workspaceId,policyStatus='approved',userId=o
  };
  const modules={
   '@supabase/supabase-js':{createClient:()=>({from})},
+  '../lib/api/supabase':()=>({from}),
   '../lib/api/auth-helper':{verifyBearerAndUser:async()=>({id:userId})},
   '../lib/api/rate-limit':{checkRateLimit:async()=>false},
   '../lib/api/cors':{setAllowedOrigin(){}},
   '../lib/hr/policy-calculator.cjs':require('../../lib/hr/policy-calculator.cjs')
  };
  const m={exports:{}};
- const env={NEXT_PUBLIC_SUPABASE_URL:'https://example.supabase.co',NEXT_PUBLIC_SUPABASE_ANON_KEY:'anon-test-only'};
+ const env={NEXT_PUBLIC_SUPABASE_URL:'https://example.supabase.co',NEXT_PUBLIC_SUPABASE_ANON_KEY:'anon-test-only',SUPABASE_SERVICE_ROLE_KEY:'service-role-mocked'};
  vm.runInNewContext(original,{module:m,exports:m.exports,require:key=>{if(!modules[key])throw Error('Unexpected require '+key);return modules[key];},
   process:{env},console,URL,Error,TypeError,RangeError},{filename:'hr-calculations.js'});
  const body={workspace_id:workspaceId,employee_id:employeeId,policy_id:policyId,kind:'leave_accrual',
