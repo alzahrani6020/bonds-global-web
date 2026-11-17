@@ -86,6 +86,12 @@
         </div>
       </div>
 
+      <!-- RLS-scoped CRM workspaces -->
+      <div class="my-bonds-section" id="workspacesSection" style="display:none;">
+        <h3 class="my-bonds-section__title">Workspaces</h3>
+        <div id="workspacesList" class="my-bonds-grid"></div>
+      </div>
+
       <!-- Projects list -->
       <div class="my-bonds-section">
         <h3 class="my-bonds-section__title">Saved Projects</h3>
@@ -270,6 +276,34 @@
         return false;
       }
 
+      async function loadWorkspaces() {
+        const section = document.getElementById('workspacesSection');
+        const container = document.getElementById('workspacesList');
+        if (!section || !container) return;
+        section.style.display = 'block';
+        container.innerHTML = '<div class="bonds-card my-bonds-empty">Loading workspaces...</div>';
+        try {
+          await window.BondsAuth.ensureEnv();
+          const db = window.BondsAuth.getSupabase();
+          if (!db) throw new Error('WORKSPACE_CLIENT_UNAVAILABLE');
+          const { data, error } = await db.from('crm_app_workspaces')
+            .select('id,name,owner_user_id').order('created_at',{ascending:true}).limit(100);
+          if (error) throw error;
+          if (!data || data.length === 0) {
+            container.innerHTML = '<div class="bonds-card my-bonds-empty">No linked workspaces yet. Create a workspace in CRM.</div>';
+            return;
+          }
+          container.innerHTML = data.map(function(space) {
+            const name = BondsCommon.escapeHtml(space.name || 'CRM workspace');
+            const href = '/en/my-bonds/crm/?workspace_id=' + encodeURIComponent(space.id);
+            return `<div class="bonds-card my-bonds-project"><div class="my-bonds-project__header"><h4 class="my-bonds-project__title">${name}</h4></div><p class="my-bonds-project__summary">Customer relationship management</p><div class="my-bonds-project__meta"><a class="bonds-btn bonds-btn-sm bonds-btn-primary" href="${BondsCommon.escapeHtml(href)}">Open workspace</a></div></div>`;
+          }).join('');
+        } catch (error) {
+          console.error('[my-bonds] loadWorkspaces failed:', error);
+          container.innerHTML = '<div class="bonds-card my-bonds-empty">Could not load workspaces. Reload the page to retry.</div>';
+        }
+      }
+
       async function loadSupabaseProjects() {
         try {
           const res = await apiFetch('/api/v3/projects', { method: 'GET', returnTo: '/en/my-bonds/' });
@@ -414,7 +448,13 @@
           const reference = BondsCommon.escapeHtml(item.request_reference || '—');
           const status = BondsCommon.escapeHtml(serviceRequestStatusLabel(item.status));
           const date = formatDate(item.submitted_at || item.created_at);
-          return `<div class="bonds-card my-bonds-project"><div class="my-bonds-project__header"><h4 class="my-bonds-project__title">${title}</h4><span class="my-bonds-badge">${status}</span></div><p class="my-bonds-project__summary">Reference: <strong>${reference}</strong></p><div class="my-bonds-project__meta"><span class="my-bonds-project__date">${date}</span></div></div>`;
+          const detailHref = item.request_reference
+            ? '/en/my-bonds/request/?reference=' + encodeURIComponent(item.request_reference)
+            : null;
+          const detailAction = detailHref
+            ? `<a class="bonds-btn bonds-btn-sm bonds-btn-secondary" href="${BondsCommon.escapeHtml(detailHref)}">View request</a>`
+            : '';
+          return `<div class="bonds-card my-bonds-project"><div class="my-bonds-project__header"><h4 class="my-bonds-project__title">${title}</h4><span class="my-bonds-badge">${status}</span></div><p class="my-bonds-project__summary">Reference: <strong>${reference}</strong></p><div class="my-bonds-project__meta"><span class="my-bonds-project__date">${date}</span>${detailAction}</div></div>`;
         }).join('');
       }
 
@@ -497,6 +537,7 @@
           const countEl = document.getElementById('projectCount');
           if (countEl) countEl.textContent = String(allProjects.length);
           renderProjects(allProjects, false);
+          await loadWorkspaces();
           try {
             renderServiceRequests(await loadServiceRequests());
           } catch (requestError) {
