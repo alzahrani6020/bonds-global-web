@@ -327,6 +327,41 @@ async function main(){
   await assert.rejects(()=>as(unverifiedUser,()=>db.query(
    "select public.hr_saas_accept_invitation($1)",[unverifiedToken])),
    e=>e.code==='42501','Unverified email cannot redeem invitation');
+
+  // Provider entitlements require the server-only atomic verified-event RPC.
+  const billingOwner=randomUUID();
+  await db.query('insert into auth.users(id) values($1)',[billingOwner]);
+  const billingFn='public.company_program_apply_stripe_event(text,text,uuid,text,text,text,timestamptz,timestamptz)';
+  const perms=await db.query("select has_function_privilege('authenticated',$1,'EXECUTE') as browser, has_function_privilege('service_role',$1,'EXECUTE') as service",[billingFn]);
+  assert.equal(perms.rows[0].browser,false,'Browser must not grant company subscriptions');
+  assert.equal(perms.rows[0].service,true,'Server service role must have billing RPC authority');
+  const billingArgs=['evt_hr_001','sub_hr_001',billingOwner,'hr','price_hr_001','active',new Date(Date.now()-2000),new Date(Date.now()+86400000)];
+  await assert.rejects(()=>as(billingOwner,()=>db.query(
+   "select public.company_program_apply_stripe_event($1,$2,$3,$4,$5,$6,$7,$8)",billingArgs)),
+   e=>e.code==='42501','Browser cannot send fake signed provider event');
+  const firstBilling=await db.query(
+   "select public.company_program_apply_stripe_event($1,$2,$3,$4,$5,$6,$7,$8) as result",billingArgs);
+  assert.equal(firstBilling.rows[0].result,'applied');
+  const replayBilling=await db.query(
+   "select public.company_program_apply_stripe_event($1,$2,$3,$4,$5,$6,$7,$8) as result",billingArgs);
+  assert.equal(replayBilling.rows[0].result,'duplicate','Same Stripe event must be idempotent');
+  const billed=await db.query(
+   "select status from company_program_entitlements where owner_user_id=$1 and product_code='hr'",[billingOwner]);
+  assert.equal(billed.rows[0].status,'active');
+  const inactiveEvent=['evt_hr_002','sub_hr_001',billingOwner,'hr','price_hr_001','canceled',new Date(Date.now()+1000),null];
+  const canceledBilling=await db.query(
+   "select public.company_program_apply_stripe_event($1,$2,$3,$4,$5,$6,$7,$8) as result",inactiveEvent);
+  assert.equal(canceledBilling.rows[0].result,'applied');
+  const canceledEntitlement=await db.query(
+   "select status from company_program_entitlements where owner_user_id=$1 and product_code='hr'",[billingOwner]);
+  assert.equal(canceledEntitlement.rows[0].status,'cancelled','Cancellation must revoke HR entitlement');
+  const staleBilling=await db.query(
+   "select public.company_program_apply_stripe_event($1,$2,$3,$4,$5,$6,$7,$8) as result",
+   ['evt_hr_003','sub_hr_001',billingOwner,'hr','price_hr_001','active',new Date(Date.now()-5000),new Date(Date.now()+86400000)]);
+  assert.equal(staleBilling.rows[0].result,'stale');
+  const stillCancelled=await db.query(
+   "select status from company_program_entitlements where owner_user_id=$1 and product_code='hr'",[billingOwner]);
+  assert.equal(stillCancelled.rows[0].status,'cancelled','Out-of-order Stripe event reactivated cancelled HR');
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
