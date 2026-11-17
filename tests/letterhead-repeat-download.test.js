@@ -69,7 +69,7 @@ describe('governed correspondence repeated read budget', () => {
     expect(route).toContain("(req.method === 'GET' ? 'admin_read' : 'auth')");
     expect(route).toContain("corrAction === 'verify' || corrAction === 'qr'");
     expect(route).toContain('return await correspondence.handler(req, res)');
-    expect(limiter).toMatch(/auth:\\s*\\{\\s*limit:\\s*10/);
-    expect(limiter).toMatch(/admin_read:\\s*\\{\\s*limit:\\s*60/);
+    expect(limiter).toMatch(/auth:\s*\{\s*limit:\s*10/);
+    expect(limiter).toMatch(/admin_read:\s*\{\s*limit:\s*60/);
   });
 });
