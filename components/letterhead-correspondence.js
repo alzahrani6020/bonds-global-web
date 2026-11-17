@@ -480,16 +480,11 @@
         state.latestIssue = refreshed.latest_issue || null;
         renderGovernanceArtifacts();
         updateVerificationQr();
-        if (can('finalize_pdf') && !state.document.artifact_hash) {
-          try {
-            await persistIssuedPdfArtifact();
-          } catch (finalError) {
-            // Issuance is already committed: keep the retry action available.
-            toast('⚠️ ' + (isEn ? 'Issued, but final PDF needs retry: ' : 'صدر الخطاب، لكن تثبيت PDF يتطلب إعادة المحاولة: ') + finalError.message);
-          }
-        } else if (!state.document.artifact_hash) {
-          toast(isEn ? 'Document issued. A PDF finalizer must secure it.' : 'صدر الخطاب، ويلزم مستخدم بصلاحية تثبيت PDF النهائي.');
-        }
+        // Issuance and final PDF remain separate permission-gated actions.
+        // Keep the existing finalizer button available until Storage verifies it.
+        toast(isEn
+          ? 'Document issued. Secure the final PDF using the governed finalizer.'
+          : 'تم الإصدار. ثبّت PDF النهائي من إجراء التثبيت المحكوم.');
       }
 
       toast('✅ ' + t.status + ': ' + state.document.status);
