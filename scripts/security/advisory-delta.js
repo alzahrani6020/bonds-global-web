@@ -96,6 +96,23 @@ function cmpVersion(a, b) {
 }
 
 const policyViolations = [];
+// Time-bound accepted risks remain visible in the baseline; they are not fixes.
+// Fail closed when their review expires or their scope changes to production.
+const reviewDay = new Date().toISOString().slice(0, 10);
+for (const accepted of baselineEntries) {
+  if (accepted.status !== 'accepted-temporarily' || !accepted.reviewExpiresOn) continue;
+  const currentMatches = current.filter(item =>
+    item.id === accepted.id &&
+    item.package === accepted.package &&
+    item.dependencyPath === accepted.dependencyPath);
+  if (currentMatches.length === 0) continue;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(accepted.reviewExpiresOn) || reviewDay > accepted.reviewExpiresOn) {
+    policyViolations.push({ type: 'EXPIRED_SECURITY_REVIEW', advisory: accepted });
+  }
+  if (currentMatches.some(item => item.scope !== 'dev' && accepted.scope === 'dev')) {
+    policyViolations.push({ type: 'ACCEPTED_DEV_RISK_REACHED_PRODUCTION', advisory: accepted });
+  }
+}
 for (const [name, minimum] of Object.entries(baseline.minimumVersions || {})) {
   const actual = lock.packages?.['node_modules/' + name]?.version || null;
   if (!actual || cmpVersion(actual, minimum) < 0) {
