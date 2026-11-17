@@ -273,3 +273,69 @@ revoke all on function public.company_program_apply_stripe_event(
  text,text,uuid,text,text,text,timestamptz,timestamptz) from public,anon,authenticated;
 grant execute on function public.company_program_apply_stripe_event(
  text,text,uuid,text,text,text,timestamptz,timestamptz) to service_role;
+
+-- Stripe invoice evidence is separate from subscription authorization.
+-- Invoice rows are available only to the owning company customer.
+create table public.company_program_invoices (
+ provider_invoice_id text primary key check(provider_invoice_id ~ '^in_[A-Za-z0-9_]+$'),
+ owner_user_id uuid not null references auth.users(id) on delete restrict,
+ product_code text not null check(product_code in ('crm','hr','finance','suite')),
+ provider_subscription_id text not null references public.company_program_subscriptions(provider_subscription_id) on delete restrict,
+ currency text not null check(currency ~ '^[A-Z]{3}$'),
+ amount_due_minor bigint not null check(amount_due_minor>=0),
+ amount_paid_minor bigint not null check(amount_paid_minor>=0),
+ provider_status text not null check(provider_status in ('draft','open','paid','uncollectible','void')),
+ paid_at timestamptz,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now()
+);
+alter table public.company_program_invoices enable row level security;
+create policy company_program_invoice_owner_read on public.company_program_invoices
+ for select to authenticated using(owner_user_id=(select auth.uid()));
+revoke all on public.company_program_invoices from public,anon,authenticated;
+grant select on public.company_program_invoices to authenticated;
+create function public.company_program_record_stripe_invoice(
+ p_invoice_id text,p_owner_user_id uuid,p_product_code text,p_subscription_id text,
+ p_currency text,p_amount_due_minor bigint,p_amount_paid_minor bigint,
+ p_status text,p_paid_at timestamptz
+) returns text language plpgsql security definer set search_path='' as $$
+declare
+ old_invoice public.company_program_invoices%rowtype;
+begin
+ if p_invoice_id is null or p_invoice_id !~ '^in_[A-Za-z0-9_]+$'
+   or p_owner_user_id is null or p_product_code not in ('crm','hr','finance','suite')
+   or p_subscription_id is null or p_currency !~ '^[A-Z]{3}$'
+   or p_amount_due_minor<0 or p_amount_paid_minor<0
+   or p_status not in ('draft','open','paid','uncollectible','void') then
+  raise exception 'Invalid verified Stripe invoice' using errcode='22023';
+ end if;
+ if not exists(select 1 from public.company_program_subscriptions s
+    where s.owner_user_id=p_owner_user_id and s.product_code=p_product_code
+      and s.provider_subscription_id=p_subscription_id) then
+  raise exception 'Invoice subscription mismatch' using errcode='23514';
+ end if;
+ select * into old_invoice from public.company_program_invoices
+  where provider_invoice_id=p_invoice_id for update;
+ if found then
+  if old_invoice.owner_user_id<>p_owner_user_id or old_invoice.product_code<>p_product_code
+    or old_invoice.provider_subscription_id<>p_subscription_id or old_invoice.currency<>p_currency then
+   raise exception 'Invoice identity cannot change' using errcode='23514';
+  end if;
+  if old_invoice.provider_status='paid' and p_status<>'paid' then
+   raise exception 'Paid invoice cannot be reverted' using errcode='23514';
+  end if;
+ end if;
+ insert into public.company_program_invoices(
+  provider_invoice_id,owner_user_id,product_code,provider_subscription_id,
+  currency,amount_due_minor,amount_paid_minor,provider_status,paid_at)
+ values(p_invoice_id,p_owner_user_id,p_product_code,p_subscription_id,
+  p_currency,p_amount_due_minor,p_amount_paid_minor,p_status,p_paid_at)
+ on conflict(provider_invoice_id) do update set
+  amount_due_minor=excluded.amount_due_minor,amount_paid_minor=excluded.amount_paid_minor,
+  provider_status=excluded.provider_status,paid_at=excluded.paid_at,updated_at=now();
+ return 'recorded';
+end $$;
+revoke all on function public.company_program_record_stripe_invoice(
+ text,uuid,text,text,text,bigint,bigint,text,timestamptz) from public,anon,authenticated;
+grant execute on function public.company_program_record_stripe_invoice(
+ text,uuid,text,text,text,bigint,bigint,text,timestamptz) to service_role;
