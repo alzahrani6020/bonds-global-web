@@ -190,7 +190,16 @@ async function run(){
     await page.locator('#hr-body [data-hr-edit]').first().click();
     await page.locator('#hr-fields input[name="base_salary"]').fill('5200');
     await page.locator('#hr-save').click();
-    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employment_contracts[0].base_salary===5200);
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employment_contracts[0].base_salary===5200,null,{timeout:4000}).catch(async error=>{
+     const diagnostic=await page.evaluate(()=>({
+      saved:window.__hrTest.tables.hr_saas_employment_contracts[0],
+      notice:document.querySelector('#hr-status')?.textContent,
+      editorHidden:document.querySelector('#hr-editor')?.hidden,
+      formValid:document.querySelector('#hr-save-form')?.checkValidity(),
+      fields:[...document.querySelectorAll('#hr-fields [name]')].map(x=>({name:x.name,value:x.value,valid:x.checkValidity()}))
+     }));
+     throw Error('Contract edit did not persist: '+JSON.stringify(diagnostic)+'; '+error.message);
+    });
     const revisedContract=await page.evaluate(()=>window.__hrTest.tables.hr_saas_employment_contracts[0]);
     assert.equal(revisedContract.contract_number,'CT-001','Contract identity changed on edit');
     assert.equal(revisedContract.employee_id,(await page.evaluate(()=>window.__hrTest.tables.hr_saas_employees[0].id)),'Contract employee identity changed');
