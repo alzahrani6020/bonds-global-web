@@ -1845,6 +1845,38 @@ async function submit(e){
   if(submitButton&&!submitted)submitButton.disabled=false;
  }
 }
+async function renderLinkedRequestContext(){
+ // Preserve the request reference without changing any saved inputs.
+ const reference=String(params.get('reference')||'').trim();
+ if(!/^SR-[A-Za-z0-9-]{4,90}$/.test(reference))return;
+ const auth=window.BondsAuth;
+ if(typeof auth?.authenticatedFetch!=='function')return;
+ try{
+  const response=await auth.authenticatedFetch('/api/v3/services/requests?reference='+encodeURIComponent(reference),
+   {method:'GET',returnTo:location.pathname+location.search});
+  if(!response?.ok)return;
+  const payload=await response.json();
+  const request=payload?.requests?.[0];
+  if(request?.request_reference!==reference||request?.service?.code!==serviceCode)return;
+  if(document.getElementById('srLinkedRequest'))return;
+  const banner=document.createElement('aside');
+  banner.id='srLinkedRequest';
+  banner.className='bonds-card';
+  banner.setAttribute('role','status');
+  banner.style.cssText='max-width:1100px;margin:1rem auto;padding:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem';
+  const label=document.createElement('span');
+  label.textContent=(lang==='ar'?'الطلب المرتبط: ':'Linked request: ')+reference;
+  const link=document.createElement('a');
+  link.href=(lang==='ar'?'/my-bonds/request/?reference=':'/en/my-bonds/request/?reference=')+encodeURIComponent(reference);
+  link.textContent=lang==='ar'?'عرض الطلب المحفوظ':'View saved request';
+  link.className='bonds-btn bonds-btn-secondary';
+  banner.appendChild(label);banner.appendChild(link);
+  const target=document.querySelector('.service-workspace-breadcrumb')||$('#srContent');
+  if(target?.parentNode)target.parentNode.insertBefore(banner,target.nextSibling);
+ }catch(error){
+  console.warn('[service-workspace] linked request readback unavailable:',error?.message||'unknown');
+ }
+}
 function studiesFallbackDetail(){
  if(serviceCode!=='scientific_research')return null;
  return {
@@ -1896,6 +1928,7 @@ async function init(){
     return;
   }
   $('#srLoading').hidden=true;$('#srContent').hidden=false;render();
+  renderLinkedRequestContext();
   await hydrateAccountingEntities();
   const requestForm=$('#srRequestForm');
   if(isStudiesWorkspaceService()) applyStudiesSubmitLabel();

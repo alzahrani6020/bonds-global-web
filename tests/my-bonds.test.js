@@ -33,7 +33,7 @@ function extractInlineScript(html) {
   return last.replace(/<script>|<\/script>/g, '');
 }
 
-function loadPage({ localStorageInitial = {}, fetchResponses = [], getUserResult = { user: null } } = {}) {
+function loadPage({ localStorageInitial = {}, fetchResponses = [], getUserResult = { user: null }, workspaces = [] } = {}) {
   const html = fs.readFileSync(path.join(__dirname, '..', 'my-bonds', 'index.html'), 'utf8');
   const script = extractInlineScript(html);
   const localStorage = createStorage(localStorageInitial);
@@ -58,13 +58,23 @@ function loadPage({ localStorageInitial = {}, fetchResponses = [], getUserResult
     return {
       ok: true,
       status: 200,
-      json: async () => ({ projects: next?.projects || [] })
+      json: async () => ({ projects: next?.projects || [], requests: next?.requests || [] })
     };
   });
 
   const BondsAuth = {
     getUser: jest.fn(async () => getUserResult),
     initSiteAuth: jest.fn(async () => {}),
+    ensureEnv: jest.fn(async () => {}),
+    getSupabase: jest.fn(() => ({
+      from: jest.fn(() => ({
+        select: jest.fn(() => ({
+          order: jest.fn(() => ({
+            limit: jest.fn(async () => ({ data: workspaces, error: null }))
+          }))
+        }))
+      }))
+    })),
     authenticatedFetch
   };
 
@@ -177,4 +187,56 @@ describe('my-bonds page behaviour', () => {
     expect(elements.userWelcome.style.display).toBe('none');
     expect(elements.projectsList.innerHTML).toContain('تعذر تحميل المشاريع');
   });
+  test('service requests provide a reference-scoped details action', async () => {
+    const user = { id: 'u1', email: 'a@example.com' };
+    const requests = [{
+      id: 'request-1', request_reference: 'SR-ABC123',
+      status: 'submitted', service: { name_ar: 'القيود اليومية', code: 'daily_entries' },
+      service_workspace: {route_ar:'/my-bonds/workspace/'},
+      created_at: '2026-10-25T12:00:00Z'
+    }];
+    const { elements, authenticatedFetch } = loadPage({
+      getUserResult: { data: { user } },
+      fetchResponses: [{ projects: [] }, { requests }]
+    });
+    await new Promise(r => setTimeout(r, 0));
+    expect(authenticatedFetch).toHaveBeenCalledWith('/api/v3/services/requests',
+      expect.objectContaining({ method: 'GET' }));
+    expect(elements.serviceRequestsList.innerHTML).toContain('/my-bonds/request/?reference=SR-ABC123');
+    expect(elements.serviceRequestsList.innerHTML).toContain('عرض الطلب');
+    expect(elements.serviceRequestsList.innerHTML).toContain('service=daily_entries');
+    expect(elements.serviceRequestsList.innerHTML).toContain('reference=SR-ABC123');
+    expect(elements.serviceRequestsList.innerHTML).toContain('فتح مساحة الخدمة');
+    expect(elements.serviceRequestsList.innerHTML).toContain('القيود اليومية');
+  });
+
+  test('RLS-visible workspace appears as a CRM deep link', async () => {
+    const { elements } = loadPage({
+      getUserResult: { data: { user: { id: 'u1', email: 'a@example.com' } } },
+      fetchResponses: [{ projects: [] }, { requests: [] }],
+      workspaces: [{ id: '94c6dbfe-c53a-4686-ad42-eb01893a3e80', name: 'شركة الاختبار' }]
+    });
+    await new Promise(r => setTimeout(r, 0));
+    expect(elements.workspacesSection.style.display).toBe('block');
+    expect(elements.workspacesList.innerHTML).toContain('شركة الاختبار');
+    expect(elements.workspacesList.innerHTML).toContain('/my-bonds/crm/?workspace_id=94c6dbfe-c53a-4686-ad42-eb01893a3e80');
+  });
+
+  test('explicit CRM workspace selection fails closed when not in the RLS-visible list', () => {
+    const crmSource = fs.readFileSync(path.join(__dirname, '..', 'my-bonds', 'crm', 'crm-app.js'), 'utf8');
+    expect(crmSource).toContain('requestedWorkspaceId&&!spaces.some(w=>w.id===requestedWorkspaceId)');
+    expect(crmSource).toContain("$('workspace-content').hidden=true");
+  });
+
+  test('request details page uses owner-scoped API readback, not browser storage', () => {
+    const detailsPage = fs.readFileSync(path.join(__dirname, '..', 'my-bonds', 'request', 'index.html'), 'utf8');
+    expect(detailsPage).toContain('/api/v3/services/requests?reference=');
+    expect(detailsPage).toContain('request.request_reference !== reference');
+    expect(detailsPage).toContain('BondsAuth.authenticatedFetch');
+    expect(detailsPage).toContain('window.BondsAuth.ensureEnv()');
+    expect(detailsPage).toContain('src="/api/env"');
+    expect(detailsPage).not.toContain('localStorage');
+    expect(detailsPage).not.toContain("url.searchParams.set('request_id'");
+  });
+
 });

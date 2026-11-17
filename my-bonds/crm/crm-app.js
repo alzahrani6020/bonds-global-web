@@ -373,7 +373,21 @@
    // RLS makes owned and assigned workspaces visible; never trust browser role claims.
    const spaces=must(await sb.from('crm_app_workspaces').select('id,name,owner_user_id').order('created_at',{ascending:true}).limit(100));
    availableWorkspaces=spaces;
-   const chosen=spaces.find(w=>w.id===acceptedWorkspaceId)||spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
+   const requestedWorkspaceId=new URLSearchParams(window.location.search).get('workspace_id');
+   if(requestedWorkspaceId&&!spaces.some(w=>w.id===requestedWorkspaceId)){
+    // Never silently open another company's workspace when an explicit link is inaccessible.
+    $('workspace-select').innerHTML=spaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
+    $('workspace-switch-label').hidden=spaces.length===0;
+    $('workspace-create-open').hidden=false;
+    $('onboarding').hidden=true;
+    $('workspace-content').hidden=true;
+    notify(english?'This workspace is not available to your account. Select an accessible workspace.':'مساحة العمل المطلوبة غير متاحة لهذا الحساب. اختر مساحة مصرحًا بها.',true);
+    return;
+   }
+   // A URL-selected workspace is accepted only if the RLS-filtered list contains it.
+   const chosen=spaces.find(w=>w.id===acceptedWorkspaceId)
+     ||spaces.find(w=>w.id===requestedWorkspaceId)
+     ||spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
    $('workspace-select').innerHTML=spaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
    $('workspace-switch-label').hidden=spaces.length===0;
    $('workspace-create-open').hidden=false;

@@ -746,6 +746,10 @@
     }
   ],
   "redirects": [
+    { "source": "/deals", "destination": "/my-bonds/deals", "statusCode": 308 },
+    { "source": "/deals/", "destination": "/my-bonds/deals", "statusCode": 308 },
+    { "source": "/en/deals", "destination": "/en/my-bonds/deals", "statusCode": 308 },
+    { "source": "/en/deals/", "destination": "/en/my-bonds/deals", "statusCode": 308 },
     {
       "source": "/ar/letterhead",
       "destination": "/letterhead",

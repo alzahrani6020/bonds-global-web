@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service request details | Bonds</title>
+<meta name="description" content="View your authenticated Bonds service request details.">
+<meta name="robots" content="noindex,follow">
+<meta property="og:title" content="Service request details | Bonds">
+<meta property="og:description" content="View your authenticated Bonds service request details.">
+<meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2-sm.webp">
+<meta property="og:url" content="https://bonds-global.com/en/my-bonds/request/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Service request details | Bonds">
+<meta name="twitter:description" content="View your authenticated Bonds service request details.">
+<meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2-sm.webp">
+<link rel="canonical" href="https://bonds-global.com/en/my-bonds/request/">
+<link rel="stylesheet" href="/styles/fonts-en.css">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/styles/my-bonds.css?v=2">
+<script src="/api/env" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
+<style>
+.request-detail-shell{max-width:900px;margin:2rem auto;padding:1rem;min-height:55vh}
+.request-detail-card{padding:1.5rem;margin-top:1rem}
+.request-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem}
+.request-detail-label{display:block;color:#64748b;font-size:.9rem;margin-bottom:.3rem}
+.request-detail-value{overflow-wrap:anywhere}
+.request-detail-actions{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.25rem}
+.request-detail-fields{margin-top:1rem}
+.request-detail-fields dt{font-weight:700;margin-top:.75rem}
+.request-detail-fields dd{overflow-wrap:anywhere;white-space:pre-wrap;margin:.25rem 0}
+</style>
+</head>
+<body>
+<main class="request-detail-shell">
+<nav><a href="/en/my-bonds/">My Bonds</a> / Service request details</nav>
+<h1>Service request details</h1>
+<div id="requestDetailStatus" class="bonds-card request-detail-card" role="status" aria-live="polite">Loading request...</div>
+<section id="requestDetailContent" class="bonds-card request-detail-card" hidden></section>
+</main>
+<script>
+window.addEventListener('load', async function () {
+  'use strict';
+  const status = document.getElementById('requestDetailStatus');
+  const content = document.getElementById('requestDetailContent');
+  const reference = new URLSearchParams(location.search).get('reference') || '';
+  const setStatus = message => { status.textContent = message; status.hidden = false; content.hidden = true; };
+  const text = value => value === null || value === undefined ? '' : String(value);
+  const add = (parent, tag, value, className) => {
+    const el = document.createElement(tag);
+    el.textContent = text(value);
+    if (className) el.className = className;
+    parent.appendChild(el);
+    return el;
+  };
+  if (!/^SR-[A-Za-z0-9-]{4,90}$/.test(reference)) {
+    setStatus('Invalid request reference.');
+    return;
+  }
+  try {
+    if (!window.BondsAuth || typeof window.BondsAuth.getUser !== 'function' ||
+        typeof window.BondsAuth.authenticatedFetch !== 'function') {
+      setStatus('Authentication is unavailable. Reload the page.');
+      return;
+    }
+    await window.BondsAuth.ensureEnv();
+    const identity = await window.BondsAuth.getUser();
+    if (!identity?.data?.user) {
+      setStatus('Sign in with the account that submitted this request.');
+      add(status, 'a', 'Sign in').href = '/en/calculators/auth/index.html?redirect=' + encodeURIComponent(location.pathname + location.search);
+      return;
+    }
+    const result = await window.BondsAuth.authenticatedFetch(
+      '/api/v3/services/requests?reference=' + encodeURIComponent(reference),
+      {method:'GET',returnTo:location.pathname + location.search}
+    );
+    if (!result.ok || result.authError) {
+      setStatus(result.status === 404 ? 'Request not found.' : 'Could not access the request. Check your account or try again.');
+      return;
+    }
+    const payload = await result.json();
+    const request = payload.requests?.[0];
+    if (!request || request.request_reference !== reference) {
+      setStatus('No request with this reference is accessible to your account.');
+      return;
+    }
+    const title = request.service?.name_en || request.service?.name_ar || 'Service request';
+    add(content,'h2',title);
+    const grid = add(content,'div','', 'request-detail-grid');
+    const fields = [
+      ['Reference',request.request_reference],
+      ['Status',({draft:'Draft',submitted:'Submitted',triage:'Triage',in_progress:'In progress',awaiting_client:'Awaiting client',awaiting_approval:'Awaiting approval',completed:'Completed',cancelled:'Cancelled'})[request.status] || request.status],
+      ['Submitted at',request.submitted_at ? new Date(request.submitted_at).toLocaleDateString('en-US') : 'Not specified'],
+      ['Country',request.country_code || 'Not specified']
+    ];
+    fields.forEach(([label,value]) => {
+      const box = add(grid,'div','');
+      add(box,'span',label,'request-detail-label');
+      add(box,'strong',value || 'Not specified','request-detail-value');
+    });
+    const values = payload.values;
+    if (values && typeof values === 'object' && !Array.isArray(values) && Object.keys(values).length) {
+      add(content,'h3','Saved request inputs');
+      const dl = add(content,'dl','', 'request-detail-fields');
+      Object.entries(values).forEach(([key,value]) => {
+        add(dl,'dt',key);
+        add(dl,'dd',typeof value === 'object' ? JSON.stringify(value) : value);
+      });
+    }
+    const actions = add(content,'div','', 'request-detail-actions');
+    add(actions,'a','Back to My Bonds','bonds-btn bonds-btn-secondary').href = '/en/my-bonds/';
+    const workspace = request.service_workspace || {};
+    const route = workspace.route_en;
+    const code = request.service?.code;
+    if (code && typeof route === 'string' &&
+        /^\/(?:en\/)?(?:my-bonds\/workspace\/|service-request\.html|v3\/)/.test(route) && !route.startsWith('//')) {
+      const url = new URL(route,location.origin);
+      url.searchParams.set('service',code);
+      url.searchParams.set('reference',reference);
+      url.searchParams.set('return_to','/en/my-bonds/');
+      add(actions,'a','Open service form','bonds-btn bonds-btn-primary').href = url.pathname + url.search;
+    }
+    status.hidden = true;
+    content.hidden = false;
+  } catch (error) {
+    setStatus('Could not load this request. Retry from My Bonds.');
+  }
+});
+</script>
+</body>
+</html>

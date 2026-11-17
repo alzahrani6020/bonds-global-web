@@ -35,6 +35,9 @@ describe('user-directed removal of unused service request atomic context additio
   for(const file of ['service-request.html','en/service-request.html','my-bonds/workspace/index.html','en/my-bonds/workspace/index.html']){
    expect(read(file)).toContain('/components/service-request.js?v=24');
   }
-  expect(read('sw.js')).toContain("const CACHE_VERSION = 'v3.0.313';");
+  // Runtime updates must advance the cache version; do not pin an obsolete exact patch value.
+  const match = read('sw.js').match(/const CACHE_VERSION = 'v3\.0\.(\d+)';/);
+  expect(match).not.toBeNull();
+  expect(Number(match[1])).toBeGreaterThanOrEqual(314);
  });
 });
