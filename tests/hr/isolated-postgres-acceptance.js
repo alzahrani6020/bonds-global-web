@@ -250,6 +250,24 @@ async function main(){
   const nonmember=await as(unrelatedAccount,()=>db.query(
    'select id from hr_saas_employee_requests where workspace_id=$1',[wa]));
   assert.equal(nonmember.rowCount,0,'Authenticated unrelated account has no request access');
+  // A manager in tenant A who is only an employee in tenant B
+  // must NOT inherit manager rights in tenant B.
+  const tenantBEmployeeAccount=randomUUID();
+  await db.query('insert into auth.users(id) values($1)',[tenantBEmployeeAccount]);
+  const tenantBSecondEmployee=(await as(other,()=>db.query(
+   "insert into hr_saas_employees(workspace_id,employee_number,full_name) values($1,'HR-B-002','Tenant B Second Employee') returning id",[wb]))).rows[0].id;
+  await as(other,()=>db.query(
+   "insert into hr_saas_memberships(workspace_id,user_id,employee_id,role) values($1,$2,$3,'employee'),($1,$4,$5,'employee')",
+   [wb,managerAccount,another,tenantBEmployeeAccount,tenantBSecondEmployee]));
+  const otherTenantRequest=(await as(tenantBEmployeeAccount,()=>db.query(
+   "insert into hr_saas_employee_requests(workspace_id,employee_id,requested_by,request_type,subject,description) values($1,$2,$3,'certificate','Tenant B request','Must stay private') returning id",
+   [wb,tenantBSecondEmployee,tenantBEmployeeAccount]))).rows[0].id;
+  const managerRoleBleed=await as(managerAccount,()=>db.query(
+   "update hr_saas_employee_requests set status='approved' where id=$1 returning id",[otherTenantRequest]));
+  assert.equal(managerRoleBleed.rowCount,0,'HR manager in tenant A must never approve requests in tenant B where only an employee');
+  const tenantBRequestStillPending=await as(tenantBEmployeeAccount,()=>db.query(
+   'select status from hr_saas_employee_requests where id=$1',[otherTenantRequest]));
+  assert.equal(tenantBRequestStillPending.rows[0].status,'pending','Cross-company role bleed changed approval');
   await as(owner,()=>db.query(
    "update hr_saas_memberships set status='revoked' where workspace_id=$1 and user_id=$2",[wa,employeeAccount]));
   const revokedMembership=await as(employeeAccount,()=>db.query(
