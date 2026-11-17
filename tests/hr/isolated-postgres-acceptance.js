@@ -217,9 +217,10 @@ async function main(){
   await assert.rejects(()=>as(employeeAccount,()=>db.query(
    "insert into hr_saas_memberships(workspace_id,user_id,employee_id,role) values($1,$2,$3,'hr_manager')",
    [wa,unrelatedAccount,managerEmployee])), e=>e.code==='42501','Employee cannot grant roles');
-  await assert.rejects(()=>as(employeeAccount,()=>db.query(
-   "update hr_saas_memberships set role='hr_manager' where workspace_id=$1 and user_id=$2",
-   [wa,employeeAccount])), e=>e.code==='42501','Employee cannot promote own role');
+  const unprivilegedPromotion=await as(employeeAccount,()=>db.query(
+   "update hr_saas_memberships set role='hr_manager' where workspace_id=$1 and user_id=$2 returning id",
+   [wa,employeeAccount]));
+  assert.equal(unprivilegedPromotion.rowCount,0,'Employee cannot promote own role');
   const salaries=await as(managerAccount,()=>db.query('select basic_salary from hr_saas_employees where workspace_id=$1',[wa]));
   assert.equal(salaries.rowCount,0,'HR manager may not read salary via employee table');
   const contractPrivate=await as(managerAccount,()=>db.query('select id from hr_saas_employment_contracts where workspace_id=$1',[wa]));
@@ -230,8 +231,9 @@ async function main(){
   await assert.rejects(()=>as(employeeAccount,()=>db.query(
    "insert into hr_saas_employee_requests(workspace_id,employee_id,requested_by,request_type,subject,description) values($1,$2,$3,'certificate','Forgery','Someone else request')",
    [wa,managerEmployee,employeeAccount])),e=>e.code==='42501','Employee cannot file on another employee identity');
-  await assert.rejects(()=>as(employeeAccount,()=>db.query(
-   "update hr_saas_employee_requests set status='approved' where id=$1",[selfRequest])),e=>e.code==='42501','Employee cannot approve own request');
+  const illicitApproval=await as(employeeAccount,()=>db.query(
+   "update hr_saas_employee_requests set status='approved' where id=$1 returning id",[selfRequest]));
+  assert.equal(illicitApproval.rowCount,0,'Employee cannot approve own request');
   const managerQueue=await as(managerAccount,()=>db.query(
    'select id,employee_id,status from hr_saas_employee_requests where workspace_id=$1',[wa]));
   assert.equal(managerQueue.rowCount,1,'HR manager reads approval queue');
