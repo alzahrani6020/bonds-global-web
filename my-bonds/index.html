@@ -442,7 +442,7 @@
           const serviceCode = typeof service.code === 'string' ? service.code : '';
           const allowedWorkspacePaths = ["/my-bonds/workspace/","/service-request.html"];
           const workspaceHref = allowedWorkspacePaths.includes(workspacePath) && serviceCode
-            ? workspacePath + '?service=' + encodeURIComponent(serviceCode) + '&return_to=%2Fmy-bonds%2F'
+            ? workspacePath + '?service=' + encodeURIComponent(serviceCode) + (item.request_reference ? '&reference=' + encodeURIComponent(item.request_reference) : '') + '&return_to=%2Fmy-bonds%2F'
             : null;
           const workspaceLabel = workspacePath === '/my-bonds/workspace/' ? 'فتح مساحة الخدمة' : 'فتح نموذج الخدمة';
           const workspaceAction = workspaceHref
