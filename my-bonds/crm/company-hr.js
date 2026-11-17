@@ -241,9 +241,13 @@
 
   }catch(e){status(t('تعذر فتح الموارد البشرية: ','Cannot open HR: ')+e.message,true);}
  }
- // CRM workspace initialization is asynchronous. Preserve its state on every switch.
+ // Preserve the CRM display snapshot only on an actual product transition.
+ // Re-clicking the selected tab must not overwrite it or hide a live CRM view.
+ let activeProduct='crm';
  function toggleProduct(name){
+  if(name===activeProduct)return;
   const hr=name==='hr';
+  activeProduct=name;
   if(hr){
    $('workspace-content').dataset.programPrevious=$('workspace-content').hidden?'hidden':'visible';
    $('onboarding').dataset.programPrevious=$('onboarding').hidden?'hidden':'visible';
