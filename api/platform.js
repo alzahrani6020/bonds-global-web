@@ -5,6 +5,7 @@
 
 const getSupabase = require('../lib/api/supabase');
 const crmInviteHandler = require('../lib/api/crm-invite');
+const companyProgramsHandler = require('../lib/api/company-programs');
 const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
 const { sendEmail } = require('../lib/api/email');
@@ -2358,6 +2359,13 @@ module.exports = async function handler(req, res) {
       req.query = req.query || {}; req.query.action = 'send-letter';
       if (await checkRateLimit('auth', req, res)) return;
       return siteHandler(req, res);
+    }
+
+    // Existing BONDS workspace-scoped company programs discovery.
+    // Read-only server-side membership and entitlement verification.
+    if (pathname === '/api/company-programs' || pathname === '/api/company-programs/') {
+      if (await checkRateLimit('auth', req, res)) return;
+      return companyProgramsHandler(req, res);
     }
 
     // Owner-only CRM email invitations; no separate serverless function.

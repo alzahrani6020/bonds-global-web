@@ -1,0 +1,48 @@
+name: Makkin Source Import Acceptance (Isolated)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/makkin-source-import-acceptance.yml'
+      - 'scripts/import-makkin-into-bonds.ps1'
+permissions:
+  contents: read
+jobs:
+  isolated-source-import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout BONDS candidate only
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Import SCC380 source under BONDS Git root
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ./scripts/import-makkin-into-bonds.ps1 -Apply
+          $manifestPath = "integrations/makkin/import-manifest.json"
+          if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { throw "IMPORT_MANIFEST_MISSING" }
+          $m = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+          if ($m.status -ne 'SOURCE_IMPORTED_ONLY_NOT_INTEGRATED_OR_DEPLOYED') { throw "IMPORT_STATUS_INVALID" }
+          if ($m.source_sha -notmatch '^[a-f0-9]{40}$') { throw "IMPORT_SHA_INVALID" }
+          $root = [IO.Path]::GetFullPath((Resolve-Path '.').Path).TrimEnd([IO.Path]::DirectorySeparatorChar)
+          $source = [IO.Path]::GetFullPath((Resolve-Path 'integrations/makkin/source').Path)
+          if (-not $source.StartsWith($root + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal)) { throw "IMPORT_OUTSIDE_BONDS_ROOT" }
+          $files = @(Get-ChildItem -LiteralPath $source -File -Recurse -Force)
+          if ($files.Count -ne [int]$m.imported_file_count -or $files.Count -eq 0) { throw "IMPORT_FILE_COUNT_MISMATCH" }
+          foreach ($entry in $m.files) {
+            $target = [IO.Path]::GetFullPath((Join-Path $source $entry.path))
+            if (-not $target.StartsWith($source + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal)) { throw "IMPORT_PATH_ESCAPE" }
+            if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "IMPORT_HASH_MISMATCH" }
+          }
+          $state = @(git status --porcelain --untracked-files=all)
+          if ($LASTEXITCODE -ne 0 -or $state.Count -ne 0) { throw "TRACKED_TREE_CHANGED_OR_IMPORT_EXPOSED" }
+          Write-Host "SOURCE_IMPORT_VERIFIED files=$($files.Count) sha=$($m.source_sha) rootContained=true"
+      - name: Preserve import manifest as CI evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: isolated-makkin-source-import-manifest
+          path: integrations/makkin/import-manifest.json
+          if-no-files-found: error
+          retention-days: 7

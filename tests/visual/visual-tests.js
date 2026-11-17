@@ -735,8 +735,6 @@ async function runScenarioDropdownInteractionGate(browser) {
     console.error(' Arabic letterhead list geometry failed: ' + err.message);
     failed++;
   }
-  let created = 0;
-
   for (const viewport of VIEWPORTS) {
     const page = await browser.newPage({
       viewport: { width: viewport.width, height: viewport.height },
@@ -748,6 +746,26 @@ async function runScenarioDropdownInteractionGate(browser) {
     await page.clock.setFixedTime(new Date('2026-11-15T18:43:30.000Z'));
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.route(/(\/global-auth-gate|\/calculators\/auth-gate)\.js(?:\?.*)?$/, route => route.abort());
+    // Each approved viewport was captured sequentially. Freeze only the
+    // live Arabic homepage clock to that viewport's *original* capture time;
+    // all other pixels still undergo the unchanged approved SHA-256 check.
+    // This is test-only; no production clock or baseline asset is modified.
+    const approvedClockUTC = {
+      desktop: '2026-11-15T18:43:15.000Z',
+      tablet: '2026-11-15T18:43:32.000Z',
+      mobile: '2026-11-15T18:43:48.000Z',
+    }[viewport.name];
+    await page.context().addInitScript((fixedISOString) => {
+      if (location.pathname === '/') {
+        const NativeDate = Date;
+        const fixed = NativeDate.parse(fixedISOString);
+        class ScreenshotDate extends NativeDate {
+          constructor(...args) { super(...(args.length ? args : [fixed])); }
+          static now() { return fixed; }
+        }
+        window.Date = ScreenshotDate;
+      }
+    }, approvedClockUTC);
     await page.context().addInitScript(() => {
       localStorage.setItem('cookies', 'accepted');
       try {
@@ -807,6 +825,24 @@ async function runScenarioDropdownInteractionGate(browser) {
             return !!hero && hero.complete && hero.naturalWidth > 0;
           }, null, { timeout: 10000 });
           await page.locator('.bonds-hero__photo').evaluate(img => img.decode());
+        }
+        // The home hero photo is served from Wikimedia. Require full decode,
+        // rather than comparing a transient GPU paint against approved pixels.
+        // This does not mask any region or change the baseline threshold.
+        if (p.name === 'index-ar' || p.name === 'index-en') {
+          await page.evaluate(async () => {
+            const images = Array.from(document.querySelectorAll(
+              '.bonds-hero__photo, .bonds-hero__globe'
+            ));
+            for (const img of images) {
+              if (typeof img.decode === 'function') await img.decode();
+              if (!img.complete || !img.naturalWidth || !img.naturalHeight) {
+                throw new Error('Home hero asset did not decode completely');
+              }
+            }
+            await new Promise(resolve => requestAnimationFrame(() =>
+              requestAnimationFrame(resolve)));
+          });
         }
         await page.waitForTimeout(500);
         await page.evaluate(() => {
@@ -883,10 +919,10 @@ async function runScenarioDropdownInteractionGate(browser) {
         }
 
         if (!fs.existsSync(baselinePath)) {
-          ensureDir(path.dirname(baselinePath));
-          fs.copyFileSync(snapshotPath, baselinePath);
-          created++;
-          console.log(`  baseline created: ${viewport.name}/${p.name}`);
+          // Missing approved baselines must never be invented by ordinary CI.
+          // User-approved production appearance requires separately reviewed captures.
+          console.error(` ${viewport.name}/${p.name}: APPROVED_BASELINE_MISSING (${baselinePath})`);
+          failed++;
           continue;
         }
 
@@ -1001,9 +1037,6 @@ async function runScenarioDropdownInteractionGate(browser) {
     return;
   }
 
-  if (created) {
-    console.log(`\n Created ${created} missing baseline(s). Review them, then run 'npm run test:visual:update' to commit.`);
-  }
 
   if (failed) {
     console.error(`\n ${failed} screenshot(s) failed or differed. See ${DIFFS_DIR}`);
