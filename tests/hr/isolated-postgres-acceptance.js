@@ -106,6 +106,8 @@ async function main(){
   await assert.rejects(()=>as(other,()=>db.query(
    "insert into hr_saas_payroll_lines(workspace_id,period_id,employee_id,base_salary) values($1,$2,$3,5000)",[wa,period,employee])),
    e=>['42501','23514'].includes(e.code),'Other tenant may not write payroll (RLS denial or invisible locked payroll period)');
+  const kept=await db.query("select count(*)::int as n from hr_saas_payroll_lines where workspace_id=$1 and period_id=$2",[wa,period]);
+  assert.equal(kept.rows[0].n,1,'Denied cross-tenant attempt must leave payroll line count unchanged');
   await assert.rejects(()=>as(owner,()=>db.query(
    "update hr_saas_payroll_periods set status='approved',approved_at=now() where id=$1",[period])),
    e=>e.code==='23514','Payroll approval must require review');
