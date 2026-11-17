@@ -137,6 +137,56 @@ async function runFourPageIssuedPdfGate(browser) {
   }
 }
 
+// Browser A4 acceptance for NEW approved letters only. No backend mutations,
+// existing documents, test accounts, or official register numbers are involved.
+async function runNewApprovedA4IssueGate(browser) {
+  const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
+    .replace(/<script\\b[^>]*>[\\s\\S]*?<\\/script>/gi, '');
+  const source = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
+  const start = source.indexOf('  async function assertApprovedA4BeforeIssuance() {');
+  const stop = source.indexOf('  async function transition(', start);
+  if (start < 0 || stop <= start) throw new Error('Real approved A4 issuance guard not found');
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    const result = await page.evaluate(async guard => {
+      const doc = document.querySelector('.doc-content');
+      if (!doc) throw new Error('New correspondence content missing');
+      const state = { document: { status: 'approved' } };
+      const isEn = false;
+      const waitForLetterheadBrandImages = async () => {};
+      doc.innerHTML = '<p>خطاب تجريبي جديد لفحص حدود صفحة A4 قبل الإصدار.</p>';
+      const run = new Function('state', 'isEn', 'waitForLetterheadBrandImages', guard +
+        '\\nreturn assertApprovedA4BeforeIssuance();');
+      const check = () => run(state, isEn, waitForLetterheadBrandImages);
+      await check();
+      const initialReservations = document.querySelectorAll('[data-a4-reservation]').length;
+      // Simulate a rendered approval block too tall to fit the approved A4:
+      // issuance must be blocked BEFORE the number-allocation POST.
+      const approval = document.createElement('div');
+      approval.className = 'official-approval-zone';
+      approval.style.height = '1050px';
+      approval.style.minHeight = '1050px';
+      doc.appendChild(approval);
+      let blocked = false;
+      try {
+        await check();
+      } catch (err) {
+        blocked = /A4/.test(err.message);
+      }
+      const clean = document.querySelectorAll('[data-a4-reservation]').length === 0;
+      approval.remove();
+      return { initialReservations, blocked, clean };
+    }, source.slice(start, stop));
+    if (result.initialReservations !== 0 || !result.blocked || !result.clean) {
+      throw new Error('New approved-letter A4 guard failed: ' + JSON.stringify(result));
+    }
+    console.log(' New approved letter A4: fit PASS, oversize signature/seal rejected, transient reservation cleaned PASS');
+  } finally {
+    await page.close();
+  }
+}
+
 async function runLetterheadNestedPaginationGate(browser) {
   const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
@@ -674,6 +724,13 @@ async function runScenarioDropdownInteractionGate(browser) {
     }
 
     await page.close();
+  }
+
+  try {
+    await runNewApprovedA4IssueGate(browser);
+  } catch (err) {
+    console.error(' New approved-letter A4 guard failed: ' + err.message);
+    failed++;
   }
 
   // Run the heavy html2canvas/jsPDF acceptance after screenshots, in its own
