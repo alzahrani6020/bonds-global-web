@@ -1446,7 +1446,10 @@
   // rather than replacing innerHTML avoids losing clipboard material.
   function splitOversizedDraftParagraph(source, destination) {
     const tail = source.lastElementChild;
-    if (!tail || !['P', 'DIV', 'BLOCKQUOTE'].includes(tail.tagName) ||
+    // Word and browser paste frequently wrap a full paragraph in a single
+    // list item, heading, span or blockquote. Treat those as splittable text,
+    // preserving inline markup and the parent list numbering.
+    if (!tail || !['P', 'DIV', 'BLOCKQUOTE', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE'].includes(tail.tagName) ||
         tail.querySelector('table,img,video,svg,ol,ul,hr,[contenteditable="false"]')) return false;
     const nodes = [];
     const walker = document.createTreeWalker(tail, NodeFilter.SHOW_TEXT);
@@ -1485,7 +1488,7 @@
     const tail = source.lastElementChild;
     if (!tail) return false;
     const tag = tail.tagName;
-    if ((tag === 'OL' || tag === 'UL') && tail.children.length > 1) {
+    if ((tag === 'OL' || tag === 'UL') && tail.children.length > 0) {
       const remainingCount = tail.children.length - 1;
       const nextNumber = tag === 'OL'
         ? (Number(tail.getAttribute('start')) || 1) + remainingCount : 0;
@@ -1496,6 +1499,13 @@
         continuation = tail.cloneNode(false);
         continuation.setAttribute('data-letterhead-continuation', '1');
         destination.insertBefore(continuation, destination.firstChild);
+      }
+      if (tail.children.length === 1 &&
+          splitOversizedDraftParagraph(tail, continuation)) {
+        // The long final LI was split in place; the suffix becomes the
+        // continuation's first LI instead of moving the entire long item.
+        if (tag === 'OL') continuation.setAttribute('start', String(nextNumber));
+        return true;
       }
       continuation.insertBefore(item, continuation.firstChild);
       if (tag === 'OL') continuation.setAttribute('start', String(nextNumber));
@@ -1558,8 +1568,8 @@
         if (!physicalOverflow && contentBottom <= footerTop && sheet.scrollHeight <= sheet.clientHeight + 1) break;
         const canSplitLast = !!last && (
           (last.tagName === 'DIV' && last.children.length > 0) ||
-          ((last.tagName === 'OL' || last.tagName === 'UL') && last.children.length > 1) ||
-          (['P', 'DIV', 'BLOCKQUOTE'].includes(last.tagName) &&
+          ((last.tagName === 'OL' || last.tagName === 'UL') && last.children.length > 0) ||
+          (['P', 'DIV', 'BLOCKQUOTE', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE'].includes(last.tagName) &&
             (last.textContent || '').trim().length > 1));
         if (!last || (doc.children.length === 1 && !canSplitLast)) {
           throw new Error(isEn
