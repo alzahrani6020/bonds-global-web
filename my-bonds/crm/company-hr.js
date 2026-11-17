@@ -38,7 +38,7 @@
  const status=(msg,err=false)=>{const n=$('hr-status');n.textContent=msg;n.hidden=!msg;n.style.display=msg?'block':'none';n.classList.toggle('error',err);};
  let db,user,license=false,workspace=null,employees=[],payrollPeriods=[],records=[],category='employees',editing=null;
  const check=r=>{if(r.error)throw r.error;return r.data;};
- const table=()=>category==='employees'?'hr_saas_employees':category==='attendance'?'hr_saas_attendance':category==='leaves'?'hr_saas_leave_requests':category==='contracts'?'hr_saas_employment_contracts':category==='claims'?'hr_saas_entitlements':category==='payroll_runs'?'hr_saas_payroll_periods':category==='payroll'?'hr_saas_payroll_lines':'hr_saas_records';
+ const table=()=>category==='employees'?'hr_saas_employees':category==='attendance'?'hr_saas_attendance':category==='leaves'?'hr_saas_leave_requests':category==='contracts'?'hr_saas_employment_contracts':category==='claims'?'hr_saas_entitlements':category==='leave_balances'?'hr_saas_leave_ledger':category==='payroll_runs'?'hr_saas_payroll_periods':category==='payroll'?'hr_saas_payroll_lines':'hr_saas_records';
  const activeSpecs=()=>specs[category]||specs.records;
  const isoLocal=v=>{
   const date=new Date(v);
@@ -59,6 +59,7 @@
   leaves:[['employee_id','الموظف','Employee','employee'],['leave_type','نوع الإجازة','Leave type','enum:annual|sick|unpaid|maternity|paternity|emergency|bereavement|study|other'],['start_date','تاريخ البداية','Start date','date',true],['end_date','تاريخ النهاية','End date','date',true],['status','القرار','Decision','enum:pending|approved|rejected|cancelled'],['reason','السبب','Reason'],['decision_note','ملاحظات القرار','Decision notes']],
   contracts:[['employee_id','الموظف','Employee','employee'],['contract_number','رقم العقد','Contract number','text',true],['contract_type','نوع العقد','Contract type','enum:fixed_term|indefinite|part_time|temporary|other'],['status','الحالة','Status','enum:draft|active|expired|terminated|cancelled'],['start_date','تاريخ البدء','Start date','date',true],['end_date','تاريخ الانتهاء','End date','date'],['probation_end_date','نهاية التجربة','Probation end','date'],['base_salary','الأجر الأساسي','Basic pay','number',true],['currency','العملة','Currency'],['termination_reason','سبب الإنهاء','Termination reason'],['notes','ملاحظات','Notes']],
   claims:[['employee_id','الموظف','Employee','employee'],['claim_reference','رقم المستحق','Claim reference','text',true],['claim_type','نوع المستحق','Claim type','enum:expense|overtime|bonus|leave_payout|reimbursement|end_of_service|other'],['description','الوصف','Description','text',true],['amount','المبلغ','Amount','number',true],['currency','العملة','Currency'],['effective_date','تاريخ الاستحقاق','Effective date','date',true],['status','الحالة','Status','enum:draft|submitted|approved|rejected'],['decision_note','ملاحظات القرار','Decision notes']],
+  leave_balances:[['employee_id','الموظف','Employee','employee'],['entry_reference','مرجع القيد','Entry reference','text',true],['leave_type','نوع الإجازة','Leave type','enum:annual|sick|unpaid|maternity|paternity|emergency|bereavement|study|other'],['effective_date','تاريخ القيد','Entry date','date',true],['days_delta','الأيام المضافة أو المخصومة','Days adjustment','signed-number',true],['reason','سبب التعديل','Reason','text',true],['status','الحالة','Status','enum:draft|approved|cancelled']],
   payroll_runs:[['payroll_year','السنة','Year','number',true],['payroll_month','الشهر','Month','number',true],['status','المرحلة','Stage','enum:draft|reviewed|approved']],
   payroll:[['period_id','مسير الرواتب','Payroll period','payroll-period'],['employee_id','الموظف','Employee','employee'],['base_salary','الراتب الأساسي','Basic salary','number',true],['allowance_total','البدلات','Allowances','number'],['deduction_total','الخصومات','Deductions','number'],['note','ملاحظات','Notes']]
  };
@@ -69,16 +70,16 @@
   if(type==='employee')return '<label class="field">'+name+'<select name="'+key+'"><option value="">'+t('اختر موظفًا','Select employee')+'</option>'+employees.map(e=>'<option value="'+escape(e.id)+'"'+(e.id===value?' selected':'')+'>'+escape(e.employee_number)+' — '+escape(e.full_name)+'</option>').join('')+'</select></label>';
   if(type.startsWith('enum:'))return '<label class="field">'+name+'<select name="'+key+'">'+type.slice(5).split('|').map(v=>'<option value="'+escape(v)+'"'+(v===value?' selected':'')+'>'+escape(v)+'</option>').join('')+'</select></label>';
   if(type==='json')return '<label class="field field-wide">'+name+'<textarea name="'+key+'">'+escape(JSON.stringify(record.details||{}))+'</textarea></label>';
-  return '<label class="field">'+name+'<input name="'+key+'" type="'+type+'" value="'+escape(type==='datetime-local'?localDateTime(value):value)+'"'+(needed?' required':'')+(type==='number'?' min="0" step="0.01"':'')+'></label>';
+  return '<label class="field">'+name+'<input name="'+key+'" type="'+type+'" value="'+escape(type==='datetime-local'?localDateTime(value):value)+'"'+(needed?' required':'')+(type==='number'?' min="0" step="0.01"':type==='signed-number'?' step="0.01"':'')+'></label>';
  }
  function showEditor(row=null){
-  if(row&&(category==='claims'&&['approved','rejected'].includes(row.status)||category==='contracts'&&['terminated','expired','cancelled'].includes(row.status)||category==='payroll_runs'&&row.status==='approved'||category==='payroll'&&payrollPeriods.some(p=>p.id===row.period_id&&p.status!=='draft'))){
+  if(row&&(category==='leave_balances'&&['approved','cancelled'].includes(row.status)||category==='claims'&&['approved','rejected'].includes(row.status)||category==='contracts'&&['terminated','expired','cancelled'].includes(row.status)||category==='payroll_runs'&&row.status==='approved'||category==='payroll'&&payrollPeriods.some(p=>p.id===row.period_id&&p.status!=='draft'))){
    status(t('المسير المعتمد أو قيد المراجعة غير قابل للتعديل','Reviewed/approved payroll cannot be edited'),true);
    return;
   }
   editing=row;
   $('hr-editor').hidden=false;
-  const fields=row&&category==='claims'?activeSpecs().filter(x=>!['employee_id','claim_reference'].includes(x[0])):row&&category==='contracts'?activeSpecs().filter(x=>!['employee_id','contract_number'].includes(x[0])):row&&category==='payroll_runs'?activeSpecs().filter(x=>x[0]==='status'):row&&category==='payroll'?activeSpecs().filter(x=>x[0]!=='employee_id'&&x[0]!=='period_id'):activeSpecs();
+  const fields=row&&category==='leave_balances'?activeSpecs().filter(x=>!['employee_id','entry_reference'].includes(x[0])):row&&category==='claims'?activeSpecs().filter(x=>!['employee_id','claim_reference'].includes(x[0])):row&&category==='contracts'?activeSpecs().filter(x=>!['employee_id','contract_number'].includes(x[0])):row&&category==='payroll_runs'?activeSpecs().filter(x=>x[0]==='status'):row&&category==='payroll'?activeSpecs().filter(x=>x[0]!=='employee_id'&&x[0]!=='period_id'):activeSpecs();
   $('hr-fields').innerHTML=fields.map(x=>memberField(x,row||{})).join('');
   $('hr-editor-title').textContent=(row?t('تعديل','Edit'):t('إضافة','New'))+' — '+labels[category];
  }
@@ -86,8 +87,8 @@
   const isEmployees=category==='employees',source=isEmployees?employees:records;
   $('hr-heading').textContent=labels[category];
   $('hr-add').hidden=category==='audit';
-  const columns=isEmployees?['employee_number','full_name','department','job_title','employment_status']:category==='attendance'?['employee_id','work_date','attendance_status','clock_in','clock_out']:category==='leaves'?['employee_id','leave_type','start_date','end_date','status']:category==='contracts'?['employee_id','contract_number','contract_type','status','start_date']:category==='claims'?['employee_id','claim_reference','claim_type','amount','status']:category==='payroll_runs'?['payroll_year','payroll_month','status','approved_at']:category==='payroll'?['employee_id','period_id','base_salary','allowance_total','deduction_total','net_salary']:category==='audit'?['created_at','entity','action','changed_columns']:['employee_id','title','status','effective_date','amount'];
-  const heads={employee_number:t('الرقم الوظيفي','Employee #'),full_name:t('الاسم','Name'),department:t('الإدارة','Department'),job_title:t('المسمى','Position'),employment_status:t('الحالة','Status'),employee_id:t('الموظف','Employee'),title:t('الموضوع','Title'),status:t('الحالة','Status'),effective_date:t('التاريخ','Date'),amount:t('المبلغ','Amount'),created_at:t('التاريخ','Date'),entity:t('السجل','Entity'),action:t('الإجراء','Action'),changed_columns:t('الحقول','Fields'),work_date:t('تاريخ الدوام','Work date'),attendance_status:t('حالة الدوام','Status'),clock_in:t('الحضور','Clock in'),clock_out:t('الانصراف','Clock out'),leave_type:t('الإجازة','Leave type'),start_date:t('البداية','Start'),end_date:t('النهاية','End'),payroll_year:t('السنة','Year'),payroll_month:t('الشهر','Month'),approved_at:t('الاعتماد','Approved'),period_id:t('المسير','Payroll period'),base_salary:t('الأساسي','Basic'),allowance_total:t('البدلات','Allowances'),deduction_total:t('الخصومات','Deductions'),net_salary:t('الصافي','Net'),contract_number:t('رقم العقد','Contract #'),contract_type:t('نوع العقد','Contract type'),claim_reference:t('رقم المستحق','Claim #'),claim_type:t('نوع المستحق','Claim type')};
+  const columns=isEmployees?['employee_number','full_name','department','job_title','employment_status']:category==='attendance'?['employee_id','work_date','attendance_status','clock_in','clock_out']:category==='leaves'?['employee_id','leave_type','start_date','end_date','status']:category==='contracts'?['employee_id','contract_number','contract_type','status','start_date']:category==='claims'?['employee_id','claim_reference','claim_type','amount','status']:category==='leave_balances'?['employee_id','entry_reference','leave_type','days_delta','status']:category==='payroll_runs'?['payroll_year','payroll_month','status','approved_at']:category==='payroll'?['employee_id','period_id','base_salary','allowance_total','deduction_total','net_salary']:category==='audit'?['created_at','entity','action','changed_columns']:['employee_id','title','status','effective_date','amount'];
+  const heads={employee_number:t('الرقم الوظيفي','Employee #'),full_name:t('الاسم','Name'),department:t('الإدارة','Department'),job_title:t('المسمى','Position'),employment_status:t('الحالة','Status'),employee_id:t('الموظف','Employee'),title:t('الموضوع','Title'),status:t('الحالة','Status'),effective_date:t('التاريخ','Date'),amount:t('المبلغ','Amount'),created_at:t('التاريخ','Date'),entity:t('السجل','Entity'),action:t('الإجراء','Action'),changed_columns:t('الحقول','Fields'),work_date:t('تاريخ الدوام','Work date'),attendance_status:t('حالة الدوام','Status'),clock_in:t('الحضور','Clock in'),clock_out:t('الانصراف','Clock out'),leave_type:t('الإجازة','Leave type'),start_date:t('البداية','Start'),end_date:t('النهاية','End'),payroll_year:t('السنة','Year'),payroll_month:t('الشهر','Month'),approved_at:t('الاعتماد','Approved'),period_id:t('المسير','Payroll period'),base_salary:t('الأساسي','Basic'),allowance_total:t('البدلات','Allowances'),deduction_total:t('الخصومات','Deductions'),net_salary:t('الصافي','Net'),contract_number:t('رقم العقد','Contract #'),contract_type:t('نوع العقد','Contract type'),claim_reference:t('رقم المستحق','Claim #'),claim_type:t('نوع المستحق','Claim type'),entry_reference:t('مرجع القيد','Entry #'),days_delta:t('الأيام','Days')};
   $('hr-head').innerHTML='<tr>'+columns.map(x=>'<th>'+heads[x]+'</th>').join('')+(category==='audit'?'':'<th>'+t('التعديل','Edit')+'</th>')+'</tr>';
   $('hr-body').innerHTML=source.map(row=>'<tr>'+columns.map(key=>{
    let value=row[key];
@@ -106,7 +107,7 @@
    check(await db.from('hr_saas_payroll_periods').select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250)):[];
   const q=category==='employees'?null:category==='audit'?
    db.from('hr_saas_audit').select('created_at,entity,action,changed_columns').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250):
-   ['attendance','leaves','contracts','claims','payroll','payroll_runs'].includes(category)?
+   ['attendance','leaves','contracts','claims','leave_balances','payroll','payroll_runs'].includes(category)?
    db.from(table()).select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250):
    db.from('hr_saas_records').select('*').eq('workspace_id',owner).eq('category',category).order('created_at',{ascending:false}).limit(250);
   records=q?category==='payroll_runs'?payrollPeriods:check(await q):[];
@@ -123,11 +124,11 @@
   if(!license||!workspace)return;
   const btn=$('hr-save');btn.disabled=true;
   try{
-   const data=new FormData(ev.target),isEmployee=category==='employees',operational=['attendance','leaves','contracts','claims','payroll','payroll_runs'].includes(category),spec=activeSpecs();
+   const data=new FormData(ev.target),isEmployee=category==='employees',operational=['attendance','leaves','contracts','claims','leave_balances','payroll','payroll_runs'].includes(category),spec=activeSpecs();
    const row={workspace_id:workspace.id};
    for(const [name,,,type='text'] of spec){
     let v=String(data.get(name)??'').trim();
-    if(type==='number')row[name]=v===''?null:Number(v);
+    if(type==='number'||type==='signed-number')row[name]=v===''?null:Number(v);
     else if(type==='datetime-local')row[name]=v?isoLocal(v):null;
     else if(type==='json'){
      const obj=v?JSON.parse(v):{};if(!obj||typeof obj!=='object'||Array.isArray(obj))throw Error('Invalid JSON object');
@@ -168,6 +169,14 @@
      if(!editing&&(!row.claim_reference||!row.employee_id))throw Error(t('الرقم والموظف مطلوبان','Employee and reference required'));
      if(row.amount===null&&editing)delete row.amount;
      if(!editing&&(!Number.isFinite(row.amount)||row.amount<0))throw Error(t('المبلغ غير صالح','Invalid claim amount'));
+    }
+    if(category==='leave_balances'){
+     if(editing){delete row.employee_id;delete row.entry_reference;}
+     row.status=row.status||'draft';
+     if(!editing&&row.status!=='draft')throw Error(t('أنشئ القيد كمسودة','Create the adjustment as a draft'));
+     if(!editing&&(!row.entry_reference||!row.employee_id))throw Error(t('الموظف والمرجع مطلوبان','Employee and reference required'));
+     if(row.days_delta===null&&editing)delete row.days_delta;
+     if(!editing&&(!Number.isFinite(row.days_delta)||row.days_delta===0||Math.abs(row.days_delta)>365))throw Error(t('تعديل الأيام غير صحيح','Invalid days adjustment'));
     }
     if(category==='payroll_runs'){
      if(!editing&&(!Number.isInteger(row.payroll_year)||!Number.isInteger(row.payroll_month)||row.payroll_month<1||row.payroll_month>12))throw Error(t('شهر أو سنة غير صحيحة','Invalid payroll month/year'));
