@@ -207,7 +207,9 @@
    const result=check(await q.select('id').single());
    if(!result?.id)throw Error('Save not confirmed');
    editing=null;$('hr-editor').hidden=true;
-   await load();status(t('حُفظ السجل بنجاح','Record saved'));
+   await load();
+   if(isEmployee)document.dispatchEvent(new CustomEvent('bonds-hr-employee-updated',{detail:{workspace}}));
+   status(t('حُفظ السجل بنجاح','Record saved'));
   }catch(e){status(e.message,true);}finally{btn.disabled=false;}
  }
  async function initialize(){
