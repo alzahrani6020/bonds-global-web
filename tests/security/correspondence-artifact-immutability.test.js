@@ -351,7 +351,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
     const pdfBytes=Buffer.from('%PDF-1.4 fake issued bytes');
     const pdfHash=crypto.createHash('sha256').update(pdfBytes).digest('hex');
     const boundDoc={
-      id:'doc-1',title:'خطاب',subject:'موضوع',status:'sent',language:'ar',
+      id:'doc-1',owner_user_id:'admin-1',title:'خطاب',subject:'موضوع',status:'sent',language:'ar',
       current_version:1,document_hash:'HASH-1',issued_hash:'IH-1',
       signature_hash:'SIG-1',stamp_hash:'STAMP-1',
       signer_name:'مستشار مالي',signer_title:'مدير',
@@ -390,7 +390,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
     const pdfBytes=Buffer.from('%PDF-1.4 fake issued bytes');
     const pdfHash=crypto.createHash('sha256').update(pdfBytes).digest('hex');
     const boundDoc={
-      id:'doc-1',title:'خطاب',subject:'موضوع',status:'sent',language:'ar',
+      id:'doc-1',owner_user_id:'admin-1',title:'خطاب',subject:'موضوع',status:'sent',language:'ar',
       current_version:1,document_hash:'HASH-1',issued_hash:'IH-1',
       signature_hash:'SIG-1',stamp_hash:'STAMP-1',
       signer_name:'مستشار مالي',signer_title:'مدير',

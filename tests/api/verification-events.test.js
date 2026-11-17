@@ -48,6 +48,7 @@ const ISSUE = {
 
 const DOC = {
   id: 'doc-1',
+  owner_user_id: 'user-1',
   title: 'خطاب تجريبي',
   subject: 'اختبار',
   status: 'sent',

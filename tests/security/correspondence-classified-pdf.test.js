@@ -158,12 +158,12 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
     expect(res._json.official_pdf_url).toContain('download=1');
   });
 
-  test('verify withholds sensitive metadata for a confidential document but stays verified',async()=>{
+  test('verify withholds sensitive metadata for an authorized confidential owner',async()=>{
     const scenario=makeScenario(AUTH_USER);
     mockCurrentScenario=scenario;
     scenario.results={
       'correspondence_issues:maybeSingle':[{data:activeIssue(),error:null},{data:null,error:null}],
-      'correspondence_documents:maybeSingle':[{data:classifiedDoc(),error:null}]
+      'correspondence_documents:maybeSingle':[{data:classifiedDoc({owner_user_id:'user-1'}),error:null}]
     };
     const res=mockRes();
     await runCorrespondence(mockReq({method:'GET',headers:AUTH_HEADERS,query:{action:'verify',token:TOKEN}}),res);
@@ -185,7 +185,7 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
     mockCurrentScenario=scenario;
     scenario.results={
       'correspondence_issues:maybeSingle':[{data:activeIssue(),error:null},{data:null,error:null}],
-      'correspondence_documents:maybeSingle':[{data:classifiedDoc({confidentiality:'restricted'}),error:null}]
+      'correspondence_documents:maybeSingle':[{data:classifiedDoc({confidentiality:'restricted',owner_user_id:'user-1'}),error:null}]
     };
     const res=mockRes();
     await runCorrespondence(mockReq({method:'GET',headers:AUTH_HEADERS,query:{action:'verify',token:TOKEN}}),res);
@@ -194,6 +194,22 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
     expect(res._json.pdf_access_requires_login).toBe(true);
     expect(res._json.title).toBeNull();
     expect(res._json.subject).toBeNull();
+  });
+
+
+  test.each(['internal','confidential','restricted'])('private QR %s hides state and successor from unrelated accounts before audit',async confidentiality=>{
+    const scenario=makeScenario(AUTH_USER);
+    mockCurrentScenario=scenario;
+    scenario.results={
+      'correspondence_issues:maybeSingle':[{data:{...activeIssue(),state:'revoked',revocation_reason:'PRIVATE'},error:null}],
+      'correspondence_documents:maybeSingle':[{data:classifiedDoc({confidentiality}),error:null}]
+    };
+    const res=mockRes();
+    await runCorrespondence(mockReq({method:'GET',headers:AUTH_HEADERS,query:{action:'verify',token:TOKEN}}),res);
+    expect(res.statusCode).toBe(404);
+    expect(res._json).toEqual({verified:false});
+    expect(scenario.sb.rpc).not.toHaveBeenCalled();
+    expect(scenario.sb.storage.from).not.toHaveBeenCalled();
   });
 
   test('official-preview of a confidential document without a session answers 404 without touching storage',async()=>{
