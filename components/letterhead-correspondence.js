@@ -773,6 +773,16 @@
     addButton(actions, 'corr-command-open', isEn ? 'Command center' : 'مركز المراسلات', () => setCommandDrawer(true));
     addButton(actions, 'corr-workspace-return', isEn ? 'Back to workspace' : 'العودة لمساحة العمل', () => { location.href = workspaceReturnUrl(); });
     addButton(actions, 'corr-save', t.save, () => saveVersion(false));
+    addButton(actions, 'corr-save-submit', isEn ? 'Save and submit for review' : 'حفظ وإرسال للمراجعة', async () => {
+      // A fresh pasted letter has no server-side owner until its first save.
+      // Persist the complete draft before starting the governed review flow.
+      if (!hasMeaningfulDraft()) throw new Error(isEn ? 'Write the letter before submitting' : 'اكتب الخطاب قبل إرساله للمراجعة');
+      await saveVersion(false);
+      if (!state.document || !isOwner() || !['draft', 'returned'].includes(state.document.status)) {
+        throw new Error(isEn ? 'Only the owner can submit a saved draft' : 'لا يحق إرسال المسودة المحفوظة إلا لمالكها');
+      }
+      await transition('submitted');
+    }, { primary: true });
     addButton(actions, 'corr-submit', t.submit, () => transition('submitted'), { primary: true });
     addButton(actions, 'corr-review', t.review, () => transition('under_review'), { primary: true });
     addButton(actions, 'corr-approve', t.approve, () => transition('approved'), { primary: true });
@@ -1042,6 +1052,9 @@
     if (status === 'rejected' && (isOwner() || isAdmin())) visible.add('corr-revise-copy');
     if (hasWorkspaceContext()) visible.add('corr-workspace-return');
     if (canEditCurrent()) visible.add('corr-save');
+    // For an unsaved new letter, isOwner() is necessarily false because
+    // state.document is null. Expose a safe save-first submission action.
+    if (!doc && canEditCurrent()) visible.add('corr-save-submit');
 
     if (isOwner() && ['draft','returned'].includes(status)) visible.add('corr-submit');
     if (can('review') && status === 'submitted') visible.add('corr-review');
@@ -1068,7 +1081,7 @@
     if (['issued','sent','archived'].includes(status) && can('issue') && state.latestIssue?.state !== 'revoked') visible.add('corr-revoke-issue');
 
     [
-      'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel','corr-workspace-return',
+      'corr-save','corr-save-submit','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel','corr-workspace-return',
       'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive','corr-reissue','corr-revoke-issue',
       'corr-new','corr-revise-copy','corr-details-toggle','corr-command-open','corr-download-official-pdf'
     ].forEach(id => {
