@@ -31,30 +31,33 @@ end $$;
 revoke all on function hr_saas_private.membership_guard() from public,anon,authenticated;
 create trigger hr_saas_membership_guard before update on public.hr_saas_memberships
  for each row execute function hr_saas_private.membership_guard();
+-- Private authorization check: only owner or active member of a licensed
+-- workspace. It reveals one boolean, never license, payroll or employee data.
+create function hr_saas_private.has_active_access(target_workspace uuid)
+returns boolean language sql stable security definer set search_path='' as $
+ select (select auth.uid()) is not null and exists(
+  select 1 from public.hr_saas_workspaces w
+  join public.company_program_entitlements e on e.owner_user_id=w.owner_user_id
+  where w.id=target_workspace
+   and e.product_code in ('hr','suite') and e.status in ('active','trial')
+   and e.starts_at<=now() and (e.ends_at is null or e.ends_at>now())
+   and (w.owner_user_id=(select auth.uid()) or exists(
+    select 1 from public.hr_saas_memberships m
+    where m.workspace_id=w.id and m.user_id=(select auth.uid()) and m.status='active'
+   ))
+ );
+$;
+revoke all on function hr_saas_private.has_active_access(uuid) from public,anon,authenticated;
+grant usage on schema hr_saas_private to authenticated;
+grant execute on function hr_saas_private.has_active_access(uuid) to authenticated;
 alter table public.hr_saas_memberships enable row level security;
 create policy hr_membership_owner_or_self_select on public.hr_saas_memberships
- for select to authenticated using ((exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) or (user_id=(select auth.uid()) and status='active')) and exists (select 1 from public.company_program_entitlements e
- join public.hr_saas_workspaces w on w.owner_user_id=e.owner_user_id
- where w.id=workspace_id and e.product_code in ('hr','suite')
- and e.status in ('active','trial') and e.starts_at<=now()
- and (e.ends_at is null or e.ends_at>now())));
+ for select to authenticated using ((exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) or (user_id=(select auth.uid()) and status='active')) and hr_saas_private.has_active_access(workspace_id));
 create policy hr_membership_owner_insert on public.hr_saas_memberships
- for insert to authenticated with check (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) and exists (select 1 from public.company_program_entitlements e
- join public.hr_saas_workspaces w on w.owner_user_id=e.owner_user_id
- where w.id=workspace_id and e.product_code in ('hr','suite')
- and e.status in ('active','trial') and e.starts_at<=now()
- and (e.ends_at is null or e.ends_at>now())));
+ for insert to authenticated with check (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) and hr_saas_private.has_active_access(workspace_id));
 create policy hr_membership_owner_update on public.hr_saas_memberships
- for update to authenticated using (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) and exists (select 1 from public.company_program_entitlements e
- join public.hr_saas_workspaces w on w.owner_user_id=e.owner_user_id
- where w.id=workspace_id and e.product_code in ('hr','suite')
- and e.status in ('active','trial') and e.starts_at<=now()
- and (e.ends_at is null or e.ends_at>now())))
- with check (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) and exists (select 1 from public.company_program_entitlements e
- join public.hr_saas_workspaces w on w.owner_user_id=e.owner_user_id
- where w.id=workspace_id and e.product_code in ('hr','suite')
- and e.status in ('active','trial') and e.starts_at<=now()
- and (e.ends_at is null or e.ends_at>now())));
+ for update to authenticated using (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) and hr_saas_private.has_active_access(workspace_id))
+ with check (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) and hr_saas_private.has_active_access(workspace_id));
 revoke all on public.hr_saas_memberships from public,anon,authenticated;
 grant select,insert,update on public.hr_saas_memberships to authenticated;
 create trigger hr_saas_membership_audit after insert or update on public.hr_saas_memberships
@@ -117,33 +120,17 @@ create trigger hr_saas_request_guard before insert or update on public.hr_saas_e
 alter table public.hr_saas_employee_requests enable row level security;
 create policy hr_request_owner_member_manager_select on public.hr_saas_employee_requests
  for select to authenticated
- using (exists (select 1 from public.company_program_entitlements e
- join public.hr_saas_workspaces w on w.owner_user_id=e.owner_user_id
- where w.id=workspace_id and e.product_code in ('hr','suite')
- and e.status in ('active','trial') and e.starts_at<=now()
- and (e.ends_at is null or e.ends_at>now())) and (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) or exists (select 1 from public.hr_saas_memberships m where m.workspace_id=workspace_id and m.user_id=(select auth.uid()) and m.status='active' and m.role='hr_manager') or
+ using (hr_saas_private.has_active_access(workspace_id) and (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) or exists (select 1 from public.hr_saas_memberships m where m.workspace_id=workspace_id and m.user_id=(select auth.uid()) and m.status='active' and m.role='hr_manager') or
  (requested_by=(select auth.uid()) and exists (select 1 from public.hr_saas_memberships m where m.workspace_id=workspace_id and m.user_id=(select auth.uid()) and m.employee_id=employee_id and m.status='active'))));
 create policy hr_request_self_insert on public.hr_saas_employee_requests
  for insert to authenticated
- with check (exists (select 1 from public.company_program_entitlements e
- join public.hr_saas_workspaces w on w.owner_user_id=e.owner_user_id
- where w.id=workspace_id and e.product_code in ('hr','suite')
- and e.status in ('active','trial') and e.starts_at<=now()
- and (e.ends_at is null or e.ends_at>now())) and requested_by=(select auth.uid())
+ with check (hr_saas_private.has_active_access(workspace_id) and requested_by=(select auth.uid())
  and exists (select 1 from public.hr_saas_memberships m where m.workspace_id=workspace_id and m.user_id=(select auth.uid()) and m.employee_id=employee_id and m.status='active') and status='pending'
  and decided_by is null and decided_at is null);
 create policy hr_request_owner_manager_update on public.hr_saas_employee_requests
  for update to authenticated
- using (exists (select 1 from public.company_program_entitlements e
- join public.hr_saas_workspaces w on w.owner_user_id=e.owner_user_id
- where w.id=workspace_id and e.product_code in ('hr','suite')
- and e.status in ('active','trial') and e.starts_at<=now()
- and (e.ends_at is null or e.ends_at>now())) and (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) or exists (select 1 from public.hr_saas_memberships m where m.workspace_id=workspace_id and m.user_id=(select auth.uid()) and m.status='active' and m.role='hr_manager')))
- with check (exists (select 1 from public.company_program_entitlements e
- join public.hr_saas_workspaces w on w.owner_user_id=e.owner_user_id
- where w.id=workspace_id and e.product_code in ('hr','suite')
- and e.status in ('active','trial') and e.starts_at<=now()
- and (e.ends_at is null or e.ends_at>now())) and (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) or exists (select 1 from public.hr_saas_memberships m where m.workspace_id=workspace_id and m.user_id=(select auth.uid()) and m.status='active' and m.role='hr_manager')));
+ using (hr_saas_private.has_active_access(workspace_id) and (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) or exists (select 1 from public.hr_saas_memberships m where m.workspace_id=workspace_id and m.user_id=(select auth.uid()) and m.status='active' and m.role='hr_manager')))
+ with check (hr_saas_private.has_active_access(workspace_id) and (exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) or exists (select 1 from public.hr_saas_memberships m where m.workspace_id=workspace_id and m.user_id=(select auth.uid()) and m.status='active' and m.role='hr_manager')));
 revoke all on public.hr_saas_employee_requests from public,anon,authenticated;
 grant select,insert,update on public.hr_saas_employee_requests to authenticated;
 create trigger hr_saas_request_audit after insert or update on public.hr_saas_employee_requests
