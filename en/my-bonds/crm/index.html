@@ -186,6 +186,15 @@
      <label>Access role<select name="role" required><option value="employee">Employee</option><option value="hr_manager">HR manager</option></select></label>
      <button type="submit" class="primary">Grant access</button>
     </form>
+    <h3>Invite staff using verified email</h3>
+    <p class="muted">Invitations are bound to employee, email and role. Access begins only after the recipient signs in with the matching verified email.</p>
+    <form id="hr-invite-form" class="editor-fields">
+     <label>Recipient email<input name="email" type="email" required maxlength="320" autocomplete="off"></label>
+     <label>Employee record<select id="hr-invite-employee" name="employee_id" required><option value="">Select employee</option></select></label>
+     <label>Access role<select name="role" required><option value="employee">Employee</option><option value="hr_manager">HR manager</option></select></label>
+     <button type="submit" class="primary">Create secure invitation</button>
+    </form>
+    <div class="overflow"><table><thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Link</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
     <div class="overflow"><table><thead><tr><th>Employee</th><th>Account</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody id="hr-members-table"></tbody></table></div>
    </section>
    <section id="hr-self-section" class="panel" hidden>
