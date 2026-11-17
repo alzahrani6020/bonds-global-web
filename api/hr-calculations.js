@@ -5,6 +5,7 @@
  * payroll, bank disbursement or statutory submission is triggered.
  */
 const {createClient}=require('@supabase/supabase-js');
+const getSupabase=require('../lib/api/supabase');
 const {verifyBearerAndUser}=require('../lib/api/auth-helper');
 const {checkRateLimit}=require('../lib/api/rate-limit');
 const {setAllowedOrigin}=require('../lib/api/cors');
@@ -28,6 +29,7 @@ module.exports=async function handler(req,res){
    !['leave_accrual','end_of_service'].includes(kind)||!inputs||
    typeof inputs!=='object'||Array.isArray(inputs))
    return res.status(400).json({error:'Invalid HR calculation input'});
+  if(!process.env.SUPABASE_SERVICE_ROLE_KEY)throw new Error('Privileged HR draft storage unavailable');
   const url=process.env.NEXT_PUBLIC_SUPABASE_URL||process.env.SUPABASE_URL;
   const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||process.env.SUPABASE_ANON_KEY;
   if(!url||!key)throw new Error('User-scoped database not configured');
@@ -52,7 +54,8 @@ module.exports=async function handler(req,res){
    computeEndOfService({policy:reviewedPolicy,jurisdiction:policy.jurisdiction,
     start_date:inputs.start_date,end_date:inputs.end_date,
     eligible_daily_wage:inputs.eligible_daily_wage,currency:inputs.currency});
-  const {data:saved,error:saveError}=await db.from('hr_saas_calculation_drafts').insert({
+  // User-scoped reads prove ownership; only a server-held role may store the calculated result.
+  const {data:saved,error:saveError}=await getSupabase().from('hr_saas_calculation_drafts').insert({
    workspace_id,employee_id,policy_id,kind,jurisdiction:policy.jurisdiction,
    inputs,result:calculation,status:'draft',created_by:user.id
   }).select('id').single();
