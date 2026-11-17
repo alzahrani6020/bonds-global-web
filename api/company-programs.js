@@ -105,6 +105,31 @@ async function webhook(req,res){
  if(error)throw Object.assign(new Error('Company entitlement ledger unavailable'),{status:503});
  if(!['applied','duplicate','stale'].includes(data))
   throw Object.assign(new Error('Company entitlement not confirmed'),{status:503});
+ if(['invoice.paid','invoice.payment_failed'].includes(event.type)){
+  const invoiceId=event.data?.object?.id;
+  if(typeof invoiceId!=='string'||!/^in_[A-Za-z0-9_]+$/.test(invoiceId))
+   throw Object.assign(new Error('Invalid invoice identifier'),{status:422});
+  const invoice=await stripe.invoices.retrieve(invoiceId);
+  const invoiceSubscription=typeof invoice.subscription==='string'?invoice.subscription:
+   invoice.parent?.subscription_details?.subscription;
+  if(invoiceSubscription!==verified.subscriptionId||
+   !Number.isSafeInteger(invoice.amount_due)||invoice.amount_due<0||
+   !Number.isSafeInteger(invoice.amount_paid)||invoice.amount_paid<0||
+   typeof invoice.currency!=='string'||!['draft','open','paid','uncollectible','void'].includes(invoice.status))
+   throw Object.assign(new Error('Stripe invoice verification failed'),{status:503});
+  if(event.type==='invoice.paid'&&invoice.status!=='paid')
+   throw Object.assign(new Error('Invoice is not paid'),{status:503});
+  const paidSeconds=invoice.status_transitions?.paid_at;
+  const paidAt=Number.isSafeInteger(paidSeconds)&&paidSeconds>0?new Date(paidSeconds*1000).toISOString():null;
+  const {data:invoiceResult,error:invoiceError}=await db.rpc('company_program_record_stripe_invoice',{
+   p_invoice_id:invoiceId,p_owner_user_id:verified.owner,p_product_code:verified.product,
+   p_subscription_id:verified.subscriptionId,p_currency:invoice.currency.toUpperCase(),
+   p_amount_due_minor:invoice.amount_due,p_amount_paid_minor:invoice.amount_paid,
+   p_status:invoice.status,p_paid_at:paidAt
+  });
+  if(invoiceError||invoiceResult!=='recorded')
+   throw Object.assign(new Error('Company invoice ledger unavailable'),{status:503});
+ }
  return res.status(200).json({received:true,result:data});
 }
 module.exports=async function handler(req,res){
