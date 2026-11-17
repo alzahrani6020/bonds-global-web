@@ -416,11 +416,56 @@
     }
   }
 
+
+  // New drafts reserve the space that the issued reference, signature and
+  // institutional seal occupy. Reservations are transient DOM nodes: they
+  // never enter pages_html or any signed/archived document bytes.
+  async function prepareDraftA4ForIssuance() {
+    if (!canEditCurrent() || !['draft', 'returned'].includes(state.document?.status)) {
+      throw new Error(isEn ? 'Only an editable draft can be prepared' : 'لا يمكن تجهيز A4 إلا في المسودة القابلة للتحرير');
+    }
+    if (state.loading) throw new Error(isEn ? 'Finish saving the draft first' : 'انتظر اكتمال حفظ المسودة أولاً');
+    if (document.fonts?.ready) await document.fonts.ready;
+    const container = document.getElementById('pages-container');
+    if (!container) throw new Error('Letterhead pages container missing');
+    const initialCount = container.querySelectorAll('.sheet').length;
+    const first = container.querySelector('.sheet .doc-content');
+    const last = container.querySelector('.sheet:last-child .doc-content');
+    if (!first || !last) throw new Error('Letterhead content missing');
+    const issueMeta = document.createElement('div');
+    issueMeta.dataset.a4Reservation = 'issue-meta';
+    issueMeta.contentEditable = 'false';
+    issueMeta.style.cssText = 'min-height:64px;margin:0 0 18px;padding:8px 10px;border-bottom:1px solid #c59237;';
+    const approval = document.createElement('div');
+    approval.dataset.a4Reservation = 'approval-zone';
+    approval.contentEditable = 'false';
+    approval.className = 'official-approval-zone';
+    approval.style.cssText = 'height:190px;min-height:190px;margin-bottom:8mm;flex-shrink:0;';
+    first.prepend(issueMeta);
+    last.appendChild(approval);
+    try {
+      paginateEditableSheets();
+    } finally {
+      container.querySelectorAll('[data-a4-reservation]').forEach(el => el.remove());
+      // Do not introduce an empty numbered page just for the reservation.
+      const sheets = Array.from(container.querySelectorAll('.sheet'));
+      for (let i = sheets.length - 1; i >= initialCount; i--) {
+        const content = sheets[i].querySelector('.doc-content');
+        if (!content || content.innerHTML.trim()) break;
+        sheets[i].remove();
+      }
+      renumberSheets();
+    }
+    // Persist exactly the repaginated draft, never the transient reservations.
+    await saveVersion(true);
+  }
+
   async function transition(target, note) {
     if (state.transitionPending) return state.document;
 
     const doc = await ensureDocument();
     if (doc.status === target) return doc;
+    if (target === 'submitted') await prepareDraftA4ForIssuance();
 
     if (['returned', 'rejected', 'cancelled'].includes(target) && !String(note || '').trim()) {
       const reason = window.prompt(isEn ? 'Reason is required for this action:' : 'سبب الإجراء إلزامي:');
@@ -441,7 +486,16 @@
         state.latestIssue = refreshed.latest_issue || null;
         renderGovernanceArtifacts();
         updateVerificationQr();
-        toast('✅ ' + (isEn ? 'Document issued. Secure the final PDF as the next governed step.' : 'تم إصدار المستند. ثبّت PDF النهائي كخطوة حوكمة مستقلة.'));
+        if (can('finalize_pdf') && !state.document.artifact_hash) {
+          try {
+            await persistIssuedPdfArtifact();
+          } catch (finalError) {
+            // Issuance is already committed: keep the retry action available.
+            toast('⚠️ ' + (isEn ? 'Issued, but final PDF needs retry: ' : 'صدر الخطاب، لكن تثبيت PDF يتطلب إعادة المحاولة: ') + finalError.message);
+          }
+        } else if (!state.document.artifact_hash) {
+          toast(isEn ? 'Document issued. A PDF finalizer must secure it.' : 'صدر الخطاب، ويلزم مستخدم بصلاحية تثبيت PDF النهائي.');
+        }
       }
 
       toast('✅ ' + t.status + ': ' + state.document.status);
@@ -1566,6 +1620,7 @@
 
   async function persistIssuedPdfArtifact() {
     if (!state.document || state.document.status !== 'issued') return;
+    if (state.document.artifact_hash) return;
     if (!can('finalize_pdf')) throw new Error(isEn ? 'Final PDF permission is required' : 'تثبيت PDF النهائي يتطلب صلاحية مستقلة');
     toast(isEn ? '⏳ Securing final PDF...' : '⏳ جاري تثبيت النسخة النهائية PDF...');
     await loadDocument(state.document.id);
@@ -1597,13 +1652,26 @@
     if (!state.document?.artifact_hash) throw new Error(isEn ? 'Official PDF is not available yet' : 'النسخة الرسمية PDF غير متوفرة بعد');
     const result = await api('artifact-download-url', { method: 'POST', id: state.document.id, body: {} });
     if (!result?.signed_url) throw new Error(isEn ? 'Official PDF download link is unavailable' : 'تعذر إنشاء رابط تنزيل النسخة الرسمية');
+    // A cross-origin signed URL ignores the HTML download attribute on some
+    // browsers. Download the verified Storage response as a same-origin blob.
+    const response = await fetch(result.signed_url);
+    if (!response.ok) throw new Error('PDF HTTP ' + response.status);
+    const blob = await response.blob();
+    if (blob.size < 1000 || (blob.type && !/pdf/i.test(blob.type))) {
+      throw new Error(isEn ? 'The stored PDF response is invalid' : 'استجابة ملف PDF المحفوظ غير صالحة');
+    }
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = result.signed_url;
+    a.href = url;
     a.download = (state.document.reference_number || 'bonds-correspondence') + '.pdf';
     a.rel = 'noopener';
     document.body.appendChild(a);
-    a.click();
-    a.remove();
+    try {
+      a.click();
+    } finally {
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
   }
 
   async function refreshInboxDynamic(page = state.inboxPage) {
@@ -2273,7 +2341,7 @@
     if (state.document?.artifact_hash) {
       try {
         await downloadOfficialPdf();
-        toast(isEn ? '✅ Official PDF downloaded' : '✅ تم تنزيل النسخة الرسمية PDF');
+        toast(isEn ? 'PDF download requested from browser' : 'تم إرسال PDF الرسمي إلى المتصفح للتنزيل');
       } catch (e) {
         toast('⚠️ ' + (isEn ? 'Official PDF download failed: ' : 'فشل تنزيل النسخة الرسمية: ') + e.message);
       }
