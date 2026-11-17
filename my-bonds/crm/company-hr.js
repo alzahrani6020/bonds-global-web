@@ -148,6 +148,8 @@
    const data=new FormData(ev.target),isEmployee=category==='employees',operational=['attendance','leaves','contracts','claims','leave_balances','payroll','payroll_runs'].includes(category),spec=activeSpecs();
    const row={workspace_id:workspace.id};
    for(const [name,,,type='text'] of spec){
+    // Hidden immutable fields are absent from edit forms. Never turn them into NULL.
+    if(editing&&!data.has(name))continue;
     let v=String(data.get(name)??'').trim();
     if(type==='number'||type==='signed-number')row[name]=v===''?null:Number(v);
     else if(type==='datetime-local')row[name]=v?isoLocal(v):null;
