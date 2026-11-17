@@ -244,14 +244,29 @@
    if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
    if(!license)return;
    $('hr-setup').hidden=false;
-   workspaces=check(await db.from('hr_saas_workspaces').select('id,name,owner_user_id').order('created_at',{ascending:true}));
+   // Use the same company workspace identity for CRM and HR; only HR data
+   // remains in its own program-specific tables and HR entitlement boundary.
+   const companySpaces=check(await db.from('crm_app_workspaces').select('id,name,owner_user_id').eq('owner_user_id',user.id).order('created_at',{ascending:true}));
+   workspaces=check(await db.from('hr_saas_workspaces').select('id,name,owner_user_id,crm_workspace_id').order('created_at',{ascending:true}));
    const select=$('hr-workspace');
-   select.innerHTML=workspaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
-   if(workspaces.length){workspace=workspaces[0];$('hr-app').hidden=false;await changeCategory(category);
-    document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));}
-   select.addEventListener('change',async()=>{workspace=workspaces.find(w=>w.id===select.value)||null;
+   select.innerHTML=companySpaces.map(c=>'<option value="'+escape(c.id)+'">'+escape(c.name)+'</option>').join('');
+   const activate=async crmId=>{
+    ++loadRequestId;
+    const selected=companySpaces.find(c=>c.id===crmId);
+    workspace=workspaces.find(w=>w.crm_workspace_id===crmId)||null;
+    if(selected&&!workspace){
+     const created=check(await db.from('hr_saas_workspaces').insert({
+      name:selected.name,owner_user_id:user.id,crm_workspace_id:selected.id
+     }).select('id,name,owner_user_id,crm_workspace_id').single());
+     if(!created?.id)throw Error(t('تعذر ربط مساحة الشركة','Company workspace link not confirmed'));
+     workspace=created;workspaces.push(created);
+    }
+    $('hr-app').hidden=!workspace;
     document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
-    if(workspace)await changeCategory(category);else {++loadRequestId;$('hr-app').hidden=true;}});
+    if(workspace)await changeCategory(category);
+   };
+   if(companySpaces.length)await activate(companySpaces[0].id);
+   select.addEventListener('change',()=>activate(select.value).catch(e=>status(e.message,true)));
 
   }catch(e){status(t('تعذر فتح الموارد البشرية: ','Cannot open HR: ')+e.message,true);}
  }
@@ -332,11 +347,12 @@
   const btn=ev.target.querySelector('button');btn.disabled=true;
   try{
    const name=String(new FormData(ev.target).get('name')||'').trim();
-   const row=check(await db.from('hr_saas_workspaces').insert({name,owner_user_id:user.id}).select('id,name,owner_user_id').single());
-   workspaces.push(row);workspace=row;$('hr-workspace').add(new Option(row.name,row.id));$('hr-workspace').value=row.id;
-   $('hr-app').hidden=false;ev.target.reset();
-   document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
-   await changeCategory('employees');status(t('أُنشئت مساحة الموارد البشرية','HR workspace created'));
+   const company=check(await db.from('crm_app_workspaces').insert({name,owner_user_id:user.id}).select('id,name,owner_user_id').single());
+   if(!company?.id)throw Error(t('تعذر حفظ مساحة الشركة','Company workspace was not saved'));
+   companySpaces.push(company);$('hr-workspace').add(new Option(company.name,company.id));
+   $('hr-workspace').value=company.id;ev.target.reset();
+   await activate(company.id);
+   status(t('أُنشئت مساحة الشركة وربطت بالموارد البشرية','Company workspace created and linked to HR'));
   }catch(e){status(e.message,true);}finally{btn.disabled=false;}
  });
  // Product data/auth initialization is independent of CRM workspace readiness.
