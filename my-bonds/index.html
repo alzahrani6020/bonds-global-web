@@ -438,7 +438,17 @@
           const detailAction = detailHref
             ? `<a class="bonds-btn bonds-btn-sm bonds-btn-secondary" href="${BondsCommon.escapeHtml(detailHref)}">عرض الطلب</a>`
             : '';
-          return `<div class="bonds-card my-bonds-project"><div class="my-bonds-project__header"><h4 class="my-bonds-project__title">${title}</h4><span class="my-bonds-badge">${status}</span></div><p class="my-bonds-project__summary">رقم المرجع: <strong>${reference}</strong></p><div class="my-bonds-project__meta"><span class="my-bonds-project__date">${date}</span>${detailAction}</div></div>`;
+          const workspacePath = item.service_workspace?.route_ar;
+          const serviceCode = typeof service.code === 'string' ? service.code : '';
+          const allowedWorkspacePaths = ["/my-bonds/workspace/","/service-request.html"];
+          const workspaceHref = allowedWorkspacePaths.includes(workspacePath) && serviceCode
+            ? workspacePath + '?service=' + encodeURIComponent(serviceCode) + '&return_to=%2Fmy-bonds%2F'
+            : null;
+          const workspaceLabel = workspacePath === '/my-bonds/workspace/' ? 'فتح مساحة الخدمة' : 'فتح نموذج الخدمة';
+          const workspaceAction = workspaceHref
+            ? `<a class="bonds-btn bonds-btn-sm bonds-btn-secondary" href="${BondsCommon.escapeHtml(workspaceHref)}">${workspaceLabel}</a>`
+            : '';
+          return `<div class="bonds-card my-bonds-project"><div class="my-bonds-project__header"><h4 class="my-bonds-project__title">${title}</h4><span class="my-bonds-badge">${status}</span></div><p class="my-bonds-project__summary">رقم المرجع: <strong>${reference}</strong></p><div class="my-bonds-project__meta"><span class="my-bonds-project__date">${date}</span>${detailAction}${workspaceAction}</div></div>`;
         }).join('');
       }
 
