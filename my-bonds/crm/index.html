@@ -183,6 +183,15 @@
      <label>صلاحية الوصول<select name="role" required><option value="employee">موظف</option><option value="hr_manager">مسؤول الموارد البشرية</option></select></label>
      <button type="submit" class="primary">منح العضوية</button>
     </form>
+    <h3>دعوة الموظفين بالبريد الإلكتروني الموثّق</h3>
+    <p class="muted">تُنشأ دعوة محددة بالموظف والبريد والصلاحية. لا تُفعّل العضوية إلا بعد دخول المدعو بحساب ذي بريد مؤكد مطابق.</p>
+    <form id="hr-invite-form" class="editor-fields">
+     <label>البريد الإلكتروني للمدعو<input name="email" type="email" required maxlength="320" autocomplete="off"></label>
+     <label>ملف الموظف<select id="hr-invite-employee" name="employee_id" required><option value="">اختر الموظف</option></select></label>
+     <label>الصلاحية<select name="role" required><option value="employee">موظف</option><option value="hr_manager">مسؤول الموارد البشرية</option></select></label>
+     <button type="submit" class="primary">إنشاء دعوة آمنة</button>
+    </form>
+    <div class="overflow"><table><thead><tr><th>البريد</th><th>الصلاحية</th><th>الحالة</th><th>الرابط</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
     <div class="overflow"><table><thead><tr><th>الموظف</th><th>الحساب</th><th>الدور</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="hr-members-table"></tbody></table></div>
    </section>
    <section id="hr-self-section" class="panel" hidden>
