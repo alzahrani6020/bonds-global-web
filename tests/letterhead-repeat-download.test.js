@@ -58,3 +58,18 @@ describe('letterhead local PDF repeat download contract', () => {
     expect(events.filter(x => x[0] === 'revoke').map(x => x[1])).toEqual(issued);
   });
 });
+
+describe('governed correspondence repeated read budget', () => {
+  const platform = fs.readFileSync(path.resolve(__dirname, '../api/platform.js'), 'utf8');
+  const limiter = fs.readFileSync(path.resolve(__dirname, '../lib/api/rate-limit.js'), 'utf8');
+  test('authenticated GET refresh does not consume login or mutation budget', () => {
+    const from = platform.indexOf('// Dynamic correspondence / Letterhead');
+    const to = platform.indexOf('// Letterhead email', from);
+    const route = platform.slice(from, to);
+    expect(route).toContain("(req.method === 'GET' ? 'admin_read' : 'auth')");
+    expect(route).toContain("corrAction === 'verify' || corrAction === 'qr'");
+    expect(route).toContain('return await correspondence.handler(req, res)');
+    expect(limiter).toMatch(/auth:\\s*\\{\\s*limit:\\s*10/);
+    expect(limiter).toMatch(/admin_read:\\s*\\{\\s*limit:\\s*60/);
+  });
+});
