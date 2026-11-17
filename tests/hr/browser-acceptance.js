@@ -190,6 +190,7 @@ async function run(){
     assert.equal(savedDraft.workspace_id,firstWorkspace);
     assert.equal(savedDraft.status,'draft');
     assert.equal(savedDraft.result.accrued_days,30);
+    await page.locator('#hr-calculation-result').waitFor({state:'visible'});
     assert.equal(await page.locator('#hr-calculation-result').isVisible(),true);
     assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_records)).length,0,'Calculation must not post a generic HR payment record');
 
