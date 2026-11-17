@@ -70,7 +70,7 @@
   if(type==='employee')return '<label class="field">'+name+'<select name="'+key+'"><option value="">'+t('اختر موظفًا','Select employee')+'</option>'+employees.map(e=>'<option value="'+escape(e.id)+'"'+(e.id===value?' selected':'')+'>'+escape(e.employee_number)+' — '+escape(e.full_name)+'</option>').join('')+'</select></label>';
   if(type.startsWith('enum:'))return '<label class="field">'+name+'<select name="'+key+'">'+type.slice(5).split('|').map(v=>'<option value="'+escape(v)+'"'+(v===value?' selected':'')+'>'+escape(v)+'</option>').join('')+'</select></label>';
   if(type==='json')return '<label class="field field-wide">'+name+'<textarea name="'+key+'">'+escape(JSON.stringify(record.details||{}))+'</textarea></label>';
-  return '<label class="field">'+name+'<input name="'+key+'" type="'+type+'" value="'+escape(type==='datetime-local'?localDateTime(value):value)+'"'+(needed?' required':'')+(type==='number'?' min="0" step="0.01"':type==='signed-number'?' step="0.01"':'')+'></label>';
+  return '<label class="field">'+name+'<input name="'+key+'" type="'+(type==='signed-number'?'number':type)+'" value="'+escape(type==='datetime-local'?localDateTime(value):value)+'"'+(needed?' required':'')+(type==='number'?' min="0" step="0.01"':type==='signed-number'?' step="0.01"':'')+'></label>';
  }
  function showEditor(row=null){
   if(row&&(category==='leave_balances'&&['approved','cancelled'].includes(row.status)||category==='claims'&&['approved','rejected'].includes(row.status)||category==='contracts'&&['terminated','expired','cancelled'].includes(row.status)||category==='payroll_runs'&&row.status==='approved'||category==='payroll'&&payrollPeriods.some(p=>p.id===row.period_id&&p.status!=='draft'))){
