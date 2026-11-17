@@ -1,5 +1,25 @@
 -- Independent human resources SaaS, in the company-programs dashboard.
 -- CRM tables and CRM workspace subscriptions are deliberately not referenced.
+-- Catalog and owner-specific entitlement grants are independent from CRM data.
+-- Payment or admin provisioning must issue these grants server-side; browser has no INSERT.
+create table public.company_program_entitlements (
+ id uuid primary key default gen_random_uuid(),
+ owner_user_id uuid not null references auth.users(id) on delete restrict,
+ product_code text not null check(product_code in ('crm','hr','finance','suite')),
+ status text not null check(status in ('active','trial','expired','cancelled','suspended')),
+ starts_at timestamptz not null default now(),
+ ends_at timestamptz,
+ created_at timestamptz not null default now(),
+ unique(owner_user_id,product_code),
+ check(ends_at is null or ends_at>starts_at)
+);
+alter table public.company_program_entitlements enable row level security;
+create policy company_program_entitlements_owner_read
+ on public.company_program_entitlements for select to authenticated
+ using(owner_user_id=(select auth.uid()));
+revoke all on public.company_program_entitlements from public,anon,authenticated;
+grant select on public.company_program_entitlements to authenticated;
+-- Only privileged server-side billing/provisioning actors may INSERT/UPDATE entitlements.
 create table public.hr_saas_workspaces (
  id uuid primary key default gen_random_uuid(),
  owner_user_id uuid not null references auth.users(id) on delete restrict,
@@ -46,15 +66,76 @@ create index hr_saas_records_workspace_idx on public.hr_saas_records(workspace_i
 alter table public.hr_saas_workspaces enable row level security;
 alter table public.hr_saas_employees enable row level security;
 alter table public.hr_saas_records enable row level security;
-create policy hr_saas_workspace_select on public.hr_saas_workspaces for select to authenticated using(owner_user_id=(select auth.uid()));
-create policy hr_saas_workspace_insert on public.hr_saas_workspaces for insert to authenticated with check(owner_user_id=(select auth.uid()));
-create policy hr_saas_workspace_update on public.hr_saas_workspaces for update to authenticated using(owner_user_id=(select auth.uid())) with check(owner_user_id=(select auth.uid()));
-create policy hr_saas_employee_select on public.hr_saas_employees for select to authenticated using(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())));
-create policy hr_saas_employee_insert on public.hr_saas_employees for insert to authenticated with check(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())));
-create policy hr_saas_employee_update on public.hr_saas_employees for update to authenticated using(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid()))) with check(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())));
-create policy hr_saas_record_select on public.hr_saas_records for select to authenticated using(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())));
-create policy hr_saas_record_insert on public.hr_saas_records for insert to authenticated with check(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())));
-create policy hr_saas_record_update on public.hr_saas_records for update to authenticated using(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid()))) with check(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())));
+-- HR access requires an active entitlement; owning a CRM workspace does not grant HR access.
+create policy hr_saas_workspace_select on public.hr_saas_workspaces for select to authenticated using((owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+)));
+create policy hr_saas_workspace_insert on public.hr_saas_workspaces for insert to authenticated with check((owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+)));
+create policy hr_saas_workspace_update on public.hr_saas_workspaces for update to authenticated using((owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+))) with check((owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+)));
+create policy hr_saas_employee_select on public.hr_saas_employees for select to authenticated using(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+)));
+create policy hr_saas_employee_insert on public.hr_saas_employees for insert to authenticated with check(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+)));
+create policy hr_saas_employee_update on public.hr_saas_employees for update to authenticated using(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+))) with check(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+)));
+create policy hr_saas_record_select on public.hr_saas_records for select to authenticated using(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+)));
+create policy hr_saas_record_insert on public.hr_saas_records for insert to authenticated with check(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+)));
+create policy hr_saas_record_update on public.hr_saas_records for update to authenticated using(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+))) with check(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+)));
 revoke all on public.hr_saas_workspaces,public.hr_saas_employees,public.hr_saas_records from public,anon,authenticated;
 grant select,insert,update on public.hr_saas_workspaces,public.hr_saas_employees,public.hr_saas_records to authenticated;
 
@@ -66,7 +147,12 @@ create table public.hr_saas_audit (
 );
 alter table public.hr_saas_audit enable row level security;
 create policy hr_saas_audit_owner_select on public.hr_saas_audit for select to authenticated
- using(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())));
+ using(exists(select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid()) and exists (
+ select 1 from public.company_program_entitlements e
+ where e.owner_user_id=(select auth.uid()) and e.product_code in ('hr','suite')
+ and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now())
+)));
 revoke all on public.hr_saas_audit from public,anon,authenticated;
 grant select on public.hr_saas_audit to authenticated;
 create index hr_saas_audit_workspace_idx on public.hr_saas_audit(workspace_id,created_at desc);
