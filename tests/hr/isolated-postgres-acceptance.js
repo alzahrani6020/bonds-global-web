@@ -283,6 +283,50 @@ async function main(){
    "select entity,actor_user_id from hr_saas_audit where workspace_id=$1 and entity in ('hr_saas_memberships','hr_saas_employee_requests')",[wa]));
   assert.ok(auditedSelf.rows.some(x=>x.entity==='hr_saas_employee_requests'&&x.actor_user_id===employeeAccount));
   assert.ok(auditedSelf.rows.some(x=>x.entity==='hr_saas_employee_requests'&&x.actor_user_id===managerAccount));
+
+  // Invitation acceptance is an authenticated, verified-email, one-time SQL transaction.
+  const inviteUser=randomUUID(),wrongInviteUser=randomUUID(),unverifiedUser=randomUUID();
+  await db.query("insert into auth.users(id,email,email_confirmed_at) values($1,'invited@example.test',now()),($2,'other@example.test',now()),($3,'pending@example.test',null)",
+   [inviteUser,wrongInviteUser,unverifiedUser]);
+  const inviteEmployee=(await as(owner,()=>db.query(
+   "insert into hr_saas_employees(workspace_id,employee_number,full_name) values($1,'HR-INV-001','Invited Employee') returning id",[wa]))).rows[0].id;
+  const token=(await as(owner,()=>db.query(
+   "insert into hr_saas_invitations(workspace_id,employee_id,invited_email,role,created_by) values($1,$2,'invited@example.test','employee',$3) returning token",
+   [wa,inviteEmployee,owner]))).rows[0].token;
+  assert.equal(typeof token,'string');
+  const hiddenInvites=await as(wrongInviteUser,()=>db.query(
+   "select id from hr_saas_invitations where workspace_id=$1",[wa]));
+  assert.equal(hiddenInvites.rowCount,0,'Invitations may not leak to other authenticated users');
+  await assert.rejects(()=>as(wrongInviteUser,()=>db.query(
+   "select public.hr_saas_accept_invitation($1)",[token])),
+   e=>e.code==='42501','Wrong verified email must be rejected');
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "insert into hr_saas_invitations(workspace_id,employee_id,invited_email,role,created_by,token) values($1,$2,'test@example.test','employee',$3,$4)",
+   [wa,inviteEmployee,owner,randomUUID()])),
+   e=>e.code==='42501','Browser owner must not choose invitation token');
+  const newMembership=(await as(inviteUser,()=>db.query(
+   "select public.hr_saas_accept_invitation($1) as id",[token]))).rows[0].id;
+  assert.ok(newMembership,'Verified email redemption did not create membership');
+  const bound=await as(inviteUser,()=>db.query(
+   "select workspace_id,employee_id,role from hr_saas_memberships where id=$1",[newMembership]));
+  assert.equal(bound.rows[0].employee_id,inviteEmployee);
+  assert.equal(bound.rows[0].role,'employee');
+  await assert.rejects(()=>as(inviteUser,()=>db.query(
+   "select public.hr_saas_accept_invitation($1)",[token])),
+   e=>e.code==='42501','Token replay must not grant another membership');
+  const inviterView=await as(owner,()=>db.query(
+   "select status,accepted_by,accepted_at from hr_saas_invitations where token=$1",[token]));
+  assert.equal(inviterView.rows[0].status,'accepted');
+  assert.equal(inviterView.rows[0].accepted_by,inviteUser);
+  assert.ok(inviterView.rows[0].accepted_at);
+  const unverifiedEmployee=(await as(owner,()=>db.query(
+   "insert into hr_saas_employees(workspace_id,employee_number,full_name) values($1,'HR-INV-002','Unverified Employee') returning id",[wa]))).rows[0].id;
+  const unverifiedToken=(await as(owner,()=>db.query(
+   "insert into hr_saas_invitations(workspace_id,employee_id,invited_email,role,created_by) values($1,$2,'pending@example.test','employee',$3) returning token",
+   [wa,unverifiedEmployee,owner]))).rows[0].token;
+  await assert.rejects(()=>as(unverifiedUser,()=>db.query(
+   "select public.hr_saas_accept_invitation($1)",[unverifiedToken])),
+   e=>e.code==='42501','Unverified email cannot redeem invitation');
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
