@@ -35,7 +35,7 @@
  ['audit','سجل التدقيق','Audit log']
  ];
  const labels=Object.fromEntries(modules.map(([id,ar,eng])=>[id,t(ar,eng)]));
- const status=(msg,err=false)=>{const n=$('hr-status');n.textContent=msg;n.hidden=!msg;n.classList.toggle('error',err);};
+ const status=(msg,err=false)=>{const n=$('hr-status');n.textContent=msg;n.hidden=!msg;n.style.display=msg?'block':'none';n.classList.toggle('error',err);};
  let db,user,license=false,workspace=null,employees=[],records=[],category='employees',editing=null;
  const check=r=>{if(r.error)throw r.error;return r.data;};
  const table=()=>category==='employees'?'hr_saas_employees':'hr_saas_records';
