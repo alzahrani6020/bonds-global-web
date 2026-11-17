@@ -222,7 +222,9 @@
    const valid=check(await db.from('company_program_entitlements').select('product_code,status,starts_at,ends_at').in('product_code',['hr','suite']).eq('owner_user_id',user.id));
    license=valid.some(x=>['active','trial'].includes(x.status)&&new Date(x.starts_at)<=new Date()&&(!x.ends_at||new Date(x.ends_at)>new Date()));
    $('hr-license').hidden=license;
-   document.dispatchEvent(new CustomEvent('bonds-hr-ready',{detail:{db,user,ownerLicense:license}}));
+   // Replayable context handles deferred scripts that register after auth resolves.
+   window.BondsHRContext={db,user,ownerLicense:license};
+   document.dispatchEvent(new CustomEvent('bonds-hr-ready',{detail:window.BondsHRContext}));
    if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
    if(!license)return;
    $('hr-setup').hidden=false;
