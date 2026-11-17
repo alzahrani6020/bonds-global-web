@@ -20,6 +20,8 @@ async function main(){
   await db.query(contractMigration);
   const rightsMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117090000_hr_saas_entitlements.sql'),'utf8');
   await db.query(rightsMigration);
+  const balanceMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117100000_hr_saas_leave_ledger.sql'),'utf8');
+  await db.query(balanceMigration);
 
   const ids=[randomUUID(),randomUUID(),randomUUID()];
   await db.query('insert into auth.users(id) values($1),($2),($3)',ids);
@@ -180,10 +182,24 @@ async function main(){
   assert.equal(otherRights.rowCount,0,'Entitlements must remain company private');
   const stillStored=await db.query("select count(*)::int as n from hr_saas_entitlements where workspace_id=$1",[wa]);
   assert.equal(stillStored.rows[0].n,1,'Rights history must not be deleted');
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "insert into hr_saas_leave_ledger(workspace_id,employee_id,entry_reference,leave_type,effective_date,days_delta,reason,status) values($1,$2,'L-001','annual','2026-11-17',20,'Opening balance','approved')",[wa,employee])),
+   e=>e.code==='23514','Leave balance adjustment must start draft');
+  const adjustment=(await as(owner,()=>db.query(
+   "insert into hr_saas_leave_ledger(workspace_id,employee_id,entry_reference,leave_type,effective_date,days_delta,reason) values($1,$2,'L-001','annual','2026-11-17',20,'Opening balance') returning id",[wa,employee]))).rows[0].id;
+  await as(owner,()=>db.query("update hr_saas_leave_ledger set status='approved' where id=$1",[adjustment]));
+  const balance=await as(owner,()=>db.query("select days_balance from hr_saas_leave_balance_summary where workspace_id=$1 and employee_id=$2 and leave_type='annual'",[wa,employee]));
+  assert.equal(Number(balance.rows[0].days_balance),20,'Approved leave entries form the current balance');
+  await assert.rejects(()=>as(owner,()=>db.query("update hr_saas_leave_ledger set days_delta=22 where id=$1",[adjustment])),
+   e=>e.code==='23514','Approved leave balance entry is immutable');
+  const outsiderBalance=await as(other,()=>db.query("select * from hr_saas_leave_balance_summary where workspace_id=$1",[wa]));
+  assert.equal(outsiderBalance.rowCount,0,'Security invoker balance view leaked another company');
+  const ledgerAudit=await as(owner,()=>db.query("select id from hr_saas_audit where workspace_id=$1 and entity='hr_saas_leave_ledger'",[wa]));
+  assert.equal(ledgerAudit.rowCount,2,'Leave ledger creation and approval must both be audited');
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
-  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, attendance, leave approvals, payroll approval, employee contracts, entitlements, tenant FK, audit, revocation');
+  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, attendance, leave approvals, payroll approval, employee contracts, entitlements, leave balances, tenant FK, audit, revocation');
  }finally{await db.end();}
 }
 main().catch(e=>{console.error('HR SAAS POSTGRES ACCEPTANCE: FAIL',e.message,'SQLSTATE='+String(e.code||'unknown'));process.exitCode=1;});
