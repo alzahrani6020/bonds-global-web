@@ -32,6 +32,20 @@ describe('new correspondence issuance A4 and final PDF', () => {
     expect(guard).toContain('reserved.remove()');
   });
 
+  test('manual distribution and native paste use the same non-destructive paginator', () => {
+    const manual = source.slice(source.indexOf('window.autoDistributePages = function () {'),
+      source.indexOf('  // Server-backed save/autosave.'));
+    expect(manual).toContain('paginateEditableSheets()');
+    expect(manual).not.toContain('cloneEmptySheetAfter');
+    expect(manual).not.toContain('sheetOverflowInfo');
+    const paste = source.slice(source.indexOf("document.addEventListener('paste'"),
+      source.indexOf("document.addEventListener('input'"));
+    expect(paste).toContain('paginateEditableSheets()');
+    expect(source).toContain("['P', 'DIV', 'BLOCKQUOTE', 'LI', 'H1'");
+    expect(source).toContain("tail.children.length === 1 &&");
+    expect(source).toContain("splitOversizedDraftParagraph(tail, continuation)");
+  });
+
   test('issuance and finalizer permissions remain separate', () => {
     const transition = source.slice(source.indexOf('async function transition('), source.indexOf('async function mark('));
     expect(transition).not.toContain('await persistIssuedPdfArtifact()');
