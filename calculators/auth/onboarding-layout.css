@@ -1,0 +1,20 @@
+/* Keep profile fields inside their grid tracks in both languages. */
+.onboarding-page .form-group,
+.onboarding-page .row > * {
+  min-width: 0;
+}
+
+.onboarding-page .form-group input,
+.onboarding-page .form-group select,
+.onboarding-page .form-group textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.onboarding-page .form-group textarea {
+  display: block;
+  min-height: 80px;
+  resize: vertical;
+}
