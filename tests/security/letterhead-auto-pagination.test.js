@@ -14,20 +14,24 @@ function read(rel) {
 describe('letterhead automatic pagination', () => {
   const client = read('components/letterhead-correspondence.js');
 
-  test('component exposes autoDistributePages with footer-based cutoff geometry', () => {
-    expect(client).toContain('window.autoDistributePages = function ()');
-    expect(client).toContain("sheet.querySelector('.doc-content')");
+  test('manual command and paste share the footer-aware governed A4 paginator', () => {
+    const manual = client.slice(client.indexOf('window.autoDistributePages = function () {'),
+      client.indexOf('  // Server-backed save/autosave.'));
+    const paste = client.slice(client.indexOf("document.addEventListener('paste'"),
+      client.indexOf("document.addEventListener('input'"));
+    expect(manual).toContain('paginateEditableSheets()');
+    expect(paste).toContain('paginateEditableSheets()');
     expect(client).toContain("sheet.querySelector('.letterhead-footer')");
-    expect(client).toContain('footer.getBoundingClientRect().top - bufferPx');
-    expect(client).toContain('content.getBoundingClientRect().bottom > cutoff');
+    expect(client).toContain('footer.getBoundingClientRect().top - 4');
+    expect(client).toContain('contentBottom <= footerTop');
   });
 
-  test('moves whole overflowing blocks in order and creates numbered sheets', () => {
-    expect(client).toContain('children.findIndex(el => el.getBoundingClientRect().bottom > cutoff)');
-    expect(client).toContain('moving.forEach(el => targetContent.insertBefore(el, anchor))');
-    expect(client).toContain('cloneEmptySheetAfter(sheet)');
-    expect(client).toContain('renumberSheets()');
-    expect(client).toContain('الصفحة ${i + 1} من ${sheets.length}');
+  test('preserves all pasted text while creating numbered continuation sheets', () => {
+    expect(client).toContain("container.appendChild(clone)");
+    expect(client).toContain("splitOversizedDraftParagraph(tail, continuation)");
+    expect(client).toContain("continuation.insertBefore(item, continuation.firstChild)");
+    expect(client).toContain("const count = sheets().length");
+    expect(client).toContain("الصفحة ${index + 1} من ${count}");
   });
 
   test('records undo history and autosaves after distributing', () => {
@@ -41,9 +45,9 @@ describe('letterhead automatic pagination', () => {
   });
 
   test('guards against runaway growth with a page cap and edit permission', () => {
-    expect(client).toContain('MAX_SHEETS = 20');
+    expect(client).toContain('sheets().length > 50');
     expect(client).toContain('prepareEditableAction()');
-    expect(client).toContain('guard < 200');
+    expect(client).toContain('++moves > 500');
   });
 
   test('the PDF export auto-heals: locked docs fail explicitly, overflow re-paginates once', () => {
