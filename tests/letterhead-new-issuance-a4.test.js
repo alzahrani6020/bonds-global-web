@@ -19,6 +19,19 @@ describe('new correspondence issuance A4 and final PDF', () => {
     expect(preflight).not.toContain("api('transition'");
   });
 
+  test('pre-issue A4 guard is enforced before the official transition', () => {
+    const transition = source.slice(source.indexOf('async function transition('), source.indexOf('async function mark('));
+    expect(transition).toContain("if (target === 'issued') await assertApprovedA4BeforeIssuance()");
+    expect(transition.indexOf('await assertApprovedA4BeforeIssuance()'))
+      .toBeLessThan(transition.indexOf("await api('transition'"));
+    const guard = source.slice(source.indexOf('async function assertApprovedA4BeforeIssuance()'),
+      source.indexOf('async function transition('));
+    expect(guard).toContain('await document.fonts.ready');
+    expect(guard).toContain('contentBottom > footerTop');
+    expect(guard).toContain('sheet.scrollHeight > sheet.clientHeight + 1');
+    expect(guard).toContain('reserved.remove()');
+  });
+
   test('issuance and finalizer permissions remain separate', () => {
     const transition = source.slice(source.indexOf('async function transition('), source.indexOf('async function mark('));
     expect(transition).not.toContain('await persistIssuedPdfArtifact()');
