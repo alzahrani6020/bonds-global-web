@@ -163,8 +163,10 @@
   <section id="hr-section" hidden>
    <section id="hr-license" class="panel" hidden>
     <h2>Human Resources subscription</h2>
-    <p>This application is independent of CRM. Your account needs a valid HR or Suite entitlement. No subscription is charged or activated from this page.</p>
-    <a href="/contact.html">Request subscription activation</a>
+    <p>Each program has a separate entitlement. Checkout uses the verified payment provider; access activates only after the server confirms the Stripe subscription state.</p>
+    <label>Program<select id="hr-purchase-product"><option value="hr">Human Resources</option><option value="crm">CRM</option><option value="suite">Full suite</option></select></label>
+    <button type="button" class="primary" id="hr-checkout-start">Continue to secure checkout</button>
+    <a href="/contact.html">Subscription assistance</a>
    </section>
    <section id="hr-auth" class="panel" hidden>Sign in to use company programs.</section>
    <section id="hr-setup" class="panel" hidden>
