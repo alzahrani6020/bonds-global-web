@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
-const source=fs.readFileSync(path.resolve(__dirname,'../../api/company-programs.js'),'utf8');
+const source=fs.readFileSync(path.resolve(__dirname,'../../lib/api/company-programs.js'),'utf8');
 const owner='10000000-0000-4000-8000-000000000001';
 function fixture(eventType='customer.subscription.updated'){
  const calls={checkouts:[],rpc:[],signature:[],subscriptions:[]};
@@ -17,11 +17,11 @@ function fixture(eventType='customer.subscription.updated'){
   webhooks:{constructEvent:(raw,sig,secret)=>{calls.signature.push({raw,sig,secret});if(sig!=='test-signed')throw Error('Invalid signature');
    return {id:'evt_hr_001',type:eventType,created:Math.floor(Date.now()/1000),data:{object:{id:eventType.startsWith('invoice.')?'in_hr_001':'sub_hr_001',subscription:'sub_hr_001'}}};}}};
  const modules={
-  '../lib/api/auth-helper':{verifyBearerAndUser:async()=>({id:owner,email:'person@example.test',email_confirmed_at:'2026-01-01'})},
-  '../lib/api/supabase':()=>({rpc:async(name,args)=>{calls.rpc.push({name,args});return {data:name==='company_program_record_stripe_invoice'?'recorded':'applied',error:null};}}),
-  '../lib/api/cors':{setAllowedOrigin(){}},
-  '../lib/api/rate-limit':{checkRateLimit:async()=>false},
-  '../lib/hr/stripe-programs.cjs':require('../../lib/hr/stripe-programs.cjs'),
+  './auth-helper':{verifyBearerAndUser:async()=>({id:owner,email:'person@example.test',email_confirmed_at:'2026-01-01'})},
+  './supabase':()=>({rpc:async(name,args)=>{calls.rpc.push({name,args});return {data:name==='company_program_record_stripe_invoice'?'recorded':'applied',error:null};}}),
+  './cors':{setAllowedOrigin(){}},
+  './rate-limit':{checkRateLimit:async()=>false},
+  '../hr/stripe-programs.cjs':require('../../lib/hr/stripe-programs.cjs'),
   'stripe':()=>stripe
  };
  const env={STRIPE_SECRET_KEY:'sk_mock_not_real',STRIPE_COMPANY_PROGRAM_WEBHOOK_SECRET:'whsec_mock',
