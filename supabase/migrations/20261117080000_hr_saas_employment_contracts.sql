@@ -29,6 +29,9 @@ create index hr_saas_contract_employee_idx on public.hr_saas_employment_contract
 -- Serialize contract activation per employee and reject overlapping live contracts.
 create function hr_saas_private.contract_guard() returns trigger language plpgsql security invoker set search_path='' as $$
 begin
+ if tg_op='INSERT' and new.status<>'draft' then
+  raise exception 'Contract must start as draft' using errcode='23514';
+ end if;
  if tg_op='UPDATE' then
   if new.workspace_id<>old.workspace_id or new.employee_id<>old.employee_id
      or new.contract_number<>old.contract_number then
