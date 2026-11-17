@@ -54,7 +54,15 @@ async function run(){
    const resp=await page.goto(base+'/my-bonds/crm/?program=hr',{waitUntil:'domcontentloaded'});
    assert.equal(resp.status(),200);
    await page.locator('#hr-product-tab').waitFor();
-   await page.waitForFunction(()=>!document.querySelector('#hr-section').hidden);
+   await page.waitForFunction(()=>!document.querySelector('#hr-section').hidden,null,{timeout:8000}).catch(async()=>{
+    const diagnostic=await page.evaluate(()=>({
+     productLoaded:!!window.__hrTest,
+     sectionHidden:document.querySelector('#hr-section')?.hidden,
+     notice:document.querySelector('#hr-status')?.textContent,
+     bodyTitle:document.title
+    }));
+    throw Error('HR deep link did not open: '+JSON.stringify(diagnostic)+'; runtime='+errors.join('; '));
+   });
    assert.equal(await page.locator('#crm-nav').isVisible(),false,'CRM navigation must hide in HR mode');
    assert.equal(await page.locator('#refresh').isVisible(),false,'CRM refresh must be hidden in HR mode');
    assert.equal(await page.locator('#install').isVisible(),false,'CRM installer must not be presented as an HR installer');
