@@ -114,6 +114,25 @@ async function run(){
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employees.length===1);
     assert.equal(await page.locator('#hr-count').textContent(),'1');
 
+    // Owner request inbox must read actual self-service requests, not generic HR records.
+    await page.evaluate(()=>{
+     const t=window.__hrTest.tables;
+     t.hr_saas_employee_requests.push({
+      id:'70000000-0000-4000-8000-000000000009',
+      workspace_id:t.hr_saas_workspaces[0].id,employee_id:t.hr_saas_employees[0].id,
+      requested_by:'80000000-0000-4000-8000-000000000009',
+      request_type:'leave',subject:'Owner request inbox check',
+      description:'Annual leave',status:'pending',created_at:new Date().toISOString()
+     });
+    });
+    await page.locator('[data-hr-category="employee_requests"]').click();
+    await page.waitForFunction(()=>document.querySelector('#hr-body')?.textContent.includes('Owner request inbox check'));
+    assert.equal(await page.locator('#hr-add').isVisible(),false,'Request inbox must not create generic HR records');
+    await page.locator('#hr-body [data-hr-request-decision="approved"]').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employee_requests[0].status==='approved');
+    assert.equal(await page.locator('#hr-body [data-hr-request-decision]').count(),0,'Approved request must not be decided again');
+    assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_records)).length,0,'Request workflow must not create generic records');
+
     // Contract must be created in draft status before activation.
     await page.locator('[data-hr-category="contracts"]').click();
     await page.locator('#hr-add').click();
