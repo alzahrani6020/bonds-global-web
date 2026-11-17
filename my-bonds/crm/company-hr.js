@@ -222,14 +222,18 @@
    const valid=check(await db.from('company_program_entitlements').select('product_code,status,starts_at,ends_at').in('product_code',['hr','suite']).eq('owner_user_id',user.id));
    license=valid.some(x=>['active','trial'].includes(x.status)&&new Date(x.starts_at)<=new Date()&&(!x.ends_at||new Date(x.ends_at)>new Date()));
    $('hr-license').hidden=license;
+   document.dispatchEvent(new CustomEvent('bonds-hr-ready',{detail:{db,user,ownerLicense:license}}));
    if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
    if(!license)return;
    $('hr-setup').hidden=false;
    const workspaces=check(await db.from('hr_saas_workspaces').select('id,name,owner_user_id').order('created_at',{ascending:true}));
    const select=$('hr-workspace');
    select.innerHTML=workspaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
-   if(workspaces.length){workspace=workspaces[0];$('hr-app').hidden=false;await changeCategory(category);}
-   select.addEventListener('change',async()=>{workspace=workspaces.find(w=>w.id===select.value)||null;await changeCategory(category);});
+   if(workspaces.length){workspace=workspaces[0];$('hr-app').hidden=false;await changeCategory(category);
+    document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));}
+   select.addEventListener('change',async()=>{workspace=workspaces.find(w=>w.id===select.value)||null;
+    document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
+    if(workspace)await changeCategory(category);else $('hr-app').hidden=true;});
 
   }catch(e){status(t('تعذر فتح الموارد البشرية: ','Cannot open HR: ')+e.message,true);}
  }
@@ -274,7 +278,9 @@
    const name=String(new FormData(ev.target).get('name')||'').trim();
    const row=check(await db.from('hr_saas_workspaces').insert({name,owner_user_id:user.id}).select('id,name,owner_user_id').single());
    workspace=row;$('hr-workspace').add(new Option(row.name,row.id));$('hr-workspace').value=row.id;
-   $('hr-app').hidden=false;ev.target.reset();await changeCategory('employees');status(t('أُنشئت مساحة الموارد البشرية','HR workspace created'));
+   $('hr-app').hidden=false;ev.target.reset();
+   document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
+   await changeCategory('employees');status(t('أُنشئت مساحة الموارد البشرية','HR workspace created'));
   }catch(e){status(e.message,true);}finally{btn.disabled=false;}
  });
  // Product data/auth initialization is independent of CRM workspace readiness.
