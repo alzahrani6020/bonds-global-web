@@ -33,7 +33,7 @@ create trigger hr_saas_membership_guard before update on public.hr_saas_membersh
  for each row execute function hr_saas_private.membership_guard();
 alter table public.hr_saas_memberships enable row level security;
 create policy hr_membership_owner_or_self_select on public.hr_saas_memberships
- for select to authenticated using ((exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) or user_id=(select auth.uid())) and exists (select 1 from public.company_program_entitlements e
+ for select to authenticated using ((exists (select 1 from public.hr_saas_workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())) or (user_id=(select auth.uid()) and status='active')) and exists (select 1 from public.company_program_entitlements e
  join public.hr_saas_workspaces w on w.owner_user_id=e.owner_user_id
  where w.id=workspace_id and e.product_code in ('hr','suite')
  and e.status in ('active','trial') and e.starts_at<=now()
