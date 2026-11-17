@@ -36,7 +36,7 @@
  ];
  const labels=Object.fromEntries(modules.map(([id,ar,eng])=>[id,t(ar,eng)]));
  const status=(msg,err=false)=>{const n=$('hr-status');n.textContent=msg;n.hidden=!msg;n.style.display=msg?'block':'none';n.classList.toggle('error',err);};
- let db,user,license=false,workspace=null,employees=[],payrollPeriods=[],records=[],category='employees',editing=null;
+ let db,user,license=false,workspace=null,workspaces=[],employees=[],payrollPeriods=[],records=[],category='employees',editing=null;
  const check=r=>{if(r.error)throw r.error;return r.data;};
  const table=()=>category==='employees'?'hr_saas_employees':category==='attendance'?'hr_saas_attendance':category==='leaves'?'hr_saas_leave_requests':category==='contracts'?'hr_saas_employment_contracts':category==='claims'?'hr_saas_entitlements':category==='leave_balances'?'hr_saas_leave_ledger':category==='payroll_runs'?'hr_saas_payroll_periods':category==='payroll'?'hr_saas_payroll_lines':category==='employee_requests'?'hr_saas_employee_requests':'hr_saas_records';
  const activeSpecs=()=>specs[category]||specs.records;
@@ -232,7 +232,7 @@
    if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
    if(!license)return;
    $('hr-setup').hidden=false;
-   const workspaces=check(await db.from('hr_saas_workspaces').select('id,name,owner_user_id').order('created_at',{ascending:true}));
+   workspaces=check(await db.from('hr_saas_workspaces').select('id,name,owner_user_id').order('created_at',{ascending:true}));
    const select=$('hr-workspace');
    select.innerHTML=workspaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
    if(workspaces.length){workspace=workspaces[0];$('hr-app').hidden=false;await changeCategory(category);
@@ -300,7 +300,7 @@
   try{
    const name=String(new FormData(ev.target).get('name')||'').trim();
    const row=check(await db.from('hr_saas_workspaces').insert({name,owner_user_id:user.id}).select('id,name,owner_user_id').single());
-   workspace=row;$('hr-workspace').add(new Option(row.name,row.id));$('hr-workspace').value=row.id;
+   workspaces.push(row);workspace=row;$('hr-workspace').add(new Option(row.name,row.id));$('hr-workspace').value=row.id;
    $('hr-app').hidden=false;ev.target.reset();
    document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
    await changeCategory('employees');status(t('أُنشئت مساحة الموارد البشرية','HR workspace created'));
