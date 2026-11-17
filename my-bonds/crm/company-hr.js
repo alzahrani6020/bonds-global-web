@@ -37,6 +37,7 @@
  const labels=Object.fromEntries(modules.map(([id,ar,eng])=>[id,t(ar,eng)]));
  const status=(msg,err=false)=>{const n=$('hr-status');n.textContent=msg;n.hidden=!msg;n.style.display=msg?'block':'none';n.classList.toggle('error',err);};
  let db,user,license=false,workspace=null,workspaces=[],employees=[],payrollPeriods=[],records=[],category='employees',editing=null;
+ let loadRequestId=0;
  const check=r=>{if(r.error)throw r.error;return r.data;};
  const table=()=>category==='employees'?'hr_saas_employees':category==='attendance'?'hr_saas_attendance':category==='leaves'?'hr_saas_leave_requests':category==='contracts'?'hr_saas_employment_contracts':category==='claims'?'hr_saas_entitlements':category==='leave_balances'?'hr_saas_leave_ledger':category==='payroll_runs'?'hr_saas_payroll_periods':category==='payroll'?'hr_saas_payroll_lines':category==='employee_requests'?'hr_saas_employee_requests':'hr_saas_records';
  const activeSpecs=()=>specs[category]||specs.records;
@@ -103,20 +104,29 @@
  }
  async function load(){
   if(!workspace)return;
-  const owner=workspace.id,groups=[];
-  employees=check(await db.from('hr_saas_employees').select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250));
-  payrollPeriods=['payroll','payroll_runs'].includes(category)?
+  const owner=workspace.id,requestedCategory=category,requestId=++loadRequestId;
+  const isCurrent=()=>requestId===loadRequestId&&workspace?.id===owner&&category===requestedCategory;
+  const fetchedEmployees=check(await db.from('hr_saas_employees').select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250));
+  if(!isCurrent())return;
+  const fetchedPeriods=['payroll','payroll_runs'].includes(requestedCategory)?
    check(await db.from('hr_saas_payroll_periods').select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250)):[];
-  const q=category==='employees'?null:category==='audit'?
+  if(!isCurrent())return;
+  const q=requestedCategory==='employees'?null:requestedCategory==='audit'?
    db.from('hr_saas_audit').select('created_at,entity,action,changed_columns').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250):
-   ['attendance','leaves','contracts','claims','leave_balances','payroll','payroll_runs','employee_requests'].includes(category)?
+   ['attendance','leaves','contracts','claims','leave_balances','payroll','payroll_runs','employee_requests'].includes(requestedCategory)?
    db.from(table()).select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250):
-   db.from('hr_saas_records').select('*').eq('workspace_id',owner).eq('category',category).order('created_at',{ascending:false}).limit(250);
-  records=q?category==='payroll_runs'?payrollPeriods:check(await q):[];
-  $('hr-balance-summary').hidden=category!=='leave_balances';
-  if(category==='leave_balances'){
-   const balances=check(await db.from('hr_saas_leave_balance_summary')
+   db.from('hr_saas_records').select('*').eq('workspace_id',owner).eq('category',requestedCategory).order('created_at',{ascending:false}).limit(250);
+  const fetchedRecords=q?requestedCategory==='payroll_runs'?fetchedPeriods:check(await q):[];
+  if(!isCurrent())return;
+  let balances=[];
+  if(requestedCategory==='leave_balances'){
+   balances=check(await db.from('hr_saas_leave_balance_summary')
     .select('employee_id,leave_type,days_balance').eq('workspace_id',owner).limit(1000));
+   if(!isCurrent())return;
+  }
+  employees=fetchedEmployees;payrollPeriods=fetchedPeriods;records=fetchedRecords;
+  $('hr-balance-summary').hidden=requestedCategory!=='leave_balances';
+  if(requestedCategory==='leave_balances'){
    $('hr-balance-rows').innerHTML=balances.map(b=>'<tr><td>'+
     escape(employees.find(e=>e.id===b.employee_id)?.full_name||'—')+'</td><td>'+
     escape(b.leave_type)+'</td><td>'+escape(b.days_balance)+'</td></tr>').join('')||
@@ -126,7 +136,7 @@
  }
  async function changeCategory(next){
   if(!labels[next])return;
-  category=next;editing=null;$('hr-editor').hidden=true;
+  ++loadRequestId;category=next;editing=null;$('hr-editor').hidden=true;
   document.querySelectorAll('[data-hr-category]').forEach(x=>x.classList.toggle('active',x.dataset.hrCategory===category));
   try{status('');await load();}catch(e){status(e.message,true);}
  }
@@ -239,7 +249,7 @@
     document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));}
    select.addEventListener('change',async()=>{workspace=workspaces.find(w=>w.id===select.value)||null;
     document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
-    if(workspace)await changeCategory(category);else $('hr-app').hidden=true;});
+    if(workspace)await changeCategory(category);else {++loadRequestId;$('hr-app').hidden=true;}});
 
   }catch(e){status(t('تعذر فتح الموارد البشرية: ','Cannot open HR: ')+e.message,true);}
  }
