@@ -179,6 +179,11 @@
     </div>
     <p class="muted">قيود الرواتب والمستحقات سجلات تشغيلية؛ لا تُنفّذ منها مدفوعات أو إقرارات نظامية.</p>
     <p class="muted">السجلات: <span id="hr-count">0</span></p>
+    <section id="hr-balance-summary" class="panel overflow" hidden>
+     <h3>أرصدة الإجازات المعتمدة حسب الموظف</h3>
+     <p class="muted">الأرصدة ناتجة عن قيود الأيام المعتمدة، ولا تتضمن احتساب الاستحقاق النظامي أو الخصم التلقائي للإجازات.</p>
+     <table><thead><tr><th>الموظف</th><th>نوع الإجازة</th><th>الرصيد بالأيام</th></tr></thead><tbody id="hr-balance-rows"></tbody></table>
+    </section>
     <div class="panel overflow"><table><thead id="hr-head"></thead><tbody id="hr-body"></tbody></table></div>
     <section id="hr-editor" class="panel" hidden>
      <div class="editor-head"><h2 id="hr-editor-title"></h2><button id="hr-close" type="button" class="secondary">إغلاق</button></div>
