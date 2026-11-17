@@ -1984,15 +1984,6 @@
   // Distributes overflowing letter content across numbered A4 sheets so the
   // final-PDF guard never blocks on manual page splitting. Whole blocks are
   // moved to the next sheet; a new numbered sheet is created when needed.
-  function sheetOverflowInfo(sheet, bufferPx) {
-    const content = sheet.querySelector('.doc-content');
-    const footer = sheet.querySelector('.letterhead-footer');
-    if (!content || !footer) return null;
-    const cutoff = footer.getBoundingClientRect().top - bufferPx;
-    const overflowing = content.getBoundingClientRect().bottom > cutoff;
-    return { content, cutoff, overflowing, children: Array.from(content.children) };
-  }
-
   function renumberSheets() {
     const sheets = Array.from(document.querySelectorAll('#pages-container .sheet'));
     sheets.forEach((sheet, i) => {
@@ -2006,82 +1997,23 @@
     return sheets;
   }
 
-  function cloneEmptySheetAfter(sheet) {
-    const container = document.getElementById('pages-container');
-    if (!container) return null;
-    const clone = sheet.cloneNode(true);
-    const cloneContent = clone.querySelector('.doc-content');
-    if (cloneContent) cloneContent.innerHTML = '';
-    container.insertBefore(clone, sheet.nextSibling);
-    return clone;
-  }
-
+  // Manual and automatic paste distribution must use one A4 paginator.
+  // The legacy manual command moved blocks intact and could never split a
+  // single long pasted list item; it also used a different page limit.
   window.autoDistributePages = function () {
     if (!prepareEditableAction()) return toast('⚠️ ' + t.notAllowed);
-    const container = document.getElementById('pages-container');
-    if (!container) return;
     const before = snapshot();
-    const BUFFER = 8;
-    const MAX_SHEETS = 20;
-    let movedBlocks = 0;
-    let createdSheets = 0;
-    const unbreakable = [];
-    let guard = 0;
-
-    while (guard < 200) {
-      guard += 1;
-      const sheets = renumberSheets();
-      let progressed = false;
-      for (let i = 0; i < sheets.length; i += 1) {
-        const sheet = sheets[i];
-        const info = sheetOverflowInfo(sheet, BUFFER);
-        if (!info || !info.overflowing || !info.children.length) continue;
-
-        const cutoff = info.cutoff;
-        const children = info.children;
-        let splitAt = children.findIndex(el => el.getBoundingClientRect().bottom > cutoff);
-        if (splitAt === -1) splitAt = children.length - 1;
-        if (splitAt === 0 && children.length === 1 && cutoff - children[0].getBoundingClientRect().top < 40) {
-          // A single block taller than a full sheet cannot be auto-split safely.
-          unbreakable.push((children[0].innerText || '').trim().slice(0, 60));
-          continue;
-        }
-        const moving = children.slice(splitAt);
-        let target = i === sheets.length - 1 ? null : sheet.nextElementSibling;
-        if (!target || !target.classList.contains('sheet')) {
-          if (sheets.length >= MAX_SHEETS) {
-            toast('⚠️ ' + (isEn ? 'Page limit reached (20).' : 'تم بلوغ الحد الأقصى للصفحات (20).'));
-            guard = 200;
-            break;
-          }
-          target = cloneEmptySheetAfter(sheet);
-          createdSheets += 1;
-        }
-        const targetContent = target && target.querySelector('.doc-content');
-        if (!targetContent) continue;
-        const anchor = targetContent.firstChild;
-        moving.forEach(el => targetContent.insertBefore(el, anchor));
-        movedBlocks += moving.length;
-        progressed = true;
-        break; // Re-measure everything after each move.
+    try {
+      const changed = paginateEditableSheets();
+      if (changed) {
+        recordMutation(before);
+        window.autoSave?.();
+        toast(isEn ? 'Text distributed across all required A4 pages' : 'تم توزيع النص على جميع صفحات A4 اللازمة');
+      } else {
+        toast(isEn ? 'Content already fits its pages' : 'المحتوى يتسع لصفحاته الحالية');
       }
-      if (!progressed) break;
-    }
-
-    if (movedBlocks || createdSheets) {
-      recordMutation(before);
-      renumberSheets();
-      window.autoSave?.();
-      toast('✅ ' + (isEn
-        ? `Auto-distributed ${movedBlocks} block(s) across ${createdSheets} new page(s).`
-        : `تم التوزيع التلقائي لـ ${movedBlocks} كتلة على ${createdSheets} صفحة جديدة.`));
-    } else if (!unbreakable.length) {
-      toast('✅ ' + (isEn ? 'Content already fits its pages.' : 'المحتوى يتسع لصفحاته الحالية.'));
-    }
-    if (unbreakable.length) {
-      toast('⚠️ ' + (isEn
-        ? `A block taller than a full page needs manual trimming: "${unbreakable[0]}…"`
-        : `كتلة أطول من صفحة كاملة تحتاج تقصيراً يدوياً: «${unbreakable[0]}…»`));
+    } catch (error) {
+      toast('⚠️ ' + (isEn ? 'A4 distribution failed: ' : 'تعذر توزيع النص على صفحات A4: ') + error.message);
     }
   };
 
