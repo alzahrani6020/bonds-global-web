@@ -20,7 +20,7 @@ async function run(){
     const user={id:'10000000-0000-4000-8000-000000000001'};
     const tables={
      company_program_entitlements:isLicensed?[{owner_user_id:user.id,product_code:'hr',status:'active',starts_at:'2020-01-01T00:00:00.000Z',ends_at:null}]:[],
-     hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[],hr_saas_entitlements:[],hr_saas_leave_ledger:[]
+     hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[],hr_saas_entitlements:[],hr_saas_leave_ledger:[],hr_saas_leave_balance_summary:[]
     };
     let next=0;
     window.__hrTest={tables,writes:[]};
@@ -119,6 +119,7 @@ async function run(){
     await page.locator('#hr-fields input[name="reason"]').fill('Opening balance');
     await page.locator('#hr-save').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_leave_ledger.length===1);
+    assert.equal(await page.locator('#hr-balance-summary').isVisible(),true);
     const adjustment=await page.evaluate(()=>window.__hrTest.tables.hr_saas_leave_ledger[0]);
     assert.equal(adjustment.days_delta,20);
     assert.equal(adjustment.status,'draft');
