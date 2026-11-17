@@ -22,6 +22,8 @@ async function main(){
   await db.query(rightsMigration);
   const balanceMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117100000_hr_saas_leave_ledger.sql'),'utf8');
   await db.query(balanceMigration);
+  const rolesMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117110000_hr_saas_roles_self_service.sql'),'utf8');
+  await db.query(rolesMigration);
 
   const ids=[randomUUID(),randomUUID(),randomUUID()];
   await db.query('insert into auth.users(id) values($1),($2),($3)',ids);
@@ -196,10 +198,75 @@ async function main(){
   assert.equal(outsiderBalance.rowCount,0,'Security invoker balance view leaked another company');
   const ledgerAudit=await as(owner,()=>db.query("select id from hr_saas_audit where workspace_id=$1 and entity='hr_saas_leave_ledger'",[wa]));
   assert.equal(ledgerAudit.rowCount,2,'Leave ledger creation and approval must both be audited');
+  // Real SQL acceptance: a verified user linked to a workspace employee may file
+  // their own request, but neither grant roles nor approve or read salary records.
+  const employeeAccount=randomUUID(),managerAccount=randomUUID(),unrelatedAccount=randomUUID();
+  await db.query('insert into auth.users(id) values($1),($2),($3)',[employeeAccount,managerAccount,unrelatedAccount]);
+  const managerEmployee=(await as(owner,()=>db.query(
+   "insert into hr_saas_employees(workspace_id,employee_number,full_name) values($1,'HR-002','Human Resources Manager') returning id",[wa]))).rows[0].id;
+  await as(owner,()=>db.query(
+   "insert into hr_saas_memberships(workspace_id,user_id,employee_id,role) values($1,$2,$3,'employee'),($1,$4,$5,'hr_manager')",
+   [wa,employeeAccount,employee,managerAccount,managerEmployee]));
+  const memberRead=await as(employeeAccount,()=>db.query(
+   'select role,employee_id from hr_saas_memberships where workspace_id=$1',[wa]));
+  assert.equal(memberRead.rowCount,1);
+  assert.equal(memberRead.rows[0].role,'employee');
+  assert.equal(memberRead.rows[0].employee_id,employee);
+  const otherMember=await as(other,()=>db.query('select id from hr_saas_memberships where workspace_id=$1',[wa]));
+  assert.equal(otherMember.rowCount,0,'Other tenant can never enumerate HR roles');
+  await assert.rejects(()=>as(employeeAccount,()=>db.query(
+   "insert into hr_saas_memberships(workspace_id,user_id,employee_id,role) values($1,$2,$3,'hr_manager')",
+   [wa,unrelatedAccount,managerEmployee])), e=>e.code==='42501','Employee cannot grant roles');
+  await assert.rejects(()=>as(employeeAccount,()=>db.query(
+   "update hr_saas_memberships set role='hr_manager' where workspace_id=$1 and user_id=$2",
+   [wa,employeeAccount])), e=>e.code==='42501','Employee cannot promote own role');
+  const salaries=await as(managerAccount,()=>db.query('select basic_salary from hr_saas_employees where workspace_id=$1',[wa]));
+  assert.equal(salaries.rowCount,0,'HR manager may not read salary via employee table');
+  const contractPrivate=await as(managerAccount,()=>db.query('select id from hr_saas_employment_contracts where workspace_id=$1',[wa]));
+  assert.equal(contractPrivate.rowCount,0,'HR manager may not view contracts without separate grants');
+  const selfRequest=(await as(employeeAccount,()=>db.query(
+   "insert into hr_saas_employee_requests(workspace_id,employee_id,requested_by,request_type,subject,description,from_date,to_date) values($1,$2,$3,'leave','Annual leave','Please approve annual leave','2027-01-10','2027-01-12') returning id",
+   [wa,employee,employeeAccount]))).rows[0].id;
+  await assert.rejects(()=>as(employeeAccount,()=>db.query(
+   "insert into hr_saas_employee_requests(workspace_id,employee_id,requested_by,request_type,subject,description) values($1,$2,$3,'certificate','Forgery','Someone else request')",
+   [wa,managerEmployee,employeeAccount])),e=>e.code==='42501','Employee cannot file on another employee identity');
+  await assert.rejects(()=>as(employeeAccount,()=>db.query(
+   "update hr_saas_employee_requests set status='approved' where id=$1",[selfRequest])),e=>e.code==='42501','Employee cannot approve own request');
+  const managerQueue=await as(managerAccount,()=>db.query(
+   'select id,employee_id,status from hr_saas_employee_requests where workspace_id=$1',[wa]));
+  assert.equal(managerQueue.rowCount,1,'HR manager reads approval queue');
+  await as(managerAccount,()=>db.query(
+   "update hr_saas_employee_requests set status='approved',decision_note='Manager approval' where id=$1",[selfRequest]));
+  const decided=await as(employeeAccount,()=>db.query(
+   'select status,decided_by,decided_at from hr_saas_employee_requests where id=$1',[selfRequest]));
+  assert.equal(decided.rows[0].status,'approved');
+  assert.equal(decided.rows[0].decided_by,managerAccount);
+  assert.ok(decided.rows[0].decided_at);
+  await assert.rejects(()=>as(managerAccount,()=>db.query(
+   "update hr_saas_employee_requests set status='rejected' where id=$1",[selfRequest])),
+   e=>e.code==='23514','Decided request cannot be rewritten');
+  const nonmember=await as(unrelatedAccount,()=>db.query(
+   'select id from hr_saas_employee_requests where workspace_id=$1',[wa]));
+  assert.equal(nonmember.rowCount,0,'Authenticated unrelated account has no request access');
+  await as(owner,()=>db.query(
+   "update hr_saas_memberships set status='revoked' where workspace_id=$1 and user_id=$2",[wa,employeeAccount]));
+  const revokedMembership=await as(employeeAccount,()=>db.query(
+   'select id from hr_saas_memberships where workspace_id=$1',[wa]));
+  assert.equal(revokedMembership.rowCount,0,'Revocation must remove membership read access');
+  const revokedRequest=await as(employeeAccount,()=>db.query(
+   'select id from hr_saas_employee_requests where workspace_id=$1',[wa]));
+  assert.equal(revokedRequest.rowCount,0,'Revocation must remove self-service access');
+  await assert.rejects(()=>as(employeeAccount,()=>db.query(
+   "insert into hr_saas_employee_requests(workspace_id,employee_id,requested_by,request_type,subject,description) values($1,$2,$3,'other','After revocation','Should be forbidden')",
+   [wa,employee,employeeAccount])),e=>e.code==='42501','Revoked employee must be blocked from new requests');
+  const auditedSelf=await as(owner,()=>db.query(
+   "select entity,actor_user_id from hr_saas_audit where workspace_id=$1 and entity in ('hr_saas_memberships','hr_saas_employee_requests')",[wa]));
+  assert.ok(auditedSelf.rows.some(x=>x.entity==='hr_saas_employee_requests'&&x.actor_user_id===employeeAccount));
+  assert.ok(auditedSelf.rows.some(x=>x.entity==='hr_saas_employee_requests'&&x.actor_user_id===managerAccount));
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
-  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, attendance, leave approvals, payroll approval, employee contracts, entitlements, leave balances, tenant FK, audit, revocation');
+  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, attendance, leave approvals, payroll approval, employee contracts, entitlements, leave balances, member roles, self-service, tenant FK, audit, revocation');
  }finally{await db.end();}
 }
 main().catch(e=>{console.error('HR SAAS POSTGRES ACCEPTANCE: FAIL',e.message,'SQLSTATE='+String(e.code||'unknown'));process.exitCode=1;});
