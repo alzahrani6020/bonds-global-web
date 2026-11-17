@@ -93,6 +93,14 @@ function verifySource(source) {
   assert(!source.includes('hasRepeatedCharPrefixOverlap'), 'old vulnerable logic still present');
 }
 const verifyOnly = process.argv.includes('--verify');
+const ifPresent = process.argv.includes('--if-present');
+const installedCount = candidates.filter(([dir]) => fs.existsSync(path.join(root, dir, 'package.json'))).length;
+if (ifPresent && installedCount === 0) {
+  console.log('PICOMATCH_DEV_COPIES_ABSENT: nothing to patch');
+  process.exit(0);
+}
+assert.strictEqual(installedCount, candidates.length,
+  'Partial picomatch dependency installation is not accepted');
 const actual = [];
 for (const [dir, expectedVersion] of candidates) {
   const base = path.join(root, dir);
