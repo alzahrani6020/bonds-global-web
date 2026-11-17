@@ -409,6 +409,9 @@ async function main(){
   await assert.rejects(()=>as(owner,()=>db.query(
    "update hr_saas_rule_sets set status='approved' where id=$1",[secondPolicy])),
    e=>e.code==='23514','Overlapping company policies should not be approved');
+  const draftInsertPrivilege=await db.query("select has_table_privilege('authenticated','public.hr_saas_calculation_drafts','INSERT') as browser,has_table_privilege('service_role','public.hr_saas_calculation_drafts','INSERT') as service");
+  assert.equal(draftInsertPrivilege.rows[0].browser,false,'Browser can forge calculation results');
+  assert.equal(draftInsertPrivilege.rows[0].service,true,'Server cannot persist reviewed draft');
   const drafted=(await as(owner,()=>db.query(
    "insert into hr_saas_calculation_drafts(workspace_id,employee_id,policy_id,kind,jurisdiction,inputs,result,created_by) values($1,$2,$3,'leave_accrual','SA',$4::jsonb,$5::jsonb,$6) returning id",
    [wa,employee,policyId,JSON.stringify({as_of:'2026-11-17',eligible_days:365}),JSON.stringify({accrued_days:30,status:'draft_review_required'}),owner]))).rows[0].id;
