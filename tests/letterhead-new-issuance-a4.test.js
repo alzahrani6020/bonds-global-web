@@ -46,7 +46,7 @@ describe('new correspondence issuance A4 and final PDF', () => {
     };
     const window = { setTimeout(fn, delay) { expect(delay).toBe(60000); events.push(['timer', delay]); } };
     const fn = new Function('state','api','fetch','URL','document','window','isEn',
-      source.slice(start, stop) + '\\nreturn downloadOfficialPdf;');
+      source.slice(start, stop) + '\nreturn downloadOfficialPdf;');
     const download = fn(state, api, fetch, URL, document, window, false);
     await download();
     await download();
@@ -62,7 +62,7 @@ describe('new correspondence issuance A4 and final PDF', () => {
     const start = source.indexOf('async function downloadOfficialPdf()');
     const stop = source.indexOf('async function refreshInboxDynamic(', start);
     const fn = new Function('state','api','fetch','URL','document','window','isEn',
-      source.slice(start, stop) + '\\nreturn downloadOfficialPdf;');
+      source.slice(start, stop) + '\nreturn downloadOfficialPdf;');
     const download = fn({ document: { id: 'new-doc', artifact_hash: 'x' } },
       async () => ({ signed_url: 'https://storage.example/file' }),
       async () => ({ ok: true, blob: async () => ({ size: 10, type: 'text/html' }) }),
