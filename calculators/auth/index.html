@@ -599,6 +599,17 @@
         btn.classList.toggle('loading', loading);
       }
 
+      // Reuse the existing code-entry page for BOTH email OTP entry points.
+      // Keep the email out of the URL and discard stale phone/signup context.
+      function continueEmailOtp(email) {
+        sessionStorage.setItem('otp_email', email);
+        for (const key of ['otp_phone', 'otp_pending_password', 'otp_pending_name', 'otp_pending_phone', 'otp_pending_country', 'otp_pending_city']) {
+          sessionStorage.removeItem(key);
+        }
+        window.BondsAuth.getRedirectUrl();
+        window.location.href = './verify-otp.html';
+      }
+
       // Check redirect
       const redirectTo = window.BondsAuth.getRedirectUrl();
       const redirectUrl = new URL(redirectTo, window.location.origin);
@@ -672,7 +683,7 @@
         setLoading('otpBtn', false);
         if (error) { showError(error.message); return; }
         startOtpCooldown(cooldownKey, otpBtn, 'إرسال رمز التحقق 📧');
-        showSuccess('تم إرسال رمز التحقق إلى بريدك 📧 — أدخل الرمز أو اضغط الرابط في البريد للدخول مباشرة. لا تنسَ التحقق من مجلد الرسائل غير المرغوبة (Spam).');
+        continueEmailOtp(email);
       };
 
       window.resendActivation = async function(email) {
@@ -708,7 +719,7 @@
           return;
         }
         startOtpCooldown(cooldownKey, otpBtn, 'إرسال رمز التحقق 📧');
-        showSuccess('تم إرسال رمز التحقق إلى بريدك! أدخل الرمز أو اضغط الرابط في البريد للدخول مباشرة. تحقق من صندوق الوارد ومجلد الرسائل غير المرغوبة (Spam) 📧');
+        continueEmailOtp(email);
       });
 
       // Phone OTP Login

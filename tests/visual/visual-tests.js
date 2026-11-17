@@ -115,6 +115,7 @@ async function runFourPageIssuedPdfGate(browser) {
       for (const zoom of [0.5, 1, 2]) {
         container.style.transform = 'scale(' + zoom + ')';
         const blob = await make(state, isEn, waitForVerificationQr, canEditCurrent, paginateEditableSheets);
+        if (zoom === 1) window.__syntheticIssuedPdfDownloadBlob = blob;
         const binary = new TextDecoder('latin1').decode(await blob.arrayBuffer());
         captures.push({ zoom, pages: (binary.match(/\/Type\s*\/Page\b/g) || []).length, bytes: blob.size });
       }
@@ -131,7 +132,258 @@ async function runFourPageIssuedPdfGate(browser) {
         result.captures.length !== 3 || result.captures.some(c => c.pages !== 4 || c.bytes < 1000)) {
       throw new Error('Four-page locked document PDF acceptance failed: ' + JSON.stringify(result));
     }
+    // Two real Chromium download events for the exact bytes emitted by the
+    // governed exporter. Do not read/write real correspondence or issue IDs.
+    // Invoke the exact user-facing PDF export handler, including its real
+    // object-URL lifetime and anchor click. Use an isolated saved PDF blob so
+    // no user/official correspondence or backend credentials are involved.
+    const handlerStart = source.indexOf('  window.exportPDF = async function () {');
+    const handlerEnd = source.indexOf("  document.addEventListener('DOMContentLoaded'", handlerStart);
+    if (handlerStart < 0 || handlerEnd <= handlerStart) throw new Error('Actual PDF download handler missing');
+    await page.evaluate(handlerSource => {
+      const pdf = window.__syntheticIssuedPdfDownloadBlob;
+      if (!pdf || pdf.type !== 'application/pdf') throw new Error('PDF blob missing');
+      const testState = { document: { artifact_hash: null, reference_number: 'TEST-NOT-ISSUED' } };
+      const restoreCanonicalLockedDocument = async () => {};
+      const downloadOfficialPdf = async () => { throw new Error('Official download must not execute in synthetic test'); };
+      const toast = () => {};
+      const createPdfBlob = async () => pdf;
+      const install = new Function('state', 'isEn', 'restoreCanonicalLockedDocument',
+        'downloadOfficialPdf', 'toast', 'createPdfBlob',
+        handlerSource + '\nreturn window.exportPDF;');
+      install(testState, false, restoreCanonicalLockedDocument, downloadOfficialPdf, toast, createPdfBlob);
+      const button = document.createElement('button');
+      button.id = 'test-real-pdf-export-button';
+      button.textContent = 'تنزيل PDF';
+      button.addEventListener('click', () => window.exportPDF());
+      document.body.appendChild(button);
+    }, source.slice(handlerStart, handlerEnd));
+    const fingerprints = [];
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const pending = page.waitForEvent('download', { timeout: 15000 });
+      await page.locator('#test-real-pdf-export-button').click();
+      const download = await pending;
+      if (download.suggestedFilename() !== 'TEST-NOT-ISSUED.pdf') {
+        throw new Error('Unexpected PDF download filename: ' + download.suggestedFilename());
+      }
+      const downloadedFile = await download.path();
+      if (!downloadedFile) throw new Error('Chromium download path missing');
+      const bytes = fs.readFileSync(downloadedFile);
+      const data = bytes.toString('latin1');
+      const pageCount = (data.match(/\/Type\s*\/Page\b/g) || []).length;
+      if (bytes.subarray(0, 5).toString('ascii') !== '%PDF-' || pageCount !== 4 || bytes.length < 1000) {
+        throw new Error('Browser downloaded PDF corrupted: ' + JSON.stringify({pageCount, bytes: bytes.length}));
+      }
+      fingerprints.push(crypto.createHash('sha256').update(bytes).digest('hex'));
+    }
+    if (fingerprints[0] !== fingerprints[1]) throw new Error('Repeat browser PDF download hash mismatch');
+    console.log(' Browser PDF download: 2 complete real Chromium downloads; four A4 pages, identical SHA-256 PASS');
     console.log(' Synthetic issued four-sheet PDF: 4 physical A4 pages, immutable sheets, numbered 1-4 PASS');
+    // Cover the issued-document path separately. The draft export gate above
+    // deliberately stubs this path, so its two downloads cannot prove it.
+    const officialStart = source.indexOf('  async function downloadOfficialPdf() {');
+    const officialEnd = source.indexOf('  async function refreshInboxDynamic(', officialStart);
+    if (officialStart < 0 || officialEnd <= officialStart) throw new Error('Official downloader missing');
+    await page.evaluate(downloader => {
+      const blob = window.__syntheticIssuedPdfDownloadBlob;
+      const state = { document: { id: '00000000-0000-4000-8000-000000000000',
+        artifact_hash: 'synthetic-artifact', reference_number: 'TEST-OFFICIAL-PATH' }};
+      window.__officialTestRequests = 0;
+      window.__officialTestUrls = [];
+      const api = async (action, request) => {
+        if (action !== 'artifact-download-url' || request.method !== 'POST' ||
+            request.id !== state.document.id) throw new Error('Wrong artifact request');
+        window.__officialTestRequests++;
+        const url = URL.createObjectURL(blob);
+        window.__officialTestUrls.push(url);
+        return { signed_url: url };
+      };
+      const run = new Function('state', 'isEn', 'api', downloader + '\nreturn downloadOfficialPdf;')(state, false, api);
+      const button = document.createElement('button');
+      button.id = 'test-official-pdf-download';
+      button.textContent = 'Download fixture official PDF';
+      button.onclick = () => run().catch(error => { window.__officialTestError = error.message; });
+      document.body.appendChild(button);
+    }, source.slice(officialStart, officialEnd));
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const pending = page.waitForEvent('download', { timeout: 15000 });
+      await page.locator('#test-official-pdf-download').click();
+      const download = await pending;
+      if (download.suggestedFilename() !== 'TEST-OFFICIAL-PATH.pdf') throw new Error('Official filename mismatch');
+      const downloadedFile = await download.path();
+      if (!downloadedFile) throw new Error('Official browser download path missing');
+      const hash = crypto.createHash('sha256').update(fs.readFileSync(downloadedFile)).digest('hex');
+      if (hash !== fingerprints[0]) throw new Error('Official downloader changed generated PDF bytes');
+    }
+    const official = await page.evaluate(() => {
+      window.__officialTestUrls.forEach(url => URL.revokeObjectURL(url));
+      return { requests: window.__officialTestRequests, error: window.__officialTestError };
+    });
+    if (official.requests !== 2 || official.error) throw new Error('Official downloader failed: ' + JSON.stringify(official));
+    console.log(' Official downloader: 2 browser downloads, generated PDF hash preserved PASS (fixture Storage; live backend untested)');
+
+  } finally {
+    await page.close();
+  }
+}
+
+// Browser A4 acceptance for NEW approved letters only. No backend mutations,
+// existing documents, test accounts, or official register numbers are involved.
+async function runNewApprovedA4IssueGate(browser) {
+  const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  const source = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
+  const start = source.indexOf('  async function assertApprovedA4BeforeIssuance() {');
+  const stop = source.indexOf('  async function transition(', start);
+  if (start < 0 || stop <= start) throw new Error('Real approved A4 issuance guard not found');
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    const result = await page.evaluate(async guard => {
+      const doc = document.querySelector('.doc-content');
+      if (!doc) throw new Error('New correspondence content missing');
+      const state = { document: { status: 'approved' } };
+      const isEn = false;
+      const waitForLetterheadBrandImages = async () => {};
+      doc.innerHTML = '<p>خطاب تجريبي جديد لفحص حدود صفحة A4 قبل الإصدار.</p>';
+      const run = new Function('state', 'isEn', 'waitForLetterheadBrandImages', guard +
+        '\nreturn assertApprovedA4BeforeIssuance();');
+      const check = () => run(state, isEn, waitForLetterheadBrandImages);
+      await check();
+      const initialReservations = document.querySelectorAll('[data-a4-reservation]').length;
+      // Simulate a rendered approval block too tall to fit the approved A4:
+      // issuance must be blocked BEFORE the number-allocation POST.
+      const approval = document.createElement('div');
+      approval.className = 'official-approval-zone';
+      approval.style.height = '1050px';
+      approval.style.minHeight = '1050px';
+      doc.appendChild(approval);
+      let blocked = false;
+      try {
+        await check();
+      } catch (err) {
+        blocked = /A4/.test(err.message);
+      }
+      const clean = document.querySelectorAll('[data-a4-reservation]').length === 0;
+      approval.remove();
+      return { initialReservations, blocked, clean };
+    }, source.slice(start, stop));
+    if (result.initialReservations !== 0 || !result.blocked || !result.clean) {
+      throw new Error('New approved-letter A4 guard failed: ' + JSON.stringify(result));
+    }
+    console.log(' New approved letter A4: fit PASS, oversize signature/seal rejected, transient reservation cleaned PASS');
+  } finally {
+    await page.close();
+  }
+}
+
+// New letter paste acceptance: large single paragraph cannot be truncated
+// or confined to the two visible sheets. No real user correspondence touched.
+async function runFullPastedLetterGate(browser) {
+  const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  const code = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
+  const setPagesCode = code.slice(code.indexOf('  function setPages('), code.indexOf('  function hasMeaningfulDraft()'));
+  const paginatorCode = code.slice(code.indexOf('  function splitOversizedDraftParagraph('), code.indexOf('  async function createPdfBlob()'));
+  if (!setPagesCode.includes('function setPages') || !paginatorCode.includes('function paginateEditableSheets')) {
+    throw new Error('Pasted-letter page allocator not present');
+  }
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    const result = await page.evaluate(({ setPagesCode, paginatorCode }) => {
+      const container = document.getElementById('pages-container');
+      const doc = container.querySelector('.doc-content');
+      const phrase = 'هذا نص خطاب تجريبي طويل للتحقق من استمرار كامل النص عبر جميع صفحات ورق المراسلات دون حذف أي كلمة أثناء توزيع صفحات A4. ';
+      const original = phrase.repeat(105);
+      doc.innerHTML = '<p dir="rtl">' + original + '</p>';
+      const state = { document: { status: 'draft' }, lastSavedSnapshot: '' };
+      const isEn = false;
+      const canEditCurrent = () => true;
+      const pagesHtml = () => Array.from(container.querySelectorAll('.doc-content')).map(x => x.innerHTML);
+      const snapshot = () => JSON.stringify(pagesHtml());
+      const persistedSnapshot = () => snapshot();
+      const run = new Function('state', 'isEn', 'canEditCurrent', 'pagesHtml', 'snapshot', 'persistedSnapshot',
+        setPagesCode + paginatorCode + '\nreturn paginateEditableSheets();');
+      const changed = run(state, isEn, canEditCurrent, pagesHtml, snapshot, persistedSnapshot);
+      const sheets = Array.from(container.querySelectorAll('.sheet'));
+      const actual = sheets.map(x => x.querySelector('.doc-content').textContent).join('');
+      const geometry = sheets.map(x => {
+        const content = x.querySelector('.doc-content');
+        const footer = x.querySelector('.letterhead-footer');
+        return { bottom: content.getBoundingClientRect().bottom,
+          footer: footer.getBoundingClientRect().top,
+          physicalOverflow: x.scrollHeight - x.clientHeight,
+          height: x.getBoundingClientRect().height,
+          a4Height: x.getBoundingClientRect().width * 297 / 210 };
+      });
+      const labels = sheets.map(x => x.querySelector('.page-number')?.textContent || '');
+      return { changed, pageCount: sheets.length, textPreserved: actual === original,
+        originalLength: original.length, actualLength: actual.length, geometry, labels };
+    }, { setPagesCode, paginatorCode });
+    if (!result.changed || result.pageCount < 3 || !result.textPreserved) {
+      throw new Error('Long pasted letter truncated: ' + JSON.stringify(result));
+    }
+    for (let i = 0; i < result.pageCount; i++) {
+      const g = result.geometry[i];
+      if (g.bottom > g.footer + 1 || g.physicalOverflow > 1 || g.height > g.a4Height + 1 ||
+          !result.labels[i].includes((i + 1) + ' من ' + result.pageCount)) {
+        throw new Error('Pasted letter A4 or numbering invalid on page ' + (i + 1) + ': ' + JSON.stringify(result));
+      }
+    }
+    console.log(' Pasted long letter: ' + result.pageCount + ' A4 pages, full text preserved, numbering PASS');
+  } finally {
+    await page.close();
+  }
+}
+
+// Regression of real screenshot: a long numbered item copied with nested
+// formatting must not stop on page 3 with "split paragraph manually".
+async function runLongWordListPasteGate(browser) {
+  const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  const code = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
+  const setPagesCode = code.slice(code.indexOf('  function setPages('), code.indexOf('  function hasMeaningfulDraft()'));
+  const paginatorCode = code.slice(code.indexOf('  function splitOversizedDraftParagraph('), code.indexOf('  async function createPdfBlob()'));
+  if (!setPagesCode.includes('function setPages(') || !paginatorCode.includes('function splitOversizedDraftParagraph(')) {
+    throw new Error('Paste paginator missing');
+  }
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    const result = await page.evaluate(({ setPagesCode, paginatorCode }) => {
+      const container = document.getElementById('pages-container');
+      const content = container.querySelector('.doc-content');
+      const fragment = 'المشاركة الاستثمارية والتمويل والتعاون الاستراتيجي والشراكة المهنية ';
+      const original = fragment.repeat(150);
+      content.innerHTML = '<ol start="1" dir="rtl"><li><p><strong>' + original + '</strong></p></li></ol>';
+      const state = { document: { status: 'draft' }, lastSavedSnapshot: '' };
+      const isEn = false;
+      const canEditCurrent = () => true;
+      const pagesHtml = () => Array.from(container.querySelectorAll('.doc-content')).map(el => el.innerHTML);
+      const snapshot = () => JSON.stringify(pagesHtml());
+      const persistedSnapshot = () => snapshot();
+      const fn = new Function('state','isEn','canEditCurrent','pagesHtml','snapshot','persistedSnapshot',
+        setPagesCode + paginatorCode + '\nreturn paginateEditableSheets();');
+      const changed = fn(state,isEn,canEditCurrent,pagesHtml,snapshot,persistedSnapshot);
+      const sheets = Array.from(container.querySelectorAll('.sheet'));
+      const actual = sheets.map(sheet => sheet.querySelector('.doc-content').textContent).join('');
+      const numbers = sheets.flatMap(sheet => Array.from(sheet.querySelectorAll('.doc-content ol')).map(el => el.getAttribute('start')));
+      const geometry = sheets.map(sheet => ({
+        contentBottom: sheet.querySelector('.doc-content').getBoundingClientRect().bottom,
+        footerTop: sheet.querySelector('.letterhead-footer').getBoundingClientRect().top,
+        overflow: sheet.scrollHeight - sheet.clientHeight
+      }));
+      const formatted = sheets.every(sheet => Array.from(sheet.querySelectorAll('.doc-content li')).every(li => li.querySelector('strong')));
+      return { changed, pages: sheets.length, originalLength: original.length, actualLength: actual.length,
+        textPreserved: actual === original, numbers, geometry, formatted };
+    }, { setPagesCode, paginatorCode });
+    if (!result.changed || result.pages < 3 || !result.textPreserved || !result.formatted ||
+        result.geometry.some(g => g.contentBottom > g.footerTop + 1 || g.overflow > 1) ||
+        result.numbers.some(x => x !== '1')) {
+      throw new Error('Word single-item long-list paste failed: ' + JSON.stringify(result));
+    }
+    console.log(' Word formatted single-item list: ' + result.pages + ' A4 pages; all text and bold formatting preserved PASS');
   } finally {
     await page.close();
   }
@@ -142,7 +394,7 @@ async function runLetterheadNestedPaginationGate(browser) {
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
   const code = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
   const setPagesCode = code.slice(code.indexOf('  function setPages('), code.indexOf('  function hasMeaningfulDraft()'));
-  const paginateCode = code.slice(code.indexOf('  function moveLastDraftBlock('), code.indexOf('  async function createPdfBlob()'));
+  const paginateCode = code.slice(code.indexOf('  function splitOversizedDraftParagraph('), code.indexOf('  async function createPdfBlob()'));
   if (!setPagesCode.includes('function setPages') || !paginateCode.includes('function paginateEditableSheets')) {
     throw new Error('Actual governed A4 paginator was not found');
   }
@@ -639,7 +891,7 @@ async function runScenarioDropdownInteractionGate(browser) {
         }
 
         const img1 = readPng(baselinePath);
-        const img2 = readPng(snapshotPath);
+        let img2 = readPng(snapshotPath);
 
         if (img1.width !== img2.width || img1.height !== img2.height) {
           console.log(` ${viewport.name}/${p.name}: size mismatch (${img1.width}x${img1.height} vs ${img2.width}x${img2.height})`);
@@ -647,25 +899,69 @@ async function runScenarioDropdownInteractionGate(browser) {
           continue;
         }
 
+        // The photo/SVG composite is pixel-identical in geometry but has
+        // decoded low-amplitude colour jitter (<= 1-2 levels on average).
+        // Make tolerance EXPLICIT and REGION-BOUND: outside the real hero
+        // image container compare channels exactly, within the photo count
+        // only channel deltas > 15/255. Refuse > 2% material photo pixels
+        // or > 0.1% exact non-photo pixels. No baselines are rewritten.
+        let diffPixels = 0;
+        let photoChanged = 0;
+        let nonPhotoChanged = 0;
+        let photoTotal = 0;
+        let nonPhotoTotal = 0;
         const diff = new PNG({ width: img1.width, height: img1.height });
-        const diffPixels = pixelmatch(
-          img1.data,
-          img2.data,
-          diff.data,
-          img1.width,
-          img1.height,
-          { threshold: THRESHOLD, includeAA: false }
-        );
-
+        const home = p.name === 'index-ar' || p.name === 'index-en';
+        const heroBox = home ? await page.locator('.bonds-hero__image').boundingBox() : null;
+        if (home && !heroBox) throw new Error('Approved home hero geometry missing');
+        const heroX1 = heroBox ? Math.floor(heroBox.x) : -1;
+        const heroY1 = heroBox ? Math.floor(heroBox.y) : -1;
+        const heroX2 = heroBox ? Math.ceil(heroBox.x + heroBox.width) : -1;
+        const heroY2 = heroBox ? Math.ceil(heroBox.y + heroBox.height) : -1;
+        if (home) {
+          for (let y = 0; y < img1.height; y++) {
+            for (let x = 0; x < img1.width; x++) {
+              const pos = (y * img1.width + x) * 4;
+              const rDiff = Math.abs(img1.data[pos] - img2.data[pos]);
+              const gDiff = Math.abs(img1.data[pos + 1] - img2.data[pos + 1]);
+              const bDiff = Math.abs(img1.data[pos + 2] - img2.data[pos + 2]);
+              const aDiff = Math.abs(img1.data[pos + 3] - img2.data[pos + 3]);
+              const insidePhoto = x >= heroX1 && x < heroX2 && y >= heroY1 && y < heroY2;
+              const different = insidePhoto
+                ? (Math.max(rDiff, gDiff, bDiff) > 15 || aDiff > 0)
+                : (rDiff > 0 || gDiff > 0 || bDiff > 0 || aDiff > 0);
+              if (insidePhoto) { photoTotal++; if (different) photoChanged++; }
+              else { nonPhotoTotal++; if (different) nonPhotoChanged++; }
+              if (different) {
+                diff.data[pos] = 255; diff.data[pos + 1] = 0;
+                diff.data[pos + 2] = 0; diff.data[pos + 3] = 255;
+                diffPixels++;
+              } else {
+                const gray = Math.round((img2.data[pos] + img2.data[pos + 1] + img2.data[pos + 2]) / 3);
+                diff.data[pos] = gray; diff.data[pos + 1] = gray;
+                diff.data[pos + 2] = gray; diff.data[pos + 3] = 255;
+              }
+            }
+          }
+        } else {
+          diffPixels = pixelmatch(img1.data, img2.data, diff.data, img1.width, img1.height,
+            { threshold: THRESHOLD, includeAA: false });
+        }
         const totalPixels = img1.width * img1.height;
         const diffRatio = diffPixels / totalPixels;
-
-        if (diffRatio > TOLERANCE) {
+        const homeFailure = home && (photoChanged > photoTotal * 0.02 ||
+          nonPhotoChanged > nonPhotoTotal * 0.001);
+        if ((home && homeFailure) || (!home && diffRatio > TOLERANCE)) {
+          // Attach a COPY of the approved reference to CI evidence, never
+          // change baselines.
+          const evidencePath = path.join(DIFFS_DIR, 'approved-reference', viewport.name, `${p.name}.png`);
+          ensureDir(path.dirname(evidencePath));
+          fs.copyFileSync(baselinePath, evidencePath);
           writePng(diff, diffPath);
-          console.log(` ${viewport.name}/${p.name}: ${diffPixels} pixels differ (${(diffRatio * 100).toFixed(2)}%)`);
+          console.log(` ${viewport.name}/${p.name}: ${diffPixels} meaningful pixels differ (${(diffRatio * 100).toFixed(2)}%), photo ${photoChanged}/${photoTotal}, outside ${nonPhotoChanged}/${nonPhotoTotal}`);
           failed++;
         } else {
-          console.log(` ${viewport.name}/${p.name}: no diff`);
+          console.log(` ${viewport.name}/${p.name}: approved baseline match PASS${home ? ` (photo material-change ${(photoChanged / photoTotal * 100).toFixed(3)}%; unchanged layout ${(nonPhotoChanged / nonPhotoTotal * 100).toFixed(3)}%)` : ''}`);
         }
       } catch (err) {
         console.error(` ${viewport.name}/${p.name}: ${err.message}`);
@@ -674,6 +970,20 @@ async function runScenarioDropdownInteractionGate(browser) {
     }
 
     await page.close();
+  }
+
+  try {
+    await runLongWordListPasteGate(browser);
+    await runFullPastedLetterGate(browser);
+  } catch (err) {
+    console.error(' Full pasted-letter A4 acceptance failed: ' + err.message);
+    failed++;
+  }
+  try {
+    await runNewApprovedA4IssueGate(browser);
+  } catch (err) {
+    console.error(' New approved-letter A4 guard failed: ' + err.message);
+    failed++;
   }
 
   // Run the heavy html2canvas/jsPDF acceptance after screenshots, in its own

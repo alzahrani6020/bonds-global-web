@@ -416,11 +416,92 @@
     }
   }
 
+
+  // New drafts reserve the space that the issued reference, signature and
+  // institutional seal occupy. Reservations are transient DOM nodes: they
+  // never enter pages_html or any signed/archived document bytes.
+  async function prepareDraftA4ForIssuance() {
+    if (!canEditCurrent() || !['draft', 'returned'].includes(state.document?.status)) {
+      throw new Error(isEn ? 'Only an editable draft can be prepared' : 'لا يمكن تجهيز A4 إلا في المسودة القابلة للتحرير');
+    }
+    if (state.loading) throw new Error(isEn ? 'Finish saving the draft first' : 'انتظر اكتمال حفظ المسودة أولاً');
+    if (document.fonts?.ready) await document.fonts.ready;
+    const container = document.getElementById('pages-container');
+    if (!container) throw new Error('Letterhead pages container missing');
+    const first = container.querySelector('.sheet .doc-content');
+    const last = container.querySelector('.sheet:last-child .doc-content');
+    if (!first || !last) throw new Error('Letterhead content missing');
+    const issueMeta = document.createElement('div');
+    issueMeta.dataset.a4Reservation = 'issue-meta';
+    issueMeta.contentEditable = 'false';
+    issueMeta.style.cssText = 'min-height:64px;margin:0 0 18px;padding:8px 10px;border-bottom:1px solid #c59237;';
+    const approval = document.createElement('div');
+    approval.dataset.a4Reservation = 'approval-zone';
+    approval.contentEditable = 'false';
+    approval.className = 'official-approval-zone';
+    approval.style.cssText = 'height:260px;min-height:260px;margin-bottom:8mm;flex-shrink:0;';
+    first.prepend(issueMeta);
+    last.appendChild(approval);
+    try {
+      paginateEditableSheets();
+    } finally {
+      container.querySelectorAll('[data-a4-reservation]').forEach(el => el.remove());
+      // Keep any page created to house the eventual signature and seal.
+      // Removing it would reproduce the issued-only A4 overflow.
+      renumberSheets();
+    }
+    // Persist exactly the repaginated draft, never the transient reservations.
+    await saveVersion(true);
+  }
+
+  // Validate the actual approved signature/seal geometry before allocating
+  // an irreversible official reference number. This is read-only except for
+  // a transient issue-header reservation removed in finally.
+  async function assertApprovedA4BeforeIssuance() {
+    if (state.document?.status !== 'approved') return;
+    if (document.fonts?.ready) await document.fonts.ready;
+    await waitForLetterheadBrandImages();
+    const sheets = Array.from(document.querySelectorAll('#pages-container .sheet'));
+    if (!sheets.length) throw new Error('Letterhead pages missing');
+    const firstContent = sheets[0].querySelector('.doc-content');
+    if (!firstContent) throw new Error('Letterhead content missing');
+    const reserved = document.createElement('div');
+    reserved.dataset.a4Reservation = 'issue-meta';
+    reserved.style.cssText = 'min-height:64px;margin:0 0 18px;padding:8px 10px;border-bottom:1px solid #c59237;';
+    firstContent.prepend(reserved);
+    try {
+      for (let index = 0; index < sheets.length; index++) {
+        const sheet = sheets[index];
+        const body = sheet.querySelector('.doc-content');
+        const footer = sheet.querySelector('.letterhead-footer');
+        if (!body || !footer) throw new Error('Letterhead page structure missing');
+        const last = body.lastElementChild;
+        const contentBottom = Math.max(
+          body.getBoundingClientRect().bottom,
+          last ? last.getBoundingClientRect().bottom : body.getBoundingClientRect().bottom
+        );
+        const footerTop = footer.getBoundingClientRect().top - 4;
+        const heightLimit = sheet.getBoundingClientRect().width * 297 / 210;
+        if (contentBottom > footerTop ||
+            sheet.scrollHeight > sheet.clientHeight + 1 ||
+            sheet.getBoundingClientRect().height > heightLimit + 1) {
+          throw new Error(isEn
+            ? `A4 page ${index + 1} cannot contain the approved signature and seal. Return the letter to editing before issuance.`
+            : `صفحة A4 رقم ${index + 1} لا تتسع للتوقيع والختم المعتمدين. أعد الخطاب للتعديل قبل الإصدار.`);
+        }
+      }
+    } finally {
+      reserved.remove();
+    }
+  }
+
   async function transition(target, note) {
     if (state.transitionPending) return state.document;
 
     const doc = await ensureDocument();
     if (doc.status === target) return doc;
+    if (target === 'submitted') await prepareDraftA4ForIssuance();
+    if (target === 'issued') await assertApprovedA4BeforeIssuance();
 
     if (['returned', 'rejected', 'cancelled'].includes(target) && !String(note || '').trim()) {
       const reason = window.prompt(isEn ? 'Reason is required for this action:' : 'سبب الإجراء إلزامي:');
@@ -441,7 +522,11 @@
         state.latestIssue = refreshed.latest_issue || null;
         renderGovernanceArtifacts();
         updateVerificationQr();
-        toast('✅ ' + (isEn ? 'Document issued. Secure the final PDF as the next governed step.' : 'تم إصدار المستند. ثبّت PDF النهائي كخطوة حوكمة مستقلة.'));
+        // Issuance and final PDF remain separate permission-gated actions.
+        // Keep the existing finalizer button available until Storage verifies it.
+        toast(isEn
+          ? 'Document issued. Secure the final PDF using the governed finalizer.'
+          : 'تم الإصدار. ثبّت PDF النهائي من إجراء التثبيت المحكوم.');
       }
 
       toast('✅ ' + t.status + ': ' + state.document.status);
@@ -688,6 +773,16 @@
     addButton(actions, 'corr-command-open', isEn ? 'Command center' : 'مركز المراسلات', () => setCommandDrawer(true));
     addButton(actions, 'corr-workspace-return', isEn ? 'Back to workspace' : 'العودة لمساحة العمل', () => { location.href = workspaceReturnUrl(); });
     addButton(actions, 'corr-save', t.save, () => saveVersion(false));
+    addButton(actions, 'corr-save-submit', isEn ? 'Save and submit for review' : 'حفظ وإرسال للمراجعة', async () => {
+      // A fresh pasted letter has no server-side owner until its first save.
+      // Persist the complete draft before starting the governed review flow.
+      if (!hasMeaningfulDraft()) throw new Error(isEn ? 'Write the letter before submitting' : 'اكتب الخطاب قبل إرساله للمراجعة');
+      await saveVersion(false);
+      if (!state.document || !isOwner() || !['draft', 'returned'].includes(state.document.status)) {
+        throw new Error(isEn ? 'Only the owner can submit a saved draft' : 'لا يحق إرسال المسودة المحفوظة إلا لمالكها');
+      }
+      await transition('submitted');
+    }, { primary: true });
     addButton(actions, 'corr-submit', t.submit, () => transition('submitted'), { primary: true });
     addButton(actions, 'corr-review', t.review, () => transition('under_review'), { primary: true });
     addButton(actions, 'corr-approve', t.approve, () => transition('approved'), { primary: true });
@@ -957,6 +1052,9 @@
     if (status === 'rejected' && (isOwner() || isAdmin())) visible.add('corr-revise-copy');
     if (hasWorkspaceContext()) visible.add('corr-workspace-return');
     if (canEditCurrent()) visible.add('corr-save');
+    // For an unsaved new letter, isOwner() is necessarily false because
+    // state.document is null. Expose a safe save-first submission action.
+    if (!doc && canEditCurrent()) visible.add('corr-save-submit');
 
     if (isOwner() && ['draft','returned'].includes(status)) visible.add('corr-submit');
     if (can('review') && status === 'submitted') visible.add('corr-review');
@@ -983,7 +1081,7 @@
     if (['issued','sent','archived'].includes(status) && can('issue') && state.latestIssue?.state !== 'revoked') visible.add('corr-revoke-issue');
 
     [
-      'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel','corr-workspace-return',
+      'corr-save','corr-save-submit','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel','corr-workspace-return',
       'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive','corr-reissue','corr-revoke-issue',
       'corr-new','corr-revise-copy','corr-details-toggle','corr-command-open','corr-download-official-pdf'
     ].forEach(id => {
@@ -1356,11 +1454,71 @@
 
   // Paginate editable drafts by whole content blocks before rendering physical A4 pages.
   // Never mutate issued, sent or archived documents; those must retain their issued bytes.
+  // Split a single oversized pasted paragraph at a word boundary while
+  // preserving all text and inline formatting. Moving the range's contents
+  // rather than replacing innerHTML avoids losing clipboard material.
+  function splitOversizedDraftParagraph(source, destination) {
+    const tail = source.lastElementChild;
+    // Word and browser paste frequently wrap a full paragraph in a single
+    // list item, heading, span or blockquote. Treat those as splittable text,
+    // preserving inline markup and the parent list numbering.
+    if (!tail || !['P', 'DIV', 'BLOCKQUOTE', 'LI', 'SPAN', 'FONT', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE'].includes(tail.tagName) ||
+        tail.querySelector('table,img,video,svg,ol,ul,hr,[contenteditable="false"]')) return false;
+    const nodes = [];
+    const walker = document.createTreeWalker(tail, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.textContent) nodes.push(node);
+    }
+    const fullText = nodes.map(n => n.textContent).join('');
+    if (fullText.trim().length < 2) return false;
+    const middle = Math.floor(fullText.length / 2);
+    let point = fullText.lastIndexOf(' ', middle);
+    if (point < Math.floor(fullText.length / 4)) point = fullText.indexOf(' ', middle);
+    if (point <= 0 || point >= fullText.length - 1) point = middle;
+    let offset = point;
+    let splitNode = null;
+    let splitOffset = 0;
+    for (const current of nodes) {
+      if (offset <= current.textContent.length) {
+        splitNode = current;
+        splitOffset = offset;
+        break;
+      }
+      offset -= current.textContent.length;
+    }
+    if (!splitNode || (splitNode === nodes[0] && splitOffset === 0)) return false;
+    const range = document.createRange();
+    range.selectNodeContents(tail);
+    range.setStart(splitNode, splitOffset);
+    const continuation = tail.cloneNode(false);
+    continuation.appendChild(range.extractContents());
+    if (tail.tagName === 'LI' && ['OL', 'UL'].includes(destination.tagName)) {
+      // A single numbered item spanning many A4 pages remains ONE logical
+      // item. Merge further split suffixes into its existing continuation
+      // rather than adding new LI elements (which change numbering).
+      const sourceId = tail.getAttribute('data-letterhead-split-id') ||
+        (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID() : 'lh-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+      tail.setAttribute('data-letterhead-split-id', sourceId);
+      continuation.setAttribute('data-letterhead-split-id', sourceId);
+      const first = destination.firstElementChild;
+      if (first?.tagName === 'LI' && first.getAttribute('data-letterhead-split-id') === sourceId) {
+        const prefix = document.createDocumentFragment();
+        while (continuation.firstChild) prefix.appendChild(continuation.firstChild);
+        first.insertBefore(prefix, first.firstChild);
+        return true;
+      }
+    }
+    destination.insertBefore(continuation, destination.firstChild);
+    return true;
+  }
+
   function moveLastDraftBlock(source, destination) {
     const tail = source.lastElementChild;
     if (!tail) return false;
     const tag = tail.tagName;
-    if ((tag === 'OL' || tag === 'UL') && tail.children.length > 1) {
+    if ((tag === 'OL' || tag === 'UL') && tail.children.length > 0) {
       const remainingCount = tail.children.length - 1;
       const nextNumber = tag === 'OL'
         ? (Number(tail.getAttribute('start')) || 1) + remainingCount : 0;
@@ -1371,6 +1529,29 @@
         continuation = tail.cloneNode(false);
         continuation.setAttribute('data-letterhead-continuation', '1');
         destination.insertBefore(continuation, destination.firstChild);
+      }
+      const sheet = source.closest('.sheet');
+      const pageContent = sheet?.querySelector('.doc-content');
+      const footer = sheet?.querySelector('.letterhead-footer');
+      const fullPageCapacity = pageContent && footer
+        ? footer.getBoundingClientRect().top - pageContent.getBoundingClientRect().top - 8
+        : 0;
+      const itemTooTallForAnySheet = fullPageCapacity > 0 &&
+        item.getBoundingClientRect().height > fullPageCapacity - 24;
+      // Once a numbered list is the sole text on its sheet, moving its final
+      // item to yet another empty sheet would never cure an overflow. Split
+      // it instead. Lists sharing a page with earlier paragraphs retain
+      // ordinary items intact as required by the nested-letter test.
+      const soleContentOnSheet = !!pageContent &&
+        pageContent.textContent.trim() === source.textContent.trim();
+      const alreadySplitLongItem = !!item.getAttribute('data-letterhead-split-id');
+      if (tail.children.length === 1 &&
+          (itemTooTallForAnySheet || (soleContentOnSheet && alreadySplitLongItem)) &&
+          splitOversizedDraftParagraph(tail, continuation)) {
+        // The long final LI was split in place; the suffix becomes the
+        // continuation's first LI instead of moving the entire long item.
+        if (tag === 'OL') continuation.setAttribute('start', String(nextNumber));
+        return true;
       }
       continuation.insertBefore(item, continuation.firstChild);
       if (tag === 'OL') continuation.setAttribute('start', String(nextNumber));
@@ -1391,6 +1572,9 @@
       if (!tail.children.length && !tail.textContent.trim()) tail.remove();
       return true;
     }
+    // Paragraphs that are taller than the A4 content area must be split;
+    // moving them intact merely transfers the overflow to another page.
+    if (source.children.length === 1 && splitOversizedDraftParagraph(source, destination)) return true;
     destination.insertBefore(tail, destination.firstChild);
     return true;
   }
@@ -1412,6 +1596,7 @@
     const sheets = () => Array.from(container.querySelectorAll('.sheet'));
     let changed = false;
     let moves = 0;
+    try {
     for (let pageIndex = 0; pageIndex < sheets().length; pageIndex++) {
       while (true) {
         if (++moves > 500 || sheets().length > 50) {
@@ -1428,15 +1613,26 @@
         const a4Height = sheet.getBoundingClientRect().width * 297 / 210;
         const physicalOverflow = sheet.getBoundingClientRect().height > a4Height + 1;
         if (!physicalOverflow && contentBottom <= footerTop && sheet.scrollHeight <= sheet.clientHeight + 1) break;
-        const canSplitLast = !!last && (last.tagName === 'DIV' && last.children.length > 0 ||
-          (last.tagName === 'OL' || last.tagName === 'UL') && last.children.length > 1);
+        const canSplitLast = !!last && (
+          (last.tagName === 'DIV' && last.children.length > 0) ||
+          ((last.tagName === 'OL' || last.tagName === 'UL') && last.children.length > 0) ||
+          (['P', 'DIV', 'BLOCKQUOTE', 'LI', 'SPAN', 'FONT', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE'].includes(last.tagName) &&
+            (last.textContent || '').trim().length > 1));
         if (!last || (doc.children.length === 1 && !canSplitLast)) {
           throw new Error(isEn
             ? `A4 page ${pageIndex + 1} has a block that cannot fit. Split that paragraph before issuing.`
             : `تحتوي صفحة A4 رقم ${pageIndex + 1} على فقرة طويلة لا تتسع لها. قسّم الفقرة قبل الإصدار.`);
         }
         if (pageIndex + 1 >= sheets().length) {
-          setPages([...pagesHtml(), '']);
+          // Do not recreate already-pasted editable DOM: setPages() rewrites
+          // innerHTML and can destroy the browser's paste selection.
+          const clone = sheet.cloneNode(true);
+          const blank = clone.querySelector('.doc-content');
+          if (!blank) throw new Error('Letterhead content missing');
+          blank.innerHTML = '';
+          blank.contentEditable = 'true';
+          blank.setAttribute('aria-readonly', 'false');
+          container.appendChild(clone);
         }
         const current = sheets()[pageIndex].querySelector('.doc-content');
         const destination = sheets()[pageIndex + 1].querySelector('.doc-content');
@@ -1446,6 +1642,9 @@
         changed = true;
       }
     }
+    } finally {
+    // A blocked paste can still have created multiple A4 sheets. Keep their
+    // numbers accurate even when a later unsplittable block throws.
     if (changed) {
       const count = sheets().length;
       sheets().forEach((sheet, index) => {
@@ -1456,6 +1655,7 @@
           : `الصفحة ${index + 1} من ${count}`;
       });
       state.lastHistorySnapshot = snapshot();
+    }
     }
     return changed;
   }
@@ -1566,6 +1766,7 @@
 
   async function persistIssuedPdfArtifact() {
     if (!state.document || state.document.status !== 'issued') return;
+    if (state.document.artifact_hash) return;
     if (!can('finalize_pdf')) throw new Error(isEn ? 'Final PDF permission is required' : 'تثبيت PDF النهائي يتطلب صلاحية مستقلة');
     toast(isEn ? '⏳ Securing final PDF...' : '⏳ جاري تثبيت النسخة النهائية PDF...');
     await loadDocument(state.document.id);
@@ -1597,13 +1798,26 @@
     if (!state.document?.artifact_hash) throw new Error(isEn ? 'Official PDF is not available yet' : 'النسخة الرسمية PDF غير متوفرة بعد');
     const result = await api('artifact-download-url', { method: 'POST', id: state.document.id, body: {} });
     if (!result?.signed_url) throw new Error(isEn ? 'Official PDF download link is unavailable' : 'تعذر إنشاء رابط تنزيل النسخة الرسمية');
+    // A cross-origin signed URL ignores the HTML download attribute on some
+    // browsers. Download the verified Storage response as a same-origin blob.
+    const response = await fetch(result.signed_url);
+    if (!response.ok) throw new Error('PDF HTTP ' + response.status);
+    const blob = await response.blob();
+    if (blob.size < 1000 || (blob.type && !/pdf/i.test(blob.type))) {
+      throw new Error(isEn ? 'The stored PDF response is invalid' : 'استجابة ملف PDF المحفوظ غير صالحة');
+    }
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = result.signed_url;
+    a.href = url;
     a.download = (state.document.reference_number || 'bonds-correspondence') + '.pdf';
     a.rel = 'noopener';
     document.body.appendChild(a);
-    a.click();
-    a.remove();
+    try {
+      a.click();
+    } finally {
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
   }
 
   async function refreshInboxDynamic(page = state.inboxPage) {
@@ -1783,6 +1997,30 @@
       if (actions) addButton(actions, 'corr-import-legacy', isEn ? 'Import legacy drafts' : 'استيراد المسودات القديمة', importLegacyDrafts);
     }
 
+    // Native paste inserts the entire clipboard before the next task.
+    // Repaginate after that insertion; never intercept or truncate clipboard
+    // content and never mark a failed A4 layout as saved.
+    let pastePaginationTimer = null;
+    document.addEventListener('paste', e => {
+      if (!e.target.closest?.('.doc-content') || !canEditCurrent()) return;
+      if (pastePaginationTimer) clearTimeout(pastePaginationTimer);
+      pastePaginationTimer = setTimeout(() => {
+        pastePaginationTimer = null;
+        if (!canEditCurrent()) return;
+        try {
+          paginateEditableSheets();
+          const current = persistedSnapshot();
+          try { localStorage.setItem('bonds_letterhead_offline_backup', current); } catch (_) {}
+          toast(isEn ? 'Pasted text distributed across A4 pages' : 'تم توزيع النص الملصق على صفحات A4');
+        } catch (error) {
+          // Never discard the original paste when a block needs manual repair.
+          toast('⚠️ ' + (isEn ? 'Pasted text needs A4 adjustment: ' : 'النص الملصق يحتاج ضبط A4: ') + error.message);
+        } finally {
+          try { localStorage.setItem('bonds_letterhead_offline_backup', persistedSnapshot()); } catch (_) {}
+        }
+      }, 0);
+    }, true);
+
     document.addEventListener('input', e => {
       if (!e.target.closest?.('.doc-content')) return;
       const now = snapshot();
@@ -1799,15 +2037,6 @@
   // Distributes overflowing letter content across numbered A4 sheets so the
   // final-PDF guard never blocks on manual page splitting. Whole blocks are
   // moved to the next sheet; a new numbered sheet is created when needed.
-  function sheetOverflowInfo(sheet, bufferPx) {
-    const content = sheet.querySelector('.doc-content');
-    const footer = sheet.querySelector('.letterhead-footer');
-    if (!content || !footer) return null;
-    const cutoff = footer.getBoundingClientRect().top - bufferPx;
-    const overflowing = content.getBoundingClientRect().bottom > cutoff;
-    return { content, cutoff, overflowing, children: Array.from(content.children) };
-  }
-
   function renumberSheets() {
     const sheets = Array.from(document.querySelectorAll('#pages-container .sheet'));
     sheets.forEach((sheet, i) => {
@@ -1821,82 +2050,23 @@
     return sheets;
   }
 
-  function cloneEmptySheetAfter(sheet) {
-    const container = document.getElementById('pages-container');
-    if (!container) return null;
-    const clone = sheet.cloneNode(true);
-    const cloneContent = clone.querySelector('.doc-content');
-    if (cloneContent) cloneContent.innerHTML = '';
-    container.insertBefore(clone, sheet.nextSibling);
-    return clone;
-  }
-
+  // Manual and automatic paste distribution must use one A4 paginator.
+  // The legacy manual command moved blocks intact and could never split a
+  // single long pasted list item; it also used a different page limit.
   window.autoDistributePages = function () {
     if (!prepareEditableAction()) return toast('⚠️ ' + t.notAllowed);
-    const container = document.getElementById('pages-container');
-    if (!container) return;
     const before = snapshot();
-    const BUFFER = 8;
-    const MAX_SHEETS = 20;
-    let movedBlocks = 0;
-    let createdSheets = 0;
-    const unbreakable = [];
-    let guard = 0;
-
-    while (guard < 200) {
-      guard += 1;
-      const sheets = renumberSheets();
-      let progressed = false;
-      for (let i = 0; i < sheets.length; i += 1) {
-        const sheet = sheets[i];
-        const info = sheetOverflowInfo(sheet, BUFFER);
-        if (!info || !info.overflowing || !info.children.length) continue;
-
-        const cutoff = info.cutoff;
-        const children = info.children;
-        let splitAt = children.findIndex(el => el.getBoundingClientRect().bottom > cutoff);
-        if (splitAt === -1) splitAt = children.length - 1;
-        if (splitAt === 0 && children.length === 1 && cutoff - children[0].getBoundingClientRect().top < 40) {
-          // A single block taller than a full sheet cannot be auto-split safely.
-          unbreakable.push((children[0].innerText || '').trim().slice(0, 60));
-          continue;
-        }
-        const moving = children.slice(splitAt);
-        let target = i === sheets.length - 1 ? null : sheet.nextElementSibling;
-        if (!target || !target.classList.contains('sheet')) {
-          if (sheets.length >= MAX_SHEETS) {
-            toast('⚠️ ' + (isEn ? 'Page limit reached (20).' : 'تم بلوغ الحد الأقصى للصفحات (20).'));
-            guard = 200;
-            break;
-          }
-          target = cloneEmptySheetAfter(sheet);
-          createdSheets += 1;
-        }
-        const targetContent = target && target.querySelector('.doc-content');
-        if (!targetContent) continue;
-        const anchor = targetContent.firstChild;
-        moving.forEach(el => targetContent.insertBefore(el, anchor));
-        movedBlocks += moving.length;
-        progressed = true;
-        break; // Re-measure everything after each move.
+    try {
+      const changed = paginateEditableSheets();
+      if (changed) {
+        recordMutation(before);
+        window.autoSave?.();
+        toast(isEn ? 'Text distributed across all required A4 pages' : 'تم توزيع النص على جميع صفحات A4 اللازمة');
+      } else {
+        toast(isEn ? 'Content already fits its pages' : 'المحتوى يتسع لصفحاته الحالية');
       }
-      if (!progressed) break;
-    }
-
-    if (movedBlocks || createdSheets) {
-      recordMutation(before);
-      renumberSheets();
-      window.autoSave?.();
-      toast('✅ ' + (isEn
-        ? `Auto-distributed ${movedBlocks} block(s) across ${createdSheets} new page(s).`
-        : `تم التوزيع التلقائي لـ ${movedBlocks} كتلة على ${createdSheets} صفحة جديدة.`));
-    } else if (!unbreakable.length) {
-      toast('✅ ' + (isEn ? 'Content already fits its pages.' : 'المحتوى يتسع لصفحاته الحالية.'));
-    }
-    if (unbreakable.length) {
-      toast('⚠️ ' + (isEn
-        ? `A block taller than a full page needs manual trimming: "${unbreakable[0]}…"`
-        : `كتلة أطول من صفحة كاملة تحتاج تقصيراً يدوياً: «${unbreakable[0]}…»`));
+    } catch (error) {
+      toast('⚠️ ' + (isEn ? 'A4 distribution failed: ' : 'تعذر توزيع النص على صفحات A4: ') + error.message);
     }
   };
 
@@ -2273,7 +2443,7 @@
     if (state.document?.artifact_hash) {
       try {
         await downloadOfficialPdf();
-        toast(isEn ? '✅ Official PDF downloaded' : '✅ تم تنزيل النسخة الرسمية PDF');
+        toast(isEn ? 'PDF download requested from browser' : 'تم إرسال PDF الرسمي إلى المتصفح للتنزيل');
       } catch (e) {
         toast('⚠️ ' + (isEn ? 'Official PDF download failed: ' : 'فشل تنزيل النسخة الرسمية: ') + e.message);
       }
