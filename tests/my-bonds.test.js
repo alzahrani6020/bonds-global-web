@@ -233,6 +233,8 @@ describe('my-bonds page behaviour', () => {
     expect(detailsPage).toContain('/api/v3/services/requests?reference=');
     expect(detailsPage).toContain('request.request_reference !== reference');
     expect(detailsPage).toContain('BondsAuth.authenticatedFetch');
+    expect(detailsPage).toContain('window.BondsAuth.ensureEnv()');
+    expect(detailsPage).toContain('src="/api/env"');
     expect(detailsPage).not.toContain('localStorage');
     expect(detailsPage).not.toContain("url.searchParams.set('request_id'");
   });
