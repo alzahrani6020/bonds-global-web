@@ -114,6 +114,17 @@ async function run(){
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employees.length===1);
     assert.equal(await page.locator('#hr-count').textContent(),'1');
 
+    // Newly created HR workspaces must remain selectable without mixing tenant records.
+    await page.locator('#hr-create-workspace input[name="name"]').fill('Second HR Company');
+    await page.locator('#hr-create-workspace button[type="submit"]').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_workspaces.length===2);
+    assert.equal(await page.locator('#hr-workspace option').count(),2);
+    assert.equal(await page.locator('#hr-count').textContent(),'0','New workspace leaked first company employees');
+    const firstWorkspace=await page.evaluate(()=>window.__hrTest.tables.hr_saas_workspaces[0].id);
+    await page.locator('#hr-workspace').selectOption(firstWorkspace);
+    await page.waitForFunction(()=>document.querySelector('#hr-count').textContent==='1');
+    assert.equal(await page.locator('#hr-app').isVisible(),true,'Returning to first workspace hid HR application');
+
     // Owner request inbox must read actual self-service requests, not generic HR records.
     await page.evaluate(()=>{
      const t=window.__hrTest.tables;
