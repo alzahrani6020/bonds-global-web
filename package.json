@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "vercel dev",
+    "postinstall": "node scripts/security/patch-picomatch.js --if-present",
     "dev:local": "node scripts/dev-server.js",
     "deploy": "vercel --prod",
     "test": "jest",
