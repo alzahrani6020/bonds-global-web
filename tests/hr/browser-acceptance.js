@@ -22,6 +22,7 @@ async function run(){
     const tables={
      company_program_entitlements:isLicensed?[{owner_user_id:user.id,product_code:'hr',status:'active',starts_at:'2020-01-01T00:00:00.000Z',ends_at:null}]:[],
      hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[],hr_saas_entitlements:[],hr_saas_leave_ledger:[],hr_saas_leave_balance_summary:[],
+     hr_saas_invitations:[],
      hr_saas_memberships:['employee','manager'].includes(scenario)?[{
       id:'40000000-0000-4000-8000-000000000001',workspace_id:'50000000-0000-4000-8000-000000000001',
       employee_id:'60000000-0000-4000-8000-000000000001',user_id:user.id,role:scenario==='manager'?'hr_manager':'employee',status:'active'
@@ -51,6 +52,7 @@ async function run(){
        }
        if(kind==='insert'){
         const record={...value,id:'20000000-0000-4000-8000-'+String(++next).padStart(12,'0'),created_at:new Date().toISOString()};
+        if(table==='hr_saas_invitations')Object.assign(record,{token:'90000000-0000-4000-8000-'+String(next).padStart(12,'0'),status:'pending',expires_at:'2027-01-01T00:00:00Z'});
         tables[table].push(record);window.__hrTest.writes.push({table,record});
         data=[record];
        }else if(kind==='update'){
@@ -62,7 +64,16 @@ async function run(){
      };
      return q;
     }
-    const supabase={auth:{getUser:async()=>({data:{user},error:null})},from};
+    const supabase={auth:{getUser:async()=>({data:{user},error:null})},from,
+     rpc:async(name,args)=>{
+      if(name!=='hr_saas_accept_invitation')throw Error('Unexpected RPC '+name);
+      const invite=tables.hr_saas_invitations.find(x=>x.token===args.invite_token&&x.status==='pending');
+      if(!invite)return {data:null,error:{message:'Invalid invitation'}};
+      invite.status='accepted';
+      const membership={id:'30000000-0000-4000-8000-000000000001',workspace_id:invite.workspace_id,employee_id:invite.employee_id,user_id:user.id,role:invite.role,status:'active'};
+      tables.hr_saas_memberships.push(membership);
+      return {data:membership.id,error:null};
+     }};
     window.BondsAuth={ensureEnv:async()=>({}),getSupabase:()=>supabase};
    },{isLicensed:licensed,scenario});
    const resp=await page.goto(base+'/my-bonds/crm/?program=hr',{waitUntil:'domcontentloaded'});
@@ -117,6 +128,13 @@ async function run(){
     await page.locator('#hr-save').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employees.length===1);
     assert.equal(await page.locator('#hr-count').textContent(),'1');
+    // Owner can issue verified-email invitations without knowing a user's UUID.
+    await page.locator('#hr-invite-form input[name="email"]').fill('invitee@example.test');
+    await page.locator('#hr-invite-form select[name="employee_id"]').selectOption({index:1});
+    await page.locator('#hr-invite-form button[type="submit"]').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_invitations.length===1);
+    assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_invitations[0])).invited_email,'invitee@example.test');
+    assert.equal(await page.locator('#hr-invites-table [data-hr-invite-link]').count(),1);
 
     // Newly created HR workspaces must remain selectable without mixing tenant records.
     await page.locator('#hr-create-workspace input[name="name"]').fill('Second HR Company');
