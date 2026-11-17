@@ -141,7 +141,7 @@ async function runFourPageIssuedPdfGate(browser) {
 // existing documents, test accounts, or official register numbers are involved.
 async function runNewApprovedA4IssueGate(browser) {
   const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
-    .replace(/<script\\b[^>]*>[\\s\\S]*?<\\/script>/gi, '');
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
   const source = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
   const start = source.indexOf('  async function assertApprovedA4BeforeIssuance() {');
   const stop = source.indexOf('  async function transition(', start);
@@ -157,7 +157,7 @@ async function runNewApprovedA4IssueGate(browser) {
       const waitForLetterheadBrandImages = async () => {};
       doc.innerHTML = '<p>خطاب تجريبي جديد لفحص حدود صفحة A4 قبل الإصدار.</p>';
       const run = new Function('state', 'isEn', 'waitForLetterheadBrandImages', guard +
-        '\\nreturn assertApprovedA4BeforeIssuance();');
+        '\nreturn assertApprovedA4BeforeIssuance();');
       const check = () => run(state, isEn, waitForLetterheadBrandImages);
       await check();
       const initialReservations = document.querySelectorAll('[data-a4-reservation]').length;
