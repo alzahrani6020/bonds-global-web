@@ -58,7 +58,7 @@ function loadPage({ localStorageInitial = {}, fetchResponses = [], getUserResult
     return {
       ok: true,
       status: 200,
-      json: async () => ({ projects: next?.projects || [] })
+      json: async () => ({ projects: next?.projects || [], requests: next?.requests || [] })
     };
   });
 
@@ -177,4 +177,32 @@ describe('my-bonds page behaviour', () => {
     expect(elements.userWelcome.style.display).toBe('none');
     expect(elements.projectsList.innerHTML).toContain('تعذر تحميل المشاريع');
   });
+  test('service requests provide a reference-scoped details action', async () => {
+    const user = { id: 'u1', email: 'a@example.com' };
+    const requests = [{
+      id: 'request-1', request_reference: 'SR-ABC123',
+      status: 'submitted', service: { name_ar: 'القيود اليومية', code: 'daily_entries' },
+      created_at: '2026-10-25T12:00:00Z'
+    }];
+    const { elements, authenticatedFetch } = loadPage({
+      getUserResult: { data: { user } },
+      fetchResponses: [{ projects: [] }, { requests }]
+    });
+    await new Promise(r => setTimeout(r, 0));
+    expect(authenticatedFetch).toHaveBeenCalledWith('/api/v3/services/requests',
+      expect.objectContaining({ method: 'GET' }));
+    expect(elements.serviceRequestsList.innerHTML).toContain('/my-bonds/request/?reference=SR-ABC123');
+    expect(elements.serviceRequestsList.innerHTML).toContain('عرض الطلب');
+    expect(elements.serviceRequestsList.innerHTML).toContain('القيود اليومية');
+  });
+
+  test('request details page uses owner-scoped API readback, not browser storage', () => {
+    const detailsPage = fs.readFileSync(path.join(__dirname, '..', 'my-bonds', 'request', 'index.html'), 'utf8');
+    expect(detailsPage).toContain('/api/v3/services/requests?reference=');
+    expect(detailsPage).toContain('request.request_reference !== reference');
+    expect(detailsPage).toContain('BondsAuth.authenticatedFetch');
+    expect(detailsPage).not.toContain('localStorage');
+    expect(detailsPage).not.toContain("url.searchParams.set('request_id'");
+  });
+
 });
