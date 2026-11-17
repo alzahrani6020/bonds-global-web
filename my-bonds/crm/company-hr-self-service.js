@@ -159,6 +159,9 @@
  document.addEventListener('bonds-hr-ready',bootstrap);
  if(window.BondsHRContext)bootstrap({detail:window.BondsHRContext});
  document.addEventListener('bonds-hr-owner-workspace',event=>ownerWorkspaceSelected(event.detail?.workspace||null));
+ document.addEventListener('bonds-hr-employee-updated',event=>{
+  if(ownerWorkspace?.id===event.detail?.workspace?.id)loadOwnerMembers().catch(e=>notify(e.message,true));
+ });
  $('hr-member-form').addEventListener('submit',addMember);
  $('hr-members-table').addEventListener('click',revokeMember);
  $('hr-member-refresh').addEventListener('click',()=>loadOwnerMembers().catch(e=>notify(e.message,true)));
