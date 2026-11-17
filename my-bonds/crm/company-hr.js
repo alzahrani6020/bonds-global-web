@@ -118,7 +118,11 @@
   try{
    await window.BondsAuth.ensureEnv();db=window.BondsAuth.getSupabase();
    user=check(await db.auth.getUser())?.user;
-   if(!user){$('hr-auth').hidden=false;return;}
+   if(!user){
+    $('hr-auth').hidden=false;
+    if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
+    return;
+   }
    const valid=check(await db.from('company_program_entitlements').select('product_code,status,starts_at,ends_at').in('product_code',['hr','suite']).eq('owner_user_id',user.id));
    license=valid.some(x=>['active','trial'].includes(x.status)&&new Date(x.starts_at)<=new Date()&&(!x.ends_at||new Date(x.ends_at)>new Date()));
    $('hr-license').hidden=license;
@@ -140,6 +144,8 @@
    $('workspace-content').dataset.programPrevious=$('workspace-content').hidden?'hidden':'visible';
    $('onboarding').dataset.programPrevious=$('onboarding').hidden?'hidden':'visible';
   }
+  if(hr){$('internal-crm-panel').dataset.programPrevious=$('internal-crm-panel').hidden?'hidden':'visible';$('internal-crm-panel').hidden=true;}
+  else $('internal-crm-panel').hidden=$('internal-crm-panel').dataset.programPrevious!=='visible';
   $('hr-section').hidden=!hr;$('hr-nav').hidden=!hr;
   $('crm-nav').hidden=hr;$('hr-page-heading').hidden=!hr;$('crm-main-heading').hidden=hr;
   $('workspace-content').hidden=hr?true:$('workspace-content').dataset.programPrevious!=='visible';
