@@ -117,6 +117,7 @@ window.addEventListener('load', async function () {
         /^\/(?:my-bonds\/workspace\/|service-request\.html|v3\/)/.test(route) && !route.startsWith('//')) {
       const url = new URL(route,location.origin);
       url.searchParams.set('service',code);
+      url.searchParams.set('reference',reference);
       url.searchParams.set('return_to','/my-bonds/');
       add(actions,'a','فتح نموذج الخدمة','bonds-btn bonds-btn-primary').href = url.pathname + url.search;
     }
