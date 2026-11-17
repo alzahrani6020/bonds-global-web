@@ -281,7 +281,28 @@
   $('hr-product-tab').classList.toggle('active',hr);
   $('crm-product-tab').classList.toggle('active',!hr);
  }
+ async function launchProgramCheckout(){
+  const button=$('hr-checkout-start');
+  if(!db||!user){status(t('سجّل الدخول أولاً','Sign in first'),true);return;}
+  button.disabled=true;
+  try{
+   const session=check(await db.auth.getSession())?.session;
+   if(!session?.access_token||session.user?.id!==user.id)
+    throw Error(t('انتهت الجلسة، سجّل الدخول مجددًا','Session expired; sign in again'));
+   const response=await fetch('/api/company-programs?action=checkout',{
+    method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},
+    body:JSON.stringify({product_code:$('hr-purchase-product').value})
+   });
+   const body=await response.json().catch(()=>({}));
+   if(!response.ok)throw Error(t('تعذر بدء الدفع. تحقق من إعدادات الاشتراكات أو تواصل مع الدعم.','Unable to start checkout. Verify billing configuration or contact support.'));
+   const checkout=new URL(body.url);
+   if(checkout.protocol!=='https:'||checkout.hostname!=='checkout.stripe.com')
+    throw Error(t('رابط دفع غير موثوق','Untrusted checkout URL'));
+   location.assign(checkout.href);
+  }catch(e){status(e.message,true);button.disabled=false;}
+ }
  $('crm-product-tab').addEventListener('click',()=>toggleProduct('crm'));
+ $('hr-checkout-start').addEventListener('click',launchProgramCheckout);
  $('hr-product-tab').addEventListener('click',()=>toggleProduct('hr'));
  document.querySelectorAll('[data-hr-category]').forEach(x=>x.addEventListener('click',()=>changeCategory(x.dataset.hrCategory)));
  $('hr-add').addEventListener('click',()=>showEditor());
