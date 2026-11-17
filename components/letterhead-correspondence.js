@@ -1480,6 +1480,23 @@
     range.setStart(splitNode, splitOffset);
     const continuation = tail.cloneNode(false);
     continuation.appendChild(range.extractContents());
+    if (tail.tagName === 'LI' && ['OL', 'UL'].includes(destination.tagName)) {
+      // A single numbered item spanning many A4 pages remains ONE logical
+      // item. Merge further split suffixes into its existing continuation
+      // rather than adding new LI elements (which change numbering).
+      const sourceId = tail.getAttribute('data-letterhead-split-id') ||
+        (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID() : 'lh-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+      tail.setAttribute('data-letterhead-split-id', sourceId);
+      continuation.setAttribute('data-letterhead-split-id', sourceId);
+      const first = destination.firstElementChild;
+      if (first?.tagName === 'LI' && first.getAttribute('data-letterhead-split-id') === sourceId) {
+        const prefix = document.createDocumentFragment();
+        while (continuation.firstChild) prefix.appendChild(continuation.firstChild);
+        first.insertBefore(prefix, first.firstChild);
+        return true;
+      }
+    }
     destination.insertBefore(continuation, destination.firstChild);
     return true;
   }
