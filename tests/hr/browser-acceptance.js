@@ -7,7 +7,7 @@ async function run(){
  const browser=await chromium.launch({headless:true});
  const base=process.env.CRM_TEST_BASE_URL||'http://localhost:3005';
  try{
-  for(const scenario of ['owner','existing','unlicensed','employee','manager']){
+  for(const scenario of ['owner','existing','unlicensed','signedout','employee','manager']){
    const licensed=['owner','existing'].includes(scenario);
    const page=await browser.newPage({viewport:{width:1050,height:800}});
    const errors=[];
@@ -65,7 +65,7 @@ async function run(){
      };
      return q;
     }
-    const supabase={auth:{getUser:async()=>({data:{user},error:null}),getSession:async()=>({data:{session:{user,access_token:'test-mock-access-token'}},error:null})},from,
+    const supabase={auth:{getUser:async()=>scenario==='signedout'?Promise.reject(Error('getUser must not run without a session')):({data:{user},error:null}),getSession:async()=>scenario==='signedout'?({data:{session:null},error:{name:'AuthSessionMissingError',message:'Auth session missing!'}}):({data:{session:{user,access_token:'test-mock-access-token'}},error:null})},from,
      rpc:async(name,args)=>{
       if(name!=='hr_saas_accept_invitation')throw Error('Unexpected RPC '+name);
       const invite=tables.hr_saas_invitations.find(x=>x.token===args.invite_token&&x.status==='pending');
@@ -106,7 +106,15 @@ async function run(){
    assert.equal(await page.locator('#install').isVisible(),false,'CRM installer must not be presented as an HR installer');
 
    assert.equal(await page.locator('#hr-nav').isVisible(),true,'HR navigation must remain in the same sidebar');
-   if(scenario==='unlicensed'){
+   if(scenario==='signedout'){
+    await page.waitForFunction(()=>!document.querySelector('#hr-auth').hidden);
+    assert.equal(await page.locator('#hr-setup').isVisible(),false,'Signed-out user accessed HR setup');
+    assert.equal(await page.locator('#hr-status').isVisible(),false,'Missing session shown as an app failure');
+    const link=await page.locator('#hr-sign-in').getAttribute('href');
+    assert.ok(link.startsWith('/calculators/auth/index.html?redirect='));
+    assert.ok(decodeURIComponent(link).includes('/my-bonds/crm/?program=hr'));
+    assert.equal((await page.evaluate(()=>window.__hrTest.writes)).length,0);
+   }else if(scenario==='unlicensed'){
     await page.waitForFunction(()=>!document.querySelector('#hr-license').hidden);
     assert.equal(await page.locator('#hr-setup').isVisible(),false,'Unlicensed user accessed HR records');
     const writes=await page.evaluate(()=>window.__hrTest.writes);
