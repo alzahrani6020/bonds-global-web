@@ -71,7 +71,7 @@
   const token=button.dataset.hrInviteLink;
   if(!/^[0-9a-f-]{36}$/i.test(token))return;
   const url=new URL(location.pathname,location.origin);
-  url.searchParams.set('program','hr');url.searchParams.set('invite',token);
+  url.searchParams.set('program','hr');url.hash='invite='+encodeURIComponent(token);
   try{await navigator.clipboard.writeText(url.toString());notify(t('نُسخ رابط الدعوة','Invitation link copied'));}
   catch(error){notify(t('تعذر نسخ رابط الدعوة، تحقق من صلاحيات الحافظة','Clipboard permission required'),true);}
  }
@@ -177,13 +177,14 @@
   ({db,user,ownerLicense}=event.detail||{});
   if(!db||!user)return;
   try{
-   const inviteToken=new URLSearchParams(location.search).get('invite');
+   // Fragment avoids sending invitation bearer tokens in HTTP requests/referrer logs.
+   const inviteToken=new URLSearchParams(location.hash.slice(1)).get('invite');
    if(inviteToken){
     if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(inviteToken))
      throw Error(t('رابط الدعوة غير صحيح','Invalid invitation link'));
     const accepted=requireOk(await db.rpc('hr_saas_accept_invitation',{invite_token:inviteToken}));
     if(!accepted)throw Error(t('تعذر تأكيد العضوية','Membership not confirmed'));
-    const clean=new URL(location.href);clean.searchParams.delete('invite');history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+    const clean=new URL(location.href);clean.hash='';history.replaceState(null,'',clean.pathname+clean.search);
     notify(t('تم قبول الدعوة وتفعيل عضوية الموظف','Invitation accepted and staff access activated'));
    }
    memberships=requireOk(await db.from('hr_saas_memberships')
