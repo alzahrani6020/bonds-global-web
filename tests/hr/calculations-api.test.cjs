@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
-const original=fs.readFileSync(path.join(__dirname,'../../api/hr-calculations.js'),'utf8');
+const original=fs.readFileSync(path.join(__dirname,'../../lib/api/hr-calculations.js'),'utf8');
 const owner='10000000-0000-4000-8000-000000000001';
 const workspaceId='20000000-0000-4000-8000-000000000001';
 const employeeId='20000000-0000-4000-8000-000000000002';
@@ -40,11 +40,11 @@ function fixture({employeeWorkspace=workspaceId,policyStatus='approved',userId=o
  };
  const modules={
   '@supabase/supabase-js':{createClient:()=>({from})},
-  '../lib/api/supabase':()=>({from}),
-  '../lib/api/auth-helper':{verifyBearerAndUser:async()=>({id:userId})},
-  '../lib/api/rate-limit':{checkRateLimit:async()=>false},
-  '../lib/api/cors':{setAllowedOrigin(){}},
-  '../lib/hr/policy-calculator.cjs':require('../../lib/hr/policy-calculator.cjs')
+  './supabase':()=>({from}),
+  './auth-helper':{verifyBearerAndUser:async()=>({id:userId})},
+  './rate-limit':{checkRateLimit:async()=>false},
+  './cors':{setAllowedOrigin(){}},
+  '../hr/policy-calculator.cjs':require('../../lib/hr/policy-calculator.cjs')
  };
  const m={exports:{}};
  const env={NEXT_PUBLIC_SUPABASE_URL:'https://example.supabase.co',NEXT_PUBLIC_SUPABASE_ANON_KEY:'anon-test-only',SUPABASE_SERVICE_ROLE_KEY:'service-role-mocked'};
