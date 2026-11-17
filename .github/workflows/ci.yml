@@ -49,7 +49,7 @@ jobs:
         run: node tests/crm/isolated-postgres-acceptance.js
 
       - name: Verify HR approved-policy arithmetic and fail-closed validation
-        run: node --test tests/hr/policy-calculator.test.cjs
+        run: node --test tests/hr/policy-calculator.test.cjs tests/hr/stripe-programs.test.cjs
 
       - name: Verify independent HR SaaS licensing and tenant isolation (disposable PostgreSQL)
         env:
