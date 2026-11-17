@@ -134,7 +134,7 @@
    }
    if(!isEmployee){
     if(!operational){row.category=category;row.status=row.status||'draft';row.currency=row.currency||'SAR';}
-    if(category!=='payroll_runs'&&!row.employee_id&&(!(!operational&&['departments','recruitment','governance'].includes(category))))throw Error(t('اختر الموظف','Select employee'));
+    if(category!=='payroll_runs'&&!(category==='payroll'&&editing)&&!row.employee_id&&(!(!operational&&['departments','recruitment','governance'].includes(category))))throw Error(t('اختر الموظف','Select employee'));
     if(category==='attendance'){
      row.attendance_status=row.attendance_status||'present';
      if(['absent','leave','holiday'].includes(row.attendance_status)&&(row.clock_in||row.clock_out))throw Error(t('لا يجوز تسجيل حضور لحالة غياب','Absence cannot have clock times'));
