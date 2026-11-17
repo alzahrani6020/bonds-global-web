@@ -150,7 +150,7 @@ async function runFourPageIssuedPdfGate(browser) {
       const createPdfBlob = async () => pdf;
       const install = new Function('state', 'isEn', 'restoreCanonicalLockedDocument',
         'downloadOfficialPdf', 'toast', 'createPdfBlob',
-        handlerSource + '\\nreturn window.exportPDF;');
+        handlerSource + '\nreturn window.exportPDF;');
       install(testState, false, restoreCanonicalLockedDocument, downloadOfficialPdf, toast, createPdfBlob);
       const button = document.createElement('button');
       button.id = 'test-real-pdf-export-button';
