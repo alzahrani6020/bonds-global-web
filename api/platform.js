@@ -2448,6 +2448,11 @@ module.exports = async function handler(req, res) {
       return clearUserDataHandler(req, res);
     }
 
+    // Company HR calculations remain isolated from existing CRM and correspondence routes.
+    if (pathname === '/api/hr-calculations' || pathname === '/api/hr-calculations/') {
+      return require('../lib/api/hr-calculations')(req, res);
+    }
+
     // NPS
     if (pathname === '/api/nps-check' || pathname === '/api/nps-check/') {
       req.query = req.query || {}; req.query.action = 'check';
