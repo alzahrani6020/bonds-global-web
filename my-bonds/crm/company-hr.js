@@ -146,6 +146,12 @@
   }
   if(hr){$('internal-crm-panel').dataset.programPrevious=$('internal-crm-panel').hidden?'hidden':'visible';$('internal-crm-panel').hidden=true;}
   else $('internal-crm-panel').hidden=$('internal-crm-panel').dataset.programPrevious!=='visible';
+  // Do not expose CRM-only controls or its login prompt when HR is selected.
+  for(const id of ['auth-gate','refresh','install','install-hint','status','internal-crm-open']){
+   const element=$(id);
+   if(hr){element.dataset.programPrevious=element.hidden?'hidden':'visible';element.hidden=true;}
+   else element.hidden=element.dataset.programPrevious!=='visible';
+  }
   $('hr-section').hidden=!hr;$('hr-nav').hidden=!hr;
   $('crm-nav').hidden=hr;$('hr-page-heading').hidden=!hr;$('crm-main-heading').hidden=hr;
   $('workspace-content').hidden=hr?true:$('workspace-content').dataset.programPrevious!=='visible';
