@@ -400,11 +400,16 @@ describe('Dynamic letterhead correspondence architecture', () => {
     const client = read('components/letterhead-correspondence.js');
     expect(client).toContain('function paginateEditableSheets()');
     expect(client).toContain('if (!canEditCurrent())');
-    expect(client).toContain('setPages([...pagesHtml(), \'\'])');
+    // Adding a sheet during paste must not reassign HTML to existing sheets.
+    expect(client).toContain("container.appendChild(clone);");
+    expect(client).toContain("blank.innerHTML = '';");
+    expect(client).not.toContain("setPages([...pagesHtml(), ''])");
+    expect(client).toContain("splitOversizedDraftParagraph(source, destination)");
     expect(client).toContain("continuation.setAttribute('start', String(nextNumber))");
     expect(client).toContain("if (++moves > 500 || sheets().length > 50)");
     expect(client).toContain('paginateEditableSheets();\n    const snap = persistedSnapshot()');
-    expect(client).toContain("await waitForVerificationQr();\n    await waitForLetterheadBrandImages();\n    // Only draft/returned documents may be repaginated.");
+    expect(client).toContain("await waitForVerificationQr();\n    await waitForLetterheadBrandImages();\n    // Pagination and PDF capture must use the same final font metrics.");
+    expect(client).toContain('if (document.fonts?.ready) await document.fonts.ready;');
     expect(client).toContain("if (canEditCurrent()) paginateEditableSheets();");
     expect(client).not.toContain("await waitForVerificationQr();\n    paginateEditableSheets();");
     expect(client).toContain("if (state.document?.artifact_hash)");

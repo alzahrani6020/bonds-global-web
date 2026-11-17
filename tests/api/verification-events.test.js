@@ -1,3 +1,12 @@
+// This suite injects a mocked server-side Supabase client. The string below is
+// a non-credential test sentinel, never a production or preview secret.
+const previousMockServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+beforeAll(() => { process.env.SUPABASE_SERVICE_ROLE_KEY = 'jest-mocked-service-role-only'; });
+afterAll(() => {
+  if (previousMockServiceRoleKey === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+  else process.env.SUPABASE_SERVICE_ROLE_KEY = previousMockServiceRoleKey;
+});
+
 /**
  * @jest-environment node
  */
@@ -39,6 +48,7 @@ const ISSUE = {
 
 const DOC = {
   id: 'doc-1',
+  owner_user_id: 'user-1',
   title: 'خطاب تجريبي',
   subject: 'اختبار',
   status: 'sent',

@@ -22,8 +22,11 @@ function buildPreflight(source) {
   // Execute the actual PDF preflight extracted from source, not a reimplemented
   // conditional; rendering itself is separately covered by browser acceptance.
   const body = source.slice(start, stop);
-  return new Function('waitForVerificationQr', 'waitForLetterheadBrandImages', 'canEditCurrent', 'paginateEditableSheets',
+  const run = new Function('waitForVerificationQr', 'waitForLetterheadBrandImages', 'canEditCurrent', 'paginateEditableSheets', 'document',
     'return (async () => { ' + body + ' })();');
+  // Node-based contract test has no browser document; supply only the font
+  // readiness capability exercised by this isolated preflight.
+  return (qr, brand, canEdit, paginate) => run(qr, brand, canEdit, paginate, { fonts: { ready: Promise.resolve() } });
 }
 
 describe('letterhead PDF export / issued immutability', () => {
