@@ -7,7 +7,7 @@
  const $=id=>document.getElementById(id);
  const en=document.documentElement.lang==='en';
  const t=(ar,english)=>en?english:ar;
- const escape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+ const escape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const modules=[
  ['employees','الموظفون والملفات الوظيفية','Employees and personnel'],
  ['departments','الإدارات والهيكل الوظيفي','Departments and positions'],
@@ -129,21 +129,8 @@
    select.innerHTML=workspaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
    if(workspaces.length){workspace=workspaces[0];$('hr-app').hidden=false;await changeCategory(category);}
    select.addEventListener('change',async()=>{workspace=workspaces.find(w=>w.id===select.value)||null;await changeCategory(category);});
+   if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
   }catch(e){status(t('تعذر فتح الموارد البشرية: ','Cannot open HR: ')+e.message,true);}
- }
- function openProgram(name){
-  const hr=name==='hr';
-  $('hr-section').hidden=!hr;
-  $('crm-nav').hidden=hr;
-  $('workspace-content').hidden=hr?true:window.__hrCrmPriorContent===false?false:true;
-  $('internal-crm-panel').hidden=true;
-  $('onboarding').hidden=hr?true:window.__hrCrmPriorOnboarding===false?false:true;
-  $('hr-nav').hidden=!hr;
-  $('hr-page-heading').hidden=!hr;
-  $('crm-main-heading').hidden=hr;
-  $('hr-product-tab').classList.toggle('active',hr);
-  $('crm-product-tab').classList.toggle('active',!hr);
-  if(hr){window.__hrCrmPriorContent=$('workspace-content').dataset.programPrevious==='visible';window.__hrCrmPriorOnboarding=$('onboarding').dataset.programPrevious==='visible';}
  }
  // CRM workspace initialization is asynchronous. Preserve its state on every switch.
  function toggleProduct(name){
