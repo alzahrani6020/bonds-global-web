@@ -135,3 +135,90 @@ revoke all on public.hr_saas_employee_requests from public,anon,authenticated;
 grant select,insert,update on public.hr_saas_employee_requests to authenticated;
 create trigger hr_saas_request_audit after insert or update on public.hr_saas_employee_requests
  for each row execute function hr_saas_private.audit_change();
+
+-- Owner-issued HR invitations. No email-based membership claims from the browser.
+-- Pending tokens are visible only to the owning account; redemption requires the
+-- authenticated invitee's email to have been verified by Supabase Auth.
+create table public.hr_saas_invitations (
+ id uuid primary key default gen_random_uuid(),
+ workspace_id uuid not null references public.hr_saas_workspaces(id) on delete restrict,
+ employee_id uuid not null,
+ invited_email text not null check (length(btrim(invited_email)) between 5 and 320),
+ role text not null check(role in ('employee','hr_manager')),
+ token uuid not null unique default gen_random_uuid(),
+ created_by uuid not null references auth.users(id) on delete restrict,
+ status text not null default 'pending' check(status in ('pending','accepted')),
+ expires_at timestamptz not null default (now()+interval '7 days'),
+ created_at timestamptz not null default now(),
+ accepted_by uuid references auth.users(id) on delete restrict,
+ accepted_at timestamptz,
+ foreign key(workspace_id,employee_id) references public.hr_saas_employees(workspace_id,id) on delete restrict,
+ check ((status='pending' and accepted_by is null and accepted_at is null)
+     or (status='accepted' and accepted_by is not null and accepted_at is not null))
+);
+create index hr_saas_invitations_owner_idx on public.hr_saas_invitations(workspace_id,status,created_at desc);
+alter table public.hr_saas_invitations enable row level security;
+create policy hr_invite_owner_select on public.hr_saas_invitations
+ for select to authenticated using (
+  created_by=(select auth.uid())
+  and exists (select 1 from public.hr_saas_workspaces w
+   where w.id=workspace_id and w.owner_user_id=(select auth.uid()))
+  and hr_saas_private.has_active_access(workspace_id));
+create policy hr_invite_owner_insert on public.hr_saas_invitations
+ for insert to authenticated with check (
+  created_by=(select auth.uid()) and status='pending'
+  and accepted_by is null and accepted_at is null
+  and expires_at>now() and expires_at<=now()+interval '7 days'
+  and invited_email=lower(btrim(invited_email))
+  and exists (select 1 from public.hr_saas_workspaces w
+   where w.id=workspace_id and w.owner_user_id=(select auth.uid()))
+  and hr_saas_private.has_active_access(workspace_id));
+revoke all on public.hr_saas_invitations from public,anon,authenticated;
+grant select on public.hr_saas_invitations to authenticated;
+-- Column-specific grants prevent clients from picking a predictable token or
+-- setting an already-accepted invite. No direct update or deletion privilege.
+grant insert (workspace_id,employee_id,invited_email,role,created_by)
+ on public.hr_saas_invitations to authenticated;
+create trigger hr_saas_invitations_audit after insert or update on public.hr_saas_invitations
+ for each row execute function hr_saas_private.audit_change();
+
+create function public.hr_saas_accept_invitation(invite_token uuid)
+returns uuid language plpgsql security definer set search_path='' as $$
+declare
+ invite public.hr_saas_invitations%rowtype;
+ actor_id uuid := (select auth.uid());
+ verified_email text;
+ new_membership_id uuid;
+begin
+ if actor_id is null or invite_token is null then
+  raise exception 'Invitation cannot be accepted' using errcode='42501';
+ end if;
+ select lower(btrim(u.email)) into verified_email from auth.users u
+  where u.id=actor_id and u.email_confirmed_at is not null;
+ if verified_email is null then
+  raise exception 'Verified email required' using errcode='42501';
+ end if;
+ select * into invite from public.hr_saas_invitations i
+  where i.token=invite_token for update;
+ if not found or invite.status<>'pending' or invite.expires_at<=now()
+    or invite.invited_email<>verified_email then
+  raise exception 'Invitation cannot be accepted' using errcode='42501';
+ end if;
+ if not exists (
+  select 1 from public.hr_saas_workspaces w
+  join public.company_program_entitlements e on e.owner_user_id=w.owner_user_id
+  where w.id=invite.workspace_id
+    and e.product_code in ('hr','suite') and e.status in ('active','trial')
+    and e.starts_at<=now() and (e.ends_at is null or e.ends_at>now())
+ ) then
+  raise exception 'Invitation cannot be accepted' using errcode='42501';
+ end if;
+ insert into public.hr_saas_memberships(workspace_id,user_id,employee_id,role,status)
+  values(invite.workspace_id,actor_id,invite.employee_id,invite.role,'active')
+  returning id into new_membership_id;
+ update public.hr_saas_invitations set status='accepted',
+  accepted_by=actor_id,accepted_at=now() where id=invite.id;
+ return new_membership_id;
+end $$;
+revoke all on function public.hr_saas_accept_invitation(uuid) from public,anon,authenticated;
+grant execute on function public.hr_saas_accept_invitation(uuid) to authenticated;
