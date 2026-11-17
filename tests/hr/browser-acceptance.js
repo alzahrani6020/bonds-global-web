@@ -7,7 +7,8 @@ async function run(){
  const browser=await chromium.launch({headless:true});
  const base=process.env.CRM_TEST_BASE_URL||'http://localhost:3005';
  try{
-  for(const licensed of [true,false]){
+  for(const scenario of ['owner','unlicensed','employee','manager']){
+   const licensed=scenario==='owner';
    const page=await browser.newPage({viewport:{width:1050,height:800}});
    const errors=[];
    page.on('pageerror',e=>errors.push(e.message));
@@ -16,11 +17,20 @@ async function run(){
    await page.route('**/supabase.min.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:'/* test mock */'}));
    await page.route('**/my-bonds/crm/crm-app.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:"setTimeout(()=>document.dispatchEvent(new Event('bonds-crm-workspace-initialized')),0);"}));
    await page.route('**/my-bonds/crm/crm-internal.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:'/* internal admin panel not under test */'}));
-   await page.addInitScript(isLicensed=>{
+   await page.addInitScript(({isLicensed,scenario})=>{
     const user={id:'10000000-0000-4000-8000-000000000001'};
     const tables={
      company_program_entitlements:isLicensed?[{owner_user_id:user.id,product_code:'hr',status:'active',starts_at:'2020-01-01T00:00:00.000Z',ends_at:null}]:[],
-     hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[],hr_saas_entitlements:[],hr_saas_leave_ledger:[],hr_saas_leave_balance_summary:[]
+     hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[],hr_saas_entitlements:[],hr_saas_leave_ledger:[],hr_saas_leave_balance_summary:[],
+     hr_saas_memberships:['employee','manager'].includes(scenario)?[{
+      id:'40000000-0000-4000-8000-000000000001',workspace_id:'50000000-0000-4000-8000-000000000001',
+      employee_id:'60000000-0000-4000-8000-000000000001',user_id:user.id,role:scenario==='manager'?'hr_manager':'employee',status:'active'
+     }]:[],
+     hr_saas_employee_requests:scenario==='manager'?[{
+      id:'70000000-0000-4000-8000-000000000001',workspace_id:'50000000-0000-4000-8000-000000000001',
+      employee_id:'60000000-0000-4000-8000-000000000002',requested_by:'80000000-0000-4000-8000-000000000002',
+      request_type:'leave',subject:'A pending leave request',description:'Approve',status:'pending',created_at:new Date().toISOString()
+     }]:[]
     };
     let next=0;
     window.__hrTest={tables,writes:[]};
@@ -50,7 +60,7 @@ async function run(){
     }
     const supabase={auth:{getUser:async()=>({data:{user},error:null})},from};
     window.BondsAuth={ensureEnv:async()=>({}),getSupabase:()=>supabase};
-   },licensed);
+   },{isLicensed:licensed,scenario});
    const resp=await page.goto(base+'/my-bonds/crm/?program=hr',{waitUntil:'domcontentloaded'});
    assert.equal(resp.status(),200);
    await page.locator('#hr-product-tab').waitFor();
@@ -68,11 +78,29 @@ async function run(){
    assert.equal(await page.locator('#install').isVisible(),false,'CRM installer must not be presented as an HR installer');
 
    assert.equal(await page.locator('#hr-nav').isVisible(),true,'HR navigation must remain in the same sidebar');
-   if(!licensed){
+   if(scenario==='unlicensed'){
     await page.waitForFunction(()=>!document.querySelector('#hr-license').hidden);
     assert.equal(await page.locator('#hr-setup').isVisible(),false,'Unlicensed user accessed HR records');
     const writes=await page.evaluate(()=>window.__hrTest.writes);
     assert.equal(writes.length,0,'Unlicensed user could write');
+   }else if(scenario==='employee'||scenario==='manager'){
+    await page.waitForFunction(()=>!document.querySelector('#hr-self-section').hidden);
+    await page.waitForFunction(()=>!document.querySelector('#hr-self-app').hidden);
+    assert.equal(await page.locator('#hr-setup').isVisible(),false,'Staff cannot use owner administration');
+    assert.equal(await page.locator('#hr-license').isVisible(),false,'Valid membership should not require a personal subscription');
+    if(scenario==='employee'){
+     await page.locator('#hr-request-form input[name="subject"]').fill('Certificate');
+     await page.locator('#hr-request-form textarea[name="description"]').fill('Please issue a certificate');
+     await page.locator('#hr-request-form button[type="submit"]').click();
+     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employee_requests.length===1);
+     const entry=await page.evaluate(()=>window.__hrTest.tables.hr_saas_employee_requests[0]);
+     assert.equal(entry.status,'pending');
+     assert.equal(entry.requested_by,'10000000-0000-4000-8000-000000000001');
+    }else{
+     await page.locator('[data-hr-decision="approved"]').click();
+     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employee_requests[0].status==='approved');
+     assert.equal(await page.locator('[data-hr-decision="approved"]').count(),0);
+    }
    }else{
     await page.waitForFunction(()=>!document.querySelector('#hr-setup').hidden);
     await page.locator('#hr-create-workspace input[name="name"]').fill('Independent HR Company');
@@ -181,11 +209,18 @@ async function run(){
     assert.equal(await page.locator('#hr-app').isVisible(),true,'HR program was not restored');
     const employee=await page.evaluate(()=>window.__hrTest.tables.hr_saas_employees[0]);
     assert.equal(employee.employee_number,'HR-001');
+    // Only the workspace owner may provision registered HR memberships.
+    await page.locator('#hr-member-form input[name="user_id"]').fill('80000000-0000-4000-8000-000000000004');
+    await page.locator('#hr-member-form select[name="employee_id"]').selectOption({index:1});
+    await page.locator('#hr-member-form select[name="role"]').selectOption('hr_manager');
+    await page.locator('#hr-member-form button[type="submit"]').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_memberships.length===1);
+    assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_memberships[0])).role,'hr_manager');
    }
    assert.deepEqual(errors,[],'Client runtime error: '+errors.join('; '));
    await page.close();
   }
-  console.log('HR SHARED DASHBOARD BROWSER ACCEPTANCE PASS — license gating, employee/contract/rights/balances/attendance/leave/payroll draft saves and switching programs');
+  console.log('HR SHARED DASHBOARD BROWSER ACCEPTANCE PASS — license gating, owner grants, staff requests, manager decisions, employee/contract/rights/balances/attendance/leave/payroll draft saves and switching programs');
  }finally{await browser.close();}
 }
 run().catch(e=>{console.error('HR BROWSER ACCEPTANCE FAIL',e);process.exitCode=1;});
