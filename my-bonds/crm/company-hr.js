@@ -111,6 +111,15 @@
    db.from(table()).select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250):
    db.from('hr_saas_records').select('*').eq('workspace_id',owner).eq('category',category).order('created_at',{ascending:false}).limit(250);
   records=q?category==='payroll_runs'?payrollPeriods:check(await q):[];
+  $('hr-balance-summary').hidden=category!=='leave_balances';
+  if(category==='leave_balances'){
+   const balances=check(await db.from('hr_saas_leave_balance_summary')
+    .select('employee_id,leave_type,days_balance').eq('workspace_id',owner).limit(1000));
+   $('hr-balance-rows').innerHTML=balances.map(b=>'<tr><td>'+
+    escape(employees.find(e=>e.id===b.employee_id)?.full_name||'—')+'</td><td>'+
+    escape(b.leave_type)+'</td><td>'+escape(b.days_balance)+'</td></tr>').join('')||
+    '<tr><td colspan="3">'+t('لا توجد أرصدة معتمدة','No approved balances')+'</td></tr>';
+  }
   render();
  }
  async function changeCategory(next){
