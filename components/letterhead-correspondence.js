@@ -2287,15 +2287,25 @@
     toast(isEn ? '⏳ Creating local PDF preview...' : '⏳ جاري إنشاء نسخة PDF محلية...');
     try {
       const blob = await createPdfBlob();
+      if (!blob || blob.size < 1000 || blob.type !== 'application/pdf') {
+        throw new Error(isEn ? 'PDF export returned an invalid file' : 'ملف PDF الناتج غير صالح للتنزيل');
+      }
+      // Revoking immediately after click can invalidate the browser's pending
+      // navigation/download, particularly on retry or under slow disk/network.
+      // Keep the object URL alive until the browser has had time to read it.
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = (state.document?.reference_number || 'bonds-letterhead') + '.pdf';
+      a.style.display = 'none';
       document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      toast(isEn ? '✅ Local PDF downloaded' : '✅ تم تحميل نسخة PDF محلية');
+      try {
+        a.click();
+      } finally {
+        a.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+      }
+      toast(isEn ? '✅ PDF download requested from browser' : '✅ تم إرسال ملف PDF إلى المتصفح للتنزيل');
     } catch (e) {
       toast('⚠️ ' + (isEn ? 'PDF generation failed: ' : 'فشل إنشاء PDF: ') + e.message);
     }
