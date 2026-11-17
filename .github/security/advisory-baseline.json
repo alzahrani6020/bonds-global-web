@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedAt": "2026-10-23",
+  "reviewedAt": "2026-11-18",
   "sourceSha": "fe26304e618740a2c02a02609f34c11422702d14",
   "entries": [
     {
@@ -72,6 +72,42 @@
       "scope": "dev",
       "status": "accepted-temporarily",
       "rationale": "Reviewed 2026-10-23: dev-only Vercel CLI/tooling dependency; npm production audit is clean. Do not force an incompatible Zod/Vercel major override during assistant runtime work; re-review on Vercel dependency refresh or any scope change."
+    },
+    {
+      "id": "GHSA-FC5Q-39XC-VJPF",
+      "package": "picomatch",
+      "resolvedVersion": "2.3.2",
+      "dependencyPath": "node_modules/anymatch/node_modules/picomatch",
+      "severity": "high",
+      "scope": "dev",
+      "status": "accepted-temporarily",
+      "reviewedAt": "2026-11-18",
+      "reviewExpiresOn": "2026-12-02",
+      "rationale": "2026-11-18 review: npm audit identifies this path only under dev dependency tooling (Jest/Vercel), not deployed production dependencies. GHSA-fc5q-39xc-vjpf/CVE-2026-112366 is a ReDoS via attacker-controlled repeated extglob patterns; official npm latest is 4.0.7, no fixed release at review time. No customer-supplied glob input is used in this CI-only path. Temporary dev-tooling risk acceptance, not a vulnerability fix; revisit immediately on a patched release, deployment scope change, or before 2026-12-02. Never approve production exposure."
+    },
+    {
+      "id": "GHSA-FC5Q-39XC-VJPF",
+      "package": "picomatch",
+      "resolvedVersion": "2.3.2",
+      "dependencyPath": "node_modules/micromatch/node_modules/picomatch",
+      "severity": "high",
+      "scope": "dev",
+      "status": "accepted-temporarily",
+      "reviewedAt": "2026-11-18",
+      "reviewExpiresOn": "2026-12-02",
+      "rationale": "2026-11-18 review: npm audit identifies this path only under dev dependency tooling (Jest/Vercel), not deployed production dependencies. GHSA-fc5q-39xc-vjpf/CVE-2026-112366 is a ReDoS via attacker-controlled repeated extglob patterns; official npm latest is 4.0.7, no fixed release at review time. No customer-supplied glob input is used in this CI-only path. Temporary dev-tooling risk acceptance, not a vulnerability fix; revisit immediately on a patched release, deployment scope change, or before 2026-12-02. Never approve production exposure."
+    },
+    {
+      "id": "GHSA-FC5Q-39XC-VJPF",
+      "package": "picomatch",
+      "resolvedVersion": "4.0.7",
+      "dependencyPath": "node_modules/picomatch",
+      "severity": "high",
+      "scope": "dev",
+      "status": "accepted-temporarily",
+      "reviewedAt": "2026-11-18",
+      "reviewExpiresOn": "2026-12-02",
+      "rationale": "2026-11-18 review: npm audit identifies this path only under dev dependency tooling (Jest/Vercel), not deployed production dependencies. GHSA-fc5q-39xc-vjpf/CVE-2026-112366 is a ReDoS via attacker-controlled repeated extglob patterns; official npm latest is 4.0.7, no fixed release at review time. No customer-supplied glob input is used in this CI-only path. Temporary dev-tooling risk acceptance, not a vulnerability fix; revisit immediately on a patched release, deployment scope change, or before 2026-12-02. Never approve production exposure."
     }
   ],
   "minimumVersions": {
