@@ -182,6 +182,11 @@
     </div>
     <p class="muted">Salary, claims and payroll entries are internal draft records; no real payments or statutory filing occur.</p>
     <p class="muted">Rows: <span id="hr-count">0</span></p>
+    <section id="hr-balance-summary" class="panel overflow" hidden>
+     <h3>Approved leave balances by employee</h3>
+     <p class="muted">Balances reflect approved manual entries; they do not automatically calculate statutory accrual or leave usage.</p>
+     <table><thead><tr><th>Employee</th><th>Leave type</th><th>Days balance</th></tr></thead><tbody id="hr-balance-rows"></tbody></table>
+    </section>
     <div class="panel overflow"><table><thead id="hr-head"></thead><tbody id="hr-body"></tbody></table></div>
     <section id="hr-editor" class="panel" hidden>
      <div class="editor-head"><h2 id="hr-editor-title"></h2><button id="hr-close" type="button" class="secondary">Close</button></div>
