@@ -53,7 +53,7 @@
    const email=String(form.get('email')||'').trim().toLowerCase();
    const employeeId=String(form.get('employee_id')||'');
    const role=String(form.get('role')||'');
-   if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)||email.length>320)
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>320)
     throw Error(t('البريد الإلكتروني غير صحيح','Invalid recipient email'));
    if(!employeeId||!['employee','hr_manager'].includes(role))
     throw Error(t('بيانات الدعوة غير مكتملة','Incomplete invitation'));
