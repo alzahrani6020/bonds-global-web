@@ -33,7 +33,7 @@ function extractInlineScript(html) {
   return last.replace(/<script>|<\/script>/g, '');
 }
 
-function loadPage({ localStorageInitial = {}, fetchResponses = [], getUserResult = { user: null } } = {}) {
+function loadPage({ localStorageInitial = {}, fetchResponses = [], getUserResult = { user: null }, workspaces = [] } = {}) {
   const html = fs.readFileSync(path.join(__dirname, '..', 'my-bonds', 'index.html'), 'utf8');
   const script = extractInlineScript(html);
   const localStorage = createStorage(localStorageInitial);
@@ -65,6 +65,16 @@ function loadPage({ localStorageInitial = {}, fetchResponses = [], getUserResult
   const BondsAuth = {
     getUser: jest.fn(async () => getUserResult),
     initSiteAuth: jest.fn(async () => {}),
+    ensureEnv: jest.fn(async () => {}),
+    getSupabase: jest.fn(() => ({
+      from: jest.fn(() => ({
+        select: jest.fn(() => ({
+          order: jest.fn(() => ({
+            limit: jest.fn(async () => ({ data: workspaces, error: null }))
+          }))
+        }))
+      }))
+    })),
     authenticatedFetch
   };
 
@@ -194,6 +204,18 @@ describe('my-bonds page behaviour', () => {
     expect(elements.serviceRequestsList.innerHTML).toContain('/my-bonds/request/?reference=SR-ABC123');
     expect(elements.serviceRequestsList.innerHTML).toContain('عرض الطلب');
     expect(elements.serviceRequestsList.innerHTML).toContain('القيود اليومية');
+  });
+
+  test('RLS-visible workspace appears as a CRM deep link', async () => {
+    const { elements } = loadPage({
+      getUserResult: { data: { user: { id: 'u1', email: 'a@example.com' } } },
+      fetchResponses: [{ projects: [] }, { requests: [] }],
+      workspaces: [{ id: '94c6dbfe-c53a-4686-ad42-eb01893a3e80', name: 'شركة الاختبار' }]
+    });
+    await new Promise(r => setTimeout(r, 0));
+    expect(elements.workspacesSection.style.display).toBe('block');
+    expect(elements.workspacesList.innerHTML).toContain('شركة الاختبار');
+    expect(elements.workspacesList.innerHTML).toContain('/my-bonds/crm/?workspace_id=94c6dbfe-c53a-4686-ad42-eb01893a3e80');
   });
 
   test('request details page uses owner-scoped API readback, not browser storage', () => {
