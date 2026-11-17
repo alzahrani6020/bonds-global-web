@@ -187,6 +187,66 @@ async function runNewApprovedA4IssueGate(browser) {
   }
 }
 
+// New letter paste acceptance: large single paragraph cannot be truncated
+// or confined to the two visible sheets. No real user correspondence touched.
+async function runFullPastedLetterGate(browser) {
+  const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  const code = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
+  const setPagesCode = code.slice(code.indexOf('  function setPages('), code.indexOf('  function hasMeaningfulDraft()'));
+  const paginatorCode = code.slice(code.indexOf('  function splitOversizedDraftParagraph('), code.indexOf('  async function createPdfBlob()'));
+  if (!setPagesCode.includes('function setPages') || !paginatorCode.includes('function paginateEditableSheets')) {
+    throw new Error('Pasted-letter page allocator not present');
+  }
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    const result = await page.evaluate(({ setPagesCode, paginatorCode }) => {
+      const container = document.getElementById('pages-container');
+      const doc = container.querySelector('.doc-content');
+      const phrase = 'هذا نص خطاب تجريبي طويل للتحقق من استمرار كامل النص عبر جميع صفحات ورق المراسلات دون حذف أي كلمة أثناء توزيع صفحات A4. ';
+      const original = phrase.repeat(105);
+      doc.innerHTML = '<p dir="rtl">' + original + '</p>';
+      const state = { document: { status: 'draft' }, lastSavedSnapshot: '' };
+      const isEn = false;
+      const canEditCurrent = () => true;
+      const pagesHtml = () => Array.from(container.querySelectorAll('.doc-content')).map(x => x.innerHTML);
+      const snapshot = () => JSON.stringify(pagesHtml());
+      const persistedSnapshot = () => snapshot();
+      const run = new Function('state', 'isEn', 'canEditCurrent', 'pagesHtml', 'snapshot', 'persistedSnapshot',
+        setPagesCode + paginatorCode + '\nreturn paginateEditableSheets();');
+      const changed = run(state, isEn, canEditCurrent, pagesHtml, snapshot, persistedSnapshot);
+      const sheets = Array.from(container.querySelectorAll('.sheet'));
+      const actual = sheets.map(x => x.querySelector('.doc-content').textContent).join('');
+      const geometry = sheets.map(x => {
+        const content = x.querySelector('.doc-content');
+        const footer = x.querySelector('.letterhead-footer');
+        return { bottom: content.getBoundingClientRect().bottom,
+          footer: footer.getBoundingClientRect().top,
+          physicalOverflow: x.scrollHeight - x.clientHeight,
+          height: x.getBoundingClientRect().height,
+          a4Height: x.getBoundingClientRect().width * 297 / 210 };
+      });
+      const labels = sheets.map(x => x.querySelector('.page-number')?.textContent || '');
+      return { changed, pageCount: sheets.length, textPreserved: actual === original,
+        originalLength: original.length, actualLength: actual.length, geometry, labels };
+    }, { setPagesCode, paginatorCode });
+    if (!result.changed || result.pageCount < 3 || !result.textPreserved) {
+      throw new Error('Long pasted letter truncated: ' + JSON.stringify(result));
+    }
+    for (let i = 0; i < result.pageCount; i++) {
+      const g = result.geometry[i];
+      if (g.bottom > g.footer + 1 || g.physicalOverflow > 1 || g.height > g.a4Height + 1 ||
+          !result.labels[i].includes((i + 1) + ' من ' + result.pageCount)) {
+        throw new Error('Pasted letter A4 or numbering invalid on page ' + (i + 1) + ': ' + JSON.stringify(result));
+      }
+    }
+    console.log(' Pasted long letter: ' + result.pageCount + ' A4 pages, full text preserved, numbering PASS');
+  } finally {
+    await page.close();
+  }
+}
+
 async function runLetterheadNestedPaginationGate(browser) {
   const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
@@ -726,6 +786,12 @@ async function runScenarioDropdownInteractionGate(browser) {
     await page.close();
   }
 
+  try {
+    await runFullPastedLetterGate(browser);
+  } catch (err) {
+    console.error(' Full pasted-letter A4 acceptance failed: ' + err.message);
+    failed++;
+  }
   try {
     await runNewApprovedA4IssueGate(browser);
   } catch (err) {
