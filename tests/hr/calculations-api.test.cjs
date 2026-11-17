@@ -48,7 +48,7 @@ function fixture({employeeWorkspace=workspaceId,policyStatus='approved',userId=o
  const m={exports:{}};
  const env={NEXT_PUBLIC_SUPABASE_URL:'https://example.supabase.co',NEXT_PUBLIC_SUPABASE_ANON_KEY:'anon-test-only'};
  vm.runInNewContext(original,{module:m,exports:m.exports,require:key=>{if(!modules[key])throw Error('Unexpected require '+key);return modules[key];},
-  process:{env},console,URL},{filename:'hr-calculations.js'});
+  process:{env},console,URL,Error,TypeError,RangeError},{filename:'hr-calculations.js'});
  const body={workspace_id:workspaceId,employee_id:employeeId,policy_id:policyId,kind:'leave_accrual',
   inputs:{as_of:'2026-11-17',eligible_days:365}};
  async function call(override=body){
