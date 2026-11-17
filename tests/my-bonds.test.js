@@ -192,6 +192,7 @@ describe('my-bonds page behaviour', () => {
     const requests = [{
       id: 'request-1', request_reference: 'SR-ABC123',
       status: 'submitted', service: { name_ar: 'القيود اليومية', code: 'daily_entries' },
+      service_workspace: {route_ar:'/my-bonds/workspace/'},
       created_at: '2026-10-25T12:00:00Z'
     }];
     const { elements, authenticatedFetch } = loadPage({
@@ -203,6 +204,8 @@ describe('my-bonds page behaviour', () => {
       expect.objectContaining({ method: 'GET' }));
     expect(elements.serviceRequestsList.innerHTML).toContain('/my-bonds/request/?reference=SR-ABC123');
     expect(elements.serviceRequestsList.innerHTML).toContain('عرض الطلب');
+    expect(elements.serviceRequestsList.innerHTML).toContain('service=daily_entries');
+    expect(elements.serviceRequestsList.innerHTML).toContain('فتح مساحة الخدمة');
     expect(elements.serviceRequestsList.innerHTML).toContain('القيود اليومية');
   });
 
