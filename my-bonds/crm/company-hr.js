@@ -37,6 +37,7 @@
  const labels=Object.fromEntries(modules.map(([id,ar,eng])=>[id,t(ar,eng)]));
  const status=(msg,err=false)=>{const n=$('hr-status');n.textContent=msg;n.hidden=!msg;n.style.display=msg?'block':'none';n.classList.toggle('error',err);};
  let db,user,license=false,workspace=null,workspaces=[],employees=[],payrollPeriods=[],records=[],category='employees',editing=null;
+ let companySpaces=[],activateCompanyWorkspace=null;
  let loadRequestId=0;
  const check=r=>{if(r.error)throw r.error;return r.data;};
  const table=()=>category==='employees'?'hr_saas_employees':category==='attendance'?'hr_saas_attendance':category==='leaves'?'hr_saas_leave_requests':category==='contracts'?'hr_saas_employment_contracts':category==='claims'?'hr_saas_entitlements':category==='leave_balances'?'hr_saas_leave_ledger':category==='payroll_runs'?'hr_saas_payroll_periods':category==='payroll'?'hr_saas_payroll_lines':category==='employee_requests'?'hr_saas_employee_requests':'hr_saas_records';
@@ -246,11 +247,11 @@
    $('hr-setup').hidden=false;
    // Use the same company workspace identity for CRM and HR; only HR data
    // remains in its own program-specific tables and HR entitlement boundary.
-   const companySpaces=check(await db.from('crm_app_workspaces').select('id,name,owner_user_id').eq('owner_user_id',user.id).order('created_at',{ascending:true}));
+   companySpaces=check(await db.from('crm_app_workspaces').select('id,name,owner_user_id').eq('owner_user_id',user.id).order('created_at',{ascending:true}));
    workspaces=check(await db.from('hr_saas_workspaces').select('id,name,owner_user_id,crm_workspace_id').order('created_at',{ascending:true}));
    const select=$('hr-workspace');
    select.innerHTML=companySpaces.map(c=>'<option value="'+escape(c.id)+'">'+escape(c.name)+'</option>').join('');
-   const activate=async crmId=>{
+   activateCompanyWorkspace=async crmId=>{
     ++loadRequestId;
     const selected=companySpaces.find(c=>c.id===crmId);
     workspace=workspaces.find(w=>w.crm_workspace_id===crmId)||null;
@@ -265,8 +266,8 @@
     document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
     if(workspace)await changeCategory(category);
    };
-   if(companySpaces.length)await activate(companySpaces[0].id);
-   select.addEventListener('change',()=>activate(select.value).catch(e=>status(e.message,true)));
+   if(companySpaces.length)await activateCompanyWorkspace(companySpaces[0].id);
+   select.addEventListener('change',()=>activateCompanyWorkspace(select.value).catch(e=>status(e.message,true)));
 
   }catch(e){status(t('تعذر فتح الموارد البشرية: ','Cannot open HR: ')+e.message,true);}
  }
@@ -351,7 +352,7 @@
    if(!company?.id)throw Error(t('تعذر حفظ مساحة الشركة','Company workspace was not saved'));
    companySpaces.push(company);$('hr-workspace').add(new Option(company.name,company.id));
    $('hr-workspace').value=company.id;ev.target.reset();
-   await activate(company.id);
+   await activateCompanyWorkspace(company.id);
    status(t('أُنشئت مساحة الشركة وربطت بالموارد البشرية','Company workspace created and linked to HR'));
   }catch(e){status(e.message,true);}finally{btn.disabled=false;}
  });
