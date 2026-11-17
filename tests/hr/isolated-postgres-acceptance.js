@@ -16,6 +16,8 @@ async function main(){
   await db.query(opsMigration);
   const payrollMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117070000_hr_saas_payroll_review.sql'),'utf8');
   await db.query(payrollMigration);
+  const contractMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117080000_hr_saas_employment_contracts.sql'),'utf8');
+  await db.query(contractMigration);
 
   const ids=[randomUUID(),randomUUID(),randomUUID()];
   await db.query('insert into auth.users(id) values($1),($2),($3)',ids);
@@ -126,10 +128,40 @@ async function main(){
   assert.equal(notVisible.rowCount,0,'Another company read payroll amounts');
   const auditPayroll=await as(owner,()=>db.query("select entity from hr_saas_audit where workspace_id=$1 and entity in ('hr_saas_payroll_lines','hr_saas_payroll_periods')",[wa]));
   assert.ok(auditPayroll.rowCount>=4,'Payroll creation/review/approval should be audited');
+  await assert.rejects(()=>as(owner,()=>db.query(
+    "insert into hr_saas_employment_contracts(workspace_id,employee_id,contract_number,contract_type,status,start_date,base_salary) values($1,$2,'C-001','fixed_term','active','2026-11-01',5000)",[wa,employee])),
+    e=>e.code==='23514','Contracts must begin as a draft');
+  const contract=(await as(owner,()=>db.query(
+   "insert into hr_saas_employment_contracts(workspace_id,employee_id,contract_number,contract_type,start_date,end_date,probation_end_date,base_salary) values($1,$2,'C-001','fixed_term','2026-11-01','2027-10-31','2027-01-31',5000) returning id",
+   [wa,employee]))).rows[0].id;
+  await as(owner,()=>db.query("update hr_saas_employment_contracts set status='active' where id=$1",[contract]));
+  const activeContract=await as(owner,()=>db.query("select activated_at,status from hr_saas_employment_contracts where id=$1",[contract]));
+  assert.equal(activeContract.rows[0].status,'active');
+  assert.ok(activeContract.rows[0].activated_at,'Contract activation is timestamped');
+  const overlapping=(await as(owner,()=>db.query(
+   "insert into hr_saas_employment_contracts(workspace_id,employee_id,contract_number,contract_type,start_date,end_date,base_salary) values($1,$2,'C-002','fixed_term','2027-01-01','2027-12-31',5500) returning id",
+   [wa,employee]))).rows[0].id;
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_employment_contracts set status='active' where id=$1",[overlapping])),
+   e=>e.code==='23514','Overlapping contracts may not both be active');
+  await assert.rejects(()=>as(other,()=>db.query(
+   "insert into hr_saas_employment_contracts(workspace_id,employee_id,contract_number,contract_type,start_date,base_salary) values($1,$2,'C-003','indefinite','2026-11-01',5000)",[wa,employee])),
+   e=>e.code==='42501','Cross-tenant contract write must fail');
+  await as(owner,()=>db.query("update hr_saas_employment_contracts set status='terminated',termination_reason='Internal test' where id=$1",[contract]));
+  const closedContract=await as(owner,()=>db.query("select status,terminated_at from hr_saas_employment_contracts where id=$1",[contract]));
+  assert.equal(closedContract.rows[0].status,'terminated');
+  assert.ok(closedContract.rows[0].terminated_at,'Termination must be timestamped');
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_employment_contracts set base_salary=6000 where id=$1",[contract])),
+   e=>e.code==='23514','Closed contract cannot be rewritten');
+  const otherContracts=await as(other,()=>db.query("select id from hr_saas_employment_contracts where workspace_id=$1",[wa]));
+  assert.equal(otherContracts.rowCount,0,'Contracts must not leak to another company');
+  const originalContracts=await db.query("select count(*)::int as n from hr_saas_employment_contracts where workspace_id=$1",[wa]);
+  assert.equal(originalContracts.rows[0].n,2,'Closed contracts remain stored');
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
-  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, attendance, leave approvals, payroll approval, tenant FK, audit, revocation');
+  console.log('HR SAAS POSTGRES ACCEPTANCE: PASS — true SQL, licenses, RLS, attendance, leave approvals, payroll approval, employee contracts, tenant FK, audit, revocation');
  }finally{await db.end();}
 }
 main().catch(e=>{console.error('HR SAAS POSTGRES ACCEPTANCE: FAIL',e.message,'SQLSTATE='+String(e.code||'unknown'));process.exitCode=1;});
