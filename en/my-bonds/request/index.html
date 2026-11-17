@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Service request details | Bonds</title>
-<link rel="stylesheet" href="/styles/fonts-ar.css">
+<link rel="stylesheet" href="/styles/fonts-en.css">
 <link rel="stylesheet" href="/styles.css">
 <link rel="stylesheet" href="/styles/my-bonds.css?v=2">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
@@ -80,7 +80,7 @@ window.addEventListener('load', async function () {
       ['Reference',request.request_reference],
       ['Status',({draft:'Draft',submitted:'Submitted',triage:'Triage',in_progress:'In progress',awaiting_client:'Awaiting client',awaiting_approval:'Awaiting approval',completed:'Completed',cancelled:'Cancelled'})[request.status] || request.status],
       ['Submitted at',request.submitted_at ? new Date(request.submitted_at).toLocaleDateString('en-US') : 'Not specified'],
-      ['Country',request.country_code || 'Not specifiedة']
+      ['Country',request.country_code || 'Not specified']
     ];
     fields.forEach(([label,value]) => {
       const box = add(grid,'div','');
