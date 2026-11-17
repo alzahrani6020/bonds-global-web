@@ -205,6 +205,7 @@ describe('my-bonds page behaviour', () => {
     expect(elements.serviceRequestsList.innerHTML).toContain('/my-bonds/request/?reference=SR-ABC123');
     expect(elements.serviceRequestsList.innerHTML).toContain('عرض الطلب');
     expect(elements.serviceRequestsList.innerHTML).toContain('service=daily_entries');
+    expect(elements.serviceRequestsList.innerHTML).toContain('reference=SR-ABC123');
     expect(elements.serviceRequestsList.innerHTML).toContain('فتح مساحة الخدمة');
     expect(elements.serviceRequestsList.innerHTML).toContain('القيود اليومية');
   });
