@@ -22,7 +22,7 @@ async function run(){
     const tables={
      company_program_entitlements:isLicensed?[{owner_user_id:user.id,product_code:'hr',status:'active',starts_at:'2020-01-01T00:00:00.000Z',ends_at:null}]:[],
      hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[],hr_saas_entitlements:[],hr_saas_leave_ledger:[],hr_saas_leave_balance_summary:[],
-     hr_saas_invitations:[],
+     hr_saas_invitations:[],hr_saas_rule_sets:[],hr_saas_calculation_drafts:[],
      hr_saas_memberships:['employee','manager'].includes(scenario)?[{
       id:'40000000-0000-4000-8000-000000000001',workspace_id:'50000000-0000-4000-8000-000000000001',
       employee_id:'60000000-0000-4000-8000-000000000001',user_id:user.id,role:scenario==='manager'?'hr_manager':'employee',status:'active'
@@ -64,7 +64,7 @@ async function run(){
      };
      return q;
     }
-    const supabase={auth:{getUser:async()=>({data:{user},error:null})},from,
+    const supabase={auth:{getUser:async()=>({data:{user},error:null}),getSession:async()=>({data:{session:{user,access_token:'test-mock-access-token'}},error:null})},from,
      rpc:async(name,args)=>{
       if(name!=='hr_saas_accept_invitation')throw Error('Unexpected RPC '+name);
       const invite=tables.hr_saas_invitations.find(x=>x.token===args.invite_token&&x.status==='pending');
@@ -76,6 +76,18 @@ async function run(){
      }};
     window.BondsAuth={ensureEnv:async()=>({}),getSupabase:()=>supabase};
    },{isLicensed:licensed,scenario});
+   await page.route('**/api/hr-calculations',async route=>{
+    const body=route.request().postDataJSON();
+    if(scenario!=='owner')return route.fulfill({status:403,contentType:'application/json',body:'{"error":"Forbidden"}'});
+    const response=await page.evaluate(payload=>{
+     const rows=window.__hrTest.tables.hr_saas_calculation_drafts;
+     const result={policy_id:payload.policy_id,as_of:payload.inputs.as_of,eligible_days:payload.inputs.eligible_days,accrued_days:30,status:'draft_review_required'};
+     const id='90000000-0000-4000-8000-000000000008';
+     rows.push({...payload,id,result,status:'draft'});
+     return {id,result,policy_id:payload.policy_id,status:'draft'};
+    },body);
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(response)});
+   });
    const resp=await page.goto(base+'/my-bonds/crm/?program=hr',{waitUntil:'domcontentloaded'});
    assert.equal(resp.status(),200);
    await page.locator('#hr-product-tab').waitFor();
@@ -155,6 +167,31 @@ async function run(){
     assert.equal(await page.locator('#hr-count').textContent(),'0','Stale first-workspace read leaked into the second workspace');
     await page.locator('#hr-workspace').selectOption(firstWorkspace);
     await page.waitForFunction(()=>document.querySelector('#hr-count').textContent==='1');
+
+    // Owner policy lifecycle: company-reviewed version, then persisted calculation draft.
+    await page.waitForFunction(()=>!document.querySelector('#hr-policy-panel').hidden);
+    await page.locator('#hr-policy-form input[name="jurisdiction"]').fill('SA');
+    await page.locator('#hr-policy-form input[name="effective_from"]').fill('2026-01-01');
+    await page.locator('#hr-policy-form input[name="annual_leave_days"]').fill('30');
+    await page.locator('#hr-policy-form input[name="accrual_year_days"]').fill('365');
+    await page.locator('#hr-policy-form textarea[name="service_tiers"]').fill('[{"through_days":3650,"wage_days_per_service_day":0.002}]');
+    await page.locator('#hr-policy-form button[type="submit"]').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_rule_sets.length===1);
+    assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_rule_sets[0])).status,'draft');
+    await page.locator('#hr-policy-rows [data-hr-policy-approve]').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_rule_sets[0].status==='approved');
+    await page.locator('#hr-calculation-form select[name="employee_id"]').selectOption({index:1});
+    await page.locator('#hr-calculation-form select[name="policy_id"]').selectOption({index:1});
+    await page.locator('#hr-calculation-form input[name="as_of"]').fill('2026-11-17');
+    await page.locator('#hr-calculation-form input[name="eligible_days"]').fill('365');
+    await page.locator('#hr-calculation-form button[type="submit"]').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_calculation_drafts.length===1);
+    const savedDraft=await page.evaluate(()=>window.__hrTest.tables.hr_saas_calculation_drafts[0]);
+    assert.equal(savedDraft.workspace_id,firstWorkspace);
+    assert.equal(savedDraft.status,'draft');
+    assert.equal(savedDraft.result.accrued_days,30);
+    assert.equal(await page.locator('#hr-calculation-result').isVisible(),true);
+    assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_records)).length,0,'Calculation must not post a generic HR payment record');
 
     // Owner request inbox must read actual self-service requests, not generic HR records.
     await page.evaluate(()=>{
