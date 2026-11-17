@@ -160,8 +160,10 @@
   <section id="hr-section" hidden>
    <section id="hr-license" class="panel" hidden>
     <h2>اشتراك نظام الموارد البشرية</h2>
-    <p>نظام الموارد البشرية مستقل عن CRM. يلزم استحقاق فعال لنظام الموارد البشرية أو الباقة الشاملة. لا يحدث شراء أو تفعيل تلقائي من هذه الشاشة.</p>
-    <a href="/contact.html">طلب تفعيل اشتراك</a>
+    <p>الاشتراكات مستقلة لكل برنامج. يبدأ الشراء عبر مزود الدفع المعتمد، ولا تتفعّل الصلاحيات إلا بعد تحقق الخادم من حالة الاشتراك في Stripe.</p>
+    <label>البرنامج المطلوب<select id="hr-purchase-product"><option value="hr">الموارد البشرية</option><option value="crm">إدارة علاقات العملاء CRM</option><option value="suite">الباقة الشاملة</option></select></label>
+    <button type="button" class="primary" id="hr-checkout-start">الانتقال إلى الدفع الآمن</button>
+    <a href="/contact.html">طلب مساعدة في الاشتراك</a>
    </section>
    <section id="hr-auth" class="panel" hidden>سجّل الدخول للوصول إلى برامج الشركات.</section>
    <section id="hr-setup" class="panel" hidden>
