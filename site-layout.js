@@ -801,11 +801,10 @@
       return `<div class="${cls}">${html}</div>`;
     }
 
-    // Company programs use existing permission-protected destinations.
-    // CRM is the administrative workspace; My Bonds is the client workspace.
+    // One customer-facing CRM program. Internal Bonds operations remain
+    // protected under /admin until their existing records are safely migrated.
     const companyProgramsDropdown = [
-      { label: isEn ? 'Customer Relationship Management (CRM)' : 'إدارة علاقات العملاء (CRM)', href: '/admin/crm.html' },
-      { label: isEn ? 'Company CRM Application' : 'برنامج CRM للشركات', href: isEn ? '/en/my-bonds/crm/' : '/my-bonds/crm/' },
+      { label: isEn ? 'Customer Relationship Management (CRM)' : 'إدارة علاقات العملاء (CRM)', href: isEn ? '/en/my-bonds/crm/' : '/my-bonds/crm/' },
       { label: isEn ? 'My Bonds Workspace' : 'مساحة عمل بوندز', href: isEn ? '/en/my-bonds/' : '/my-bonds/' },
     ];
 

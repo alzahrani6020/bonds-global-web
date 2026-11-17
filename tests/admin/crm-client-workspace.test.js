@@ -10,7 +10,7 @@ describe('Customer CRM installable workspace integrity',()=>{
  test('all locally linked app assets exist and manifest is installable',()=>{
   for(const asset of ['crm-app.js','crm-app.css','crm-manifest.webmanifest'])
     expect(fs.existsSync(path.join(root,'my-bonds/crm',asset))).toBe(true);
-  expect(html).toContain('/my-bonds/crm/crm-app.js?v=2');
+  expect(html).toContain('/my-bonds/crm/crm-app.js?v=3');
   expect(manifest.start_url).toMatch(/^\/my-bonds\/crm\//);
   expect(manifest.display).toBe('standalone');
   for(const icon of manifest.icons)expect(fs.existsSync(path.join(root,icon.src.replace(/^\//,'')))).toBe(true);
@@ -49,7 +49,7 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(en).toContain('<html lang="en" dir="ltr">');
   expect(en).toContain('data-section="companies"');
   expect(en).toContain('Companies');
-  expect(en).toContain('/my-bonds/crm/crm-app.js?v=2');
+  expect(en).toContain('/my-bonds/crm/crm-app.js?v=3');
   expect(js).toContain('document.documentElement.lang');
   expect(js).toContain('translations');
  });
@@ -102,6 +102,13 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(en).toContain('href="/my-bonds/crm/"');
  });
 
+ test('commercial scoring is integrated into the tenant CRM without internal admin API access',()=>{
+  expect(js).toContain('const scoreContact=record=>commercialScore(');
+  expect(js).toContain('const scoreDeal=record=>');
+  expect(js).toContain("group==='contacts'||group==='deals'");
+  expect(js).toContain("التقييم التجاري");
+  expect(js).not.toContain("'/api/admin");
+ });
  test('CSV contact import/export is tenant-scoped, bounded and protects spreadsheet cells',()=>{
   const ar=read('my-bonds/crm/index.html');
   const en=read('en/my-bonds/crm/index.html');

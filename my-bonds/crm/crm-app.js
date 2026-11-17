@@ -35,6 +35,39 @@
   return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
  };
  const normalSection=s=>s==='pipeline'?'pipelines':s;
+ // Port the internal CRM's evidence-based commercial scoring to tenant-scoped
+ // records without using /api/admin or exposing Bonds service-request data.
+ // The result is advisory only and is never persisted as a conversion forecast.
+ const commercialScore=(items)=>{
+  const known=items.filter(item=>item!==null);
+  const coverage=items.length?Math.round(known.length*100/items.length):0;
+  const score=known.length?Math.round(known.reduce((sum,n)=>sum+n,0)/known.length*10)/10:null;
+  return {score,coverage,confidence:coverage>=80?'HIGH':coverage>=60?'MEDIUM':coverage>0?'LOW':'UNKNOWN'};
+ };
+ const present=v=>v!==null&&v!==undefined&&String(v).trim().length>0;
+ const scoreContact=record=>commercialScore([
+  present(record.email)||present(record.phone)?100:0,
+  record.company_id?100:null,
+  record.is_decision_maker===true?100:record.is_decision_maker===false?0:null,
+  present(record.role)?100:null,
+  present(record.source)?100:null
+ ]);
+ const scoreDeal=record=>{
+  const stages={lead:20,qualified:40,proposal:60,negotiation:80,won:100,lost:0};
+  const probability=record.probability===null||record.probability===undefined?null:Number(record.probability);
+  return commercialScore([
+   Number.isFinite(probability)?Math.max(0,Math.min(100,probability)):null,
+   Object.hasOwn(stages,record.stage)?stages[record.stage]:null,
+   Number(record.value_amount)>0?100:null,
+   present(record.expected_close_date)?100:null,
+   present(record.next_action)&&present(record.next_action_at)?100:present(record.next_action)||present(record.next_action_at)?60:null
+  ]);
+ };
+ const commercialCell=record=>{
+  const result=normalSection(current)==='contacts'?scoreContact(record):scoreDeal(record);
+  return (result.score===null?'UNKNOWN':result.score+'/100')+' · '+result.confidence+' · '+result.coverage+'%';
+ };
+
  // CSV import is deliberately one bounded, atomic database INSERT. Never store
  // customer files in browser storage or submit tenant identifiers from CSV.
  const contactCsvFields=['name','email','phone','role','source','status','is_decision_maker'];
@@ -166,8 +199,8 @@
   $('page-info').textContent=(pageTotal===0?'0':String(page*pageSize+1))+'–'+String(Math.min((page+1)*pageSize,pageTotal))+' / '+pageTotal;
   $('page-prev').disabled=page===0;
   $('page-next').disabled=(page+1)*pageSize>=pageTotal;
-  $('records-head').innerHTML='<tr>'+columns[group].map(k=>'<th>'+escape(t(schema.find(d=>d[0]===k)?.[1]||k))+'</th>').join('')+'<th>'+t('إجراءات')+'</th></tr>';
-  $('records-body').innerHTML=filtered.length?filtered.map(r=>'<tr>'+columns[group].map(k=>'<td>'+escape(k.endsWith('_id')?nameFor(({company_id:'companies',contact_id:'contacts',deal_id:'deals',pipeline_id:'pipelines',pipeline_stage_id:'stages'}[k]||'contacts'),r[k]):formatValue(r[k]))+'</td>').join('')+'<td><button type="button" class="secondary" data-edit="'+escape(r.id)+'">'+t("تعديل")+'</button>'+(group==='activities'?'<button type="button" class="secondary" data-archive="'+escape(r.id)+'">'+t("أرشفة")+'</button>':'')+'</td></tr>').join(''):'<tr><td colspan="7">'+t("لا توجد سجلات")+'</td></tr>';
+  $('records-head').innerHTML='<tr>'+columns[group].map(k=>'<th>'+escape(t(schema.find(d=>d[0]===k)?.[1]||k))+'</th>').join('')+(group==='contacts'||group==='deals'?'<th>'+(english?'Commercial score':'التقييم التجاري')+'</th>':'')+'<th>'+t('إجراءات')+'</th></tr>';
+  $('records-body').innerHTML=filtered.length?filtered.map(r=>'<tr>'+columns[group].map(k=>'<td>'+escape(k.endsWith('_id')?nameFor(({company_id:'companies',contact_id:'contacts',deal_id:'deals',pipeline_id:'pipelines',pipeline_stage_id:'stages'}[k]||'contacts'),r[k]):formatValue(r[k]))+'</td>').join('')+((group==='contacts'||group==='deals')?'<td>'+escape(commercialCell(r))+'</td>':'')+'<td><button type="button" class="secondary" data-edit="'+escape(r.id)+'">'+t("تعديل")+'</button>'+(group==='activities'?'<button type="button" class="secondary" data-archive="'+escape(r.id)+'">'+t("أرشفة")+'</button>':'')+'</td></tr>').join(''):'<tr><td colspan="7">'+t("لا توجد سجلات")+'</td></tr>';
  }
  function buildField(def,record){
   const [key,label,spec='text',required=false]=def,value=record?.[key];
@@ -517,5 +550,7 @@
  });
  window.addEventListener('appinstalled',()=>{install.hidden=true;hint.textContent='اكتمل تثبيت التطبيق';});
  if('serviceWorker' in navigator){/* Existing site worker only; never register a caching worker for CRM records. */}
- await initialize();
+ try { await initialize(); } finally {
+  document.dispatchEvent(new Event('bonds-crm-workspace-initialized'));
+ }
 })();
