@@ -230,6 +230,20 @@
  async function initialize(){
   try{
    await window.BondsAuth.ensureEnv();db=window.BondsAuth.getSupabase();
+   if(!db?.auth)throw Error(t('تعذر تهيئة المصادقة','Authentication is not initialized'));
+   // A preview hostname has its own browser storage. Missing a session is
+   // an expected signed-out state, not a broken HR database or permission.
+   const sessionResult=await db.auth.getSession();
+   if(sessionResult.error&&sessionResult.error.name!=='AuthSessionMissingError'&&
+      !/auth session missing/i.test(sessionResult.error.message||''))throw sessionResult.error;
+   if(!sessionResult.data?.session){
+    $('hr-auth').hidden=false;
+    const login=$('hr-sign-in');
+    if(login)login.href=(en?'/en':'')+'/calculators/auth/index.html?redirect='+
+     encodeURIComponent(location.pathname+location.search);
+    if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
+    return;
+   }
    user=check(await db.auth.getUser())?.user;
    if(!user){
     $('hr-auth').hidden=false;
