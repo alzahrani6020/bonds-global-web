@@ -458,7 +458,7 @@
           const serviceCode = typeof service.code === 'string' ? service.code : '';
           const allowedWorkspacePaths = ["/en/my-bonds/workspace/","/en/service-request.html"];
           const workspaceHref = allowedWorkspacePaths.includes(workspacePath) && serviceCode
-            ? workspacePath + '?service=' + encodeURIComponent(serviceCode) + '&return_to=%2Fen%2Fmy-bonds%2F'
+            ? workspacePath + '?service=' + encodeURIComponent(serviceCode) + (item.request_reference ? '&reference=' + encodeURIComponent(item.request_reference) : '') + '&return_to=%2Fen%2Fmy-bonds%2F'
             : null;
           const workspaceLabel = workspacePath === '/en/my-bonds/workspace/' ? 'Open service workspace' : 'Open service form';
           const workspaceAction = workspaceHref
