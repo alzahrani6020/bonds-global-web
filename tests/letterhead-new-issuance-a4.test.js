@@ -19,10 +19,10 @@ describe('new correspondence issuance A4 and final PDF', () => {
     expect(preflight).not.toContain("api('transition'");
   });
 
-  test('only issued new documents with finalizer permission auto-finalize, preserving manual retry', () => {
-    expect(source).toContain("if (can('finalize_pdf') && !state.document.artifact_hash)");
-    expect(source).toContain('await persistIssuedPdfArtifact()');
-    expect(source).toContain('catch (finalError)');
+  test('issuance and finalizer permissions remain separate', () => {
+    const transition = source.slice(source.indexOf('async function transition('), source.indexOf('async function mark('));
+    expect(transition).not.toContain('await persistIssuedPdfArtifact()');
+    expect(source).toContain("can('finalize_pdf')");
     expect(source).toContain("if (state.document.artifact_hash) return");
     expect(source).toContain("visible.add('corr-finalize-pdf')");
   });
@@ -67,6 +67,6 @@ describe('new correspondence issuance A4 and final PDF', () => {
       async () => ({ signed_url: 'https://storage.example/file' }),
       async () => ({ ok: true, blob: async () => ({ size: 10, type: 'text/html' }) }),
       { createObjectURL: jest.fn() }, { createElement: jest.fn() }, {}, false);
-    await expect(download()).rejects.toThrow('invalid');
+    await expect(download()).rejects.toThrow(/invalid|غير صالحة/);
   });
 });
