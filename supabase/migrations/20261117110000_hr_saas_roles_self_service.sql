@@ -222,3 +222,121 @@ begin
 end $$;
 revoke all on function public.hr_saas_accept_invitation(uuid) from public,anon,authenticated;
 grant execute on function public.hr_saas_accept_invitation(uuid) to authenticated;
+
+-- Effective-dated, company-reviewed policy inputs for draft HR calculations.
+-- No statutory rate is guessed. Approved means approved by the company owner,
+-- NOT a government attestation or authorization to issue payroll.
+create table public.hr_saas_rule_sets (
+ id uuid primary key default gen_random_uuid(),
+ workspace_id uuid not null references public.hr_saas_workspaces(id) on delete restrict,
+ jurisdiction text not null check(jurisdiction ~ '^[A-Z]{2}$'),
+ effective_from date not null,
+ effective_to date,
+ annual_leave_days numeric(8,4) not null check(annual_leave_days between 0 and 366),
+ accrual_year_days integer not null check(accrual_year_days between 1 and 366),
+ service_tiers jsonb not null check(jsonb_typeof(service_tiers)='array' and pg_column_size(service_tiers)<=16384),
+ status text not null default 'draft' check(status in ('draft','approved')),
+ created_by uuid not null references auth.users(id) on delete restrict,
+ approved_by uuid references auth.users(id) on delete restrict,
+ approved_at timestamptz,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now(),
+ unique(workspace_id,id),
+ unique(workspace_id,jurisdiction,effective_from),
+ check(effective_to is null or effective_to>=effective_from),
+ check((status='draft' and approved_by is null and approved_at is null)
+   or (status='approved' and approved_by is not null and approved_at is not null))
+);
+create index hr_saas_rule_sets_active_idx on public.hr_saas_rule_sets(workspace_id,jurisdiction,effective_from desc);
+create function hr_saas_private.rule_set_guard() returns trigger
+language plpgsql security invoker set search_path='' as $$
+begin
+ if tg_op='INSERT' then
+  if new.status<>'draft' or new.created_by<>(select auth.uid()) then
+   raise exception 'New HR rules must be owner-created drafts' using errcode='23514';
+  end if;
+ else
+  if old.status='approved' then
+   raise exception 'Approved policy rules are immutable' using errcode='23514';
+  end if;
+  if new.workspace_id<>old.workspace_id or new.jurisdiction<>old.jurisdiction
+    or new.created_by<>old.created_by or new.effective_from<>old.effective_from then
+   raise exception 'Policy identity cannot be reassigned' using errcode='23514';
+  end if;
+  if new.status='approved' then
+   new.approved_by=(select auth.uid());new.approved_at=now();
+  end if;
+ end if;
+ if new.status='approved' and exists(
+  select 1 from public.hr_saas_rule_sets p
+  where p.workspace_id=new.workspace_id and p.jurisdiction=new.jurisdiction
+   and p.status='approved' and p.id<>new.id
+   and daterange(p.effective_from,p.effective_to,'[]') &&
+      daterange(new.effective_from,new.effective_to,'[]')
+ ) then
+  raise exception 'Overlapping approved HR policies are not allowed' using errcode='23514';
+ end if;
+ return new;
+end $$;
+revoke all on function hr_saas_private.rule_set_guard() from public,anon,authenticated;
+create trigger hr_saas_rule_set_guard before insert or update on public.hr_saas_rule_sets
+ for each row execute function hr_saas_private.rule_set_guard();
+alter table public.hr_saas_rule_sets enable row level security;
+create policy hr_policy_owner_select on public.hr_saas_rule_sets
+ for select to authenticated using (
+  exists(select 1 from public.hr_saas_workspaces w
+   where w.id=workspace_id and w.owner_user_id=(select auth.uid()))
+  and hr_saas_private.has_active_access(workspace_id));
+create policy hr_policy_owner_insert on public.hr_saas_rule_sets
+ for insert to authenticated with check(
+  created_by=(select auth.uid()) and status='draft'
+  and exists(select 1 from public.hr_saas_workspaces w
+   where w.id=workspace_id and w.owner_user_id=(select auth.uid()))
+  and hr_saas_private.has_active_access(workspace_id));
+create policy hr_policy_owner_update on public.hr_saas_rule_sets
+ for update to authenticated using (
+  exists(select 1 from public.hr_saas_workspaces w
+   where w.id=workspace_id and w.owner_user_id=(select auth.uid()))
+  and hr_saas_private.has_active_access(workspace_id))
+ with check (
+  exists(select 1 from public.hr_saas_workspaces w
+   where w.id=workspace_id and w.owner_user_id=(select auth.uid()))
+  and hr_saas_private.has_active_access(workspace_id));
+revoke all on public.hr_saas_rule_sets from public,anon,authenticated;
+grant select,insert,update on public.hr_saas_rule_sets to authenticated;
+create trigger hr_saas_rule_set_audit after insert or update on public.hr_saas_rule_sets
+ for each row execute function hr_saas_private.audit_change();
+
+create table public.hr_saas_calculation_drafts (
+ id uuid primary key default gen_random_uuid(),
+ workspace_id uuid not null references public.hr_saas_workspaces(id) on delete restrict,
+ employee_id uuid not null,
+ policy_id uuid not null,
+ kind text not null check(kind in ('leave_accrual','end_of_service')),
+ jurisdiction text not null check(jurisdiction ~ '^[A-Z]{2}$'),
+ inputs jsonb not null check(jsonb_typeof(inputs)='object' and pg_column_size(inputs)<=16384),
+ result jsonb not null check(jsonb_typeof(result)='object' and pg_column_size(result)<=16384),
+ status text not null default 'draft' check(status='draft'),
+ created_by uuid not null references auth.users(id) on delete restrict,
+ created_at timestamptz not null default now(),
+ unique(workspace_id,id),
+ foreign key(workspace_id,employee_id) references public.hr_saas_employees(workspace_id,id) on delete restrict,
+ foreign key(workspace_id,policy_id) references public.hr_saas_rule_sets(workspace_id,id) on delete restrict
+);
+alter table public.hr_saas_calculation_drafts enable row level security;
+create policy hr_calculation_owner_select on public.hr_saas_calculation_drafts
+ for select to authenticated using(
+  created_by=(select auth.uid()) and hr_saas_private.has_active_access(workspace_id));
+create policy hr_calculation_owner_insert on public.hr_saas_calculation_drafts
+ for insert to authenticated with check(
+  created_by=(select auth.uid()) and status='draft'
+  and exists(select 1 from public.hr_saas_workspaces w
+   where w.id=workspace_id and w.owner_user_id=(select auth.uid()))
+  and hr_saas_private.has_active_access(workspace_id)
+  and exists(select 1 from public.hr_saas_rule_sets p
+    where p.id=policy_id and p.workspace_id=workspace_id and p.status='approved'
+      and p.jurisdiction=jurisdiction));
+revoke all on public.hr_saas_calculation_drafts from public,anon,authenticated;
+grant select,insert on public.hr_saas_calculation_drafts to authenticated;
+create trigger hr_saas_calculation_audit after insert on public.hr_saas_calculation_drafts
+ for each row execute function hr_saas_private.audit_change();
