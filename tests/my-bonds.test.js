@@ -222,6 +222,12 @@ describe('my-bonds page behaviour', () => {
     expect(elements.workspacesList.innerHTML).toContain('/my-bonds/crm/?workspace_id=94c6dbfe-c53a-4686-ad42-eb01893a3e80');
   });
 
+  test('explicit CRM workspace selection fails closed when not in the RLS-visible list', () => {
+    const crmSource = fs.readFileSync(path.join(__dirname, '..', 'my-bonds', 'crm', 'crm-app.js'), 'utf8');
+    expect(crmSource).toContain('requestedWorkspaceId&&!spaces.some(w=>w.id===requestedWorkspaceId)');
+    expect(crmSource).toContain("$('workspace-content').hidden=true");
+  });
+
   test('request details page uses owner-scoped API readback, not browser storage', () => {
     const detailsPage = fs.readFileSync(path.join(__dirname, '..', 'my-bonds', 'request', 'index.html'), 'utf8');
     expect(detailsPage).toContain('/api/v3/services/requests?reference=');
