@@ -247,6 +247,58 @@ async function runFullPastedLetterGate(browser) {
   }
 }
 
+// Regression of real screenshot: a long numbered item copied with nested
+// formatting must not stop on page 3 with "split paragraph manually".
+async function runLongWordListPasteGate(browser) {
+  const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  const code = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
+  const setPagesCode = code.slice(code.indexOf('  function setPages('), code.indexOf('  function hasMeaningfulDraft()'));
+  const paginatorCode = code.slice(code.indexOf('  function splitOversizedDraftParagraph('), code.indexOf('  async function createPdfBlob()'));
+  if (!setPagesCode.includes('function setPages(') || !paginatorCode.includes('function splitOversizedDraftParagraph(')) {
+    throw new Error('Paste paginator missing');
+  }
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    const result = await page.evaluate(({ setPagesCode, paginatorCode }) => {
+      const container = document.getElementById('pages-container');
+      const content = container.querySelector('.doc-content');
+      const fragment = 'المشاركة الاستثمارية والتمويل والتعاون الاستراتيجي والشراكة المهنية ';
+      const original = fragment.repeat(150);
+      content.innerHTML = '<ol start="1" dir="rtl"><li><p><strong>' + original + '</strong></p></li></ol>';
+      const state = { document: { status: 'draft' }, lastSavedSnapshot: '' };
+      const isEn = false;
+      const canEditCurrent = () => true;
+      const pagesHtml = () => Array.from(container.querySelectorAll('.doc-content')).map(el => el.innerHTML);
+      const snapshot = () => JSON.stringify(pagesHtml());
+      const persistedSnapshot = () => snapshot();
+      const fn = new Function('state','isEn','canEditCurrent','pagesHtml','snapshot','persistedSnapshot',
+        setPagesCode + paginatorCode + '\nreturn paginateEditableSheets();');
+      const changed = fn(state,isEn,canEditCurrent,pagesHtml,snapshot,persistedSnapshot);
+      const sheets = Array.from(container.querySelectorAll('.sheet'));
+      const actual = sheets.map(sheet => sheet.querySelector('.doc-content').textContent).join('');
+      const numbers = sheets.flatMap(sheet => Array.from(sheet.querySelectorAll('.doc-content ol')).map(el => el.getAttribute('start')));
+      const geometry = sheets.map(sheet => ({
+        contentBottom: sheet.querySelector('.doc-content').getBoundingClientRect().bottom,
+        footerTop: sheet.querySelector('.letterhead-footer').getBoundingClientRect().top,
+        overflow: sheet.scrollHeight - sheet.clientHeight
+      }));
+      const formatted = sheets.every(sheet => Array.from(sheet.querySelectorAll('.doc-content li')).every(li => li.querySelector('strong')));
+      return { changed, pages: sheets.length, originalLength: original.length, actualLength: actual.length,
+        textPreserved: actual === original, numbers, geometry, formatted };
+    }, { setPagesCode, paginatorCode });
+    if (!result.changed || result.pages < 3 || !result.textPreserved || !result.formatted ||
+        result.geometry.some(g => g.contentBottom > g.footerTop + 1 || g.overflow > 1) ||
+        result.numbers.some(x => x !== '1')) {
+      throw new Error('Word single-item long-list paste failed: ' + JSON.stringify(result));
+    }
+    console.log(' Word formatted single-item list: ' + result.pages + ' A4 pages; all text and bold formatting preserved PASS');
+  } finally {
+    await page.close();
+  }
+}
+
 async function runLetterheadNestedPaginationGate(browser) {
   const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
@@ -787,6 +839,7 @@ async function runScenarioDropdownInteractionGate(browser) {
   }
 
   try {
+    await runLongWordListPasteGate(browser);
     await runFullPastedLetterGate(browser);
   } catch (err) {
     console.error(' Full pasted-letter A4 acceptance failed: ' + err.message);
