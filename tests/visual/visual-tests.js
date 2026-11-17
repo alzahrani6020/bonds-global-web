@@ -134,21 +134,34 @@ async function runFourPageIssuedPdfGate(browser) {
     }
     // Two real Chromium download events for the exact bytes emitted by the
     // governed exporter. Do not read/write real correspondence or issue IDs.
-    await page.evaluate(() => {
-      const blob = window.__syntheticIssuedPdfDownloadBlob;
-      if (!blob || blob.type !== 'application/pdf') throw new Error('PDF blob missing');
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.id = 'synthetic-issued-pdf-download';
-      anchor.href = url;
-      anchor.download = 'TEST-NOT-ISSUED.pdf';
-      anchor.textContent = 'Download synthetic four-page PDF';
-      document.body.appendChild(anchor);
-    });
+    // Invoke the exact user-facing PDF export handler, including its real
+    // object-URL lifetime and anchor click. Use an isolated saved PDF blob so
+    // no user/official correspondence or backend credentials are involved.
+    const handlerStart = source.indexOf('  window.exportPDF = async function () {');
+    const handlerEnd = source.indexOf("  document.addEventListener('DOMContentLoaded'", handlerStart);
+    if (handlerStart < 0 || handlerEnd <= handlerStart) throw new Error('Actual PDF download handler missing');
+    await page.evaluate(handlerSource => {
+      const pdf = window.__syntheticIssuedPdfDownloadBlob;
+      if (!pdf || pdf.type !== 'application/pdf') throw new Error('PDF blob missing');
+      const testState = { document: { artifact_hash: null, reference_number: 'TEST-NOT-ISSUED' } };
+      const restoreCanonicalLockedDocument = async () => {};
+      const downloadOfficialPdf = async () => { throw new Error('Official download must not execute in synthetic test'); };
+      const toast = () => {};
+      const createPdfBlob = async () => pdf;
+      const install = new Function('state', 'isEn', 'restoreCanonicalLockedDocument',
+        'downloadOfficialPdf', 'toast', 'createPdfBlob',
+        handlerSource + '\\nreturn window.exportPDF;');
+      install(testState, false, restoreCanonicalLockedDocument, downloadOfficialPdf, toast, createPdfBlob);
+      const button = document.createElement('button');
+      button.id = 'test-real-pdf-export-button';
+      button.textContent = 'تنزيل PDF';
+      button.addEventListener('click', () => window.exportPDF());
+      document.body.appendChild(button);
+    }, source.slice(handlerStart, handlerEnd));
     const fingerprints = [];
     for (let attempt = 0; attempt < 2; attempt++) {
       const pending = page.waitForEvent('download', { timeout: 15000 });
-      await page.locator('#synthetic-issued-pdf-download').click();
+      await page.locator('#test-real-pdf-export-button').click();
       const download = await pending;
       if (download.suggestedFilename() !== 'TEST-NOT-ISSUED.pdf') {
         throw new Error('Unexpected PDF download filename: ' + download.suggestedFilename());
