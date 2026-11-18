@@ -2,7 +2,7 @@ name: Office document delivery acceptance
 
 on:
   push:
-    branches: [main, diagnose/office-document-delivery-20261118, fix/office-language-fallback-20261118]
+    branches: [main, diagnose/office-document-delivery-20261118, fix/office-language-fallback-20261118, fix/office-summary-routing-20261118]
     paths:
       - '.github/workflows/office-source-diagnosis.yml'
       - 'lib/assistant/office-research.js'

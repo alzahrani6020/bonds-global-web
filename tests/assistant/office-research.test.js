@@ -19,13 +19,16 @@ function tools({data=summary(),fetchOk=true,verification=null,rows=[page]}={}) {
 }
 const ask = () => runUniversalOrchestrator([{role:'user',content:'من هو وزير الداخلية السعودي؟'}],{},{});
 beforeEach(()=>executeGovernedAction.mockReset());
-test.each([true,false])('uses one bounded Arabic-summary fallback after an unsupported English article (verified=%s)',async(valid)=>{
+test.each([true,false])('uses one bounded index fallback if the live Arabic provider has no verified holder (verified=%s)',async(valid)=>{
   let searches=0;
   executeGovernedAction.mockImplementation(async({action,input})=>{
     if(action==='web_search') {
       searches++;
-      if(searches===1) return {ok:true,result:{results:[{url:'https://en.wikipedia.org/wiki/Ministry_of_Interior_(Saudi_Arabia)',title:'Ministry of Interior'}]}};
-      expect(input.disabledProviders).toContain('bing');
+      if(searches===1) {
+        expect(input.disabledProviders).toContain('bing');
+        return {ok:false,error:{code:'SEARCH_NO_RESULTS'}};
+      }
+      expect(input.disabledProviders).toBeUndefined();
       return {ok:true,evidence:{search_engine:'wikipedia-summary'},result:{results:[{...ministryPage,
         snippet:valid?ministryExtract:ministryExtract.replace(/الداخلية/gu,'الخارجية')}]}};
     }
@@ -47,6 +50,7 @@ test('reads a live API document and passes its actual role claim through the rea
   expect(result.research.decision_eligible).toBe(true);
   expect(executeGovernedAction.mock.calls.map(([c])=>c.action)).toEqual(['web_search','web_fetch','evidence_verify']);
   expect(executeGovernedAction.mock.calls[0][0].input.query).toBe('وزير الداخلية السعودي');
+  expect(executeGovernedAction.mock.calls[0][0].input.disabledProviders).toContain('bing');
   expect(executeGovernedAction.mock.calls[1][0].input.url).toContain('https://ar.wikipedia.org/api/rest_v1/page/summary/');
 });
 test.each([
@@ -109,7 +113,7 @@ test('rejects a contested verifier result',async()=>{
 test('bounds document attempts without falling back to a model or crawler',async()=>{
   tools({fetchOk:false,rows:[page,page,page]});
   await ask();
-  expect(executeGovernedAction.mock.calls.map(([c])=>c.action)).toEqual(['web_search','web_fetch','web_fetch']);
+  expect(executeGovernedAction.mock.calls.map(([c])=>c.action)).toEqual(['web_search','web_fetch','web_fetch','web_search','web_fetch','web_fetch']);
 });
 test('office diagnostics omit credentials and source bodies',async()=>{
   const log=jest.spyOn(console,'info').mockImplementation(()=>{});
