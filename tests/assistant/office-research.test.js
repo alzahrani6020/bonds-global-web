@@ -103,3 +103,29 @@ test('office diagnostics omit credentials and source bodies',async()=>{
     expect(output).not.toContain(extract);
   } finally {log.mockRestore();}
 });
+test('resolves the current foreign minister in the observed ministry succession clause',async()=>{
+  const text='وزارة الخارجية السعودية، هي الوزارة المسؤولة عن العلاقات الخارجية الدبلوماسية مع الدول الأجنبية بالمملكة العربية السعودية، وهي أول وزارة أنشئت بالمملكة وقد تأسست في 26 رجب 1349هـ الموافق 16 ديسمبر 1930م ، ثم تحولت بالأمر الملكي السامي إلى وزارة، وأول وزير لها الأمير فيصل بن عبد العزيز، ثم تطورت وأصبح وزيرها الأمير فيصل بن فرحان بن عبد الله بن فيصل آل سعود منذ 23 أكتوبر 2019م.';
+  const source={url:'https://ar.wikipedia.org/wiki/وزارة_الخارجية_(السعودية)',title:'وزارة الخارجية (السعودية)',snippet:text,status_code:200};
+  executeGovernedAction.mockImplementation(async({action,input})=>{
+    if(action==='web_search') return {ok:true,evidence:{search_engine:'wikipedia-summary'},result:{results:[source]}};
+    if(action==='evidence_verify') return verifyEvidence(input);
+    throw new Error('Unexpected action');
+  });
+  const result=await runUniversalOrchestrator([{role:'user',content:'من وزير الخارجية السعودي'}],{}, {conversationMode:'financial'});
+  expect(result.reply).toContain('فيصل بن فرحان بن عبد الله بن فيصل آل سعود هو وزير الخارجية في السعودية');
+  expect(result.reply).not.toContain('فيصل بن عبد العزيز');
+  expect(result.research.decision_eligible).toBe(true);
+  for (const candidate of [
+    {...source,title:'وزارة الداخلية (السعودية)'},
+    {...source,snippet:text.replace('وأصبح وزيرها','وأصبح مساعد وزيرها')},
+    {...source,snippet:text.replace('وأصبح وزيرها','وأصبح وزيرها السابق')}
+  ]) {
+    executeGovernedAction.mockImplementation(async({action,input})=>{
+      if(action==='web_search') return {ok:true,evidence:{search_engine:'wikipedia-summary'},result:{results:[candidate]}};
+      if(action==='evidence_verify') return verifyEvidence(input);
+      throw new Error('Unexpected action');
+    });
+    const rejected=await runUniversalOrchestrator([{role:'user',content:'من وزير الخارجية السعودي'}],{}, {conversationMode:'financial'});
+    expect(rejected.research.decision_eligible).toBe(false);
+  }
+});
