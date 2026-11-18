@@ -10,6 +10,16 @@ const { runUniversalOrchestrator, runDeterministicLocalTools } = require('../../
 
 describe('minister office routing (production failure acf04343)', () => {
   beforeEach(() => { executeGovernedAction.mockReset(); runResearchWorkflow.mockReset(); });
+  test.each(['الداخلية','الخارجية','المالية','الدفاع','الصحة','التعليم'].flatMap(portfolio =>
+    ['من','من هو','من هي',''].map(prefix=>[portfolio,`${prefix} وزير ${portfolio} السعودي`.trim()])))(
+    'classifies ordinary %s office wording as a scoped relation: %s', (portfolio,question) => {
+      const plan=resolveLanguageQuery(question);
+      expect(plan.intent).toBe('relation_lookup');
+      expect(plan.entity_frame.entity_type).toBe('relation');
+      expect(plan.entity.relation.value).toBe('وزير '+portfolio);
+      expect(plan.selected_query).toBe('وزير '+portfolio+' السعودي');
+      expect(plan.entity.person_entity_frame).toBeUndefined();
+  });
   test.each(['من هو وزير الداخليه','من هو وزير الداخلية؟','who is the minister of interior?'])(
     'clarifies the jurisdiction without searching a person profile: %s', async question => {
       const plan = resolveLanguageQuery(question);

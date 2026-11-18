@@ -19,3 +19,11 @@ test('the gate rejects research that exceeds its 30 second acceptance budget', a
   await expect(assertMinisterOfficeSmoke({baseUrl:'https://staged.example',token:'synthetic-fixture',request:async()=>verified,now}))
     .rejects.toThrow('elapsed_ms=45000');
 });
+test('checks the new screenshot in financial mode and rejects an interior-only answer', async()=>{
+  const office={question:'من وزير الخارجية السعودي',portfolio:'الخارجية',conversationMode:'financial'};
+  await expect(assertMinisterOfficeSmoke({...office,baseUrl:'https://staged.example',token:'synthetic-fixture',request:async()=>verified}))
+    .rejects.toThrow('MINISTER_OFFICE_SMOKE_FAILED');
+  const request=jest.fn().mockResolvedValue({...verified,body:{...verified.body,reply:verified.body.reply.replace('الداخلية','الخارجية')}});
+  await assertMinisterOfficeSmoke({...office,baseUrl:'https://staged.example',token:'synthetic-fixture',request});
+  expect(JSON.parse(request.mock.calls[0][1].body)).toMatchObject({conversation_mode:'financial',messages:[{role:'user',content:'من وزير الخارجية السعودي'}]});
+});

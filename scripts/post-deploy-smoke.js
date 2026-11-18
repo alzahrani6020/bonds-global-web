@@ -966,8 +966,9 @@ async function main() {
     const token = await getAuthenticatedToken();
     const {runOfficeResearch} = require('../lib/assistant/office-research');
     const {resolveLanguageQuery} = require('../lib/assistant/language-query-resolver');
+    for (const question of ['من هو وزير الداخلية السعودي؟','من وزير الخارجية السعودي','من هو وزير المالية السعودي؟']) {
     const requestId = 'e2e-office-tools-' + Date.now();
-    const result = await runOfficeResearch(resolveLanguageQuery('من هو وزير الداخلية السعودي؟'),
+    const result = await runOfficeResearch(resolveLanguageQuery(question),
       {requestId}, [], async ({action,input}) => {
         if (!['web_search','web_fetch','evidence_verify'].includes(action)) throw new Error('OFFICE_READ_ACTION_REQUIRED');
         // Exercise the precise live fallback that failed the repeated gate.
@@ -984,6 +985,7 @@ async function main() {
           ? response.body : {ok:false,error:{code:'OFFICE_INVALID_TOOL_RESPONSE'}};
       });
     if (!result.decisionEligible) throw new Error('OFFICE_TOOL_DELIVERY_NOT_VERIFIED');
+    }
     console.log('Office live document and governed tool delivery PASS');
     return;
   }
@@ -994,6 +996,14 @@ async function main() {
     await assertMinisterOfficeSmoke({baseUrl:cfg.baseUrl,token,
       request:String(process.env.PERSON_LOOKUP_USE_VERCEL_CURL || '').toLowerCase() === 'true'
         ? fetchJsonViaVercelCurl : fetchJson});
+    for (const office of [
+      {question:'من وزير الخارجية السعودي',portfolio:'الخارجية',conversationMode:'financial'},
+      {question:'من هو وزير المالية السعودي؟',portfolio:'المالية',conversationMode:'general'}
+    ]) {
+      await assertMinisterOfficeSmoke({...office,baseUrl:cfg.baseUrl,token,
+        request:String(process.env.PERSON_LOOKUP_USE_VERCEL_CURL || '').toLowerCase() === 'true'
+          ? fetchJsonViaVercelCurl : fetchJson});
+    }
     console.log('Authenticated person lookup smoke test: PASS');
     return;
   }
