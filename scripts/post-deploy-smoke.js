@@ -961,6 +961,28 @@ async function assertPersonLookupSmoke(token) {
 async function main() {
   console.log('Starting authenticated Production smoke verification');
 
+  if (process.env.OFFICE_TOOL_DIAGNOSIS_ONLY === 'true') {
+    if (cfg.baseUrl !== 'https://bonds-global.com') throw new Error('OFFICE_DIAGNOSIS_ORIGIN_REQUIRED');
+    const token = await getAuthenticatedToken();
+    const {runOfficeResearch} = require('../lib/assistant/office-research');
+    const {resolveLanguageQuery} = require('../lib/assistant/language-query-resolver');
+    const requestId = 'e2e-office-tools-' + Date.now();
+    const result = await runOfficeResearch(resolveLanguageQuery('من هو وزير الداخلية السعودي؟'),
+      {requestId}, [], async ({action,input}) => {
+        if (!['web_search','web_fetch','evidence_verify'].includes(action)) throw new Error('OFFICE_READ_ACTION_REQUIRED');
+        const response = await fetchJson(cfg.baseUrl + '/api/v3/capabilities/execute', {
+          method:'POST',redirect:'error',headers:{Authorization:'Bearer ' + token,
+            'Content-Type':'application/json','X-Request-ID':requestId},
+          body:JSON.stringify({action,input})
+        });
+        return response.body && typeof response.body === 'object'
+          ? response.body : {ok:false,error:{code:'OFFICE_INVALID_TOOL_RESPONSE'}};
+      });
+    if (!result.decisionEligible) throw new Error('OFFICE_TOOL_DELIVERY_NOT_VERIFIED');
+    console.log('Office live document and governed tool delivery PASS');
+    return;
+  }
+
   if (String(process.env.PERSON_LOOKUP_SMOKE_ONLY || '').toLowerCase() === 'true') {
     const token = await getAuthenticatedToken();
     await assertPersonLookupSmoke(token);
