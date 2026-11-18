@@ -63,3 +63,15 @@ test('bounds document attempts without falling back to a model or crawler',async
   await ask();
   expect(executeGovernedAction.mock.calls.map(([c])=>c.action)).toEqual(['web_search','web_fetch','web_fetch']);
 });
+test('office diagnostics omit credentials and source bodies',async()=>{
+  const log=jest.spyOn(console,'info').mockImplementation(()=>{});
+  try {
+    tools();
+    await runUniversalOrchestrator([{role:'user',content:'من هو وزير الداخلية السعودي؟'}],{},
+      {requestId:'e2e-public-office',req:{headers:{authorization:'Bearer synthetic-private-credential'}}});
+    const output=log.mock.calls.map(call=>call.join(' ')).join('\n');
+    expect(output).toContain('assistant-office-document');
+    expect(output).not.toContain('synthetic-private-credential');
+    expect(output).not.toContain(extract);
+  } finally {log.mockRestore();}
+});
