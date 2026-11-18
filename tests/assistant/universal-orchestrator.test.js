@@ -364,12 +364,42 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(recoverPlannerDecision('You are BONDS Assistant, an agent that uses registered capabilities.\nnope')).toBeNull();
   });
 
-  test('recovers a length-truncated planner JSON answer instead of pretending the model is down', () => {
+  test('does not accept an open truncated answer string as a completed response', () => {
     const truncated = '{"mode":"answer","answer":"بصفتي مساعدك في الاستثمار ودعم اتخاذ القرار، يمكنني تقديم إرشادات عامة حول كيفية عمل الميزانية. عملية عمل الميزانية تعتمد بشكل كبير على الهدف (هل هي ميزانية شخصية، ميزانية عمل، ميزانية مشروع، إلخ) وعلى الأدوات المتاحة لك. \\n\\n**بشكل عام، تتضمن عملية عمل الميزانية الخطوات الأساسية التالية:**\\n\\n1. **تحديد الهدف:** لماذا تقوم بعمل الميزانية؟ (مثل: الادخار لشراء منزل';
     const recovered = recoverPlannerDecision(truncated);
-    expect(recovered.mode).toBe('answer');
-    expect(recovered.answer).toContain('كيفية عمل الميزانية');
-    expect(recovered.answer).toContain('تحديد الهدف');
+    expect(recovered).toBeNull();
+  });
+
+  test('keeps recovery of a closed answer when only its outer JSON brace is missing',()=>{
+    expect(recoverPlannerDecision('{"mode":"answer","answer":"إجابة كاملة وقصيرة."'))
+      .toEqual({mode:'answer',answer:'إجابة كاملة وقصيرة.'});
+  });
+
+  test('marks an output-budget truncation as a failed incomplete response',async()=>{
+    executeGovernedAction.mockResolvedValue({ok:true,result:{text:'{"mode":"answer","answer":"هذا جواب لم ينته',finish_reason:'length'}});
+    const result=await runUniversalOrchestrator([{role:'user',content:'اشرح طريقة تنظيم العمل بخطوات واضحة'}],{},
+      {req:{headers:{}},user:{id:'u1'},supabase:{}});
+    expect(result.failure).toBe('PLANNER_OUTPUT_TRUNCATED');
+    expect(result.degraded).toBe(true);
+    expect(result.reply).not.toContain('هذا جواب لم ينته');
+  });
+
+  test('finishes the observed contextual comparison without a planner generation',async()=>{
+    const math=require('../../lib/capabilities/runtime-adapters').getRuntimeAdapter('assistant_math_calculate');
+    executeGovernedAction.mockImplementation(async({action,input})=>{
+      if(action!=='math_calculate') throw new Error('UNEXPECTED_PLANNER_OR_TOOL');
+      return math(input);
+    });
+    const result=await runUniversalOrchestrator([
+      {role:'user',content:'الحالة أ رأس مالها 100000 ريال وصافي ربحها السنوي 20000 ريال. الحالة ب رأس مالها 100000 ريال وصافي ربحها السنوي 30000 ريال.'},
+      {role:'assistant',content:'يمكنك المقارنة.'},
+      {role:'user',content:'قارن بين الحالتين السابقتين من حيث صافي الربح السنوي ونسبة العائد على رأس المال، واحسب الفرق بينهما.'}
+    ],{}, {req:{headers:{}},user:{id:'u1'},supabase:{}});
+    expect(result.reply).toContain('العائد 20%');
+    expect(result.reply).toContain('العائد 30%');
+    expect(result.reply).toContain('العائد: 10 نقطة مئوية.');
+    expect(result.planner).toBe('universal-v2-deterministic-comparison');
+    expect(executeGovernedAction.mock.calls.map(([call])=>call.action)).toEqual(Array(5).fill('math_calculate'));
   });
 
   test('does not use fast snippet path for person lookup and requires two independent publishers', async () => {

@@ -1,0 +1,38 @@
+name: Contextual comparison tool acceptance
+
+on:
+  push:
+    branches: [main, fix/contextual-comparison-20261118]
+    paths:
+      - '.github/workflows/comparison-source-diagnosis.yml'
+      - 'lib/assistant/investment-comparison.js'
+      - 'scripts/comparison-smoke.js'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  comparison-tools:
+    if: github.repository == 'alzahrani6020/bonds-global-web' && github.actor == 'alzahrani6020'
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci
+      - name: Verify five existing governed math operations without deployment
+        run: npm run test:production-smoke
+        env:
+          COMPARISON_TOOL_DIAGNOSIS_ONLY: 'true'
+          PRODUCTION_URL: https://bonds-global.com
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+          E2E_ADMIN_TOTP_SECRET: ${{ secrets.E2E_ADMIN_TOTP_SECRET }}
