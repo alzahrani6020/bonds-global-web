@@ -65,7 +65,12 @@ jobs:
           NODE
 
       - name: Review install-time script surface
-        run: node scripts/security/install-script-inventory.js
+        # npm ci above deliberately skips scripts. Apply and verify the
+        # reviewed source mitigation explicitly before security evaluation.
+        run: |
+          node scripts/security/picomatch-guard.js --require-installed
+          node scripts/security/picomatch-guard.js --verify --require-installed
+          node scripts/security/install-script-inventory.js
 
       - name: Generate CycloneDX SBOM
         shell: bash

@@ -7,6 +7,7 @@ const baseline = JSON.parse(fs.readFileSync('.github/security/advisory-baseline.
 const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
 const prodAudit = JSON.parse(fs.readFileSync('audit-prod.json', 'utf8'));
 const fullAudit = JSON.parse(fs.readFileSync('audit-all.json', 'utf8'));
+const { applyOrVerify, isLocallyMitigated } = require('./picomatch-guard');
 
 function advisoryId(via) {
   if (via && typeof via.url === 'string') {
@@ -96,6 +97,11 @@ function cmpVersion(a, b) {
 }
 
 const policyViolations = [];
+// The upstream version remains visible to npm audit after this local fix.
+// Recognize only this reviewed dev-only mitigation after verifying the exact
+// installed source; all other new highs and all production highs still block.
+const verifiedPatches = applyOrVerify({verify:true,requireInstalled:true});
+const locallyFixed = advisory => isLocallyMitigated(advisory,verifiedPatches);
 for (const [name, minimum] of Object.entries(baseline.minimumVersions || {})) {
   const actual = lock.packages?.['node_modules/' + name]?.version || null;
   if (!actual || cmpVersion(actual, minimum) < 0) {
@@ -107,7 +113,7 @@ for (const change of changes) {
   const after = change.after;
   if (!after) continue;
   const highOrCritical = ['high', 'critical'].includes(after.severity);
-  if (change.type === 'NEW' && highOrCritical) {
+  if (change.type === 'NEW' && highOrCritical && !locallyFixed(after)) {
     policyViolations.push({ type: 'NEW_UNREVIEWED_HIGH', advisory: after });
   }
   if (change.type === 'NEW' && after.scope === 'prod' && highOrCritical) {
@@ -122,6 +128,7 @@ for (const change of changes) {
 }
 
 const report = {
+  localMitigations: verifiedPatches,
   generatedAt: new Date().toISOString(),
   gitSha: execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim(),
   baselineSourceSha: baseline.sourceSha || null,
