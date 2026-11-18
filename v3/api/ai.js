@@ -503,6 +503,7 @@ async function aiChatHandlerImpl(req, res) {
         model: null,
         ...(protocolActions.length ? { actions: protocolActions } : {}),
         ...(Array.isArray(deterministic.ui) && deterministic.ui.length ? { ui: deterministic.ui } : {}),
+        ...(deterministic.failure ? { fallback_reason: deterministic.failure } : {}),
         inference: {
           planner: deterministic.planner || 'universal-v2-deterministic-tool',
           tool_used: deterministic.toolUsed === true,

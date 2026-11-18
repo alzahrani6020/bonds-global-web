@@ -410,7 +410,7 @@ describe('universal orchestrator free-chat routing', () => {
     }
   });
 
-  test('length-truncated planner JSON is shown as the answer instead of PLANNER_UNAVAILABLE', async () => {
+  test('length-truncated output is reported honestly without declaring a complete answer or a runtime outage', async () => {
     const { mod } = loadHarness({
       plannerReplies:[
         '{"mode":"answer","answer":"يمكنني تقديم إرشادات عامة حول كيفية عمل الميزانية. العملية تعتمد على الهدف. \\n\\n1. **تحديد الهدف:** لماذا تقوم بعمل الميزانية؟ (مثل: الادخار لشراء منزل'
@@ -425,9 +425,10 @@ describe('universal orchestrator free-chat routing', () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(result.degraded).not.toBe(true);
-    expect(result.failure).toBeUndefined();
-    expect(result.reply).toContain('كيفية عمل الميزانية');
+    expect(result.degraded).toBe(true);
+    expect(result.failure).toBe('PLANNER_OUTPUT_TRUNCATED');
+    expect(result.reply).not.toContain('كيفية عمل الميزانية');
+    expect(result.reply).toContain('حد الإخراج');
     expect(result.reply).not.toContain('تعذر الوصول إلى خدمة الذكاء');
   });
 

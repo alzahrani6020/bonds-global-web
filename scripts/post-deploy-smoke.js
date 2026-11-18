@@ -7,6 +7,7 @@ const { createClient } = require('@supabase/supabase-js');
 const canonicalModel = require('../services/bonds_native_inference/canonical-model.json');
 const { assertAssistantProduction } = require('./assistant-production-smoke');
 const { assertMinisterOfficeSmoke } = require('./minister-office-smoke');
+const { assertComparisonSmoke } = require('./comparison-smoke');
 const { runSyntheticProductionJourneys } = require('../lib/assistant/synthetic-production-journeys');
 const { runProductionConversationalSmoke } = require('../lib/assistant/production-conversational-smoke');
 const { runProductionToolSmoke } = require('../lib/assistant/production-tool-smoke');
@@ -961,6 +962,23 @@ async function assertPersonLookupSmoke(token) {
 async function main() {
   console.log('Starting authenticated Production smoke verification');
 
+  if (process.env.COMPARISON_TOOL_DIAGNOSIS_ONLY === 'true') {
+    if (cfg.baseUrl !== 'https://bonds-global.com') throw new Error('COMPARISON_DIAGNOSIS_ORIGIN_REQUIRED');
+    const token=await getAuthenticatedToken();
+    const {runInvestmentComparison}=require('../lib/assistant/investment-comparison');
+    const {assertComparisonTools}=require('./comparison-smoke');
+    await assertComparisonTools({run:runInvestmentComparison,requestId:'e2e-comparison-tools-'+Date.now(),
+      execute:async({action,input})=>{
+        if(action!=='math_calculate') throw new Error('COMPARISON_READ_ACTION_REQUIRED');
+        const response=await fetchJson(cfg.baseUrl+'/api/v3/capabilities/execute',{
+          method:'POST',redirect:'error',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+          body:JSON.stringify({action,input})
+        });
+        return response.body;
+      }});
+    return;
+  }
+
   if (process.env.OFFICE_TOOL_DIAGNOSIS_ONLY === 'true') {
     if (cfg.baseUrl !== 'https://bonds-global.com') throw new Error('OFFICE_DIAGNOSIS_ORIGIN_REQUIRED');
     const token = await getAuthenticatedToken();
@@ -1004,6 +1022,9 @@ async function main() {
         request:String(process.env.PERSON_LOOKUP_USE_VERCEL_CURL || '').toLowerCase() === 'true'
           ? fetchJsonViaVercelCurl : fetchJson});
     }
+    await assertComparisonSmoke({baseUrl:cfg.baseUrl,token,
+      request:String(process.env.PERSON_LOOKUP_USE_VERCEL_CURL || '').toLowerCase() === 'true'
+        ? fetchJsonViaVercelCurl : fetchJson});
     console.log('Authenticated person lookup smoke test: PASS');
     return;
   }
