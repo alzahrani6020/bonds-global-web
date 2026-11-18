@@ -482,6 +482,36 @@ async function main(){
   const crossTenant=await as(other,()=>db.query(
    "select id from hr_saas_workspaces where id=$1",[linked.id]));
   assert.equal(crossTenant.rowCount,0,'Shared company HR still requires tenant isolation');
+  // Admin-approved time-limited pilot: no Stripe charge, no forged browser grants.
+  // The existing entitlement grant model must expire access without deleting data.
+  const trialCompany=(await as(crmOnly,()=>db.query(
+   "insert into crm_app_workspaces(owner_user_id,name) values($1,'Pilot HR Company') returning id",[crmOnly]))).rows[0].id;
+  await assert.rejects(()=>as(crmOnly,()=>db.query(
+   "insert into hr_saas_workspaces(owner_user_id,name,crm_workspace_id) values($1,'Before pilot',$2)",
+   [crmOnly,trialCompany])),e=>e.code==='42501','CRM-only license must not unlock HR');
+  await db.query(
+   "insert into company_program_entitlements(owner_user_id,product_code,status,starts_at,ends_at) values($1,'hr','trial',now(),now()+interval '1 hour')",
+   [crmOnly]);
+  const pilotWorkspace=(await as(crmOnly,()=>db.query(
+   "insert into hr_saas_workspaces(owner_user_id,name,crm_workspace_id) values($1,'Pilot HR Company',$2) returning id",
+   [crmOnly,trialCompany]))).rows[0].id;
+  const pilotEmployee=(await as(crmOnly,()=>db.query(
+   "insert into hr_saas_employees(workspace_id,employee_number,full_name) values($1,'TRIAL-01','Pilot Employee') returning id",
+   [pilotWorkspace]))).rows[0].id;
+  const accessible=await as(crmOnly,()=>db.query(
+   "select id from hr_saas_employees where id=$1",[pilotEmployee]));
+  assert.equal(accessible.rowCount,1,'Admin-granted HR trial must enable pilot');
+  await db.query(
+   "update company_program_entitlements set status='expired' where owner_user_id=$1 and product_code='hr'",
+   [crmOnly]);
+  const expiredView=await as(crmOnly,()=>db.query(
+   "select id from hr_saas_employees where id=$1",[pilotEmployee]));
+  assert.equal(expiredView.rowCount,0,'Expired pilot must revoke HR reads');
+  await assert.rejects(()=>as(crmOnly,()=>db.query(
+   "insert into hr_saas_employees(workspace_id,employee_number,full_name) values($1,'TRIAL-02','Denied')",
+   [pilotWorkspace])),e=>e.code==='42501','Expired pilot must reject HR writes');
+  const retainedPilot=await db.query("select id from hr_saas_employees where id=$1",[pilotEmployee]);
+  assert.equal(retainedPilot.rowCount,1,'Trial expiration must preserve personnel records');
   // Confirm source rows were preserved, merely inaccessible under an expired entitlement.
   const original=await db.query('select id from hr_saas_records where id=$1',[rec]);
   assert.equal(original.rowCount,1,'Subscription cancellation must never delete HR history');
