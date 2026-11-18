@@ -19,6 +19,26 @@ function tools({data=summary(),fetchOk=true,verification=null,rows=[page]}={}) {
 }
 const ask = () => runUniversalOrchestrator([{role:'user',content:'من هو وزير الداخلية السعودي؟'}],{},{});
 beforeEach(()=>executeGovernedAction.mockReset());
+test.each([true,false])('uses one bounded Arabic-summary fallback after an unsupported English article (verified=%s)',async(valid)=>{
+  let searches=0;
+  executeGovernedAction.mockImplementation(async({action,input})=>{
+    if(action==='web_search') {
+      searches++;
+      if(searches===1) return {ok:true,result:{results:[{url:'https://en.wikipedia.org/wiki/Ministry_of_Interior_(Saudi_Arabia)',title:'Ministry of Interior'}]}};
+      expect(input.disabledProviders).toContain('bing');
+      return {ok:true,evidence:{search_engine:'wikipedia-summary'},result:{results:[{...ministryPage,
+        snippet:valid?ministryExtract:ministryExtract.replace(/الداخلية/gu,'الخارجية')}]}};
+    }
+    if(action==='web_fetch') return {ok:true,result:{text:'<html><title>Ministry of Interior</title><body>Saudi ministry.</body></html>',content_type:'text/html'}};
+    if(action==='evidence_verify') return verifyEvidence(input);
+    throw new Error('Unexpected action');
+  });
+  const result=await ask();
+  expect(searches).toBe(2);
+  expect(result.research.decision_eligible).toBe(valid);
+  if(valid) expect(result.reply).toContain('عبد العزيز بن سعود بن نايف هو وزير الداخلية');
+  expect(result.reply).not.toContain('Saudi ministry');
+});
 test('reads a live API document and passes its actual role claim through the real verifier',async()=>{
   tools();
   const result = await ask();
