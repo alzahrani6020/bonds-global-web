@@ -11,7 +11,7 @@ alter table public.hr_saas_workspaces
   references public.crm_app_workspaces(id) on delete restrict;
 -- Enforce same-owner linkage for privileged inserts as well as RLS clients.
 create function hr_saas_private.assert_crm_workspace_owner()
-returns trigger language plpgsql set search_path='' as $
+returns trigger language plpgsql set search_path='' as $$
 begin
  if new.crm_workspace_id is null or not exists (
   select 1 from public.crm_app_workspaces c
@@ -21,7 +21,7 @@ begin
    using errcode='23514';
  end if;
  return new;
-end $;
+end $$;
 create trigger hr_saas_workspace_owner_guard
  before insert on public.hr_saas_workspaces for each row
  execute function hr_saas_private.assert_crm_workspace_owner();
