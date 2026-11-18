@@ -42,6 +42,8 @@ describe('minister office routing (production failure acf04343)', () => {
       .toEqual(expect.arrayContaining([expect.objectContaining({predicate:'relation.holder',value:'أحمد بن محمد',verification_state:'VERIFIED'})]));
     expect(fabric('التقى الأمير أحمد بن محمد وزير الخارجية، المسؤولين اليوم.').fused_claims).toHaveLength(0);
     expect(fabric('الأمير أحمد بن محمد وزير الداخلية السابق، حضر الاجتماع.').fused_claims).toHaveLength(0);
+    expect(buildClaimFabric({entityFrame:resolveLanguageQuery('من هو وزير الداخلية في مصر؟').entity_frame,
+      sources:[source('الأمير أحمد بن محمد وزير الداخلية في المملكة العربية السعودية.')] }).fused_claims).toHaveLength(0);
   });
   test('renders the verified holder with its evidence URL and no personal-profile seeds', async () => {
     const question = 'من هو وزير الداخلية السعودي؟';
