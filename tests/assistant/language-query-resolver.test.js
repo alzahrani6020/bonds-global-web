@@ -8,6 +8,15 @@ const {
 } = require('../../lib/assistant/language-query-resolver');
 
 describe('BONDS language and query resolver', () => {
+  test.each([
+    'الموقع الرسمي البنك المركزي السعودي',
+    'الموقع الرسمي للبنك المركزي السعودي',
+    'Saudi Central Bank official website'
+  ])('requires research for an official URL without a search command: %s', query => {
+    expect(resolveLanguageQuery(query)).toEqual(expect.objectContaining({
+      intent:'official_url', requires_research:true
+    }));
+  });
   test('normalizes Arabic orthography without altering the displayed raw entity', () => {
     expect(normalizeArabicSearch('  أَحمدُ آلزهراني؟ ')).toBe('احمد الزهراني');
   });

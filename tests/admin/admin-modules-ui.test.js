@@ -234,6 +234,10 @@ describe('admin linked modules UI', () => {
 
         const status = response ? response.status() : null;
 
+        // Auth/layout initialization can finish after the short navigation
+        // stabilization delay. Await actual visible content; a genuinely blank
+        // module must still fail this test after the bounded render deadline.
+        await page.waitForFunction(() => Boolean(document.body?.innerText.trim()), null, { timeout:5000 });
         const bodyText = await page.locator('body').innerText().catch(() => '');
 
         if (status && status >= 400) {

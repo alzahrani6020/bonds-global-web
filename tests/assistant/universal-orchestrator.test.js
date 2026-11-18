@@ -28,6 +28,24 @@ describe('BONDS planner-first universal orchestrator', () => {
     executeGovernedAction.mockReset();
   });
 
+  test('returns form plan controls instead of treating browser work as a completed write', async () => {
+    executeGovernedAction.mockImplementation(async ({action}) => {
+      if (action === 'ai_reason') return {ok:true,result:{text:JSON.stringify({mode:'tool',action:'form_save_draft',input:{form:'kyc'}})}};
+      if (action === 'form_save_draft') return {ok:true,executed:true,result:{
+        planned:true,status:'ready',reply:'جاهز لحفظ المسودة؛ لم تُحفظ بعد.',
+        actions:[{id:'a',type:'form_save_draft',target:'kyc',risk:'medium'}],ui:[]
+      }};
+      throw new Error('UNEXPECTED_ACTION:'+action);
+    });
+    const result=await runUniversalOrchestrator([{role:'user',content:'جهز مسودة نموذج اعرف عميلك'}],{}, {conversationMode:'execute'});
+    expect(result.execution_completed).toBe(false);
+    expect(result.actions[0]).toMatchObject({type:'form_save_draft',target:'kyc'});
+    expect(result.reply).toContain('لم تُحفظ');
+    expect(executeGovernedAction.mock.calls.filter(([args])=>args.action==='ai_reason')).toHaveLength(1);
+    const prompt=executeGovernedAction.mock.calls.find(([args])=>args.action==='ai_reason')[0].input.prompt;
+    expect(prompt).toContain('CONVERSATION_MODE=execute');
+  });
+
   test('detects actual accounting statements and resolves an Arabic month range', () => {
     expect(isActualAccountingStatementRequest(
       'اعرض لي القوائم المالية الفعلية لهذا الكيان عن أكتوبر 2026'
@@ -752,7 +770,11 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(searchInput.query).toBe('وزير الداخلية');
   });
 
-  test('routes exact production official URL question through deterministic research without ai_reason', async () => {
+  test.each([
+    ['ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.', 'https://www.mof.gov.sa/', 'وزارة المالية السعودية'],
+    ['ابحث عن الموقع الرسمي للبنك المركزي السعودي', 'https://www.sama.gov.sa/', 'البنك المركزي السعودي'],
+    ['الموقع الرسمي البنك المركزي السعودي', 'https://www.sama.gov.sa/', 'البنك المركزي السعودي']
+  ])('grounds the production official URL request without ai_reason: %s', async (query, officialUrl, entityName) => {
     executeGovernedAction.mockImplementation(async ({ action, input }) => {
       if (action === 'ai_reason') {
         throw new Error('AI_REASON_MUST_NOT_RUN_FOR_OFFICIAL_URL');
@@ -768,9 +790,9 @@ describe('BONDS planner-first universal orchestrator', () => {
           action_fabric:{ side_effect:'network_read' },
           result:{
             pages:[{
-              url:'https://www.mof.gov.sa/',
+              url:officialUrl,
               evidence:{ content_type:'text/html', headers:{} },
-              extracted:{ format:'html', title:'وزارة المالية', text:'الموقع الرسمي لوزارة المالية السعودية' }
+              extracted:{ format:'html', title:entityName, text:'الموقع الرسمي ' + entityName }
             }]
           }
         };
@@ -805,14 +827,14 @@ describe('BONDS planner-first universal orchestrator', () => {
     });
 
     const result = await runUniversalOrchestrator(
-      [{ role:'user', content:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.' }],
+      [{ role:'user', content:query }],
       {},
       { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
     );
 
     expect(result.ok).toBe(true);
     expect(result.planner).toBe('universal-v2-deterministic-research');
-    expect(result.reply).toContain('mof.gov.sa');
+    expect(result.reply).toContain(officialUrl);
     expect(result.research.answer_synthesis_ms).toBe(0);
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'web_search')).toBe(false);
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);

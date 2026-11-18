@@ -24,8 +24,8 @@ describe('BONDS global service assistant', () => {
     expect(widget).toContain("const SERVICE_DETAIL_API = '/api/v3/services/';");
     expect(widget).toContain("pagePath: options.pagePath || (window.location.pathname + window.location.hash)");
     expect(widget).toContain("const SERVICE_CATALOG_API = '/api/v3/services/catalog';");
-    expect(widget).toContain('async function resolveServiceContextFromPage()');
-    expect(widget).toContain('async function loadVerifiedServiceProfile()');
+    expect(widget).toContain('async function resolveServiceContextFromPage(signal)');
+    expect(widget).toContain('async function loadVerifiedServiceProfile(signal)');
     expect(widget).toContain('updateContext(compactServiceProfile(data));');
     expect(widget).toContain("context.pagePath = (window.location.pathname + window.location.hash)");
   });

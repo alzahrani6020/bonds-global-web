@@ -13,6 +13,7 @@
 const { getSupabaseClient } = require('../lib/supabase');
 const { getUserFromToken } = require('../lib/auth');
 const { isExecuteEntitled } = require('../../lib/assistant/execute-entitlement');
+const { resolveExecuteRequest } = require('../../lib/assistant/execute-requests');
 const { sanitizeAssistantState, conversationalStateView } = require('../../lib/assistant/context-state');
 const { orchestrateChat, normalizePath, isHomepage } = require('../../lib/assistant/chat-orchestrator');
 const { saveWorkflowState, loadWorkflowState } = require('../../lib/assistant/workflow-state');
@@ -449,6 +450,16 @@ async function aiChatHandlerImpl(req, res) {
   const lastUser = [...messages].reverse().find(m => m.role === 'user');
   const lastUserText = lastUser?.content || '';
 
+  const formPlan = resolveExecuteRequest(lastUserText, context, { conversationMode });
+  if (formPlan) {
+    return sendAssistantResponse(res, 200, {
+      ...formPlan,
+      source:'bonds-assistant-form-plan',
+      inference:{ planner:'registered-form-plan', tool_used:false, tool_steps:0 },
+      execution_completed:false
+    }, { stream:streaming, conversationMode, executeEntitled });
+  }
+
   // Quick loan-installment answer: when the request carries amount + term +
   // rate, compute the reducing-balance installment here (same math as
   // calculators/loan.html) instead of bouncing the user to the calculator.
@@ -534,7 +545,8 @@ async function aiChatHandlerImpl(req, res) {
         supabase: getSupabaseClient(),
         requestId,
         timeoutMs: 8000,
-        maxTokens: adaptiveNativeChatMaxTokens(messages, options?.max_tokens)
+        maxTokens: adaptiveNativeChatMaxTokens(messages, options?.max_tokens),
+        conversationMode
       });
       if (loopResult?.ok && loopResult.reply) {
         const actions = (loopResult.trace || []).map(item => item.action).filter(Boolean);
@@ -657,6 +669,7 @@ async function aiChatHandlerImpl(req, res) {
         requestId,
         timeoutMs: nativeChatTimeoutMs(),
         maxTokens: adaptiveNativeChatMaxTokens(messages, options?.max_tokens),
+        conversationMode,
         goalWorkflow: durableGoal?.stored?.state?.goal_workflow || null,
         goalWorkflowBinding: durableGoal ? {
           workflow_key: durableGoal.workflowKey,
@@ -684,6 +697,7 @@ async function aiChatHandlerImpl(req, res) {
           model: null,
           ...(protocolActions.length ? { actions: protocolActions } : {}),
           ...(loopResult.goal_workflow ? { goal_workflow: loopResult.goal_workflow } : {}),
+          ...(loopResult.execution_completed === false ? {execution_completed:false} : {}),
           inference: {
             planner: loopResult.planner || 'universal-v2',
             tool_used: loopResult.toolUsed === true,

@@ -10,9 +10,23 @@ jest.mock('../../lib/assistant/emergency-kill-switch',()=>({
 }));
 
 const mockRpc = jest.fn();
+const mockDrafts = new Map();
+const mockReadDraft = table => {
+  const filters = {};
+  const query = {
+    select:() => query,
+    eq:(key,value) => { filters[key]=value; return query; },
+    maybeSingle:async () => {
+      const row=table==='client_kyc_cases' ? mockDrafts.get(filters.id) : null;
+      return {data:row && row.user_id===filters.user_id ? row : null,error:null};
+    }
+  };
+  return query;
+};
 jest.mock('../../v3/lib/supabase', () => ({
-  getSupabaseClient: () => ({ rpc: mockRpc })
+  getSupabaseClient: () => ({ rpc: mockRpc, from:mockReadDraft })
 }));
+beforeEach(() => mockDrafts.clear());
 
 const { assistantRouter } = require('../../v3/api/assistant');
 
@@ -138,6 +152,7 @@ describe('BONDS Assistant V1 end-to-end governed journeys', () => {
       status:'draft'
     };
 
+    mockDrafts.set(persisted.record_id,{id:persisted.record_id,user_id:'user-e2e-1',status:'draft'});
     const resolve = await callAssistant({
       path:'/assistant/idempotency/resolve',
       body:{
@@ -383,6 +398,7 @@ describe('End-to-End CI journeys — explicit release gate', () => {
       record_id:'ci-draft-001',
       status:'draft'
     };
+    mockDrafts.set(executionEvidence.record_id,{id:executionEvidence.record_id,user_id:'user-e2e-1',status:'draft'});
     const resolved=await callAssistant({
       path:'/assistant/idempotency/resolve',
       body:{

@@ -3,6 +3,13 @@
   "reviewedAt": "2026-10-16",
   "packages": [
     {
+      "name": "bonds-global-web",
+      "version": "2.0.0",
+      "path": "",
+      "classification": "reviewed-local-security-patch",
+      "rationale": "Reviewed 2026-11-18: repository-owned postinstall applies a hash-bound, fail-closed guard to known development-only picomatch parsers. No network, subprocesses, secrets or project data access. Unknown dependency source/version changes block installation."
+    },
+    {
       "name": "@parcel/watcher",
       "version": "2.6.0",
       "path": "node_modules/@parcel/watcher",

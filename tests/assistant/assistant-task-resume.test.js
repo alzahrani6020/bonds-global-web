@@ -158,8 +158,9 @@ describe('Assistant Task Resume and guest-to-authenticated continuity', () => {
     expect(widget).toContain("const ASSISTANT_WORKFLOW_RESUME_URL = '/api/v3/assistant/workflows/resume';");
     expect(widget).toContain("const ASSISTANT_WORKFLOW_SAVE_URL = '/api/v3/assistant/workflows/save';");
     expect(widget).toContain('function mergeGuestStateIntoWorkflow(');
-    expect(widget).toContain('async function resumePersistentCaseState()');
-    expect(widget.match(/await resumePersistentCaseState\(\);/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(widget).toContain('async function resumePersistentCaseState(signal)');
+    expect(widget).toContain('await resumePersistentCaseState(preparation.signal)');
+    expect(widget).toContain('await resumePersistentCaseState();');
     expect(widget).toContain('expected_version: workflow.version');
     expect(widget).toContain("status: 'active'");
     expect(widget).toContain('pending_confirmation: null');

@@ -3,6 +3,16 @@
 const { buildRequestDiagnostics, sanitizeNativeTelemetryRows, STATUS } = require('../../lib/assistant/request-diagnostics');
 
 describe('assistant request diagnostics', () => {
+  test('reports measured planner/generation time and leaves unmeasured stages unknown', () => {
+    const result = buildRequestDiagnostics({
+      loopResult:{ok:true,reply:'answer',trace:[],nativeTelemetry:[{planner_ms:86000,generation_seconds:25,prompt_tokens:null}]},
+      totalMs:90000
+    });
+    expect(result.stages.find(s=>s.stage==='planner').duration_ms).toBe(86000);
+    expect(result.stages.find(s=>s.stage==='ai_generate').duration_ms).toBe(25000);
+    expect(result.stages.find(s=>s.stage==='intent').duration_ms).toBeNull();
+    expect(sanitizeNativeTelemetryRows([{prompt_tokens:null}])[0]).not.toHaveProperty('prompt_tokens');
+  });
   test('reports a successful research pipeline from execution metadata', () => {
     const result = buildRequestDiagnostics({
       requestId:'req-1',

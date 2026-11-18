@@ -156,24 +156,27 @@ describe('Authoritative primary evidence for official-source lookup', () => {
     expect(calls.filter(item => item.action === 'evidence_verify')).toHaveLength(1);
     expect(calls.filter(item => item.action === 'research_synthesize')).toHaveLength(1);
   });
-  test('uses the governed institutional registry directly for explicit official URL lookup', async () => {
+  test.each([
+    ['الموقع الرسمي لوزارة المالية السعودية', 'https://www.mof.gov.sa/', 'وزارة المالية السعودية'],
+    ['ابحث عن الموقع الرسمي للبنك المركزي السعودي', 'https://www.sama.gov.sa/', 'البنك المركزي السعودي']
+  ])('uses the governed registry for %s', async (query, officialUrl, entityName) => {
     const calls = [];
     const executeCapability = jest.fn(async (action, input) => {
       calls.push({action,input});
 
       if (action === 'web_explore') {
-        expect(input.seedUrls).toEqual(['https://www.mof.gov.sa/']);
+        expect(input.seedUrls).toEqual([officialUrl]);
         return {
           ok:true,
           executed:true,
           result:{
             pages:[{
-              url:'https://www.mof.gov.sa/',
+              url:officialUrl,
               evidence:{content_type:'text/html',headers:{}},
               extracted:{
                 format:'html',
-                title:'وزارة المالية',
-                text:'وزارة المالية السعودية الموقع الرسمي والخدمات والمعلومات الحكومية.'
+                title:entityName,
+                text:entityName + ' الموقع الرسمي والخدمات والمعلومات الحكومية.'
               }
             }],
             failures:[],
@@ -189,13 +192,13 @@ describe('Authoritative primary evidence for official-source lookup', () => {
     });
 
     const result = await runResearchWorkflow({
-      input:'الموقع الرسمي لوزارة المالية السعودية',
+      input:query,
       forceResearch:true,
       research:{
         enabled:true,
-        query:'الموقع الرسمي لوزارة المالية السعودية',
-        queryVariants:['الموقع الرسمي لوزارة المالية السعودية'],
-        topic:'وزارة المالية السعودية',
+        query,
+        queryVariants:[query],
+        topic:entityName,
         intent:'information',
         minIndependentPublishers:2,
         allowAuthoritativePrimaryEvidence:true,
@@ -209,7 +212,7 @@ describe('Authoritative primary evidence for official-source lookup', () => {
     expect(calls.filter(item => item.action === 'web_search')).toHaveLength(0);
     expect(calls.filter(item => item.action === 'web_explore')).toHaveLength(1);
     expect(result.search?.source).toBe('institutional_registry');
-    expect(result.search?.result?.results?.[0]?.url).toBe('https://www.mof.gov.sa/');
+    expect(result.search?.result?.results?.[0]?.url).toBe(officialUrl);
   });
 
 });
