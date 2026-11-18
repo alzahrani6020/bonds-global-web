@@ -135,6 +135,8 @@ describe(
           'financial_analysis_run',
           'form_find',
           'form_load',
+          'form_prefill',
+          'form_save_draft',
           'funding_next_requirements',
           'funding_next_step',
           'funding_readiness_run',

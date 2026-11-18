@@ -1700,7 +1700,10 @@
     }
 
     function mergeGuestStateIntoWorkflow(serverState, localState, caseBoundary) {
-      const server = serverState && typeof serverState === 'object' ? serverState : {};
+      const server = serverState && typeof serverState === 'object' ? { ...serverState } : {};
+      // Only the atomic server transition may write sensitive workflow state.
+      // A context handoff must not replay this server-owned field.
+      delete server.sensitive_state;
       const local = sanitizeAssistantContextState(localState, contextBoundaryKey());
       const serverUpdated = Date.parse(server.updated_at || '') || 0;
       const localUpdated = Date.parse(local.updated_at || '') || 0;
@@ -1730,12 +1733,13 @@
       };
     }
 
-    async function resumePersistentCaseState() {
+    async function resumePersistentCaseState(signal) {
       if (!assistantContextEnabled()) return null;
       if (!window.BondsAuth || typeof window.BondsAuth.getSession !== 'function') return null;
 
       try {
         const { data } = await window.BondsAuth.getSession();
+        if (signal?.aborted) return null;
         const session = data?.session || null;
         const token = session?.access_token;
         if (!token) {
@@ -1757,11 +1761,13 @@
         const resumeUrl = ASSISTANT_WORKFLOW_RESUME_URL + '?boundary=' + encodeURIComponent(caseBoundary);
         const resumeRes = await fetch(resumeUrl, {
           method: 'GET',
+          signal,
           headers,
           credentials: 'same-origin',
           cache: 'no-store'
         });
         const resumeData = await resumeRes.json();
+        if (signal?.aborted) return null;
         if (!resumeRes.ok) throw new Error(resumeData.error || 'WORKFLOW_RESUME_FAILED');
 
         let workflow = resumeData.workflow || null;
@@ -1772,6 +1778,7 @@
           if (merged.changed && workflowKey) {
             const saveRes = await fetch(ASSISTANT_WORKFLOW_SAVE_URL, {
               method: 'POST',
+              signal,
               headers,
               credentials: 'same-origin',
               body: JSON.stringify({
@@ -1791,6 +1798,7 @@
         } else if (workflowKey && hasMeaningfulAssistantState(localState)) {
           const saveRes = await fetch(ASSISTANT_WORKFLOW_SAVE_URL, {
             method: 'POST',
+            signal,
             headers,
             credentials: 'same-origin',
             body: JSON.stringify({
@@ -2553,7 +2561,7 @@
       }
     }
 
-    async function resolveServiceContextFromPage() {
+    async function resolveServiceContextFromPage(signal) {
       try {
         const params = new URLSearchParams(window.location.search);
         const queryServiceCode = String(params.get('service') || '').trim().slice(0, 100);
@@ -2561,6 +2569,7 @@
         const isWorkspacePage = /^\/(?:en\/)?my-bonds\/workspace\/?$/i.test(window.location.pathname);
 
         const res = await fetch(SERVICE_CATALOG_API, {
+          signal,
           headers: await getAuthHeaders(),
           credentials: 'same-origin',
           cache: 'no-store'
@@ -2607,8 +2616,9 @@
       }
     }
 
-    async function loadVerifiedServiceProfile() {
-      await resolveServiceContextFromPage();
+    async function loadVerifiedServiceProfile(signal) {
+      await resolveServiceContextFromPage(signal);
+      if (signal?.aborted) return;
       const serviceCode = String(context.serviceCode || '').trim();
       if (!serviceCode || loadedServiceProfileCode === serviceCode) return;
       const params = new URLSearchParams();
@@ -2618,6 +2628,7 @@
       const suffix = params.toString() ? '?' + params.toString() : '';
       try {
         const res = await fetch(SERVICE_DETAIL_API + encodeURIComponent(serviceCode) + suffix, {
+          signal,
           headers: await getAuthHeaders(),
           credentials: 'same-origin',
           cache: 'no-store'
@@ -4376,7 +4387,17 @@
           title.textContent = actionTitle(action);
 
           const detail = document.createElement('small');
-          detail.textContent = String(action.target || action.capability || action.type || '');
+          const formNames = {
+            kyc:['اعرف عميلك','Know your customer'],
+            establishment:['بيانات المنشأة','Establishment information'],
+            activity:['بيانات النشاط','Business activity'],
+            cash_flow:['التدفقات النقدية','Cash flow'],
+            receivables:['الذمم المدينة','Receivables'],
+            payables:['الذمم الدائنة','Payables']
+          };
+          const formName = formNames[action.target];
+          detail.textContent = formName ? formName[languageCode() === 'en' ? 1 : 0]
+            : String(action.target || action.capability || action.type || '');
 
           const button = document.createElement('button');
           button.type = 'button';
@@ -4695,6 +4716,33 @@
       return finalPayload;
     }
 
+    async function prepareMessageContext() {
+      // Context enrichment must not leave the send button apparently idle or
+      // block chat indefinitely. Abort timed-out work, including context saves.
+      setLoading(true);
+      const preparation = new AbortController();
+      state.abortController = preparation;
+      state.abortReason = null;
+      let preparationTimer;
+      try {
+        await Promise.race([
+          (async () => {
+            await loadVerifiedServiceProfile(preparation.signal);
+            if (!preparation.signal.aborted) await resumePersistentCaseState(preparation.signal);
+          })(),
+          new Promise(resolve => {
+            preparation.signal.addEventListener('abort', resolve, { once:true });
+            preparationTimer = setTimeout(() => preparation.abort(), 5000);
+          })
+        ]);
+      } finally {
+        clearTimeout(preparationTimer);
+        state.abortController = null;
+        setLoading(false);
+      }
+      return state.abortReason !== 'user';
+    }
+
     async function sendMessage(text) {
       if (!text.trim() || state.isLoading || state.isUploading) return;
       const localPaths = extractLocalDiskPaths(text);
@@ -4713,8 +4761,7 @@
         }
       }
       refreshContext();
-      await loadVerifiedServiceProfile();
-      await resumePersistentCaseState();
+      if (!await prepareMessageContext()) return;
       root.classList.add('conversation-started');
       const turnId = createMessageTrackingId('turn');
       const userMessage = addUserMessage(text, {

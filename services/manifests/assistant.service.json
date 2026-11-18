@@ -78,6 +78,24 @@
       }
     },
     {
+      "action": "form_save_draft",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-ASST-015",
+      "purpose": "Prepare a registered browser draft-save action only. Does not save data; the page adapter, confirmation, idempotency and receipt checks must complete it.",
+      "side_effect": "none",
+      "required": ["form"],
+      "runtime": { "adapter": "assistant_form_save_draft_plan" }
+    },
+    {
+      "action": "form_prefill",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-ASST-016",
+      "purpose": "Prepare suggested-only allowlisted form fields for an entitled user to confirm in the browser. Never saves or submits data.",
+      "side_effect": "none",
+      "required": ["form", "fields"],
+      "runtime": { "adapter": "assistant_form_prefill_plan" }
+    },
+    {
       "action": "funding_status",
       "action_type": "data",
       "id": "BONDS-CAP-ASST-004",

@@ -28,6 +28,24 @@ describe('BONDS planner-first universal orchestrator', () => {
     executeGovernedAction.mockReset();
   });
 
+  test('returns form plan controls instead of treating browser work as a completed write', async () => {
+    executeGovernedAction.mockImplementation(async ({action}) => {
+      if (action === 'ai_reason') return {ok:true,result:{text:JSON.stringify({mode:'tool',action:'form_save_draft',input:{form:'kyc'}})}};
+      if (action === 'form_save_draft') return {ok:true,executed:true,result:{
+        planned:true,status:'ready',reply:'جاهز لحفظ المسودة؛ لم تُحفظ بعد.',
+        actions:[{id:'a',type:'form_save_draft',target:'kyc',risk:'medium'}],ui:[]
+      }};
+      throw new Error('UNEXPECTED_ACTION:'+action);
+    });
+    const result=await runUniversalOrchestrator([{role:'user',content:'جهز مسودة نموذج اعرف عميلك'}],{}, {conversationMode:'execute'});
+    expect(result.execution_completed).toBe(false);
+    expect(result.actions[0]).toMatchObject({type:'form_save_draft',target:'kyc'});
+    expect(result.reply).toContain('لم تُحفظ');
+    expect(executeGovernedAction.mock.calls.filter(([args])=>args.action==='ai_reason')).toHaveLength(1);
+    const prompt=executeGovernedAction.mock.calls.find(([args])=>args.action==='ai_reason')[0].input.prompt;
+    expect(prompt).toContain('CONVERSATION_MODE=execute');
+  });
+
   test('detects actual accounting statements and resolves an Arabic month range', () => {
     expect(isActualAccountingStatementRequest(
       'اعرض لي القوائم المالية الفعلية لهذا الكيان عن أكتوبر 2026'
