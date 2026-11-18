@@ -61,4 +61,10 @@ describe('execute-mode registered forms', () => {
     expect(resolveExecuteRequest('افتح نموذج اعرف عميلك', {}, {conversationMode:'general'})).toBeNull();
     expect(resolveExecuteRequest('افتح حاسبة العائد', {}, {conversationMode:'execute'})).toBeNull();
   });
+  test('respects a request to open without saving and an explicit prohibition on saving', () => {
+    const open=resolveExecuteRequest('افتح نموذج بيانات المنشأة بدون حفظ',{}, {conversationMode:'execute'});
+    expect(open.actions[0].type).toBe('form_load');
+    const denied=resolveExecuteRequest('لا تحفظ نموذج بيانات المنشأة',{}, {conversationMode:'execute'});
+    expect(denied.actions).toHaveLength(0);
+  });
 });
