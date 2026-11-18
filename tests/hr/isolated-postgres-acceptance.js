@@ -434,6 +434,36 @@ async function main(){
    "insert into hr_saas_workspaces(owner_user_id,name,crm_workspace_id) values($1,'Shared Company A',$2) returning id,crm_workspace_id",
    [owner,companyA]))).rows[0];
   assert.equal(linked.crm_workspace_id,companyA,'HR identity must follow existing company workspace');
+  // Acceptance: a signed-in owner saves a real employee, reads the same
+  // PostgreSQL row in a fresh transaction and sees changes persist. A second
+  // company's authenticated session must never see or modify that employee.
+  const linkedEmployee=(await as(owner,()=>db.query(
+   "insert into hr_saas_employees(workspace_id,employee_number,full_name,basic_salary) values($1,'HR-REAL-01','Persistent Employee',7500) returning id",
+   [linked.id]))).rows[0].id;
+  const savedEmployee=await as(owner,()=>db.query(
+   "select employee_number,full_name,basic_salary from hr_saas_employees where workspace_id=$1 and id=$2",
+   [linked.id,linkedEmployee]));
+  assert.equal(savedEmployee.rowCount,1,'Employee insert must persist across authenticated requests');
+  assert.equal(savedEmployee.rows[0].full_name,'Persistent Employee');
+  assert.equal(Number(savedEmployee.rows[0].basic_salary),7500);
+  await as(owner,()=>db.query(
+   "update hr_saas_employees set job_title='Analyst' where workspace_id=$1 and id=$2",
+   [linked.id,linkedEmployee]));
+  const reread=await as(owner,()=>db.query(
+   "select job_title from hr_saas_employees where workspace_id=$1 and id=$2",
+   [linked.id,linkedEmployee]));
+  assert.equal(reread.rows[0].job_title,'Analyst','HR employee update was not stored');
+  const outsideEmployee=await as(other,()=>db.query(
+   "select id,basic_salary from hr_saas_employees where workspace_id=$1 and id=$2",
+   [linked.id,linkedEmployee]));
+  assert.equal(outsideEmployee.rowCount,0,'Other company can read stored employee salary');
+  const outsideUpdate=await as(other,()=>db.query(
+   "update hr_saas_employees set job_title='Tampered' where workspace_id=$1 and id=$2 returning id",
+   [linked.id,linkedEmployee]));
+  assert.equal(outsideUpdate.rowCount,0,'Other company can update stored employee');
+  const linkedCompany=await as(owner,()=>db.query(
+   "select id,name from crm_app_workspaces where id=$1",[companyA]));
+  assert.equal(linkedCompany.rows[0].name,'Shared Company A','HR save changed existing CRM company');
   await assert.rejects(()=>as(owner,()=>db.query(
    "insert into hr_saas_workspaces(owner_user_id,name,crm_workspace_id) values($1,'Cross-tenant',$2)",[owner,companyB])),
    e=>e.code==='23503'||e.code==='42501','Cannot link HR to a different company owner');
