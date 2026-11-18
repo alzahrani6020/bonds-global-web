@@ -1,6 +1,7 @@
 const { resolveLanguageQuery } = require('../../lib/assistant/language-query-resolver');
 const { buildClaimFabric } = require('../../lib/intelligence/claim-fabric');
 const { buildSearchRoute } = require('../../lib/intelligence/search-router');
+const { scoreRelationCandidate } = require('../../lib/intelligence/relation-reranker');
 jest.mock('../../lib/services/service-execution-router', () => ({executeGovernedAction:jest.fn()}));
 jest.mock('../../lib/intelligence/research-workflow', () => ({runResearchWorkflow:jest.fn()}));
 const { runResearchWorkflow } = require('../../lib/intelligence/research-workflow');
@@ -25,8 +26,10 @@ describe('minister office routing (production failure acf04343)', () => {
     expect(plan.entity_frame.entity_type).toBe('relation');
     expect(plan.entity_frame.canonical_name).toBe('وزارة الداخلية السعودية');
     expect(plan.requires_research).toBe(true);
+    expect(plan.selected_query).toBe('وزير الداخلية السعودي');
     expect(plan.query_variants.join(' ')).not.toMatch(/سيرة|biography/);
     const route = buildSearchRoute({query:plan.selected_query,intent:plan.intent,entityFrame:plan.entity_frame});
+    expect(route.query_variants[0]).toBe('وزير الداخلية السعودي');
     expect(route.preferred_domains).toContain('moi.gov.sa');
   });
   test('keeps an explicitly different country in the query', () => {
@@ -73,6 +76,9 @@ describe('minister office routing (production failure acf04343)', () => {
     const source = {id:'biography',title:'عبد العزيز بن سعود بن نايف آل سعود - ويكيبيديا',
       url:'https://ar.wikipedia.org/wiki/عبد_العزيز_بن_سعود_بن_نايف_آل_سعود',publisher:'ar.wikipedia.org',
       text:'انتقل إلى المحتوى ' + 'محتويات الصفحة '.repeat(80) + lead};
+    expect(scoreRelationCandidate({...source,snippet:lead},entityFrame).relevant).toBe(true);
+    expect(scoreRelationCandidate({...source,snippet:'',text:lead.replace('المملكة العربية السعودية','مصر')},entityFrame).relevant).toBe(false);
+    expect(scoreRelationCandidate({url:'https://www.mof.gov.sa/',title:'وزارة المالية'},entityFrame).relevant).toBe(false);
     const claims = buildClaimFabric({entityFrame,sources:[source],minIndependentPublishers:1}).fused_claims;
     expect(claims).toEqual(expect.arrayContaining([expect.objectContaining({predicate:'relation.holder',
       value:'عبد العزيز بن سعود بن نايف بن عبد العزيز آل سعود',temporal_state:'unspecified'})]));
