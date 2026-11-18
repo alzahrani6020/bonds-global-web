@@ -49,12 +49,12 @@ describe('minister office routing (production failure acf04343)', () => {
       sources:[source('الأمير أحمد بن محمد وزير الداخلية في المملكة العربية السعودية.')] }).fused_claims).toHaveLength(0);
   });
   test('renders the verified holder with its evidence URL and no personal-profile seeds', async () => {
-    const question = 'من هو وزير الداخلية السعودي؟';
+    const question = 'من هو وزير الداخلية السعودي من مصدر رسمي';
     const entityFrame = resolveLanguageQuery(question).entity_frame;
     const source = {id:'official',url:'https://www.moi.gov.sa/',title:'وزارة الداخلية السعودية',snippet:'الأمير أحمد بن محمد وزير الداخلية'};
     runResearchWorkflow.mockResolvedValue({decisionEligible:true,entity_frame:entityFrame,
       search:{ok:true,result:{results:[source]}},
-      claim_fabric:{sources:[source],fused_claims:[{predicate:'relation.holder',value:'أحمد بن محمد',value_normalized:'احمد بن محمد',verification_state:'VERIFIED',supporting_sources:['official']}]}});
+      claim_fabric:{sources:[source],fused_claims:[{predicate:'relation.holder',value:'أحمد بن محمد',value_normalized:'احمد بن محمد',verification_state:'VERIFIED',supporting_sources:['official'],authoritative_primary:true}]}});
     const result = await runUniversalOrchestrator([{role:'user',content:question}]);
     expect(result.reply).toContain('أحمد بن محمد');
     expect(result.reply).toContain(source.url);
@@ -68,7 +68,7 @@ describe('minister office routing (production failure acf04343)', () => {
     runResearchWorkflow.mockResolvedValue({decisionEligible:false,
       search:{ok:true,result:{results:[{url:'https://example.org',snippet:'unrelated result'}]}},
       claim_fabric:{fused_claims:[]}});
-    const result = await runUniversalOrchestrator([{role:'user',content:'من هو وزير الداخلية السعودي؟'}]);
+    const result = await runUniversalOrchestrator([{role:'user',content:'من هو وزير الداخلية السعودي من مصدر رسمي'}]);
     expect(result.reply).toContain('لم أتمكن من توثيق');
     expect(result.research.status).toBe('insufficient_evidence');
     expect(executeGovernedAction).not.toHaveBeenCalled();
