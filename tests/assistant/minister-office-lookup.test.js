@@ -59,6 +59,9 @@ describe('minister office routing (production failure acf04343)', () => {
     expect(result.reply).toContain('أحمد بن محمد');
     expect(result.reply).toContain(source.url);
     expect(runResearchWorkflow.mock.calls[0][0].research.firstPartyDiscoveryUrls).toEqual([]);
+    const request = runResearchWorkflow.mock.calls[0][0];
+    expect(request.research.query).toBe('وزير الداخلية السعودي');
+    expect(jest.requireActual('../../lib/intelligence/research-workflow').researchQuery(request)).toBe('وزير الداخلية السعودي');
     expect(executeGovernedAction).not.toHaveBeenCalled();
   });
   test('does not turn unrelated search hits into an answer about the holder', async () => {
