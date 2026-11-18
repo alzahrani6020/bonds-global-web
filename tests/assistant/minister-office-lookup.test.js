@@ -5,7 +5,7 @@ jest.mock('../../lib/services/service-execution-router', () => ({executeGoverned
 jest.mock('../../lib/intelligence/research-workflow', () => ({runResearchWorkflow:jest.fn()}));
 const { runResearchWorkflow } = require('../../lib/intelligence/research-workflow');
 const { executeGovernedAction } = require('../../lib/services/service-execution-router');
-const { runUniversalOrchestrator } = require('../../lib/assistant/universal-orchestrator');
+const { runUniversalOrchestrator, runDeterministicLocalTools } = require('../../lib/assistant/universal-orchestrator');
 
 describe('minister office routing (production failure acf04343)', () => {
   beforeEach(() => { executeGovernedAction.mockReset(); runResearchWorkflow.mockReset(); });
@@ -64,5 +64,33 @@ describe('minister office routing (production failure acf04343)', () => {
     expect(result.reply).toContain('لم أتمكن من توثيق');
     expect(result.research.status).toBe('insufficient_evidence');
     expect(executeGovernedAction).not.toHaveBeenCalled();
+  });
+  test('extracts the observed biography lead despite a birth parenthesis and later former jobs', () => {
+    const entityFrame = resolveLanguageQuery('من هو وزير الداخلية السعودي؟').entity_frame;
+    const lead = 'عبد العزيز بن سعود بن نايف بن عبد العزيز آل سعود (ولد في 29 المحرَّم 1404 هـ / 4 نوفمبر 1983 م) [2] وزير الداخلية في المملكة العربية السعودية رئيس لجنة الحج العليا، وقد شغل سابقًا عدة مناصب استشارية';
+    const source = {id:'biography',title:'عبد العزيز بن سعود بن نايف آل سعود - ويكيبيديا',
+      url:'https://ar.wikipedia.org/wiki/عبد_العزيز_بن_سعود_بن_نايف_آل_سعود',publisher:'ar.wikipedia.org',
+      text:'انتقل إلى المحتوى ' + 'محتويات الصفحة '.repeat(80) + lead};
+    const claims = buildClaimFabric({entityFrame,sources:[source],minIndependentPublishers:1}).fused_claims;
+    expect(claims).toEqual(expect.arrayContaining([expect.objectContaining({predicate:'relation.holder',
+      value:'عبد العزيز بن سعود بن نايف بن عبد العزيز آل سعود',temporal_state:'unspecified'})]));
+    expect(buildClaimFabric({entityFrame,sources:[{...source,text:lead.replace('وزير الداخلية في','وزير الداخلية السابق في')}],minIndependentPublishers:1}).fused_claims).toHaveLength(0);
+    expect(buildClaimFabric({entityFrame,sources:[{...source,text:lead.replace('المملكة العربية السعودية','مصر')}],minIndependentPublishers:1}).fused_claims).toHaveLength(0);
+  });
+  test('an office search asking for an official source does not trigger trial-balance handling', async () => {
+    const question = 'ابحث عن وزير الداخلية السعودي من مصدر رسمي';
+    expect(resolveLanguageQuery(question).entity_frame.canonical_name).toBe('وزارة الداخلية السعودية');
+    const local = await runDeterministicLocalTools([{role:'user',content:question}],{}, {}, []);
+    expect(local).toBeNull();
+    expect(executeGovernedAction).not.toHaveBeenCalled();
+  });
+  test('does not relabel an encyclopedia claim as an official source', async () => {
+    runResearchWorkflow.mockResolvedValue({decisionEligible:true,entity_frame:resolveLanguageQuery('من هو وزير الداخلية السعودي؟').entity_frame,
+      search:{ok:true,result:{results:[{url:'https://ar.wikipedia.org/wiki/Example',snippet:'Minister biography'}]}},
+      claim_fabric:{fused_claims:[{predicate:'relation.holder',value:'أحمد بن محمد',verification_state:'VERIFIED',
+        source_url:'https://ar.wikipedia.org/wiki/Example',authoritative_primary:false}]}});
+    const result = await runUniversalOrchestrator([{role:'user',content:'ابحث عن وزير الداخلية السعودي من مصدر رسمي'}]);
+    expect(result.reply).toContain('لم أتمكن من توثيق');
+    expect(result.reply).not.toContain('أحمد');
   });
 });
