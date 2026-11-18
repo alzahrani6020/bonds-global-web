@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/office-source-diagnosis.yml'
       - 'lib/assistant/office-research.js'
+      - 'lib/intelligence/claim-fabric.js'
   workflow_dispatch:
 
 permissions:

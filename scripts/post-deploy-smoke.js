@@ -970,10 +970,15 @@ async function main() {
     const result = await runOfficeResearch(resolveLanguageQuery('من هو وزير الداخلية السعودي؟'),
       {requestId}, [], async ({action,input}) => {
         if (!['web_search','web_fetch','evidence_verify'].includes(action)) throw new Error('OFFICE_READ_ACTION_REQUIRED');
+        // Exercise the precise live fallback that failed the repeated gate.
+        // This affects only this read-only diagnosis, never normal requests.
+        const diagnosticInput = action === 'web_search'
+          ? {...input,disabledProviders:['searxng','bing','duckduckgo','brave','brave-api','bing-api','google-cse']}
+          : input;
         const response = await fetchJson(cfg.baseUrl + '/api/v3/capabilities/execute', {
           method:'POST',redirect:'error',headers:{Authorization:'Bearer ' + token,
             'Content-Type':'application/json','X-Request-ID':requestId},
-          body:JSON.stringify({action,input})
+          body:JSON.stringify({action,input:diagnosticInput})
         });
         return response.body && typeof response.body === 'object'
           ? response.body : {ok:false,error:{code:'OFFICE_INVALID_TOOL_RESPONSE'}};
