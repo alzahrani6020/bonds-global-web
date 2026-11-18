@@ -759,7 +759,7 @@ describe('BONDS planner-first universal orchestrator', () => {
     });
 
     const result = await runUniversalOrchestrator(
-      [{ role:'user', content:'من وزير الداخلية' }],
+      [{ role:'user', content:'من هو طلال حسن الزهراني' }],
       {},
       { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
     );
@@ -767,7 +767,7 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.reply).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
     expect(result.planner).toBe('universal-v2-deterministic-research');
     const searchInput = executeGovernedAction.mock.calls.find(call => call[0].action === 'web_search')[0].input;
-    expect(searchInput.query).toBe('وزير الداخلية');
+    expect(searchInput.query).toBe('طلال حسن الزهراني');
   });
 
   test.each([

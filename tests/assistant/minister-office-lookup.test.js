@@ -20,7 +20,7 @@ describe('minister office routing (production failure acf04343)', () => {
       expect(plan.selected_query).toBe('وزير '+portfolio+' السعودي');
       expect(plan.entity.person_entity_frame).toBeUndefined();
   });
-  test.each(['من هو وزير الداخليه','من هو وزير الداخلية؟','who is the minister of interior?'])(
+  test.each(['من هو وزير الداخليه','من هو وزير الداخلية؟','من وزير الداخلية','who is the minister of interior?'])(
     'clarifies the jurisdiction without searching a person profile: %s', async question => {
       const plan = resolveLanguageQuery(question);
       expect(plan.intent).toBe('relation_lookup');
