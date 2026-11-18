@@ -2897,8 +2897,9 @@ module.exports = async function handler(req, res) {
     }
 
     if (path.startsWith('/deals')) {
-      const supabase = getSupabaseClient();
       const user = await getUserFromToken(req);
+      if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
+      const supabase = getSupabaseClient();
       return await dealsRouter(req, res, path, supabase, user);
     }
 
