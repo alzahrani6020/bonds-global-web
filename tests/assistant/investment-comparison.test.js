@@ -66,6 +66,7 @@ test.each([
   ['zero capital',setup.replace('رأس مالها 100000','رأس مالها 0')],
   ['missing profit',setup.replace('وصافي ربحها السنوي 30000 ريال.','')],
   ['missing currency',setup.replace(/ريال/gu,'')],
+  ['currency missing for only one case',setup.replace('100000 ريال وصافي ربحها السنوي 20000 ريال','100000 وصافي ربحها السنوي 20000')],
   ['missing period',setup.replace(/السنوي|سنة/gu,'')],
   ['unsafe magnitude',setup.replace('20000','99999999999999999999999')],
   ['conflicting values',setup.replace('20000 ريال.','20000 ريال وصافي ربحها السنوي 25000 ريال.')]
@@ -81,6 +82,19 @@ test('an explicit unknown value invalidates the older amount',async()=>{
   expect(calculate).not.toHaveBeenCalled();
   const unsupported=await compare(setup,'الحالة أ رأس المال SAR 200000، أعد المقارنة.');
   expect(unsupported.toolUsed).toBe(false);
+  expect(calculate).not.toHaveBeenCalled();
+});
+test('does not silently compare the stored rows when different case labels are requested',async()=>{
+  const result=await compare(setup,'قارن الحالة ج مع الحالة د من حيث صافي الربح ورأس المال.');
+  expect(result.planner).toBe('universal-v2-comparison-clarification');
+  expect(calculate).not.toHaveBeenCalled();
+});
+test('a shared declared currency and period apply to both cases, but another case is not a declaration',async()=>{
+  const source='كل المبالغ بالريال، الفترة سنة. الحالة أ رأس مالها 100000 وصافي ربحها 20000. الحالة ب رأس مالها 100000 وصافي ربحها 30000.';
+  expect((await compare(source)).reply).toContain('العائد 30%');
+  calculate.mockClear();
+  const undeclared='الحالة أ رأس مالها 100000 ريال وصافي ربحها 20000 ريال. الحالة ب رأس مالها 100000 ريال وصافي ربحها السنوي 30000 ريال.';
+  expect((await compare(undeclared)).toolUsed).toBe(false);
   expect(calculate).not.toHaveBeenCalled();
 });
 test('complete corrected inputs replace an earlier conflicting record',async()=>{
