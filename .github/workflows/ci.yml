@@ -136,21 +136,21 @@ jobs:
           trap 'docker rm -f bonds-correspondence-test-pg >/dev/null 2>&1 || true' EXIT
           ready=0
           for attempt in $(seq 1 45); do
-            if docker exec bonds-correspondence-test-pg pg_isready -U postgres >/dev/null 2>&1; then ready=1; break; fi
+            if docker exec bonds-correspondence-test-pg pg_isready -h 127.0.0.1 -U postgres >/dev/null 2>&1; then ready=1; break; fi
             sleep 1
           done
           test "$ready" -eq 1
-          # pg_isready can win the race against the unix socket on first boot;
-          # prove a real connection before feeding the fixture scripts.
+          # The image's temporary initialization server accepts Unix sockets
+          # and then stops. Require the final TCP server before running SQL.
           connected=0
           for attempt in $(seq 1 30); do
-            if docker exec -i bonds-correspondence-test-pg psql -U postgres -c 'select 1' >/dev/null 2>&1; then connected=1; break; fi
+            if docker exec -e PGPASSWORD=isolated-fixture -i bonds-correspondence-test-pg psql -h 127.0.0.1 -U postgres -c 'select 1' >/dev/null 2>&1; then connected=1; break; fi
             sleep 1
           done
           test "$connected" -eq 1
-          docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < tests/security/correspondence-ledger-bootstrap.pg.sql
-          docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < supabase/migrations/20261115030000_correspondence_atomic_successor_activation.sql
-          docker exec -i bonds-correspondence-test-pg psql -U postgres -v ON_ERROR_STOP=1 -f - < tests/security/correspondence-ledger-acceptance.pg.sql
+          docker exec -e PGPASSWORD=isolated-fixture -i bonds-correspondence-test-pg psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f - < tests/security/correspondence-ledger-bootstrap.pg.sql
+          docker exec -e PGPASSWORD=isolated-fixture -i bonds-correspondence-test-pg psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f - < supabase/migrations/20261115030000_correspondence_atomic_successor_activation.sql
+          docker exec -e PGPASSWORD=isolated-fixture -i bonds-correspondence-test-pg psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f - < tests/security/correspondence-ledger-acceptance.pg.sql
 
 
       - name: Run Accessibility Tests
