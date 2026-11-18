@@ -25,8 +25,10 @@ describe('minister office routing (production failure acf04343)', () => {
     expect(plan.entity_frame.entity_type).toBe('relation');
     expect(plan.entity_frame.canonical_name).toBe('وزارة الداخلية السعودية');
     expect(plan.requires_research).toBe(true);
+    expect(plan.selected_query).toBe('وزير الداخلية السعودي');
     expect(plan.query_variants.join(' ')).not.toMatch(/سيرة|biography/);
     const route = buildSearchRoute({query:plan.selected_query,intent:plan.intent,entityFrame:plan.entity_frame});
+    expect(route.query_variants[0]).toBe('وزير الداخلية السعودي');
     expect(route.preferred_domains).toContain('moi.gov.sa');
   });
   test('keeps an explicitly different country in the query', () => {

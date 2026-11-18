@@ -6,6 +6,7 @@ const vm = require('vm');
 const { createClient } = require('@supabase/supabase-js');
 const canonicalModel = require('../services/bonds_native_inference/canonical-model.json');
 const { assertAssistantProduction } = require('./assistant-production-smoke');
+const { assertMinisterOfficeSmoke } = require('./minister-office-smoke');
 const { runSyntheticProductionJourneys } = require('../lib/assistant/synthetic-production-journeys');
 const { runProductionConversationalSmoke } = require('../lib/assistant/production-conversational-smoke');
 const { runProductionToolSmoke } = require('../lib/assistant/production-tool-smoke');
@@ -963,6 +964,9 @@ async function main() {
   if (String(process.env.PERSON_LOOKUP_SMOKE_ONLY || '').toLowerCase() === 'true') {
     const token = await getAuthenticatedToken();
     await assertPersonLookupSmoke(token);
+    await assertMinisterOfficeSmoke({baseUrl:cfg.baseUrl,token,
+      request:String(process.env.PERSON_LOOKUP_USE_VERCEL_CURL || '').toLowerCase() === 'true'
+        ? fetchJsonViaVercelCurl : fetchJson});
     console.log('Authenticated person lookup smoke test: PASS');
     return;
   }
