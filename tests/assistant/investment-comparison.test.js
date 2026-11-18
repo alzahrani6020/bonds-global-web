@@ -55,6 +55,26 @@ test('there is no memory shared between separate message lists',async()=>{
   expect(result.planner).toBe('universal-v2-comparison-clarification');
   expect(calculate).not.toHaveBeenCalled();
 });
+test('a missing-currency clarification can be answered without re-entering the known amounts',async()=>{
+  const source=setup.replace(/ريال/gu,'');
+  const first=await compare(source);
+  expect(first.reply).toContain('عملة');
+  calculate.mockClear();
+  const result=await compare(source,'عملة الحالتين ريال',[user(question),{role:'assistant',content:first.reply}]);
+  expect(result.reply).toContain('العائد 20%');
+  expect(result.reply).toContain('العائد 30%');
+  expect(calculate).toHaveBeenCalledTimes(5);
+  calculate.mockClear();
+  const retained=await compare(source,'عملة الحالتين ريال');
+  expect(retained.planner).toBe('universal-v2-comparison-context');
+  expect(calculate).not.toHaveBeenCalled();
+});
+test('requesting a period does not relabel an input whose period was never declared',async()=>{
+  const source=setup.replace(/السنوي|سنة/gu,'');
+  const result=await compare(source,'قارن الحالة أ والحالة ب من حيث صافي الربح الشهري.');
+  expect(result.planner).toBe('universal-v2-comparison-clarification');
+  expect(calculate).not.toHaveBeenCalled();
+});
 test('expired context outside the message window is not silently reused',async()=>{
   const messages=[user(setup),...Array.from({length:10},()=>({role:'assistant',content:'متابعة'})),user(question)];
   expect((await runInvestmentComparison(messages,{},[],calculate)).toolUsed).toBe(false);
