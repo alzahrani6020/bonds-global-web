@@ -110,6 +110,13 @@ test('does not leak previous financial cases into a new topic',async()=>{
   expect(await runInvestmentComparison([user('قارن بين الحالتين المرضيتين')],{},[],calculate)).toBeNull();
   expect(await compare(setup,'قارن رأس المال في بنكين عالميين')).toBeNull();
 });
+test('does not drop requested extra measures, an ordered subtraction or a third case',async()=>{
+  expect(await compare(setup,question+' وأضف صافي القيمة الحالية NPV والمخاطر.')).toBeNull();
+  expect(await compare(setup,question+' واحسب أ − ب.')).toBeNull();
+  const three=setup+' الحالة ج رأس مالها 200000 ريال وصافي ربحها السنوي 40000 ريال.';
+  expect(await compare(three,'قارن الحالات الثلاث في صافي الربح والعائد.')).toBeNull();
+  expect(calculate).not.toHaveBeenCalled();
+});
 test('uses losses and equal values correctly instead of ranking every case positively',async()=>{
   const result=await compare(setup.replace('20000','-20000'));
   expect(result.reply).toContain('العائد -20%');
