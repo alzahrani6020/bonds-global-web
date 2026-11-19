@@ -339,7 +339,7 @@
  $('crm-product-tab').addEventListener('click',()=>toggleProduct('crm'));
  $('hr-checkout-start').addEventListener('click',launchProgramCheckout);
  $('hr-product-tab').addEventListener('click',()=>toggleProduct('hr'));
- document.querySelectorAll('[data-hr-category]').forEach(x=>x.addEventListener('click',event=>{if(!event.ctrlKey&&!event.metaKey&&!event.shiftKey){event.preventDefault();history.replaceState(null,'',x.pathname+x.search+x.hash);changeCategory(x.dataset.hrCategory,true);}}));
+ // Module links use native navigation so each selection reloads its requested HR module.
  $('hr-add').addEventListener('click',()=>showEditor());
  $('hr-close').addEventListener('click',()=>{$('hr-editor').hidden=true;});
  $('hr-save-form').addEventListener('submit',save);
