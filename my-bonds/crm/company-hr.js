@@ -289,17 +289,8 @@
     if(workspace)await changeCategory(labels[category]?category:'employees',Boolean(new URLSearchParams(location.search).get('hr_module')));
    };
    if(companySpaces.length)await activateCompanyWorkspace(companySpaces[0].id);
-   select.addEventListener('change',()=>activateCompanyWorkspace(select.value).catch(e=>status(e.message,true)));
-   $('hr-open-workspace').addEventListener('click',async()=>{
-    const button=$('hr-open-workspace');button.disabled=true;
-    status(t('جارٍ فتح مساحة العمل...','Opening company workspace...'));
-    try{
-     if(!companySpaces.some(c=>c.id===select.value))throw Error(t('اختر مساحة شركة صالحة','Select a valid company workspace'));
-     if(!workspace||workspace.crm_workspace_id!==select.value)await activateCompanyWorkspace(select.value);
-     $('hr-app').scrollIntoView({behavior:'smooth',block:'start'});
-     await changeCategory(labels[category]?category:'employees',true);
-    }catch(e){status(e.message,true);}finally{button.disabled=false;}
-   });
+   // Workspace controls are bound before initialization, so a failed data
+   // request cannot strand a visible button without a click handler.
 
   }catch(e){status(t('تعذر فتح الموارد البشرية: ','Cannot open HR: ')+e.message,true);}
  }
@@ -349,6 +340,28 @@
    location.assign(checkout.href);
   }catch(e){status(e.message,true);button.disabled=false;}
  }
+ // Register these handlers synchronously, before any asynchronous auth or
+ // workspace query. A failed initial query can then be retried by the user.
+ $('hr-workspace').addEventListener('change',()=>{
+  const select=$('hr-workspace');
+  if(!activateCompanyWorkspace){status(t('تعذر تحميل المساحات. اضغط فتح لإعادة المحاولة','Could not load workspaces. Select Open to retry'),true);return;}
+  activateCompanyWorkspace(select.value).catch(e=>status(e.message,true));
+ });
+ $('hr-open-workspace').addEventListener('click',async()=>{
+  const button=$('hr-open-workspace');
+  if(button.disabled)return;
+  button.disabled=true;
+  status(t('جارٍ فتح مساحة العمل...','Opening company workspace...'));
+  try{
+   if(!activateCompanyWorkspace)await initialize();
+   if(!activateCompanyWorkspace)throw Error(t('تعذر تهيئة مساحة العمل. تحقق من تسجيل الدخول ثم أعد المحاولة','Workspace initialization failed. Check sign-in and retry'));
+   const select=$('hr-workspace');
+   if(!companySpaces.some(c=>c.id===select.value))throw Error(t('اختر مساحة شركة صالحة','Select a valid company workspace'));
+   if(!workspace||workspace.crm_workspace_id!==select.value)await activateCompanyWorkspace(select.value);
+   if(!workspace)throw Error(t('لم يتم ربط مساحة الموارد البشرية','HR workspace is not linked'));
+   await changeCategory(labels[category]?category:'employees',true);
+  }catch(e){status(e.message,true);}finally{button.disabled=!companySpaces.length;}
+ });
  $('crm-product-tab').addEventListener('click',()=>toggleProduct('crm'));
  $('hr-checkout-start').addEventListener('click',launchProgramCheckout);
  $('hr-product-tab').addEventListener('click',()=>toggleProduct('hr'));
