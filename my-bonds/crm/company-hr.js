@@ -283,13 +283,18 @@
     }
     $('hr-app').hidden=!workspace;
     select.value=crmId;
+    // Keep the sidebar and HR section on the same company identity.
+    const shellSelect=$('workspace-select');
+    if(shellSelect&&Array.from(shellSelect.options).some(o=>o.value===crmId))shellSelect.value=crmId;
     // Keep the selected workspace replayable if the deferred self-service
     // module registers after this event has already fired.
     if(window.BondsHRContext)window.BondsHRContext.ownerWorkspace=workspace;
     document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
     if(workspace)await changeCategory(labels[category]?category:'employees',Boolean(new URLSearchParams(location.search).get('hr_module')));
    };
-   if(companySpaces.length)await activateCompanyWorkspace(companySpaces[0].id);
+   const shellWorkspaceId=$('workspace-select')?.value;
+   const initialCompany=companySpaces.find(c=>c.id===shellWorkspaceId)||companySpaces[0];
+   if(initialCompany)await activateCompanyWorkspace(initialCompany.id);
    // Workspace controls are bound before initialization, so a failed data
    // request cannot strand a visible button without a click handler.
 
@@ -343,6 +348,15 @@
  }
  // Register these handlers synchronously, before any asynchronous auth or
  // workspace query. A failed initial query can then be retried by the user.
+ $('workspace-select').addEventListener('change',event=>{
+  if(activeProduct!=='hr'||!activateCompanyWorkspace)return;
+  const crmId=event.target.value;
+  if(!companySpaces.some(c=>c.id===crmId)){
+   status(t('مساحة الشركة غير متاحة لمالك الموارد البشرية','Company workspace is unavailable to the HR owner'),true);
+   return;
+  }
+  activateCompanyWorkspace(crmId).catch(e=>status(e.message,true));
+ });
  $('hr-workspace').addEventListener('change',()=>{
   const select=$('hr-workspace');
   if(!activateCompanyWorkspace){status(t('تعذر تحميل المساحات. اضغط فتح لإعادة المحاولة','Could not load workspaces. Select Open to retry'),true);return;}
