@@ -36,7 +36,7 @@
  ];
  const labels=Object.fromEntries(modules.map(([id,ar,eng])=>[id,t(ar,eng)]));
  const status=(msg,err=false)=>{const n=$('hr-status');n.textContent=msg;n.hidden=!msg;n.style.display=msg?'block':'none';n.classList.toggle('error',err);};
- let db,user,license=false,workspace=null,workspaces=[],employees=[],payrollPeriods=[],records=[],category='employees',editing=null;
+ let db,user,license=false,workspace=null,workspaces=[],employees=[],payrollPeriods=[],records=[],category=new URLSearchParams(location.search).get('hr_module')||'employees',editing=null;
  let companySpaces=[],activateCompanyWorkspace=null;
  let loadRequestId=0;
  const check=r=>{if(r.error)throw r.error;return r.data;};
@@ -139,7 +139,7 @@
  async function changeCategory(next,focus=false){
   if(!labels[next])return;
   ++loadRequestId;category=next;editing=null;$('hr-editor').hidden=true;
-  document.querySelectorAll('[data-hr-category]').forEach(x=>x.classList.toggle('active',x.dataset.hrCategory===category));
+  document.querySelectorAll('[data-hr-category]').forEach(x=>{x.classList.toggle('active',x.dataset.hrCategory===category);if(x.dataset.hrCategory===category)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});
   try{status('');await load();}catch(e){status(e.message,true);}
   if(focus){
    if(workspace)$('hr-app').scrollIntoView({behavior:'smooth',block:'start'});
@@ -283,7 +283,7 @@
     }
     $('hr-app').hidden=!workspace;
     document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
-    if(workspace)await changeCategory(category);
+    if(workspace)await changeCategory(labels[category]?category:'employees',Boolean(new URLSearchParams(location.search).get('hr_module')));
    };
    if(companySpaces.length)await activateCompanyWorkspace(companySpaces[0].id);
    select.addEventListener('change',()=>activateCompanyWorkspace(select.value).catch(e=>status(e.message,true)));
@@ -339,7 +339,7 @@
  $('crm-product-tab').addEventListener('click',()=>toggleProduct('crm'));
  $('hr-checkout-start').addEventListener('click',launchProgramCheckout);
  $('hr-product-tab').addEventListener('click',()=>toggleProduct('hr'));
- document.querySelectorAll('[data-hr-category]').forEach(x=>x.addEventListener('click',()=>changeCategory(x.dataset.hrCategory,true)));
+ document.querySelectorAll('[data-hr-category]').forEach(x=>x.addEventListener('click',event=>{if(!event.ctrlKey&&!event.metaKey&&!event.shiftKey){event.preventDefault();history.replaceState(null,'',x.pathname+x.search+x.hash);changeCategory(x.dataset.hrCategory,true);}}));
  $('hr-add').addEventListener('click',()=>showEditor());
  $('hr-close').addEventListener('click',()=>{$('hr-editor').hidden=true;});
  $('hr-save-form').addEventListener('submit',save);
