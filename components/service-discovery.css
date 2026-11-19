@@ -50,3 +50,22 @@
   .sd-service-columns{display:block;min-height:0}
   .sd-service-search{padding:10px}
 }
+
+/* Mobile service discovery: reduce wasted height without changing field order,
+   select semantics, service search, or submit routing. */
+@media (max-width: 480px) {
+  .bonds-service-discovery__inner { padding: 10px 14px 12px; }
+  .bonds-service-discovery__grid { gap: 7px; }
+  .bonds-service-discovery__title { margin-bottom: 8px; font-size: 16px; }
+  .bonds-service-discovery label { gap: 2px; }
+  .bonds-service-discovery label span { font-size: 12px; line-height: 1.35; }
+  .bonds-service-discovery .ud-trigger,
+  .bonds-service-discovery select,
+  .bonds-service-discovery .sd-service-trigger { min-height: 44px; height: 44px; }
+  .bonds-service-discovery #bondsServiceStart {
+    min-height: 50px;
+    height: auto;
+    white-space: normal;
+    font-size: 16px;
+  }
+}
