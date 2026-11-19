@@ -493,8 +493,6 @@
             window.BondsAuth.initSiteAuth('authContainer', true).catch(() => {});
           }
 
-          await loadWorkspaces();
-
           let supabaseProjects = [];
           try {
             supabaseProjects = await loadSupabaseProjects();
@@ -535,6 +533,8 @@
           const countEl = document.getElementById('projectCount');
           if (countEl) countEl.textContent = String(allProjects.length);
           renderProjects(allProjects, false);
+          // Workspace cards are independent of project and service-request loading.
+          void loadWorkspaces();
           try {
             renderServiceRequests(await loadServiceRequests());
           } catch (requestError) {
