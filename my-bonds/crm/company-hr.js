@@ -284,6 +284,9 @@
     }
     $('hr-app').hidden=!workspace;
     select.value=crmId;
+    // Keep the selected workspace replayable if the deferred self-service
+    // module registers after this event has already fired.
+    if(window.BondsHRContext)window.BondsHRContext.ownerWorkspace=workspace;
     document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
     if(workspace)await changeCategory(labels[category]?category:'employees',Boolean(new URLSearchParams(location.search).get('hr_module')));
    };
