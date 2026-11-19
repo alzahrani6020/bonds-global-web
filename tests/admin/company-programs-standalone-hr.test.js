@@ -16,6 +16,11 @@ describe('independent CRM/HR products in one company programs dashboard',()=>{
    expect(html).toContain('id="hr-section" hidden');
    expect(html).toMatch(/company-hr\.js\?v=\d+/);
   }
+  // Both language shells must load the navigation fix rather than the cached script.
+  for(const html of [ar,en])expect(html).toContain('company-hr.js?v=6');
+  expect(controller).toContain("$('hr-nav').addEventListener('click'");
+  expect(controller).toContain("history.pushState(null,'',url.pathname+url.search+url.hash)");
+  expect(controller).toContain("window.addEventListener('popstate'");
   expect(read('site-layout.js')).toContain('/my-bonds/crm/?program=hr');
   expect(read('site-layout.js')).toContain("'/my-bonds/crm/'");
  });
