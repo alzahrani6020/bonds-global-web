@@ -339,6 +339,9 @@
  $('crm-product-tab').addEventListener('click',()=>toggleProduct('crm'));
  $('hr-checkout-start').addEventListener('click',launchProgramCheckout);
  $('hr-product-tab').addEventListener('click',()=>toggleProduct('hr'));
+ // Keep the selected module's records above optional membership/self-service/policy panels.
+ // Those panels are independently shown after workspace activation and must not displace HR records.
+ $('hr-status').insertAdjacentElement('afterend',$('hr-app'));
  // Module links use native navigation so each selection reloads its requested HR module.
  $('hr-add').addEventListener('click',()=>showEditor());
  $('hr-close').addEventListener('click',()=>{$('hr-editor').hidden=true;});
