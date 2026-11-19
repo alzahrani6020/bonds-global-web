@@ -145,8 +145,21 @@ async function run(){
     assert.equal(tables.hr_saas_workspaces[0].crm_workspace_id,tables.crm_app_workspaces[0].id);
     assert.equal(await page.locator('#hr-workspace').inputValue(),tables.crm_app_workspaces[0].id);
     assert.equal(tables.hr_saas_employees.length,0,'Do not copy CRM customer contacts as employees');
+    assert.equal(await page.locator('#hr-open-workspace').isVisible(),true,'Existing company has no explicit open action');
+    await page.locator('#hr-open-workspace').click();
+    assert.equal(await page.locator('#hr-app').isVisible(),true,'Open company did not show records');
+    assert.ok((await page.locator('#hr-heading').textContent()).includes('الملفات الوظيفية'),'Open company showed wrong HR module');
+    await page.locator('[data-hr-category="departments"]').click();
+    await page.waitForURL(/hr_module=departments/);
+    await page.waitForFunction(()=>document.querySelector('#hr-heading')?.textContent.includes('الإدارات'));
+    assert.equal(await page.locator('#hr-app').isVisible(),true,'Department link did not show module records');
+    await page.locator('[data-hr-category="employees"]').click();
+    await page.waitForURL(/hr_module=employees/);
+    await page.waitForFunction(()=>document.querySelector('#hr-heading')?.textContent.includes('الملفات الوظيفية'));
    }else{
     await page.waitForFunction(()=>!document.querySelector('#hr-setup').hidden);
+    await page.locator('#hr-create-details summary').click();
+    assert.equal(await page.locator('#hr-create-workspace input[name="name"]').isVisible(),true,'New-company form must be opt-in');
     await page.locator('#hr-create-workspace input[name="name"]').fill('Independent HR Company');
     await page.locator('#hr-create-workspace button[type="submit"]').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_workspaces.length===1);
