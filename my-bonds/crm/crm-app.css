@@ -24,6 +24,9 @@ a{color:var(--blue-light)}
 .sidebar-nav button{text-align:right;padding:.75rem .85rem;border:1px solid transparent;background:transparent;color:#cbd5e1;border-radius:11px;font-weight:650}
 .sidebar-nav button:hover{background:rgba(51,65,85,.65);color:white}
 .sidebar-nav button.active{background:rgba(0,102,204,.19);color:#93c5fd;border-color:rgba(51,133,214,.48)}
+.sidebar-nav a[data-hr-category]{display:block;text-align:right;padding:.75rem .85rem;border:1px solid transparent;background:transparent;color:#cbd5e1;border-radius:11px;font-weight:650;text-decoration:none;cursor:pointer}
+.sidebar-nav a[data-hr-category]:hover{background:rgba(51,65,85,.65);color:white}
+.sidebar-nav a[data-hr-category].active{background:rgba(0,102,204,.19);color:#93c5fd;border-color:rgba(51,133,214,.48)}
 .back{margin-top:auto;padding:.75rem;color:var(--muted);text-decoration:none;border-top:1px solid var(--stroke)}
 .content{padding:clamp(1rem,2.5vw,2.2rem);min-width:0}
 .toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-bottom:1.5rem;border-bottom:1px solid var(--stroke)}
