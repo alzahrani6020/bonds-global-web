@@ -159,6 +159,15 @@ async function run(){
     assert.equal(tables.hr_saas_workspaces[0].crm_workspace_id,tables.crm_app_workspaces[0].id);
     assert.equal(await page.locator('#hr-workspace').inputValue(),tables.crm_app_workspaces[0].id);
     assert.equal(tables.hr_saas_employees.length,0,'Do not copy CRM customer contacts as employees');
+    // Regression: CRM can complete after HR and wrongly re-open its dashboard.
+    await page.evaluate(()=>{
+     document.querySelector('#workspace-content').hidden=false;
+     document.querySelector('#onboarding').hidden=false;
+     document.dispatchEvent(new Event('bonds-crm-workspace-initialized'));
+    });
+    assert.equal(await page.locator('#workspace-content').isVisible(),false,'CRM dashboard leaked into HR after late CRM init');
+    assert.equal(await page.locator('#onboarding').isVisible(),false,'CRM onboarding leaked into HR after late CRM init');
+    assert.equal(await page.locator('#hr-section').isVisible(),true,'HR surface disappeared after late CRM init');
     assert.equal(await page.locator('#hr-open-workspace').isVisible(),true,'Existing company has no explicit open action');
     await page.locator('#hr-open-workspace').click();
     assert.equal(await page.locator('#hr-app').isVisible(),true,'Open company did not show records');
