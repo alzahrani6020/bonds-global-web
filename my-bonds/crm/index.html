@@ -170,10 +170,14 @@
    <section id="hr-setup" class="panel" hidden>
     <h2>مساحات عمل الشركات المشتركة</h2>
     <label>اختر مساحة العمل<select id="hr-workspace"></select></label>
-    <form id="hr-create-workspace">
-      <label>شركة جديدة للبرامج<input name="name" required maxlength="180"></label>
-      <button type="submit" class="secondary">إنشاء وربط مساحة الشركة</button>
-    </form>
+    <button type="button" id="hr-open-workspace" class="primary">فتح مساحة العمل المحددة</button>
+    <details id="hr-create-details">
+     <summary>إنشاء شركة جديدة (اختياري)</summary>
+     <form id="hr-create-workspace">
+      <label>اسم الشركة الجديدة<input name="name" required maxlength="180"></label>
+      <button type="submit" class="secondary">إنشاء وربط شركة جديدة</button>
+     </form>
+    </details>
    </section>
    <p id="hr-status" class="notice" role="status" aria-live="polite" hidden></p>
    <section id="hr-app" hidden>
