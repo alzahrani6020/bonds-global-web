@@ -84,10 +84,11 @@
   const fields=row&&category==='leave_balances'?activeSpecs().filter(x=>!['employee_id','entry_reference'].includes(x[0])):row&&category==='claims'?activeSpecs().filter(x=>!['employee_id','claim_reference'].includes(x[0])):row&&category==='contracts'?activeSpecs().filter(x=>!['employee_id','contract_number'].includes(x[0])):row&&category==='payroll_runs'?activeSpecs().filter(x=>x[0]==='status'):row&&category==='payroll'?activeSpecs().filter(x=>x[0]!=='employee_id'&&x[0]!=='period_id'):activeSpecs();
   $('hr-fields').innerHTML=fields.map(x=>memberField(x,row||{})).join('');
   $('hr-editor-title').textContent=(row?t('تعديل','Edit'):t('إضافة','New'))+' — '+labels[category];
+  $('hr-editor').scrollIntoView({behavior:'smooth',block:'start'});
  }
  function render(){
   const isEmployees=category==='employees',source=isEmployees?employees:records;
-  $('hr-heading').textContent=labels[category];
+  $('hr-heading').textContent=labels[category]+(workspace?' — '+workspace.name:'');
   $('hr-add').hidden=['audit','employee_requests'].includes(category);
   const columns=isEmployees?['employee_number','full_name','department','job_title','employment_status']:category==='attendance'?['employee_id','work_date','attendance_status','clock_in','clock_out']:category==='leaves'?['employee_id','leave_type','start_date','end_date','status']:category==='contracts'?['employee_id','contract_number','contract_type','status','start_date']:category==='claims'?['employee_id','claim_reference','claim_type','amount','status']:category==='leave_balances'?['employee_id','entry_reference','leave_type','days_delta','status']:category==='payroll_runs'?['payroll_year','payroll_month','status','approved_at']:category==='payroll'?['employee_id','period_id','base_salary','allowance_total','deduction_total','net_salary']:category==='audit'?['created_at','entity','action','changed_columns']:category==='employee_requests'?['employee_id','request_type','subject','status','created_at']:['employee_id','title','status','effective_date','amount'];
   const heads={employee_number:t('الرقم الوظيفي','Employee #'),full_name:t('الاسم','Name'),department:t('الإدارة','Department'),job_title:t('المسمى','Position'),employment_status:t('الحالة','Status'),employee_id:t('الموظف','Employee'),title:t('الموضوع','Title'),status:t('الحالة','Status'),effective_date:t('التاريخ','Date'),amount:t('المبلغ','Amount'),created_at:t('التاريخ','Date'),entity:t('السجل','Entity'),action:t('الإجراء','Action'),changed_columns:t('الحقول','Fields'),work_date:t('تاريخ الدوام','Work date'),attendance_status:t('حالة الدوام','Status'),clock_in:t('الحضور','Clock in'),clock_out:t('الانصراف','Clock out'),leave_type:t('الإجازة','Leave type'),start_date:t('البداية','Start'),end_date:t('النهاية','End'),payroll_year:t('السنة','Year'),payroll_month:t('الشهر','Month'),approved_at:t('الاعتماد','Approved'),period_id:t('المسير','Payroll period'),base_salary:t('الأساسي','Basic'),allowance_total:t('البدلات','Allowances'),deduction_total:t('الخصومات','Deductions'),net_salary:t('الصافي','Net'),contract_number:t('رقم العقد','Contract #'),contract_type:t('نوع العقد','Contract type'),claim_reference:t('رقم المستحق','Claim #'),claim_type:t('نوع المستحق','Claim type'),entry_reference:t('مرجع القيد','Entry #'),days_delta:t('الأيام','Days'),request_type:t('نوع الطلب','Request type'),subject:t('الموضوع','Subject')};
@@ -135,11 +136,15 @@
   }
   render();
  }
- async function changeCategory(next){
+ async function changeCategory(next,focus=false){
   if(!labels[next])return;
   ++loadRequestId;category=next;editing=null;$('hr-editor').hidden=true;
   document.querySelectorAll('[data-hr-category]').forEach(x=>x.classList.toggle('active',x.dataset.hrCategory===category));
   try{status('');await load();}catch(e){status(e.message,true);}
+  if(focus){
+   if(workspace)$('hr-app').scrollIntoView({behavior:'smooth',block:'start'});
+   else $('hr-setup').scrollIntoView({behavior:'smooth',block:'start'});
+  }
  }
  async function save(ev){
   ev.preventDefault();
@@ -334,7 +339,7 @@
  $('crm-product-tab').addEventListener('click',()=>toggleProduct('crm'));
  $('hr-checkout-start').addEventListener('click',launchProgramCheckout);
  $('hr-product-tab').addEventListener('click',()=>toggleProduct('hr'));
- document.querySelectorAll('[data-hr-category]').forEach(x=>x.addEventListener('click',()=>changeCategory(x.dataset.hrCategory)));
+ document.querySelectorAll('[data-hr-category]').forEach(x=>x.addEventListener('click',()=>changeCategory(x.dataset.hrCategory,true)));
  $('hr-add').addEventListener('click',()=>showEditor());
  $('hr-close').addEventListener('click',()=>{$('hr-editor').hidden=true;});
  $('hr-save-form').addEventListener('submit',save);
