@@ -754,6 +754,16 @@
     document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeServicePicker(); });
     window.addEventListener('resize',()=>{ if(q('#bondsServicePicker')?.classList.contains('is-open')) renderServicePicker(); });
     q('#bondsServiceStart').addEventListener('click',start);
+    // On narrow screens the floating assistant must not cover the main CTA.
+    // This only changes launcher visibility, never assistant session state.
+    if ('IntersectionObserver' in window) {
+      const startButton = q('#bondsServiceStart');
+      const observer = new IntersectionObserver(entries => {
+        const visible = entries.some(entry => entry.isIntersecting);
+        document.body.classList.toggle('bonds-service-cta-visible', visible);
+      }, { threshold: 0.01 });
+      observer.observe(startButton);
+    }
 
     track('service_viewed',{surface:'header_discovery'});
     loadCountries()
