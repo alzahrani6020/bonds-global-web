@@ -138,6 +138,7 @@
  }
  async function changeCategory(next,focus=false){
   if(!labels[next])return;
+  if(!workspace){status(t('افتح مساحة الشركة أولاً','Open a company workspace first'),true);return;}
   ++loadRequestId;category=next;editing=null;$('hr-editor').hidden=true;
   document.querySelectorAll('[data-hr-category]').forEach(x=>{x.classList.toggle('active',x.dataset.hrCategory===category);if(x.dataset.hrCategory===category)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});
   if(focus)(workspace?$('hr-app'):$('hr-setup')).scrollIntoView({behavior:'smooth',block:'start'});
@@ -360,7 +361,7 @@
    if(!workspace||workspace.crm_workspace_id!==select.value)await activateCompanyWorkspace(select.value);
    if(!workspace)throw Error(t('لم يتم ربط مساحة الموارد البشرية','HR workspace is not linked'));
    await changeCategory(labels[category]?category:'employees',true);
-  }catch(e){status(e.message,true);}finally{button.disabled=!companySpaces.length;}
+  }catch(e){status(e.message,true);}finally{button.disabled=false;}
  });
  $('crm-product-tab').addEventListener('click',()=>toggleProduct('crm'));
  $('hr-checkout-start').addEventListener('click',launchProgramCheckout);
@@ -378,7 +379,6 @@
   url.searchParams.set('program','hr');
   url.searchParams.set('hr_module',next);
   history.pushState(null,'',url.pathname+url.search+url.hash);
-  if(!workspace)status(t('افتح مساحة الشركة أولاً','Open a company workspace first'),true);
   changeCategory(next,true).catch(e=>status(e.message,true));
  });
  window.addEventListener('popstate',()=>{
@@ -391,7 +391,7 @@
  // Keep the selected module's records above optional membership/self-service/policy panels.
  // Those panels are independently shown after workspace activation and must not displace HR records.
  $('hr-setup').insertAdjacentElement('beforebegin',$('hr-app'));
- // Module links use native navigation so each selection reloads its requested HR module.
+ // Handle HR module selections in-place; do not reload authenticated workspaces.
  $('hr-add').addEventListener('click',()=>showEditor());
  $('hr-close').addEventListener('click',()=>{$('hr-editor').hidden=true;});
  $('hr-save-form').addEventListener('submit',save);
