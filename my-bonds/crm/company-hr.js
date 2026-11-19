@@ -287,7 +287,9 @@
     document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
     if(workspace)await changeCategory(labels[category]?category:'employees',Boolean(new URLSearchParams(location.search).get('hr_module')));
    };
-   if(companySpaces.length)await activateCompanyWorkspace(companySpaces[0].id);
+   const requestedWorkspaceId=new URLSearchParams(location.search).get('workspace_id');
+   const selectedCompany=companySpaces.find(c=>c.id===requestedWorkspaceId)||companySpaces[0];
+   if(selectedCompany)await activateCompanyWorkspace(selectedCompany.id);
    select.addEventListener('change',()=>activateCompanyWorkspace(select.value).catch(e=>status(e.message,true)));
    $('hr-open-workspace').addEventListener('click',async()=>{
     const button=$('hr-open-workspace');button.disabled=true;
