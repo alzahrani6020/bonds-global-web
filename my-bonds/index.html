@@ -62,6 +62,12 @@
         </div>
       </div>
 
+      <!-- Existing company workspaces, scoped by Supabase RLS and HR entitlement. -->
+      <div class="my-bonds-section" id="workspacesSection" style="display:none;">
+        <h3 class="my-bonds-section__title">مساحات العمل</h3>
+        <div id="workspacesList" class="my-bonds-grid"></div>
+      </div>
+
       <!-- Projects list -->
       <div class="my-bonds-section">
         <h3 class="my-bonds-section__title">مشاريعي المحفوظة</h3>
@@ -244,6 +250,53 @@
           return true;
         }
         return false;
+      }
+
+      async function loadWorkspaces() {
+        const section = document.getElementById('workspacesSection');
+        const container = document.getElementById('workspacesList');
+        if (!section || !container) return;
+        section.style.display = 'block';
+        container.innerHTML = '<div class="bonds-card my-bonds-empty">جارٍ تحميل مساحات العمل...</div>';
+        try {
+          await window.BondsAuth.ensureEnv();
+          const db = window.BondsAuth.getSupabase();
+          if (!db) throw new Error('WORKSPACE_CLIENT_UNAVAILABLE');
+          const [crmResult, hrResult] = await Promise.all([
+            db.from('crm_app_workspaces').select('id,name,owner_user_id').order('created_at', { ascending: true }).limit(100),
+            db.from('hr_saas_workspaces').select('id,name,owner_user_id,crm_workspace_id').order('created_at', { ascending: true }).limit(100)
+          ]);
+          if (crmResult.error) throw crmResult.error;
+          if (hrResult.error) throw hrResult.error;
+          const crm = crmResult.data || [];
+          const hr = hrResult.data || [];
+          if (!crm.length && !hr.length) {
+            container.innerHTML = '<div class="bonds-card my-bonds-empty">لا توجد مساحات عمل متاحة لحسابك حاليًا.</div>';
+            return;
+          }
+          const cards = [];
+          crm.forEach(function(space) {
+            const name = BondsCommon.escapeHtml(space.name || 'مساحة CRM');
+            const href = '/my-bonds/crm/?workspace_id=' + encodeURIComponent(space.id);
+            cards.push('<div class="bonds-card my-bonds-project"><h4 class="my-bonds-project__title">' + name +
+              '</h4><p class="my-bonds-project__summary">نظام إدارة علاقات العملاء (CRM)</p>' +
+              '<div class="my-bonds-project__meta"><a class="bonds-btn bonds-btn-sm bonds-btn-primary" href="' +
+              href + '">فتح مساحة CRM</a></div></div>');
+          });
+          hr.forEach(function(space) {
+            const name = BondsCommon.escapeHtml(space.name || 'مساحة الموارد البشرية');
+            const href = '/my-bonds/crm/?program=hr&hr_module=employees' +
+              (space.crm_workspace_id ? '&workspace_id=' + encodeURIComponent(space.crm_workspace_id) : '') + '#hr-app';
+            cards.push('<div class="bonds-card my-bonds-project"><h4 class="my-bonds-project__title">' + name +
+              '</h4><p class="my-bonds-project__summary">نظام الموارد البشرية</p>' +
+              '<div class="my-bonds-project__meta"><a class="bonds-btn bonds-btn-sm bonds-btn-primary" href="' +
+              href.replace(/&/g, '&amp;') + '">فتح مساحة HR</a></div></div>');
+          });
+          container.innerHTML = cards.join('');
+        } catch (error) {
+          console.error('[my-bonds] loadWorkspaces failed:', error);
+          container.innerHTML = '<div class="bonds-card my-bonds-empty">تعذر تحميل مساحات العمل حاليًا.</div>';
+        }
       }
 
       async function loadSupabaseProjects() {
@@ -439,6 +492,8 @@
           if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
             window.BondsAuth.initSiteAuth('authContainer', true).catch(() => {});
           }
+
+          await loadWorkspaces();
 
           let supabaseProjects = [];
           try {
