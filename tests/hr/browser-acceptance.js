@@ -34,8 +34,22 @@ async function run(){
       request_type:'leave',subject:'A pending leave request',description:'Approve',status:'pending',created_at:new Date().toISOString()
      }]:[]
     };
-    let next=0;
-    window.__hrTest={tables,writes:[]};
+    // Native HR module links reload the document. Keep the in-memory test
+    // database across same-tab navigation, as a remote database would.
+    // This sessionStorage fixture is test-only and scoped to each Playwright page.
+    const storageKey='bonds_hr_mock_state_'+scenario;
+    let previous=null;
+    try{previous=JSON.parse(sessionStorage.getItem(storageKey)||'null');}catch{}
+    if(previous?.tables){
+     for(const [name,rows] of Object.entries(previous.tables)){
+      if(Object.prototype.hasOwnProperty.call(tables,name)&&Array.isArray(rows))tables[name]=rows;
+     }
+    }
+    let next=previous?.next||0;
+    window.__hrTest={tables,writes:previous?.writes||[]};
+    window.addEventListener('pagehide',()=>{
+     sessionStorage.setItem(storageKey,JSON.stringify({tables,writes:window.__hrTest.writes,next}));
+    });
     function from(table){
      if(!tables[table])throw Error('Unexpected table: '+table);
      let kind='read',value=null,filters=[],limit=1000;
