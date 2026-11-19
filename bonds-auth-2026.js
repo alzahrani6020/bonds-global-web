@@ -398,31 +398,39 @@
   }
 
   function getRedirectUrl() {
+    const origin = window.location.origin;
+    const fallback = origin + '/my-bonds/';
     const params = new URLSearchParams(window.location.search);
     const fromParam = params.get('redirect');
-    const origin = (typeof window !== 'undefined' && window.location ? window.location.origin : '');
-    const fallback = origin + '/my-bonds/';
-    if (fromParam) {
+
+    // All post-auth destinations must stay on the same origin as the login page.
+    // Never accept a previously stored absolute URL for another Preview hostname.
+    function sameOriginDestination(value) {
+      if (typeof value !== 'string' || !value.trim() || /[\\u0000-\\u001f\\u007f]/.test(value)) return null;
       try {
-        const target = stripOAuthErrorParams(new URL(fromParam, origin || 'https://bonds-global.com'));
-        if (!origin || target.origin === origin) {
-          const safe = target.pathname + target.search + target.hash;
-          try { sessionStorage.setItem('auth_redirect', safe); } catch(e) {}
-          return origin + safe;
-        }
-      } catch(e) {}
+        const target = stripOAuthErrorParams(new URL(value, origin));
+        if (target.protocol !== 'https:' && target.protocol !== 'http:') return null;
+        if (target.origin !== origin || target.username || target.password) return null;
+        return target.pathname + target.search + target.hash;
+      } catch (e) { return null; }
+    }
+
+    if (fromParam !== null) {
+      const safe = sameOriginDestination(fromParam);
+      if (safe) {
+        try { sessionStorage.setItem('auth_redirect', safe); } catch (e) {}
+        return origin + safe;
+      }
+      try { sessionStorage.removeItem('auth_redirect'); } catch (e) {}
       return fallback;
     }
     try {
-      let stored = sessionStorage.getItem('auth_redirect');
-      if (stored) {
-        try { stored = decodeURIComponent(stored); } catch(e) {}
-      }
-      if (stored && stored.startsWith('/') && !stored.startsWith('//')) {
-        stored = (typeof window !== 'undefined' && window.location ? window.location.origin : '') + stored;
-      }
-      return stored || fallback;
-    } catch(e) { return fallback; }
+      const stored = sessionStorage.getItem('auth_redirect');
+      const safe = sameOriginDestination(stored);
+      if (safe) return origin + safe;
+      if (stored) sessionStorage.removeItem('auth_redirect');
+    } catch (e) {}
+    return fallback;
   }
 
   function clearRedirectUrl() {
