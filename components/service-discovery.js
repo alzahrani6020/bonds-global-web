@@ -754,16 +754,17 @@
     document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeServicePicker(); });
     window.addEventListener('resize',()=>{ if(q('#bondsServicePicker')?.classList.contains('is-open')) renderServicePicker(); });
     q('#bondsServiceStart').addEventListener('click',start);
-    // On narrow screens the floating assistant must not cover the main CTA.
-    // This only changes launcher visibility, never assistant session state.
-    if ('IntersectionObserver' in window) {
-      const startButton = q('#bondsServiceStart');
-      const observer = new IntersectionObserver(entries => {
-        const visible = entries.some(entry => entry.isIntersecting);
-        document.body.classList.toggle('bonds-service-cta-visible', visible);
-      }, { threshold: 0.01 });
-      observer.observe(startButton);
-    }
+    // Keep the assistant launcher off the mobile service form, including its CTA.
+    // Do not change assistant session state or desktop visibility.
+    const syncMobileAssistantVisibility = () => {
+      const bounds = wrap.getBoundingClientRect();
+      const formVisible = window.innerWidth <= 700 &&
+        bounds.bottom > 0 && bounds.top < window.innerHeight;
+      document.body.classList.toggle('bonds-service-cta-visible', formVisible);
+    };
+    syncMobileAssistantVisibility();
+    window.addEventListener('scroll', syncMobileAssistantVisibility, { passive: true });
+    window.addEventListener('resize', syncMobileAssistantVisibility);
 
     track('service_viewed',{surface:'header_discovery'});
     loadCountries()
