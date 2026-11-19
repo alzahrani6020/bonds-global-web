@@ -7,6 +7,22 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/company-programs",
+      "destination": "/api/payments"
+    },
+    {
+      "source": "/api/company-programs/",
+      "destination": "/api/payments"
+    },
+    {
+      "source": "/api/hr-calculations",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/hr-calculations/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/readiness",
       "destination": "/api/health?strict=1"
     },
