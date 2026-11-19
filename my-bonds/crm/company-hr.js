@@ -285,7 +285,11 @@
     select.value=crmId;
     // Keep the sidebar and HR section on the same company identity.
     const shellSelect=$('workspace-select');
-    if(shellSelect&&Array.from(shellSelect.options).some(o=>o.value===crmId))shellSelect.value=crmId;
+    if(shellSelect&&Array.from(shellSelect.options).some(o=>o.value===crmId)&&shellSelect.value!==crmId){
+     shellSelect.value=crmId;
+     // Let CRM update its own internal workspace, rather than changing only the select.
+     shellSelect.dispatchEvent(new Event('change',{bubbles:true}));
+    }
     // Keep the selected workspace replayable if the deferred self-service
     // module registers after this event has already fired.
     if(window.BondsHRContext)window.BondsHRContext.ownerWorkspace=workspace;
@@ -304,7 +308,7 @@
  // Re-clicking the selected tab must not overwrite it or hide a live CRM view.
  let activeProduct='crm';
  function toggleProduct(name){
-  if(name===activeProduct)return;
+  if(name===activeProduct){if(name==='hr')enforceHrVisibility();return;}
   const hr=name==='hr';
   activeProduct=name;
   if(hr){
@@ -326,6 +330,24 @@
   $('hr-product-tab').classList.toggle('active',hr);
   $('crm-product-tab').classList.toggle('active',!hr);
  }
+ // CRM initialization may finish after HR mode is selected and show its
+ // dashboard. Re-hide CRM-only surfaces without resetting saved display state.
+ function enforceHrVisibility(){
+  if(activeProduct!=='hr')return;
+  for(const id of ['workspace-content','onboarding','internal-crm-panel','auth-gate','refresh','install','install-hint','status','internal-crm-open']){
+   const node=$(id);if(node)node.hidden=true;
+  }
+  $('hr-section').hidden=false;$('hr-nav').hidden=false;$('crm-nav').hidden=true;
+  $('hr-page-heading').hidden=false;$('crm-main-heading').hidden=true;
+ }
+ document.addEventListener('bonds-crm-workspace-initialized',()=>{
+  if(activeProduct!=='hr')return;
+  enforceHrVisibility();
+  // Align HR company selection with the actual CRM selection after async setup.
+  const crmId=$('workspace-select')?.value;
+  if(activateCompanyWorkspace&&companySpaces.some(c=>c.id===crmId)&&workspace?.crm_workspace_id!==crmId)
+   activateCompanyWorkspace(crmId).catch(e=>status(e.message,true));
+ });
  async function launchProgramCheckout(){
   const button=$('hr-checkout-start');
   if(!db||!user){status(t('سجّل الدخول أولاً','Sign in first'),true);return;}
