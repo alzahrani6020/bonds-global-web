@@ -270,6 +270,7 @@
    workspaces=check(await db.from('hr_saas_workspaces').select('id,name,owner_user_id,crm_workspace_id').order('created_at',{ascending:true}));
    const select=$('hr-workspace');
    select.innerHTML=companySpaces.map(c=>'<option value="'+escape(c.id)+'">'+escape(c.name)+'</option>').join('');
+   $('hr-open-workspace').disabled=!companySpaces.length;
    activateCompanyWorkspace=async crmId=>{
     ++loadRequestId;
     const selected=companySpaces.find(c=>c.id===crmId);
@@ -282,11 +283,20 @@
      workspace=created;workspaces.push(created);
     }
     $('hr-app').hidden=!workspace;
+    select.value=crmId;
     document.dispatchEvent(new CustomEvent('bonds-hr-owner-workspace',{detail:{workspace}}));
     if(workspace)await changeCategory(labels[category]?category:'employees',Boolean(new URLSearchParams(location.search).get('hr_module')));
    };
    if(companySpaces.length)await activateCompanyWorkspace(companySpaces[0].id);
    select.addEventListener('change',()=>activateCompanyWorkspace(select.value).catch(e=>status(e.message,true)));
+   $('hr-open-workspace').addEventListener('click',async()=>{
+    const button=$('hr-open-workspace');button.disabled=true;
+    try{
+     if(!companySpaces.some(c=>c.id===select.value))throw Error(t('اختر مساحة شركة صالحة','Select a valid company workspace'));
+     if(!workspace||workspace.crm_workspace_id!==select.value)await activateCompanyWorkspace(select.value);
+     await changeCategory(labels[category]?category:'employees',true);
+    }catch(e){status(e.message,true);}finally{button.disabled=false;}
+   });
 
   }catch(e){status(t('تعذر فتح الموارد البشرية: ','Cannot open HR: ')+e.message,true);}
  }
@@ -341,7 +351,7 @@
  $('hr-product-tab').addEventListener('click',()=>toggleProduct('hr'));
  // Keep the selected module's records above optional membership/self-service/policy panels.
  // Those panels are independently shown after workspace activation and must not displace HR records.
- $('hr-status').insertAdjacentElement('afterend',$('hr-app'));
+ $('hr-setup').insertAdjacentElement('beforebegin',$('hr-app'));
  // Module links use native navigation so each selection reloads its requested HR module.
  $('hr-add').addEventListener('click',()=>showEditor());
  $('hr-close').addEventListener('click',()=>{$('hr-editor').hidden=true;});
