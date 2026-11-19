@@ -140,11 +140,9 @@
   if(!labels[next])return;
   ++loadRequestId;category=next;editing=null;$('hr-editor').hidden=true;
   document.querySelectorAll('[data-hr-category]').forEach(x=>{x.classList.toggle('active',x.dataset.hrCategory===category);if(x.dataset.hrCategory===category)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});
-  try{status('');await load();}catch(e){status(e.message,true);}
-  if(focus){
-   if(workspace)$('hr-app').scrollIntoView({behavior:'smooth',block:'start'});
-   else $('hr-setup').scrollIntoView({behavior:'smooth',block:'start'});
-  }
+  if(focus)(workspace?$('hr-app'):$('hr-setup')).scrollIntoView({behavior:'smooth',block:'start'});
+  status(t('جارٍ تحميل الوحدة...','Loading module...'));
+  try{await load();status('');}catch(e){status(e.message,true);}
  }
  async function save(ev){
   ev.preventDefault();
@@ -294,9 +292,11 @@
    select.addEventListener('change',()=>activateCompanyWorkspace(select.value).catch(e=>status(e.message,true)));
    $('hr-open-workspace').addEventListener('click',async()=>{
     const button=$('hr-open-workspace');button.disabled=true;
+    status(t('جارٍ فتح مساحة العمل...','Opening company workspace...'));
     try{
      if(!companySpaces.some(c=>c.id===select.value))throw Error(t('اختر مساحة شركة صالحة','Select a valid company workspace'));
      if(!workspace||workspace.crm_workspace_id!==select.value)await activateCompanyWorkspace(select.value);
+     $('hr-app').scrollIntoView({behavior:'smooth',block:'start'});
      await changeCategory(labels[category]?category:'employees',true);
     }catch(e){status(e.message,true);}finally{button.disabled=false;}
    });
@@ -352,6 +352,29 @@
  $('crm-product-tab').addEventListener('click',()=>toggleProduct('crm'));
  $('hr-checkout-start').addEventListener('click',launchProgramCheckout);
  $('hr-product-tab').addEventListener('click',()=>toggleProduct('hr'));
+ // Arabic navigation uses links; English navigation uses buttons. Handle both
+ // in-place, without reloading the authenticated HR workspace on each click.
+ $('hr-nav').addEventListener('click',event=>{
+  const link=event.target.closest('[data-hr-category]');
+  if(!link||event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+  const next=link.dataset.hrCategory;
+  if(!labels[next])return;
+  event.preventDefault();
+  toggleProduct('hr');
+  const url=new URL(location.href);
+  url.searchParams.set('program','hr');
+  url.searchParams.set('hr_module',next);
+  history.pushState(null,'',url.pathname+url.search+url.hash);
+  if(!workspace)status(t('افتح مساحة الشركة أولاً','Open a company workspace first'),true);
+  changeCategory(next,true).catch(e=>status(e.message,true));
+ });
+ window.addEventListener('popstate',()=>{
+  const params=new URLSearchParams(location.search);
+  if(params.get('program')!=='hr')return;
+  toggleProduct('hr');
+  const next=params.get('hr_module')||'employees';
+  changeCategory(labels[next]?next:'employees',true).catch(e=>status(e.message,true));
+ });
  // Keep the selected module's records above optional membership/self-service/policy panels.
  // Those panels are independently shown after workspace activation and must not displace HR records.
  $('hr-setup').insertAdjacentElement('beforebegin',$('hr-app'));
