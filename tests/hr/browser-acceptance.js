@@ -393,6 +393,24 @@ async function run(){
     const employee=await page.evaluate(()=>window.__hrTest.tables.hr_saas_employees[0]);
     assert.equal(employee.employee_number,'HR-001');
     // Only the workspace owner may provision registered HR memberships.
+    // Fail with the actual visibility/authorization context rather than
+    // a 30-second locator timeout that hides the root cause.
+    if(!(await page.locator('#hr-member-form').isVisible())){
+     const diagnostic=await page.evaluate(()=>({
+      url:location.href,
+      sectionHidden:document.querySelector('#hr-section')?.hidden,
+      workspaceVisible:!!document.querySelector('#hr-app')&&!document.querySelector('#hr-app').hidden,
+      membershipHidden:document.querySelector('#hr-membership-admin')?.hidden,
+      contextPresent:!!window.BondsHRContext,
+      ownerLicense:window.BondsHRContext?.ownerLicense,
+      ownerUserPresent:!!window.BondsHRContext?.user,
+      workspaceCount:window.__hrTest?.tables?.hr_saas_workspaces?.length,
+      membersCount:window.__hrTest?.tables?.hr_saas_memberships?.length,
+      hrStatus:document.querySelector('#hr-status')?.textContent,
+      selfStatus:document.querySelector('#hr-self-status')?.textContent
+     }));
+     throw Error('Owner membership panel hidden: '+JSON.stringify(diagnostic)+'; runtime='+errors.join('; '));
+    }
     await page.locator('#hr-member-form input[name="user_id"]').fill('80000000-0000-4000-8000-000000000004');
     await page.locator('#hr-member-form select[name="employee_id"]').selectOption({index:1});
     await page.locator('#hr-member-form select[name="role"]').selectOption('hr_manager');
