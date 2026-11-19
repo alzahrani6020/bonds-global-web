@@ -422,18 +422,18 @@ html body.bonds-redesign #site-header .main-header__inner{
     gap: 5px !important;
   }
   html body.bonds-redesign .main-header .header-brand img.header-brand__image {
-    width: 60px !important;
-    max-width: 60px !important;
+    width: 96px !important;
+    max-width: 96px !important;
     height: auto !important;
   }
 }
 @media (max-width: 430px) {
   html body.bonds-redesign .header-brand {
-    flex: 0 0 60px !important;
-    width: 60px !important;
+    flex: 0 0 96px !important;
+    width: 96px !important;
   }
   html body.bonds-redesign .header-actions {
-    max-width: calc(100% - 65px) !important;
+    max-width: calc(100% - 101px) !important;
     gap: 4px !important;
   }
   html body.bonds-redesign .btn-header {
