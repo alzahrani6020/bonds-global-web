@@ -2,7 +2,7 @@ name: CI — Tests, Audit & Visual Regression
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, fix/hr-local-accepted-20261119]
     paths-ignore:
       - '**/*.md'
   pull_request:
