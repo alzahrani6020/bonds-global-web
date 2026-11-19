@@ -3,9 +3,6 @@ module.exports = {
     '<rootDir>/node_modules/',
     '<rootDir>/.vercel/',
     '<rootDir>/bonds-v2/',
-    '<rootDir>/tests/hr/.*\\.test\\.cjs
-  ]
-};
-
+    '<rootDir>/tests/hr/.*\\.test\\.cjs$'
   ]
 };
