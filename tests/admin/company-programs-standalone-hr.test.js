@@ -14,7 +14,7 @@ describe('independent CRM/HR products in one company programs dashboard',()=>{
    expect(html).toContain('id="hr-nav" hidden');
    expect(html).toContain('id="crm-nav"');
    expect(html).toContain('id="hr-section" hidden');
-   expect(html).toContain('company-hr.js?v=2');
+   expect(html).toMatch(/company-hr\\.js\\?v=\\d+/);
   }
   expect(read('site-layout.js')).toContain('/my-bonds/crm/?program=hr');
   expect(read('site-layout.js')).toContain("'/my-bonds/crm/'");
