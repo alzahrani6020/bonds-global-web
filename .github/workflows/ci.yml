@@ -48,6 +48,11 @@ jobs:
           CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
         run: node tests/crm/isolated-postgres-acceptance.js
 
+      - name: Verify eight HR migrations and tenant isolation (disposable PostgreSQL)
+        env:
+          CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
+        run: node tests/hr/isolated-postgres-acceptance.js
+
       - name: Verify owner-authorized invitation server and failure handling
         run: node --test tests/crm/invite-handler-contract.cjs
 
