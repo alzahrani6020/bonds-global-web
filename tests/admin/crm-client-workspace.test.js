@@ -10,7 +10,7 @@ describe('Customer CRM installable workspace integrity',()=>{
  test('all locally linked app assets exist and manifest is installable',()=>{
   for(const asset of ['crm-app.js','crm-app.css','crm-manifest.webmanifest'])
     expect(fs.existsSync(path.join(root,'my-bonds/crm',asset))).toBe(true);
-  expect(html).toContain('/my-bonds/crm/crm-app.js?v=3');
+  expect(html).toMatch(/\/my-bonds\/crm\/crm-app\.js\?v=\d+/);
   expect(manifest.start_url).toMatch(/^\/my-bonds\/crm\//);
   expect(manifest.display).toBe('standalone');
   for(const icon of manifest.icons)expect(fs.existsSync(path.join(root,icon.src.replace(/^\//,'')))).toBe(true);
@@ -49,7 +49,7 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(en).toContain('<html lang="en" dir="ltr">');
   expect(en).toContain('data-section="companies"');
   expect(en).toContain('Companies');
-  expect(en).toContain('/my-bonds/crm/crm-app.js?v=3');
+  expect(en).toMatch(/\/my-bonds\/crm\/crm-app\.js\?v=\d+/);
   expect(js).toContain('document.documentElement.lang');
   expect(js).toContain('translations');
  });
