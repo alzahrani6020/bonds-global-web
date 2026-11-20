@@ -131,6 +131,10 @@ async function run(){
    }else if(scenario==='unlicensed'){
     await page.waitForFunction(()=>!document.querySelector('#hr-license').hidden);
     assert.equal(await page.locator('#hr-setup').isVisible(),false,'Unlicensed user accessed HR records');
+    await page.locator('[data-hr-category="departments"]').click();
+    assert.equal(await page.locator('#hr-license').isVisible(),true,'Blocked HR navigation must show entitlement');
+    assert.match(await page.locator('#hr-status').textContent(),/اشتراك HR|subscription/,'Blocked HR navigation must explain the missing entitlement');
+    assert.equal(await page.locator('#hr-app').isVisible(),false,'Unlicensed user must not access HR data');
     const writes=await page.evaluate(()=>window.__hrTest.writes);
     assert.equal(writes.length,0,'Unlicensed user could write');
    }else if(scenario==='employee'||scenario==='manager'){
