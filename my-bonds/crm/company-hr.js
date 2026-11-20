@@ -136,9 +136,17 @@
   }
   render();
  }
+ function showWorkspaceRequirement(){
+  const target=!user?$('hr-auth'):!license?$('hr-license'):$('hr-setup');
+  const message=!user?t('سجّل الدخول لفتح وحدات الموارد البشرية','Sign in to open HR modules'):
+   !license?t('هذا الحساب لا يملك اشتراك HR. استخدم حساب الشركة المخوّل أو تحقق من الاشتراك','This account has no HR subscription. Use the authorized company account or check the subscription'):
+   t('اختر مساحة الشركة وافتحها، أو أنشئ شركة جديدة','Select and open a company workspace, or create a company');
+  status(message,true);
+  if(target){target.hidden=false;target.scrollIntoView({behavior:'smooth',block:'start'});}
+ }
  async function changeCategory(next,focus=false){
   if(!labels[next])return;
-  if(!workspace){status(t('افتح مساحة الشركة أولاً','Open a company workspace first'),true);return;}
+  if(!workspace){showWorkspaceRequirement();return;}
   ++loadRequestId;category=next;editing=null;$('hr-editor').hidden=true;
   document.querySelectorAll('[data-hr-category]').forEach(x=>{x.classList.toggle('active',x.dataset.hrCategory===category);if(x.dataset.hrCategory===category)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});
   if(focus)(workspace?$('hr-app'):$('hr-setup')).scrollIntoView({behavior:'smooth',block:'start'});
@@ -275,6 +283,7 @@
     return '<option value="'+escape(c.id)+'">'+escape(label)+'</option>';
    }).join('');
    $('hr-open-workspace').disabled=!companySpaces.length;
+   if(!companySpaces.length)status(t('لا توجد مساحة شركة لهذا الحساب. أنشئ شركة جديدة لبدء العمل','No company workspace belongs to this account. Create a company to begin'),true);
    activateCompanyWorkspace=async crmId=>{
     ++loadRequestId;
     const selected=companySpaces.find(c=>c.id===crmId);
@@ -416,6 +425,7 @@
   if(!labels[next])return;
   event.preventDefault();
   toggleProduct('hr');
+  if(!workspace){showWorkspaceRequirement();return;}
   const url=new URL(location.href);
   url.searchParams.set('program','hr');
   url.searchParams.set('hr_module',next);
