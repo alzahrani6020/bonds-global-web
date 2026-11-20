@@ -801,10 +801,11 @@
       return `<div class="${cls}">${html}</div>`;
     }
 
-    // One customer-facing CRM program. Internal Bonds operations remain
-    // protected under /admin until their existing records are safely migrated.
+    // CRM and HR are independently entitled products in the same company dashboard.
+    // Internal Bonds operations remain protected under /admin.
     const companyProgramsDropdown = [
       { label: isEn ? 'Customer Relationship Management (CRM)' : 'إدارة علاقات العملاء (CRM)', href: isEn ? '/en/my-bonds/crm/' : '/my-bonds/crm/' },
+      { label: isEn ? 'Human Resources (HR)' : 'نظام الموارد البشرية', href: isEn ? '/en/my-bonds/crm/?program=hr' : '/my-bonds/crm/?program=hr' },
       { label: isEn ? 'My Bonds Workspace' : 'مساحة عمل بوندز', href: isEn ? '/en/my-bonds/' : '/my-bonds/' },
     ];
 

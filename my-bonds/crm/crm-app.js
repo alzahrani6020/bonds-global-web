@@ -373,7 +373,8 @@
    // RLS makes owned and assigned workspaces visible; never trust browser role claims.
    const spaces=must(await sb.from('crm_app_workspaces').select('id,name,owner_user_id').order('created_at',{ascending:true}).limit(100));
    availableWorkspaces=spaces;
-   const chosen=spaces.find(w=>w.id===acceptedWorkspaceId)||spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
+   const requestedWorkspaceId=new URLSearchParams(window.location.search).get('workspace_id');
+   const chosen=spaces.find(w=>w.id===acceptedWorkspaceId)||spaces.find(w=>w.id===requestedWorkspaceId)||spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
    $('workspace-select').innerHTML=spaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
    $('workspace-switch-label').hidden=spaces.length===0;
    $('workspace-create-open').hidden=false;

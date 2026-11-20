@@ -48,6 +48,11 @@ jobs:
           CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
         run: node tests/crm/isolated-postgres-acceptance.js
 
+      - name: Verify eight HR migrations and tenant isolation (disposable PostgreSQL)
+        env:
+          CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
+        run: node tests/hr/isolated-postgres-acceptance.js
+
       - name: Verify owner-authorized invitation server and failure handling
         run: node --test tests/crm/invite-handler-contract.cjs
 
@@ -122,8 +127,14 @@ jobs:
       - name: Verify CRM browser workflow (isolated auth and database)
         run: node tests/crm/browser-acceptance.js
 
+      - name: Verify HR browser workflow and deferred company workspace context (isolated)
+        run: node tests/hr/browser-acceptance.js
+
       - name: Run Assistant End-to-End CI Journeys
         run: npm run test:assistant:e2e-ci
+
+      - name: Run HR node:test suites
+        run: node --test tests/hr/*.test.cjs
 
       - name: Run Unit and Integration Tests
         run: npm test

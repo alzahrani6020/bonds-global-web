@@ -8,12 +8,14 @@ const en=read('en/my-bonds/crm/index.html');
 const internal=read('my-bonds/crm/crm-internal.js');
 const header=read('site-layout.js');
 describe('Single CRM shell with isolated administrative operations',()=>{
- test('the public company programs menu contains just one CRM destination',()=>{
+ test('the public company programs menu contains one CRM destination and one HR destination in the shared shell',()=>{
   const match=header.match(/const companyProgramsDropdown = \[([\s\S]*?)\];/);
   expect(match).not.toBeNull();
   expect(match[1]).not.toContain('/admin/crm.html');
-  expect(match[1]).toContain('/my-bonds/crm/');
-  expect((match[1].match(/label:/g)||[]).length).toBe(2);
+  expect(match[1]).toContain("href: isEn ? '/en/my-bonds/crm/' : '/my-bonds/crm/'");
+  expect(match[1]).toContain("href: isEn ? '/en/my-bonds/crm/?program=hr' : '/my-bonds/crm/?program=hr'");
+  expect(match[1]).toContain("href: isEn ? '/en/my-bonds/' : '/my-bonds/'");
+  expect((match[1].match(/label:/g)||[]).length).toBe(3);
  });
  test('administrative records are accessed inside both CRM languages, not via public data joins',()=>{
   for(const page of [ar,en]){
