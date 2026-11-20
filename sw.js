@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.316';
+const CACHE_VERSION = 'v3.0.317';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -31,8 +31,8 @@ const CORE_ASSETS = [
   '/components/universal-dropdown.css?v=2.52.0',
   '/components/universal-dropdown.js?v=2.52.2',
   '/components/universal-dropdown-init.js?v=4',
-  '/components/service-discovery.css?v=3',
-  '/components/service-discovery.js?v=7',
+  '/components/service-discovery.css?v=5',
+  '/components/service-discovery.js?v=8',
   '/components/service-request.css?v=1',
   '/lib/services/studies-workspace-bindings.js?v=2',
   '/components/service-request.js?v=24',
@@ -48,7 +48,7 @@ const CORE_ASSETS = [
   '/header-footer.css?v=2.73.0',
   '/script.js?v=5',
   '/site-layout.js?v=3.8.11',
-  '/site-layout.js?v=3.8.13',
+  '/site-layout.js?v=3.8.14',
   '/styles/bonds-redesign-2026.css?v=9',
   '/assets/bonds-hero-globe.svg',
   '/assets/bonds-world-dots.svg',
