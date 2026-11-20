@@ -754,17 +754,32 @@
     document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeServicePicker(); });
     window.addEventListener('resize',()=>{ if(q('#bondsServicePicker')?.classList.contains('is-open')) renderServicePicker(); });
     q('#bondsServiceStart').addEventListener('click',start);
-    // Keep the assistant launcher off the mobile service form, including its CTA.
-    // Do not change assistant session state or desktop visibility.
+    // Hide the mobile launcher only if its fixed position overlaps the service CTA.
+    // Preserve access to the assistant elsewhere and never change chat session state.
     const syncMobileAssistantVisibility = () => {
-      const bounds = wrap.getBoundingClientRect();
-      const formVisible = window.innerWidth <= 700 &&
-        bounds.bottom > 0 && bounds.top < window.innerHeight;
-      document.body.classList.toggle('bonds-service-cta-visible', formVisible);
+      const cta = q('#bondsServiceStart');
+      const launcher = document.querySelector('#bonds-ai-chat-root .bonds-ai-chat-toggle');
+      let overlaps = false;
+      if (window.innerWidth <= 700 && cta && launcher) {
+        const r = cta.getBoundingClientRect();
+        const style = window.getComputedStyle(launcher);
+        const width = parseFloat(style.width) || 54;
+        const height = parseFloat(style.height) || 54;
+        const left = parseFloat(style.left) || 12;
+        const bottom = window.innerHeight - (parseFloat(style.bottom) || 16);
+        const top = bottom - height;
+        const margin = 8;
+        overlaps = r.left < left + width + margin &&
+          r.right > left - margin &&
+          r.top < bottom + margin &&
+          r.bottom > top - margin;
+      }
+      document.body.classList.toggle('bonds-service-cta-visible', overlaps);
     };
     syncMobileAssistantVisibility();
     window.addEventListener('scroll', syncMobileAssistantVisibility, { passive: true });
     window.addEventListener('resize', syncMobileAssistantVisibility);
+    window.addEventListener('load', syncMobileAssistantVisibility);
 
     track('service_viewed',{surface:'header_discovery'});
     loadCountries()
