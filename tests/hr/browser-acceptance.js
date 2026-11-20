@@ -140,6 +140,8 @@ async function run(){
     await page.locator('[data-hr-category="departments"]').click();
     assert.equal(await page.locator('#hr-license').isVisible(),true,'Blocked HR navigation must show entitlement');
     assert.match(await page.locator('#hr-status').textContent(),/اشتراك HR|subscription/,'Blocked HR navigation must explain the missing entitlement');
+    assert.equal(new URL(page.url()).searchParams.get('hr_module'),'departments','Blocked navigation must preserve requested HR module in URL');
+    assert.equal(await page.locator('[data-hr-category="departments"]').getAttribute('aria-current'),'page','Requested HR module must be selected even before workspace access');
     assert.equal(await page.locator('#hr-app').isVisible(),false,'Unlicensed user must not access HR data');
     const writes=await page.evaluate(()=>window.__hrTest.writes);
     assert.equal(writes.length,0,'Unlicensed user could write');
