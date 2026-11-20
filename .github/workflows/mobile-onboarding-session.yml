@@ -6,14 +6,14 @@ on:
     paths:
       - 'calculators/auth/onboarding.html'
       - 'en/calculators/auth/onboarding.html'
-      - 'tests/auth/mobile-onboarding-session.test.cjs'
+      - 'tests/auth/mobile-onboarding-session.acceptance.cjs'
       - '.github/workflows/mobile-onboarding-session.yml'
   push:
     branches: [main]
     paths:
       - 'calculators/auth/onboarding.html'
       - 'en/calculators/auth/onboarding.html'
-      - 'tests/auth/mobile-onboarding-session.test.cjs'
+      - 'tests/auth/mobile-onboarding-session.acceptance.cjs'
       - '.github/workflows/mobile-onboarding-session.yml'
 
 permissions:
@@ -44,4 +44,4 @@ jobs:
       - name: Verify form survives temporary auth loss on mobile in both languages
         env:
           BASE_URL: http://127.0.0.1:3005
-        run: node tests/auth/mobile-onboarding-session.test.cjs
+        run: node tests/auth/mobile-onboarding-session.acceptance.cjs
