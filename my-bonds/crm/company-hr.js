@@ -268,7 +268,12 @@
    companySpaces=check(await db.from('crm_app_workspaces').select('id,name,owner_user_id').eq('owner_user_id',user.id).order('created_at',{ascending:true}));
    workspaces=check(await db.from('hr_saas_workspaces').select('id,name,owner_user_id,crm_workspace_id').order('created_at',{ascending:true}));
    const select=$('hr-workspace');
-   select.innerHTML=companySpaces.map(c=>'<option value="'+escape(c.id)+'">'+escape(c.name)+'</option>').join('');
+   const companyNameCounts=new Map();
+   for(const company of companySpaces)companyNameCounts.set(company.name,(companyNameCounts.get(company.name)||0)+1);
+   select.innerHTML=companySpaces.map(c=>{
+    const label=c.name+(companyNameCounts.get(c.name)>1?' — '+c.id.slice(0,8):'');
+    return '<option value="'+escape(c.id)+'">'+escape(label)+'</option>';
+   }).join('');
    $('hr-open-workspace').disabled=!companySpaces.length;
    activateCompanyWorkspace=async crmId=>{
     ++loadRequestId;
