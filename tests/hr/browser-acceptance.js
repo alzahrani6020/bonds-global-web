@@ -160,6 +160,11 @@ async function run(){
     assert.equal(tables.hr_saas_employees.length,0,'Do not copy CRM customer contacts as employees');
    }else{
     await page.waitForFunction(()=>!document.querySelector('#hr-setup').hidden);
+    // New-company creation is intentionally optional and collapsed by default.
+    // Exercise the same disclosure action a real user must take before typing.
+    await page.locator('#hr-create-details > summary').click();
+    assert.equal(await page.locator('#hr-create-details').evaluate(el=>el.open),true,
+     'New-company disclosure must open before the creation form is visible');
     await page.locator('#hr-create-workspace input[name="name"]').fill('Independent HR Company');
     await page.locator('#hr-create-workspace button[type="submit"]').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_workspaces.length===1);
