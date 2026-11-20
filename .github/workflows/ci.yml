@@ -173,15 +173,34 @@ jobs:
           cat /tmp/bonds-pr-changed-files.txt
           while IFS= read -r file; do
             case "$file" in
-              my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|.github/workflows/ci.yml) ;;
+              my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|tests/v3/revert-service-request-context.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|.github/workflows/ci.yml) ;;
               *) exit 0 ;;
             esac
           done < /tmp/bonds-pr-changed-files.txt
-          echo "scope=crm-only" >> "$GITHUB_OUTPUT"
+          echo "scope=base-compare" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare exact PR-base homepage visual reference
+        if: steps.visual-scope.outputs.scope == 'base-compare'
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          test -n "$BASE_SHA"
+          git worktree add --detach "$RUNNER_TEMP/bonds-ui-base" "$BASE_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/bonds-ui-base/node_modules"
+          (cd "$RUNNER_TEMP/bonds-ui-base" && PORT=3006 node scripts/dev-server.js > "$RUNNER_TEMP/bonds-ui-base.log" 2>&1 &)
+          ready=0
+          for i in {1..30}; do
+            if curl -fsS http://localhost:3006/ > /dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          if [[ "$ready" -ne 1 ]]; then cat "$RUNNER_TEMP/bonds-ui-base.log"; exit 1; fi
 
       - name: Run Visual Regression Tests
         env:
           BONDS_VISUAL_SCOPE: ${{ steps.visual-scope.outputs.scope }}
+          BONDS_HOME_BASE_URL: http://localhost:3006
         run: npm run test:visual
 
       - name: Validate service manifests and token policies
