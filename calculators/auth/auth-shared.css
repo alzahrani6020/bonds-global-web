@@ -75,7 +75,11 @@ html[dir="ltr"] .step-header{text-align:left}
   border-radius:8px;
   touch-action:manipulation;
 }
-.pw-wrap input{padding-inline-end:3.25rem}
+.auth-card .pw-wrap input{
+  /* Keep LTR password characters away from the right-side eye in AR and EN. */
+  padding-right:3.25rem;
+  padding-left:1rem;
+}
 .pw-wrap .pw-toggle:focus-visible,
 .tab-btn:focus-visible,
 .method-tab:focus-visible,
