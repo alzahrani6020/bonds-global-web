@@ -276,3 +276,76 @@ html[dir="ltr"] .step-header{text-align:left}
   .auth-layout .auth-main{padding:12px !important}
   .auth-layout .auth-container{margin-inline:auto}
 }
+
+/* Measured viewport acceptance: 1366x768 Google +112px; 1280x720 +158px.
+   Reflow, rather than shrink touch targets or hide sign-in methods. */
+@media (min-width:901px) and (max-height:800px){
+  .auth-layout .auth-card{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    column-gap:12px;
+    align-content:start;
+  }
+  .auth-layout .auth-card > .logo{
+    grid-column:1;
+    align-self:center;
+    margin-bottom:4px;
+  }
+  .auth-layout .auth-card > .auth-top-nav{
+    grid-column:2;
+    align-self:center;
+    margin-bottom:4px;
+  }
+  .auth-layout .auth-card > :not(.logo):not(.auth-top-nav){
+    grid-column:1 / -1;
+    min-width:0;
+  }
+  .auth-layout .auth-card #loginPanel .auth-head p{
+    display:none;
+  }
+  .auth-layout .auth-card #loginPanel #loginEmailSection.method-panel.active{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:6px 10px;
+    align-items:start;
+  }
+  .auth-layout .auth-card #loginPanel #loginForm{
+    grid-column:1 / -1;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:4px 10px;
+    margin:0;
+  }
+  .auth-layout .auth-card #loginPanel #loginForm .form-group{
+    margin:0;
+    min-width:0;
+  }
+  .auth-layout .auth-card #loginPanel #loginForm .forgot-row,
+  .auth-layout .auth-card #loginPanel #loginForm #loginBtn{
+    grid-column:1 / -1;
+    margin:0;
+  }
+  .auth-layout .auth-card #loginPanel #loginForm .forgot-row{min-height:22px}
+  .auth-layout .auth-card #loginPanel #loginEmailSection > .divider{
+    grid-column:1 / -1;
+    margin:0;
+  }
+  .auth-layout .auth-card #loginPanel #loginEmailSection > #otpBtn{
+    grid-column:1;
+    min-width:0;
+  }
+  .auth-layout .auth-card #loginPanel #loginEmailSection > #googleBtn{
+    grid-column:2;
+    min-width:0;
+    margin-top:0 !important;
+  }
+  .auth-layout .auth-card #loginPanel #loginEmailSection > .auth-trust{
+    grid-column:1 / -1;
+    margin-top:2px;
+  }
+  .auth-layout .auth-card #loginPanel .btn{
+    min-height:44px;
+    padding-inline:6px;
+    font-size:.85rem;
+  }
+}
