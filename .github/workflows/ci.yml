@@ -125,6 +125,9 @@ jobs:
       - name: Run Assistant End-to-End CI Journeys
         run: npm run test:assistant:e2e-ci
 
+      - name: Run HR Node native tests (separate from Jest)
+        run: node --test tests/hr/*.test.cjs
+
       - name: Run Unit and Integration Tests
         run: npm test
 
