@@ -146,9 +146,11 @@
  }
  async function changeCategory(next,focus=false){
   if(!labels[next])return;
-  if(!workspace){showWorkspaceRequirement();return;}
+  // Remember the requested module even before owner workspace initialization.
+  // Once the company opens, activateCompanyWorkspace renders this module.
   ++loadRequestId;category=next;editing=null;$('hr-editor').hidden=true;
   document.querySelectorAll('[data-hr-category]').forEach(x=>{x.classList.toggle('active',x.dataset.hrCategory===category);if(x.dataset.hrCategory===category)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});
+  if(!workspace){showWorkspaceRequirement();return;}
   if(focus)(workspace?$('hr-app'):$('hr-setup')).scrollIntoView({behavior:'smooth',block:'start'});
   status(t('جارٍ تحميل الوحدة...','Loading module...'));
   try{await load();status('');}catch(e){status(e.message,true);}
@@ -431,11 +433,11 @@
   if(!labels[next])return;
   event.preventDefault();
   toggleProduct('hr');
-  if(!workspace){showWorkspaceRequirement();return;}
   const url=new URL(location.href);
   url.searchParams.set('program','hr');
   url.searchParams.set('hr_module',next);
   history.pushState(null,'',url.pathname+url.search+url.hash);
+  // Do not swallow navigation when HR awaits company access or initialization.
   changeCategory(next,true).catch(e=>status(e.message,true));
  });
  window.addEventListener('popstate',()=>{
