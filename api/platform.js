@@ -2312,6 +2312,9 @@ module.exports = async function handler(req, res) {
   const pathname = url.pathname;
 
   try {
+    if (pathname === '/api/hr-calculations' || pathname === '/api/hr-calculations/') {
+      return require('../lib/api/hr-calculations')(req, res);
+    }
     // Advisors
     if (pathname === '/api/advisors' || pathname === '/api/advisors/') {
       req.query = req.query || {}; req.query.action = req.query.action || 'list';
