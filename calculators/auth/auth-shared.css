@@ -236,3 +236,43 @@ html[dir="ltr"] .step-header{text-align:left}
     padding:clamp(20px,3vw,48px);
   }
 }
+
+/* Final short-height tuning: preserve normal scrolling for signup and errors. */
+.auth-layout .auth-card .logo img,
+.auth-layout .auth-hero__logo img{
+  height:42px !important;
+  width:56px;
+  max-width:56px;
+  mix-blend-mode:normal;
+}
+.auth-layout .auth-card .logo{gap:10px}
+.auth-layout .auth-hero__logo{gap:12px}
+@media (min-width:901px) and (max-height:900px){
+  .auth-layout .auth-main{padding-block:6px}
+  .auth-layout .auth-card{padding:10px 20px}
+  .auth-layout .auth-card .logo{margin-bottom:5px}
+  .auth-layout .auth-card .logo img{height:32px !important;width:44px}
+  .auth-layout .auth-card .logo span{font-size:1.2rem}
+  .auth-layout .auth-card .auth-top-nav{margin-bottom:5px}
+  .auth-layout .auth-card .tabs{margin-bottom:6px;padding-bottom:4px;gap:8px}
+  .auth-layout .auth-card .tabs .tab-btn{padding-block:6px;min-height:38px}
+  .auth-layout .auth-card .auth-head{margin-bottom:6px}
+  .auth-layout .auth-card .auth-head h2{font-size:1.3rem;margin-bottom:2px}
+  .auth-layout .auth-card .auth-head p{font-size:.84rem;line-height:1.35}
+  .auth-layout .auth-card .method-tabs{margin-bottom:6px}
+  .auth-layout .auth-card .method-tab{padding-block:5px;min-height:38px}
+  .auth-layout .auth-card .form-group{margin-bottom:6px}
+  .auth-layout .auth-card .form-group label{margin-bottom:3px}
+  .auth-layout .auth-card .form-group input{min-height:42px;padding-block:7px !important}
+  .auth-layout .auth-card .forgot-row{margin-top:0;margin-bottom:5px}
+  .auth-layout .auth-card .btn{min-height:40px;padding-block:7px}
+  .auth-layout .auth-card .divider{margin:5px 0}
+  .auth-layout .auth-card .auth-switch{margin-top:6px}
+  .auth-layout .auth-card .auth-trust{margin-top:5px}
+  .auth-layout .auth-hero__logo{margin-bottom:12px}
+  .auth-layout .auth-hero__logo img{height:42px !important}
+}
+@media (max-width:900px){
+  .auth-layout .auth-main{padding:12px !important}
+  .auth-layout .auth-container{margin-inline:auto}
+}
