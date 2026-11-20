@@ -34,7 +34,7 @@ async function exercise(browser, pathname) {
     await page.locator('#restaurantName').fill('Mobile retained form');
     await page.locator('#bio').fill('Initial form data');
     await page.locator('#saveBtn').click();
-    await page.locator('#saveBtn').waitFor({ state: 'enabled' });
+    await page.waitForFunction(() => !document.getElementById('saveBtn').disabled);
     assert.equal(new URL(page.url()).pathname, pathname, 'No premature sign-in redirect');
     assert.equal(await page.locator('#restaurantName').inputValue(), 'Mobile retained form');
     assert.equal(await page.locator('#bio').inputValue(), 'Initial form data');
