@@ -25,6 +25,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../bonds-auth-2026.js?v=3.1.4"></script>
   <script src="/lib/bonds-common.js"></script>
+  <script defer src="/components/my-bonds-company-workspaces.js?v=1"></script>
 <link rel="stylesheet" href="/styles/canva-site-2026.css?v=1">
 </head>
 <body class="canva-site">
@@ -61,6 +62,11 @@
           <a href="../v3/portfolio" class="bonds-btn bonds-btn-secondary">لوحة المحفظة</a>
         </div>
       </div>
+
+      <section class="my-bonds-section" id="companyWorkspacesSection" hidden>
+        <h3 class="my-bonds-section__title">مساحات عمل الشركات</h3>
+        <div id="companyWorkspacesList" class="my-bonds-grid" aria-live="polite"></div>
+      </section>
 
       <!-- Projects list -->
       <div class="my-bonds-section">
