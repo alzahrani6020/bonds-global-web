@@ -240,6 +240,9 @@
   }catch(e){status(e.message,true);}finally{btn.disabled=false;}
  }
  async function initialize(){
+  // Select the requested product before waiting for authentication or network.
+  // CRM must never remain in view when an HR deep link encounters an auth error.
+  if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
   try{
    await window.BondsAuth.ensureEnv();db=window.BondsAuth.getSupabase();
    if(!db?.auth)throw Error(t('تعذر تهيئة المصادقة','Authentication is not initialized'));
@@ -316,7 +319,10 @@
    // Workspace controls are bound before initialization, so a failed data
    // request cannot strand a visible button without a click handler.
 
-  }catch(e){status(t('تعذر فتح الموارد البشرية: ','Cannot open HR: ')+e.message,true);}
+  }catch(e){
+   if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
+   status(t('تعذر فتح الموارد البشرية: ','Cannot open HR: ')+(e.message||String(e)),true);
+  }
  }
  // Preserve the CRM display snapshot only on an actual product transition.
  // Re-clicking the selected tab must not overwrite it or hide a live CRM view.
