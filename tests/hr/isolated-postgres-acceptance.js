@@ -472,7 +472,7 @@ async function main(){
    e=>e.code==='23505','One company workspace must not create two HR tenants');
   await assert.rejects(()=>as(owner,()=>db.query(
    "insert into hr_saas_workspaces(owner_user_id,name) values($1,'Unlinked HR space')",[owner])),
-   e=>e.code==='42501','New HR spaces must be linked to a shared company workspace');
+   e=>e.code==='23514'&&/HR workspace must reference a CRM workspace owned by the same user/.test(e.message),'New HR spaces must be linked to a shared company workspace');
   await assert.rejects(()=>as(owner,()=>db.query(
    "update hr_saas_workspaces set crm_workspace_id=$1 where id=$2",[companyA,wa])),
    e=>e.code==='23514','Existing HR tenant must not be silently rebound');
