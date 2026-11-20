@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../../../styles.css" />
     <link rel="icon" type="image/svg+xml" href="../../../assets/bonds-mark.svg" />
   <link rel="manifest" href="/manifest.json" />
-  <link rel="stylesheet" href="../../../calculators/auth/auth-shared.css?v=2" />
+  <link rel="stylesheet" href="../../../calculators/auth/auth-shared.css?v=3" />
   <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
   <style>.tabs{display:flex;gap:var(--space-3);margin-bottom:var(--space-6);border-bottom:1px solid var(--border);padding-bottom:var(--space-3)}
 .tab-btn{flex:1;background:transparent;border:none;color:var(--text-secondary);padding:var(--space-3);font-family:inherit;font-size:1rem;font-weight:600;cursor:pointer;border-radius:var(--radius-md);transition:all 0.2s}
@@ -176,7 +176,7 @@ body{padding:0}
             <label for="loginPassword">Password</label>
             <div class="pw-wrap">
               <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••" />
-              <button type="button" class="pw-toggle" data-target="loginPassword" title="Show/Hide"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+              <button type="button" class="pw-toggle" aria-label="Show or hide password" data-target="loginPassword" title="Show/Hide"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
             </div>
           </div>
           <div class="forgot-row" style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)">
@@ -242,7 +242,7 @@ body{padding:0}
               <div class="password-row">
                 <div class="pw-wrap" style="flex:1">
                   <input type="password" id="signupPassword" required minlength="8" autocomplete="new-password" placeholder="Min 8 characters" />
-                  <button type="button" class="pw-toggle" data-target="signupPassword" title="Show/Hide"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                  <button type="button" class="pw-toggle" aria-label="Show or hide password" data-target="signupPassword" title="Show/Hide"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
                 </div>
                 <button type="button" class="btn-small" id="genPwBtn" title="Generate strong password"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#AAB8C2" d="M13 3C7.477 3 3 7.477 3 13v10h4V13c0-3.313 2.687-6 6-6s6 2.687 6 6v10h4V13c0-5.523-4.477-10-10-10z"/><path fill="#FFAC33" d="M26 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V20c0-2.209 1.791-4 4-4h18c2.209 0 4 1.791 4 4v12z"/><path fill="#C1694F" d="M35 9c0-4.971-4.029-9-9-9s-9 4.029-9 9c0 3.917 2.507 7.24 6 8.477V33.5c0 1.381 1.119 2.5 2.5 2.5 1.213 0 2.223-.864 2.45-2.01.018.001.032.01.05.01.553 0 1-.447 1-1v-1c0-.553-.447-1-1-1v-1c.553 0 1-.447 1-1v-2c0-.553-.447-1-1-1v-2.277c.596-.347 1-.984 1-1.723v-4.523c3.493-1.236 6-4.559 6-8.477zm-9-7c1.104 0 2 .896 2 2s-.896 2-2 2-2-.896-2-2 .896-2 2-2z"/></svg></span> Generate</button>
               </div>
@@ -259,7 +259,7 @@ body{padding:0}
               <label for="signupPasswordConfirm">Confirm Password *</label>
               <div class="pw-wrap">
                 <input type="password" id="signupPasswordConfirm" required autocomplete="new-password" placeholder="Re-enter password" />
-                <button type="button" class="pw-toggle" data-target="signupPasswordConfirm" title="Show/Hide"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button type="button" class="pw-toggle" aria-label="Show or hide password" data-target="signupPasswordConfirm" title="Show/Hide"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
               </div>
               <div class="match-label" id="matchLabel"></div>
             </div>

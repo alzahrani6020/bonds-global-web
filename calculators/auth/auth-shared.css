@@ -62,3 +62,35 @@ html[dir="ltr"] .step-header{text-align:left}
   .logo{margin-bottom:var(--space-6)}
   .btn-primary:hover{background:#d4b76a}
 }
+
+/* Login/signup mobile readability and accessible touch controls, both locales. */
+.pw-wrap .pw-toggle{
+  min-width:44px;
+  min-height:44px;
+  padding:10px;
+  inset-inline-end:2px;
+  border-radius:8px;
+  touch-action:manipulation;
+}
+.pw-wrap input{padding-inline-end:3.25rem}
+.pw-wrap .pw-toggle:focus-visible,
+.tab-btn:focus-visible,
+.method-tab:focus-visible,
+.auth-switch button:focus-visible{
+  outline:2px solid var(--gold);
+  outline-offset:2px;
+}
+@media (max-width:480px){
+  .auth-main{padding:12px 12px 20px}
+  .auth-card{padding:16px 16px 20px}
+  .auth-card .logo{margin-bottom:12px}
+  .auth-card .auth-top-nav{margin-bottom:12px}
+  .auth-card .tabs{margin-bottom:14px;padding-bottom:8px}
+  .auth-card .auth-head{margin-bottom:12px}
+  .auth-card .auth-head h2{font-size:1.45rem}
+  .auth-card .method-tabs{margin-bottom:12px}
+  .auth-card .form-group{margin-bottom:12px}
+  .auth-card .form-group label{margin-bottom:6px}
+  .auth-card .forgot-row{margin-top:0;margin-bottom:10px}
+  .auth-card .divider{margin:12px 0}
+}
