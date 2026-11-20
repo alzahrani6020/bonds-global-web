@@ -754,6 +754,17 @@
     document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeServicePicker(); });
     window.addEventListener('resize',()=>{ if(q('#bondsServicePicker')?.classList.contains('is-open')) renderServicePicker(); });
     q('#bondsServiceStart').addEventListener('click',start);
+    // Keep the assistant launcher off the mobile service form, including its CTA.
+    // Do not change assistant session state or desktop visibility.
+    const syncMobileAssistantVisibility = () => {
+      const bounds = wrap.getBoundingClientRect();
+      const formVisible = window.innerWidth <= 700 &&
+        bounds.bottom > 0 && bounds.top < window.innerHeight;
+      document.body.classList.toggle('bonds-service-cta-visible', formVisible);
+    };
+    syncMobileAssistantVisibility();
+    window.addEventListener('scroll', syncMobileAssistantVisibility, { passive: true });
+    window.addEventListener('resize', syncMobileAssistantVisibility);
 
     track('service_viewed',{surface:'header_discovery'});
     loadCountries()
