@@ -12,7 +12,7 @@
     <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
   <link rel="manifest" href="/manifest.json" />
   <script>if(!sessionStorage.getItem('auth_v2')){sessionStorage.setItem('auth_v2','1');location.replace(location.pathname+location.search+(location.search?'&':'?')+'_='+Date.now());}</script>
-  <link rel="stylesheet" href="./auth-shared.css?v=4" />
+  <link rel="stylesheet" href="./auth-shared.css?v=5" />
   <link rel="stylesheet" href="index.css?v=2" />
   <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
   <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
@@ -75,9 +75,9 @@
         <button class="tab-btn" data-tab="signup">حساب جديد</button>
       </div>
 
-      <div id="errorMsg" class="error-msg"></div>
+      <div id="errorMsg" class="error-msg" role="alert" aria-live="assertive" tabindex="-1"></div>
       <div id="errorActions" class="error-actions" style="display:none;"></div>
-      <div id="successMsg" class="success-msg"></div>
+      <div id="successMsg" class="success-msg" role="status" aria-live="polite"></div>
 
       <!-- Login Panel -->
       <div id="loginPanel" class="tab-panel active">
@@ -344,6 +344,13 @@
         const el = document.getElementById('errorMsg');
         el.textContent = msg;
         el.style.display = 'block';
+        // Keep validation errors perceivable after pressing Next/Sign In below the fold.
+        requestAnimationFrame(function () {
+          if (el.style.display === 'block') {
+            el.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+            el.focus({ preventScroll: true });
+          }
+        });
         const actions = document.getElementById('errorActions');
         if (actionsHtml) { actions.innerHTML = actionsHtml; actions.style.display = 'flex'; }
         else { actions.innerHTML = ''; actions.style.display = 'none'; }
