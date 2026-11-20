@@ -173,7 +173,7 @@ jobs:
           cat /tmp/bonds-pr-changed-files.txt
           while IFS= read -r file; do
             case "$file" in
-              lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|tests/v3/revert-service-request-context.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|.github/workflows/ci.yml) ;;
+              lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|tests/v3/revert-service-request-context.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|tests/visual/auth-login-acceptance.js|assets/bonds-mark-transparent.svg|calculators/auth/auth-shared.css|calculators/auth/index.html|en/calculators/auth/index.html|.github/workflows/ci.yml) ;;
               sw.js)
                 # Only cache version and versioned asset references may differ.
                 git show "$BASE_SHA:sw.js" > /tmp/bonds-base-sw-original.js
@@ -203,6 +203,9 @@ jobs:
             sleep 1
           done
           if [[ "$ready" -ne 1 ]]; then cat "$RUNNER_TEMP/bonds-ui-base.log"; exit 1; fi
+
+      - name: Validate auth login viewport and language interactions
+        run: node tests/visual/auth-login-acceptance.js
 
       - name: Run Visual Regression Tests
         env:
