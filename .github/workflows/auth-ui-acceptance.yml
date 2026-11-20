@@ -1,0 +1,59 @@
+name: Auth UI Browser Acceptance
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'calculators/auth/**'
+      - 'en/calculators/auth/**'
+      - 'assets/bonds-mark-transparent.svg'
+      - 'tests/visual/auth-login-acceptance.js'
+      - '.github/workflows/auth-ui-acceptance.yml'
+  push:
+    branches: [main, master]
+    paths:
+      - 'calculators/auth/**'
+      - 'en/calculators/auth/**'
+      - 'assets/bonds-mark-transparent.svg'
+      - 'tests/visual/auth-login-acceptance.js'
+      - '.github/workflows/auth-ui-acceptance.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  bilingual-auth-acceptance:
+    name: Bilingual auth viewport and interaction acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start local preview-equivalent server
+        run: |
+          PORT=3005 node scripts/dev-server.js > "$RUNNER_TEMP/bonds-auth-server.log" 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:3005/calculators/auth/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/bonds-auth-server.log"
+          exit 1
+
+      - name: Test Arabic and English auth controls in six viewports
+        env:
+          BASE_URL: http://127.0.0.1:3005
+        run: node tests/visual/auth-login-acceptance.js
