@@ -32,8 +32,8 @@ if ($null -ne $payload.temperature -and [double]$payload.temperature -ne [double
 $uri = "http://127.0.0.1:$Port/v1/chat/completions"
 $logDir = Join-Path $Root 'logs'
 New-Item -ItemType Directory -Force $logDir | Out-Null
-$output = Join-Path $logDir ("benchmark-" + $Label + ".jsonl")
-if (Test-Path $output) { throw "Results already exist: $output. Use a unique Label to prevent mixed-run comparisons." }
+$output = Join-Path $logDir ('benchmark-' + $Label + '.jsonl')
+if (Test-Path -LiteralPath $output) { throw "Results already exist: $output. Use a unique Label." }
 $body = $payload | ConvertTo-Json -Depth 100 -Compress
 
 for ($i = 0; $i -lt ($Warmups + $Runs); $i++) {
@@ -74,7 +74,6 @@ for ($i = 0; $i -lt ($Warmups + $Runs); $i++) {
     ($row | ConvertTo-Json -Compress -Depth 5) | Add-Content -Path $output
     $row | ConvertTo-Json -Compress
 }
-Write-Output "BENCHMARK_RESULTS: $output"
 )][string]$Label = 'baseline'
 )
 
@@ -140,3 +139,5 @@ for ($i = 0; $i -lt ($Warmups + $Runs); $i++) {
     ($row | ConvertTo-Json -Compress -Depth 5) | Add-Content -Path $output
     $row | ConvertTo-Json -Compress
 }
+
+Write-Output "BENCHMARK_RESULTS: $output"
