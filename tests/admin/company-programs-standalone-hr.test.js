@@ -28,7 +28,9 @@ describe('independent CRM/HR products in one company programs dashboard',()=>{
    .toBeLessThan(controller.lastIndexOf(' initialize();'));
   expect(controller).toContain("if(!activateCompanyWorkspace)await initialize()");
   expect(controller).toContain("finally{button.disabled=false;}");
-  expect(controller).toContain("if(!workspace){status(t('افتح مساحة الشركة أولاً'");
+  expect(controller).toContain('if(!workspace){showWorkspaceRequirement();return;}');
+  expect(controller).toContain('function showWorkspaceRequirement(){');
+  expect(controller).toContain("t('اختر مساحة الشركة وافتحها، أو أنشئ شركة جديدة'");
   expect(read('site-layout.js')).toContain('/my-bonds/crm/?program=hr');
   expect(read('site-layout.js')).toContain("'/my-bonds/crm/'");
  });
