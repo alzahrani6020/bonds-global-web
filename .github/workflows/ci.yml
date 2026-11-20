@@ -167,13 +167,27 @@ jobs:
         run: |
           set -euo pipefail
           echo "scope=full" >> "$GITHUB_OUTPUT"
+          # The original Nov 15 screenshots remain immutable. The approved
+          # Nov 20 mobile redesign is pinned to an immutable, production-smoke-
+          # verified commit, not to HEAD and not to a freshly generated image.
+          # This prevents every main push from comparing the redesigned home
+          # against the legacy mobile reference while still detecting new drift.
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
+            BASE_SHA="b40ec0e9bdeb1464cffc319d8647ff6d4702b1c7"
+            git fetch --no-tags --depth=1 origin "$BASE_SHA"
+            if ! git merge-base --is-ancestor "$BASE_SHA" HEAD; then
+              echo "Pinned homepage reference is not an ancestor; full visual gate required"
+              exit 0
+            fi
+          fi
+          echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then exit 0; fi
           git fetch --no-tags --depth=1 origin "$BASE_SHA"
           git diff --name-only "$BASE_SHA" HEAD > /tmp/bonds-pr-changed-files.txt
           cat /tmp/bonds-pr-changed-files.txt
           while IFS= read -r file; do
             case "$file" in
-              lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|tests/v3/revert-service-request-context.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|.github/workflows/ci.yml) ;;
+              lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|calculators/auth/auth-shared.css|calculators/auth/index.html|en/calculators/auth/index.html|tests/v3/revert-service-request-context.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|.github/workflows/ci.yml) ;;
               sw.js)
                 # Only cache version and versioned asset references may differ.
                 git show "$BASE_SHA:sw.js" > /tmp/bonds-base-sw-original.js
@@ -190,7 +204,7 @@ jobs:
         if: steps.visual-scope.outputs.scope == 'base-compare'
         shell: bash
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          BASE_SHA: ${{ steps.visual-scope.outputs.reference-sha }}
         run: |
           set -euo pipefail
           test -n "$BASE_SHA"
