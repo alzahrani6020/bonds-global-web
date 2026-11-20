@@ -37,6 +37,6 @@ describe('user-directed removal of unused service request atomic context additio
   }
   // The separate Service Worker workflow enforces an increment whenever core assets change.
   // This test verifies the version declaration is present, without pinning an obsolete release.
-  expect(read('sw.js')).toMatch(/const CACHE_VERSION = 'v3\\.0\\.\\d+';/);
+  expect(read('sw.js')).toMatch(/const CACHE_VERSION = 'v3\.0\.\d+';/);
  });
 });
