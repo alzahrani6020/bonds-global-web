@@ -904,6 +904,7 @@ async function runScenarioDropdownInteractionGate(browser) {
             if (banner) banner.classList.remove('is-visible');
           });
           const referencePath = path.join(DIFFS_DIR, 'pr-base', viewport.name, p.name + '.png');
+          ensureDir(path.dirname(referencePath));
           await page.screenshot({ path: referencePath, fullPage: FULL_PAGE });
           const candidate = readPng(snapshotPath);
           const reference = readPng(referencePath);
