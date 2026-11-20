@@ -174,7 +174,9 @@ jobs:
           # against the legacy mobile reference while still detecting new drift.
           if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
             BASE_SHA="b40ec0e9bdeb1464cffc319d8647ff6d4702b1c7"
-            git fetch --no-tags --depth=1 origin "$BASE_SHA"
+            # Default checkout is shallow. Fetch bounded history before
+            # verifying ancestry; missing ancestry must fail closed.
+            git fetch --no-tags --depth=128 origin main "$BASE_SHA"
             if ! git merge-base --is-ancestor "$BASE_SHA" HEAD; then
               echo "Pinned homepage reference is not an ancestor; full visual gate required"
               exit 0
