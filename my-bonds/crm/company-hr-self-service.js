@@ -203,8 +203,13 @@
   }catch(error){notify(error.message,true);}
  }
  document.addEventListener('bonds-hr-ready',bootstrap);
- if(window.BondsHRContext)bootstrap({detail:window.BondsHRContext});
  document.addEventListener('bonds-hr-owner-workspace',event=>ownerWorkspaceSelected(event.detail?.workspace||null));
+ // Initialization can resolve before this deferred script registers. Restore
+ // both auth and selected workspace; the event alone is not replayable.
+ if(window.BondsHRContext){
+  bootstrap({detail:window.BondsHRContext});
+  ownerWorkspaceSelected(window.BondsHRContext.ownerWorkspace||null);
+ }
  document.addEventListener('bonds-hr-employee-updated',event=>{
   if(ownerWorkspace?.id===event.detail?.workspace?.id)loadOwnerMembers().catch(e=>notify(e.message,true));
  });
