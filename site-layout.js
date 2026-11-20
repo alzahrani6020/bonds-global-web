@@ -137,7 +137,20 @@
         applyChoice(target.getAttribute('data-ga-consent') === 'accept' ? 'granted' : 'denied');
       });
 
-      document.body.appendChild(banner);
+      const shortMobileHome = document.body.classList.contains('bonds-redesign') &&
+        /^\/(?:en\/)?(?:index\.html)?$/.test(location.pathname) &&
+        window.matchMedia('(max-width: 700px) and (max-height: 740px)').matches;
+      const homeHeader = shortMobileHome ? document.getElementById('site-header') : null;
+      if (homeHeader) {
+        banner.style.position = 'relative';
+        banner.style.inset = 'auto';
+        banner.style.width = 'calc(100% - 24px)';
+        banner.style.boxSizing = 'border-box';
+        banner.style.margin = '8px auto';
+        document.body.insertBefore(banner, homeHeader);
+      } else {
+        document.body.appendChild(banner);
+      }
     }
 
     const choice = readChoice();
