@@ -2,7 +2,7 @@
  * Source: scc380/apps/web/src/app/globals.css. */
 :root{--bg:#0f172a;--surface:#1e293b;--surface2:#334155;--blue:#0066cc;--blue-light:#3385d6;--text:#f8fafc;--muted:#94a3b8;--stroke:rgba(100,116,139,.48);--accent:#f59e0b;--good:#34d399;--bad:#f87171;color-scheme:dark}
 *{box-sizing:border-box}
-html{direction:rtl}
+html[dir="rtl"]{direction:rtl}html[dir="ltr"]{direction:ltr}
 body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 30% 0%,rgba(0,102,204,.11),transparent 36%),var(--bg);color:var(--text);font:15px/1.6 system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
@@ -21,7 +21,7 @@ a{color:var(--blue-light)}
 .workspace-create-open{width:100%;text-align:center;min-height:42px}
 #workspace-create-cancel{margin-inline-start:.5rem}
 .sidebar-nav{display:flex;flex-direction:column;gap:.25rem}
-.sidebar-nav button{text-align:right;padding:.75rem .85rem;border:1px solid transparent;background:transparent;color:#cbd5e1;border-radius:11px;font-weight:650}
+.sidebar-nav button{text-align:start;padding:.75rem .85rem;border:1px solid transparent;background:transparent;color:#cbd5e1;border-radius:11px;font-weight:650}
 .sidebar-nav button:hover{background:rgba(51,65,85,.65);color:white}
 .sidebar-nav button.active{background:rgba(0,102,204,.19);color:#93c5fd;border-color:rgba(51,133,214,.48)}
 .back{margin-top:auto;padding:.75rem;color:var(--muted);text-decoration:none;border-top:1px solid var(--stroke)}
@@ -78,7 +78,7 @@ td .secondary{padding:.35rem .6rem;min-height:30px;font-size:.78rem}
  .sidebar{position:relative;min-height:0;border-left:0;border-bottom:1px solid var(--stroke);padding:1rem}
  .sidebar-nav{flex-direction:row;overflow-x:auto;gap:.3rem;scrollbar-width:thin}
  .sidebar-nav button{white-space:nowrap}
- .back{display:none}
+ .back{display:block;margin-top:0;padding:.6rem .75rem;border-top:0;border:1px solid var(--stroke);border-radius:9px;align-self:flex-start}
  .row-panels{grid-template-columns:1fr}
 }
 @media(max-width:550px){

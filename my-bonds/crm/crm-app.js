@@ -329,15 +329,17 @@
    :'<tr><td colspan="5">'+(english?'No audit events':'لا يوجد سجل تغييرات')+'</td></tr>';
  }
  async function activateWorkspace(w){
-  workspace=w;
-  lookupRows={};rows={};requestSequence++;
-  currentRole=w.owner_user_id===currentUser?.id?'owner':null;
-  if(!currentRole){
+  // Verify membership before changing the active workspace or clearing its data.
+  let nextRole=w.owner_user_id===currentUser?.id?'owner':null;
+  if(!nextRole){
    const members=must(await sb.from('crm_app_members').select('role').eq('workspace_id',w.id)
     .eq('member_user_id',currentUser.id).eq('active',true).limit(1));
-   currentRole=members[0]?.role||null;
+   nextRole=members[0]?.role||null;
   }
-  if(!currentRole)throw Error(english?'Workspace access revoked':'أُلغيت صلاحية مساحة العمل');
+  if(!nextRole)throw Error(english?'Workspace access revoked':'أُلغيت صلاحية مساحة العمل');
+  workspace=w;
+  currentRole=nextRole;
+  lookupRows={};rows={};requestSequence++;
   $('workspace-name').textContent=w.name;
   $('workspace-select').value=w.id;
   document.querySelectorAll('#crm-nav [data-section="members"],#crm-nav [data-section="audit"]')
