@@ -6,7 +6,76 @@ param(
     [Parameter(Mandatory = $true)][string]$PayloadPath,
     [ValidateRange(1,100)][int]$Runs = 10,
     [ValidateRange(0,100)][int]$Warmups = 2,
-    [ValidateRange(30,3600)][int]$TimeoutSec = 600
+    [ValidateRange(30,3600)][int]$TimeoutSec = 600,
+    [ValidatePattern('^[A-Za-z0-9_-]+
+)
+
+$ErrorActionPreference = 'Stop'
+if ($Port -eq 8765 -or $Port -eq 8771) {
+    throw 'Protected production port.'
+}
+
+$canonicalPath = Join-Path (Split-Path $PSScriptRoot -Parent) 'canonical-model.json'
+$canonical = Get-Content $canonicalPath -Raw | ConvertFrom-Json
+$payload = Get-Content $PayloadPath -Raw | ConvertFrom-Json
+
+if (-not $payload.messages) {
+    throw 'Payload must include messages.'
+}
+if ([int]$payload.max_tokens -ne [int]$canonical.runtime.max_tokens) {
+    throw "Payload max_tokens must equal canonical runtime value $($canonical.runtime.max_tokens)."
+}
+if ($null -ne $payload.temperature -and [double]$payload.temperature -ne [double]$canonical.runtime.temperature) {
+    throw "Payload temperature must equal canonical runtime value $($canonical.runtime.temperature)."
+}
+
+$uri = "http://127.0.0.1:$Port/v1/chat/completions"
+$logDir = Join-Path $Root 'logs'
+New-Item -ItemType Directory -Force $logDir | Out-Null
+$output = Join-Path $logDir ("benchmark-" + $Label + ".jsonl")
+if (Test-Path $output) { throw "Results already exist: $output. Use a unique Label to prevent mixed-run comparisons." }
+$body = $payload | ConvertTo-Json -Depth 100 -Compress
+
+for ($i = 0; $i -lt ($Warmups + $Runs); $i++) {
+    $watch = [Diagnostics.Stopwatch]::StartNew()
+    $ok = $false
+    $usage = $null
+    $errorMessage = $null
+    $statusCode = $null
+
+    try {
+        $reply = Invoke-RestMethod -Uri $uri -Method Post -Body $body -ContentType 'application/json' -TimeoutSec $TimeoutSec
+        $usage = $reply.usage
+        $ok = ($null -ne $reply.choices -and $reply.choices.Count -gt 0)
+    } catch {
+        $errorMessage = $_.Exception.Message
+        if ($_.Exception.Response) {
+            $statusCode = [int]$_.Exception.Response.StatusCode
+        }
+    }
+
+    $watch.Stop()
+    $row = [ordered]@{
+        utc = [DateTime]::UtcNow.ToString('o')
+        profile = $Profile
+        label = $Label
+        port = $Port
+        run = $i
+        warmup = ($i -lt $Warmups)
+        success = $ok
+        elapsed_s = [Math]::Round($watch.Elapsed.TotalSeconds, 3)
+        prompt_tokens = $usage.prompt_tokens
+        completion_tokens = $usage.completion_tokens
+        total_tokens = $usage.total_tokens
+        http_status = $statusCode
+        error = $errorMessage
+    }
+
+    ($row | ConvertTo-Json -Compress -Depth 5) | Add-Content -Path $output
+    $row | ConvertTo-Json -Compress
+}
+Write-Output "BENCHMARK_RESULTS: $output"
+)][string]$Label = 'baseline'
 )
 
 $ErrorActionPreference = 'Stop'
