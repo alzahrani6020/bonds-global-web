@@ -208,6 +208,22 @@ async function main(){
   const claim=await page.evaluate(()=>window.__crmTestState.accepted[0]);
   assert.equal(claim.name,'crm_app_accept_invite');
   assert.equal(claim.args.invite_token,token);
+  // Regression: links back to My Bonds and locale switch must remain usable on mobile.
+  // Check the actual rendered CSS in Chromium, not merely stylesheet text.
+  for(const width of [320,375,390,430,768]){
+   await page.setViewportSize({width,height:800});
+   assert.equal(await page.locator('html').evaluate(el=>getComputedStyle(el).direction),'ltr','English direction at '+width);
+   assert.equal(await page.locator('a.back[href="/my-bonds/"]').isVisible(),true,'English workspace return hidden at '+width);
+   assert.equal(await page.locator('a.back[lang="ar"]').isVisible(),true,'Arabic locale switch hidden at '+width);
+  }
+  await page.goto(base+'/my-bonds/crm/',{waitUntil:'domcontentloaded'});
+  for(const width of [320,375,390,430,768]){
+   await page.setViewportSize({width,height:800});
+   assert.equal(await page.locator('html').evaluate(el=>getComputedStyle(el).direction),'rtl','Arabic direction at '+width);
+   assert.equal(await page.locator('a.back[href="/my-bonds/"]').isVisible(),true,'Arabic workspace return hidden at '+width);
+   assert.equal(await page.locator('a.back[lang="en"]').isVisible(),true,'English locale switch hidden at '+width);
+  }
+  console.log('CRM MOBILE NAVIGATION: PASS — Arabic/English at 320/375/390/430/768');
   console.log('CRM BROWSER ACCEPTANCE: PASS — onboarding, companies, pipelines, stages, deals, CSV, English UI');
  }finally{await browser.close();}
 }
