@@ -406,7 +406,7 @@
     // All post-auth destinations must stay on the same origin as the login page.
     // Never accept a previously stored absolute URL for another Preview hostname.
     function sameOriginDestination(value) {
-      if (typeof value !== 'string' || !value.trim() || /[\\u0000-\\u001f\\u007f]/.test(value)) return null;
+      if (typeof value !== 'string' || !value.trim() || /[\u0000-\u001f\u007f]/.test(value)) return null;
       try {
         const target = stripOAuthErrorParams(new URL(value, origin));
         if (target.protocol !== 'https:' && target.protocol !== 'http:') return null;
