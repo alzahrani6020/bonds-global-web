@@ -78,7 +78,7 @@ td .secondary{padding:.35rem .6rem;min-height:30px;font-size:.78rem}
  .sidebar{position:relative;min-height:0;border-left:0;border-bottom:1px solid var(--stroke);padding:1rem}
  .sidebar-nav{flex-direction:row;overflow-x:auto;gap:.3rem;scrollbar-width:thin}
  .sidebar-nav button{white-space:nowrap}
- .back{display:none}
+ .back{display:block;margin-top:0;padding:.6rem .75rem;border-top:0;border:1px solid var(--stroke);border-radius:9px;align-self:flex-start}
  .row-panels{grid-template-columns:1fr}
 }
 @media(max-width:550px){
