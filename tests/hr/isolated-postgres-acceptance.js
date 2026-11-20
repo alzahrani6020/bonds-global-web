@@ -466,7 +466,7 @@ async function main(){
   assert.equal(linkedCompany.rows[0].name,'Shared Company A','HR save changed existing CRM company');
   await assert.rejects(()=>as(owner,()=>db.query(
    "insert into hr_saas_workspaces(owner_user_id,name,crm_workspace_id) values($1,'Cross-tenant',$2)",[owner,companyB])),
-   e=>e.code==='23503'||e.code==='42501','Cannot link HR to a different company owner');
+   e=>e.code==='23503'||e.code==='42501'||(e.code==='P0001'&&/HR workspace must reference a CRM workspace owned by the same user/.test(e.message)),'Cannot link HR to a different company owner');
   await assert.rejects(()=>as(owner,()=>db.query(
    "insert into hr_saas_workspaces(owner_user_id,name,crm_workspace_id) values($1,'Duplicate',$2)",[owner,companyA])),
    e=>e.code==='23505','One company workspace must not create two HR tenants');
