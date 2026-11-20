@@ -305,7 +305,7 @@
   if (!discoveryCss) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/components/service-discovery.css?v=4';
+    link.href = '/components/service-discovery.css?v=5';
     document.head.appendChild(link);
   }
 
@@ -344,7 +344,7 @@
     const loadDiscovery = () => {
       if (document.querySelector('script[src*="service-discovery.js"]')) return;
       const script = document.createElement('script');
-      script.src = '/components/service-discovery.js?v=7';
+      script.src = '/components/service-discovery.js?v=9';
       script.async = false;
       document.head.appendChild(script);
     };
