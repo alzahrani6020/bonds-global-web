@@ -469,7 +469,8 @@ html body.bonds-redesign #site-header .main-header__inner{
   body.bonds-redesign #bonds-ai-chat-root .bonds-ai-chat-toggle-label {
     display: none !important;
   }
+  /* Keep the launcher available while the service form is visible without covering its CTA. */
   body.bonds-redesign.bonds-service-cta-visible #bonds-ai-chat-root .bonds-ai-chat-toggle {
-    display: none !important;
+    bottom: max(84px, calc(env(safe-area-inset-bottom) + 68px)) !important;
   }
 }
