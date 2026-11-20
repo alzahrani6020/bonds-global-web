@@ -106,3 +106,37 @@ html[dir="ltr"] .step-header{text-align:left}
 /* UI-only: ensure the password generator is touch accessible without resizing inputs. */
 .auth-card #genPwBtn{min-height:44px;min-width:44px;padding:8px 12px;touch-action:manipulation}
 .auth-card #genPwBtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* Short desktop viewports: keep the primary sign-in flow within a practical
+   viewport while allowing normal document scrolling for signup/errors. */
+.auth-layout{min-width:0}
+.auth-layout .auth-main{min-width:0}
+.auth-layout .auth-container{min-width:0}
+@media (min-width:901px) and (max-height:900px){
+  .auth-layout .auth-main{padding-block:12px}
+  .auth-layout .auth-card{padding:18px 24px}
+  .auth-layout .auth-card .logo{margin-bottom:12px}
+  .auth-layout .auth-card .logo img{max-height:32px}
+  .auth-layout .auth-card .auth-top-nav{margin-bottom:12px}
+  .auth-layout .auth-card .tabs{margin-bottom:12px;padding-bottom:8px}
+  .auth-layout .auth-card .tab-btn{padding-block:8px}
+  .auth-layout .auth-card .auth-head{margin-bottom:12px}
+  .auth-layout .auth-card .auth-head h2{font-size:1.5rem}
+  .auth-layout .auth-card .method-tabs{margin-bottom:12px}
+  .auth-layout .auth-card .method-tab{padding-block:8px}
+  .auth-layout .auth-card .form-group{margin-bottom:12px}
+  .auth-layout .auth-card .form-group label{margin-bottom:6px}
+  .auth-layout .auth-card .forgot-row{margin-top:0;margin-bottom:10px}
+  .auth-layout .auth-card .divider{margin:12px 0}
+  .auth-layout .auth-card .auth-switch{margin-top:12px}
+  .auth-layout .auth-card .auth-trust{margin-top:10px}
+  .auth-layout .auth-card .btn{padding-block:10px}
+  .auth-layout .auth-hero__logo{margin-bottom:16px}
+  .auth-layout .auth-hero__desc{margin-bottom:16px}
+  .auth-layout .auth-hero__feats{gap:10px}
+  .auth-layout .auth-hero__foot{margin-top:20px}
+}
+@media (max-width:900px){
+  .auth-layout .auth-main{width:100%;padding-block:16px}
+  .auth-layout .auth-container{max-width:480px}
+}
