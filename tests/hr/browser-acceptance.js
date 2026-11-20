@@ -7,7 +7,7 @@ async function run(){
  const browser=await chromium.launch({headless:true});
  const base=process.env.CRM_TEST_BASE_URL||'http://localhost:3005';
  try{
-  for(const scenario of ['owner','existing','unlicensed','signedout','employee','manager']){
+  for(const scenario of ['owner','existing','unlicensed','signedout','auth-error','employee','manager']){
    const licensed=['owner','existing'].includes(scenario);
    const page=await browser.newPage({viewport:{width:1050,height:800}});
    const errors=[];
@@ -79,7 +79,7 @@ async function run(){
      };
      return q;
     }
-    const supabase={auth:{getUser:async()=>scenario==='signedout'?Promise.reject(Error('getUser must not run without a session')):({data:{user},error:null}),getSession:async()=>scenario==='signedout'?({data:{session:null},error:{name:'AuthSessionMissingError',message:'Auth session missing!'}}):({data:{session:{user,access_token:'test-mock-access-token'}},error:null})},from,
+    const supabase={auth:{getUser:async()=>scenario==='signedout'?Promise.reject(Error('getUser must not run without a session')):({data:{user},error:null}),getSession:async()=>scenario==='auth-error'?Promise.reject(Error('Simulated auth connection failure')):scenario==='signedout'?({data:{session:null},error:{name:'AuthSessionMissingError',message:'Auth session missing!'}}):({data:{session:{user,access_token:'test-mock-access-token'}},error:null})},from,
      rpc:async(name,args)=>{
       if(name!=='hr_saas_accept_invitation')throw Error('Unexpected RPC '+name);
       const invite=tables.hr_saas_invitations.find(x=>x.token===args.invite_token&&x.status==='pending');
@@ -128,6 +128,12 @@ async function run(){
     assert.ok(link.startsWith('/calculators/auth/index.html?redirect='));
     assert.ok(decodeURIComponent(link).includes('/my-bonds/crm/?program=hr'));
     assert.equal((await page.evaluate(()=>window.__hrTest.writes)).length,0);
+   }else if(scenario==='auth-error'){
+    await page.waitForFunction(()=>document.querySelector('#hr-status')?.textContent.includes('Simulated auth connection failure'));
+    assert.equal(await page.locator('#hr-section').isVisible(),true,'HR mode must remain visible after auth failure');
+    assert.equal(await page.locator('#crm-nav').isVisible(),false,'CRM navigation must not replace HR on auth error');
+    assert.equal(await page.locator('#hr-status').isVisible(),true,'HR auth failure must be visible');
+    assert.equal(await page.locator('#hr-app').isVisible(),false,'Auth failure must not expose employee records');
    }else if(scenario==='unlicensed'){
     await page.waitForFunction(()=>!document.querySelector('#hr-license').hidden);
     assert.equal(await page.locator('#hr-setup').isVisible(),false,'Unlicensed user accessed HR records');
