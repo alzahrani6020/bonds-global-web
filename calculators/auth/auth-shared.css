@@ -68,7 +68,10 @@ html[dir="ltr"] .step-header{text-align:left}
   min-width:44px;
   min-height:44px;
   padding:10px;
-  inset-inline-end:2px;
+  /* Password text is LTR in both locales; anchor eye to its physical right edge. */
+  inset-inline-end:auto;
+  left:auto;
+  right:2px;
   border-radius:8px;
   touch-action:manipulation;
 }
