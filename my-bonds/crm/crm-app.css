@@ -89,3 +89,16 @@ td .secondary{padding:.35rem .6rem;min-height:30px;font-size:.78rem}
  .section-actions input,.section-actions button{width:100%}
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+.sidebar-nav a[data-hr-category]{display:block;text-align:right;padding:.75rem .85rem;border:1px solid transparent;background:transparent;color:#cbd5e1;border-radius:11px;font-weight:650;text-decoration:none;cursor:pointer}
+.sidebar-nav a[data-hr-category]:hover{background:rgba(51,65,85,.65);color:white}
+.sidebar-nav a[data-hr-category].active{background:rgba(0,102,204,.19);color:#93c5fd;border-color:rgba(51,133,214,.48)}
+/* Independent programs share the exact CRM company dashboard, not the same dataset. */
+.company-product-switch{display:grid;gap:.5rem;margin:.4rem 0;padding:.55rem;border:1px solid var(--stroke);border-radius:12px;background:rgba(30,41,59,.6)}
+.company-product-switch button{text-align:right;font-weight:700;min-width:0;overflow-wrap:anywhere}
+.company-product-switch button.active{background:#103b68;border-color:#3385d6;color:#fff}
+.hr-nav{padding-top:.4rem;border-top:1px solid var(--stroke);margin-top:.2rem}
+#hr-setup{display:grid;gap:.7rem}
+#hr-setup form{display:grid;gap:.4rem}
+#hr-setup label{display:grid;gap:.2rem}
+@media(min-width:851px){.hr-nav{max-height:45vh;overflow-y:auto;scrollbar-color:#64748b transparent}}
+@media(max-width:850px){.hr-nav{flex-wrap:nowrap;overflow-x:auto}.company-product-switch{grid-template-columns:repeat(2,minmax(0,1fr))}}
