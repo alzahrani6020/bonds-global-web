@@ -13,7 +13,9 @@ describe('Single CRM shell with isolated administrative operations',()=>{
   expect(match).not.toBeNull();
   expect(match[1]).not.toContain('/admin/crm.html');
   expect(match[1]).toContain('/my-bonds/crm/');
-  expect((match[1].match(/label:/g)||[]).length).toBe(2);
+  expect((match[1].match(/label:/g)||[]).length).toBe(3);
+  expect(match[1]).toContain("/my-bonds/crm/?program=hr");
+  expect(match[1]).toContain("/en/my-bonds/crm/?program=hr");
  });
  test('administrative records are accessed inside both CRM languages, not via public data joins',()=>{
   for(const page of [ar,en]){
