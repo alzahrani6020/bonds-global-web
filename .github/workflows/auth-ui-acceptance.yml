@@ -57,3 +57,49 @@ jobs:
         env:
           BASE_URL: http://127.0.0.1:3005
         run: node tests/visual/auth-login-acceptance.js
+
+  production-auth-smoke:
+    name: Production bilingual auth browser acceptance
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: bilingual-auth-acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify live production auth assets before browser testing
+        run: |
+          set -euo pipefail
+          for attempt in {1..30}; do
+            html="$(curl -fsSL --max-time 10 https://bonds-global.com/calculators/auth/ || true)"
+            css="$(curl -fsSL --max-time 10 'https://bonds-global.com/calculators/auth/auth-shared.css?v=7' || true)"
+            en="$(curl -fsSL --max-time 10 https://bonds-global.com/en/calculators/auth/ || true)"
+            if grep -q 'id="loginBtn"' <<< "$html" &&
+               grep -q 'id="loginBtn"' <<< "$en" &&
+               grep -q 'Measured viewport acceptance' <<< "$css"; then
+              echo 'PASS: live AR, EN, and reviewed viewport stylesheet'
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'FAIL: production auth assets not ready or incorrect'
+          exit 1
+
+      - name: Run real production Chromium acceptance (12 cases)
+        env:
+          BASE_URL: https://bonds-global.com
+        run: node tests/visual/auth-login-acceptance.js
