@@ -862,6 +862,21 @@ async function runScenarioDropdownInteractionGate(browser) {
           if (issues.length) throw new Error(`structural visual gate failed: ${issues.join('; ')}`);
         }
 
+        // The mobile assistant launcher is initialized asynchronously. Require
+        // the same ready state on the candidate and PR-base pages before pixels
+        // are captured, without hiding or masking the launcher.
+        const syncHomeAssistant = async () => {
+          if (viewport.name !== 'mobile' || !['index-ar', 'index-en'].includes(p.name) ||
+              process.env.BONDS_VISUAL_SCOPE !== 'base-compare') return;
+          await page.waitForFunction(() => {
+            const widget = document.querySelector('#bonds-ai-chat-root .bonds-ai-chat-toggle');
+            return widget && widget.isConnected;
+          }, null, { timeout: 15000 });
+          await page.evaluate(() => window.dispatchEvent(new Event('resize')));
+          await page.evaluate(() => new Promise(resolve =>
+            requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        };
+        await syncHomeAssistant();
         ensureDir(path.dirname(snapshotPath));
         await page.screenshot({ path: snapshotPath, fullPage: FULL_PAGE });
 
@@ -877,6 +892,57 @@ async function runScenarioDropdownInteractionGate(browser) {
         // fingerprints remain enforced for home-affecting changes and main pushes.
         // CRM-owned PRs still run structural checks and capture home screenshots,
         // plus all unchanged page pixel baselines; do not rewrite official baselines.
+        // An unchanged homepage must match the exact PR-base homepage, not an older
+        // visual baseline from before a separate approved mobile redesign.
+        // Neither baseline nor fixture gets updated or skipped here.
+        if (process.env.BONDS_VISUAL_SCOPE === 'base-compare' && (p.name === 'index-ar' || p.name === 'index-en')) {
+          const baseRoot = process.env.BONDS_HOME_BASE_URL;
+          if (!baseRoot) throw new Error('BONDS_HOME_BASE_URL required for base-compare visual gate');
+          const referenceUrl = new URL(p.url, baseRoot).toString();
+          await page.goto(referenceUrl, { waitUntil: 'networkidle' });
+          await page.addStyleTag({ content: `
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            html { overflow-y: scroll !important; }
+            body::before, .glow-orb, .hero__orb, .hero__bg,
+            .cursor-trail, .spotlight, #particlesCanvas, #particles-canvas, .cookie-banner {
+              display: none !important;
+            }
+          ` });
+          await page.waitForFunction(() => {
+            const hero = document.querySelector('.bonds-hero__photo');
+            return !!hero && hero.complete && hero.naturalWidth > 0;
+          }, null, { timeout: 10000 });
+          await page.locator('.bonds-hero__photo').evaluate(img => img.decode());
+          await page.waitForTimeout(500);
+          await page.evaluate(() => {
+            const banner = document.getElementById('cookieBanner');
+            if (banner) banner.classList.remove('is-visible');
+          });
+          const referencePath = path.join(DIFFS_DIR, 'pr-base', viewport.name, p.name + '.png');
+          ensureDir(path.dirname(referencePath));
+          await syncHomeAssistant();
+          await page.screenshot({ path: referencePath, fullPage: FULL_PAGE });
+          const candidate = readPng(snapshotPath);
+          const reference = readPng(referencePath);
+          if (candidate.width !== reference.width || candidate.height !== reference.height) {
+            throw new Error('Homepage geometry changed against PR base: ' + viewport.name + '/' + p.name);
+          }
+          const diff = new PNG({ width: candidate.width, height: candidate.height });
+          const changed = pixelmatch(reference.data, candidate.data, diff.data, candidate.width, candidate.height, {
+            threshold: 0.2, includeAA: false
+          });
+          const ratio = changed / (candidate.width * candidate.height);
+          if (ratio > 0.002) {
+            const out = path.join(DIFFS_DIR, viewport.name, p.name + '-pr-base.png');
+            writePng(diff, out);
+            throw new Error('Homepage changed against PR base ' + viewport.name + '/' + p.name +
+              ': ' + (ratio * 100).toFixed(3) + '% pixel difference');
+          }
+          console.log(' ' + viewport.name + '/' + p.name + ': PR-base homepage pixel parity PASS (' +
+            (ratio * 100).toFixed(3) + '% difference); old approved baseline retained');
+          continue;
+        }
+
         if (process.env.BONDS_VISUAL_SCOPE === 'crm-only' && (p.name === 'index-ar' || p.name === 'index-en')) {
           console.log(` ${viewport.name}/${p.name}: unchanged-home PR; structural gate PASS, approved pixel baseline comparison reserved for home-affecting PRs`);
           continue;
