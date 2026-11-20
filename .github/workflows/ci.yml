@@ -127,6 +127,9 @@ jobs:
       - name: Verify CRM browser workflow (isolated auth and database)
         run: node tests/crm/browser-acceptance.js
 
+      - name: Verify HR browser workflow and deferred company workspace context (isolated)
+        run: node tests/hr/browser-acceptance.js
+
       - name: Run Assistant End-to-End CI Journeys
         run: npm run test:assistant:e2e-ci
 
