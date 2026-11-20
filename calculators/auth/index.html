@@ -347,10 +347,19 @@
         // Keep validation errors perceivable after pressing Next/Sign In below the fold.
         requestAnimationFrame(function () {
           if (el.style.display === 'block') {
-            el.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+            el.scrollIntoView({ block: 'start', behavior: 'auto' });
             el.focus({ preventScroll: true });
           }
         });
+        // Layout or browser focus can move the viewport after the first frame.
+        // Correct only when the alert has actually moved out of view.
+        setTimeout(function () {
+          if (el.style.display !== 'block') return;
+          const rect = el.getBoundingClientRect();
+          if (rect.top < 0 || rect.bottom > window.innerHeight) {
+            el.scrollIntoView({ block: 'start', behavior: 'auto' });
+          }
+        }, 180);
         const actions = document.getElementById('errorActions');
         if (actionsHtml) { actions.innerHTML = actionsHtml; actions.style.display = 'flex'; }
         else { actions.innerHTML = ''; actions.style.display = 'none'; }
