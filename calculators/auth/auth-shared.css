@@ -68,11 +68,19 @@ html[dir="ltr"] .step-header{text-align:left}
   min-width:44px;
   min-height:44px;
   padding:10px;
-  inset-inline-end:2px;
+  /* Password text is LTR in both locales; anchor eye to its physical right edge. */
+  inset-inline-end:auto;
+  left:auto;
+  right:2px;
   border-radius:8px;
   touch-action:manipulation;
 }
-.pw-wrap input{padding-inline-end:3.25rem}
+.auth-card .pw-wrap input{
+  /* Keep LTR password characters away from the right-side eye in AR and EN. */
+  /* institutional-system.css sets input padding with !important. */
+  padding-right:3.25rem !important;
+  padding-left:1rem !important;
+}
 .pw-wrap .pw-toggle:focus-visible,
 .tab-btn:focus-visible,
 .method-tab:focus-visible,
