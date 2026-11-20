@@ -791,15 +791,46 @@ async function runPlannerTelemetryProbe() {
   const allowed = new Set([
     'step','final','lock_wait_seconds','generation_seconds','request_total_seconds',
     'model_load_seconds','model_cache_hit','completion_tokens','prompt_tokens',
-    'tokens_per_second','n_ctx','finish_reason','native_node','elapsed_ms'
+    'tokens_per_second','n_ctx','finish_reason','native_node','elapsed_ms','planner_ms'
   ]);
   const safeTelemetry = telemetry.slice(0, 8).map(row => Object.fromEntries(
     Object.entries(row || {}).filter(([key]) => allowed.has(key))
   ));
+  // Distinguish the full HTTP request, planner execution, and measured Native
+  // runtime. This is diagnostic evidence, not a claim of performance improvement.
+  const numeric = (value) => value !== null && value !== undefined && value !== '' &&
+    Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : null;
+  const plannerTimes = safeTelemetry.map(row => numeric(row.planner_ms));
+  const nativeTimes = safeTelemetry.map(row => numeric(row.request_total_seconds));
+  const plannerMeasuredMs = plannerTimes.every(value => value !== null)
+    ? plannerTimes.reduce((sum, value) => sum + value, 0) : null;
+  const nativeMeasuredMs = nativeTimes.every(value => value !== null)
+    ? Math.round(nativeTimes.reduce((sum, value) => sum + value, 0) * 1000) : null;
+  const nonPlannerMs = plannerMeasuredMs === null ? null
+    : Math.max(0, elapsedMs - plannerMeasuredMs);
+  const serverProcessingMs = numeric(diagnostics?.timing?.server_processing_ms);
+  const externalRoundtripMs = serverProcessingMs === null ? null
+    : Math.max(0, elapsedMs - serverProcessingMs);
+  const safeStages = (Array.isArray(diagnostics?.stages) ? diagnostics.stages : [])
+    .slice(0, 16).map(row => ({
+      stage: String(row?.stage || '').slice(0, 60),
+      status: String(row?.status || '').slice(0, 20),
+      duration_ms: numeric(row?.duration_ms)
+    }));
+  const plannerNonNativeMs = plannerMeasuredMs === null || nativeMeasuredMs === null
+    ? null : Math.max(0, plannerMeasuredMs - nativeMeasuredMs);
 
   console.log('PLANNER_TELEMETRY ' + JSON.stringify({
     request_id:requestId,
     elapsed_ms:elapsedMs,
+    planner_measured_ms:plannerMeasuredMs,
+    native_measured_ms:nativeMeasuredMs,
+    non_planner_ms:nonPlannerMs,
+    planner_non_native_ms:plannerNonNativeMs,
+    server_processing_ms:serverProcessingMs,
+    external_roundtrip_ms:externalRoundtripMs,
+    bottleneck:diagnostics?.bottleneck || null,
+    stages:safeStages,
     diagnostics_status:diagnostics.status || null,
     fallback_reason:chat.body?.fallback_reason || null,
     native_telemetry:safeTelemetry

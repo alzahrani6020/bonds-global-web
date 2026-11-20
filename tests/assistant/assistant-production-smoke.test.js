@@ -155,6 +155,27 @@ describe('Assistant production acceptance', () => {
     expect([...ledger.values()][0].status).toBe('uncertain');
   });
 
+  test('paces synthetic calls at the advertised reset without first receiving a 429', async () => {
+    const sleepImpl = jest.fn().mockResolvedValue();
+    let tagged = false;
+    const fetchImpl = async (url, options) => {
+      const response = await routeFetch(url, options);
+      if (tagged || !response.ok) return response;
+      tagged = true;
+      const headers = new Headers(response.headers);
+      headers.set('X-RateLimit-Remaining', '0');
+      headers.set('X-RateLimit-Reset', String(Math.ceil((Date.now() + 3000) / 1000)));
+      return new Response(await response.text(), { status: response.status, headers });
+    };
+    const result = await run(fetchImpl, { sleepImpl });
+    expect(result.syntheticReplayBlocked).toBe(true);
+    expect(sleepImpl).toHaveBeenCalledTimes(1);
+    expect(sleepImpl.mock.calls[0][0]).toBeGreaterThan(0);
+    expect(sleepImpl.mock.calls[0][0]).toBeLessThanOrEqual(4500);
+    expect(log.mock.calls.some(([message]) => String(message).includes('pacing to advertised rate reset')))
+      .toBe(true);
+  });
+
   test('does not hide a persistent 429 after the single bounded retry', async () => {
     let attempts = 0;
     const sleepImpl = jest.fn().mockResolvedValue();
