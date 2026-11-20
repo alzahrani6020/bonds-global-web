@@ -808,6 +808,15 @@ async function runPlannerTelemetryProbe() {
     ? Math.round(nativeTimes.reduce((sum, value) => sum + value, 0) * 1000) : null;
   const nonPlannerMs = plannerMeasuredMs === null ? null
     : Math.max(0, elapsedMs - plannerMeasuredMs);
+  const serverProcessingMs = numeric(diagnostics?.timing?.server_processing_ms);
+  const externalRoundtripMs = serverProcessingMs === null ? null
+    : Math.max(0, elapsedMs - serverProcessingMs);
+  const safeStages = (Array.isArray(diagnostics?.stages) ? diagnostics.stages : [])
+    .slice(0, 16).map(row => ({
+      stage: String(row?.stage || '').slice(0, 60),
+      status: String(row?.status || '').slice(0, 20),
+      duration_ms: numeric(row?.duration_ms)
+    }));
   const plannerNonNativeMs = plannerMeasuredMs === null || nativeMeasuredMs === null
     ? null : Math.max(0, plannerMeasuredMs - nativeMeasuredMs);
 
@@ -818,6 +827,10 @@ async function runPlannerTelemetryProbe() {
     native_measured_ms:nativeMeasuredMs,
     non_planner_ms:nonPlannerMs,
     planner_non_native_ms:plannerNonNativeMs,
+    server_processing_ms:serverProcessingMs,
+    external_roundtrip_ms:externalRoundtripMs,
+    bottleneck:diagnostics?.bottleneck || null,
+    stages:safeStages,
     diagnostics_status:diagnostics.status || null,
     fallback_reason:chat.body?.fallback_reason || null,
     native_telemetry:safeTelemetry
