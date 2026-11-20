@@ -1331,7 +1331,7 @@
           <button type="button" class="bonds-ai-attach-button" aria-label="إرفاق ملف أو صورة" title="إرفاق ملف أو صورة">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m21.4 11.6-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7l-9.7 9.6a2 2 0 0 1-2.8-2.8l8.9-8.9"/></svg>
           </button>
-          <textarea class="bonds-ai-text-input" rows="1" aria-label="رسالة إلى مساعد بوندز" placeholder="اكتب سؤالك هنا..." autocomplete="off"></textarea>
+          <textarea class="bonds-ai-text-input" rows="1" aria-label="اكتب سؤالك هنا..." placeholder="اكتب سؤالك هنا..." autocomplete="off"></textarea>
           <button type="button" class="bonds-ai-voice-button" aria-label="التحدث إلى مساعد بوندز" title="التحدث" hidden>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg>
           </button>
@@ -3296,7 +3296,7 @@
       set('.bonds-ai-conversation-modes', { aria: 'Conversation mode' });
       set('.bonds-ai-home-launchpad', { aria: 'Start with BONDS Assistant' });
       set('.bonds-ai-attach-button', { aria: 'Attach a file or image', title: 'Attach a file or image' });
-      set('.bonds-ai-text-input', { placeholder: 'Type your question here...', aria: 'Message to BONDS Assistant' });
+      set('.bonds-ai-text-input', { placeholder: 'Type your question here...', aria: 'Type your question here...' });
       set('.bonds-ai-voice-button', { aria: 'Talk to BONDS Assistant', title: 'Speak' });
       set('.bonds-ai-send-button', { aria: 'Send' });
       set('.bonds-ai-send-label', { text: 'Send' });
