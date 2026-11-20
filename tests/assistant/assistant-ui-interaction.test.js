@@ -32,12 +32,17 @@ test('assistant composer and mobile CTA remain usable without posting any messag
     await expectVisible(launcher);
     await page.evaluate(() => document.body.classList.add('bonds-service-cta-visible'));
     await expectVisible(launcher);
-    const geometry = await page.evaluate(() => {
-      const launcher = document.querySelector('#bonds-ai-chat-root .bonds-ai-chat-toggle').getBoundingClientRect();
-      const cta = document.querySelector('#bondsServiceStart').getBoundingClientRect();
-      return { launcher: { top: launcher.top, bottom: launcher.bottom }, cta: { top: cta.top } };
-    });
-    expect(geometry.launcher.bottom).toBeLessThan(geometry.cta.top);
+    // Small phone, standard phone, tall phone: never obscure the primary service CTA.
+    for (const size of [{ width: 320, height: 568 }, { width: 375, height: 667 }, { width: 390, height: 844 }]) {
+      await page.setViewportSize(size);
+      await expectVisible(launcher);
+      const geometry = await page.evaluate(() => {
+        const launcher = document.querySelector('#bonds-ai-chat-root .bonds-ai-chat-toggle').getBoundingClientRect();
+        const cta = document.querySelector('#bondsServiceStart').getBoundingClientRect();
+        return { launcher: { top: launcher.top, bottom: launcher.bottom }, cta: { top: cta.top } };
+      });
+      expect(geometry.launcher.bottom).toBeLessThan(geometry.cta.top);
+    }
 
     await launcher.click();
     const composer = page.getByRole('textbox', { name: 'اكتب سؤالك هنا...' });
