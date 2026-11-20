@@ -344,7 +344,7 @@
     const loadDiscovery = () => {
       if (document.querySelector('script[src*="service-discovery.js"]')) return;
       const script = document.createElement('script');
-      script.src = '/components/service-discovery.js?v=9';
+      script.src = '/components/service-discovery.js?v=10';
       script.async = false;
       document.head.appendChild(script);
     };
