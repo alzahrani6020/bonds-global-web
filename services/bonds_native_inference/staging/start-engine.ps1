@@ -4,6 +4,7 @@ param(
     [string]$Root = (Join-Path $env:LOCALAPPDATA 'BondsInferenceStaging'),
     [Parameter(Mandatory = $true)][string]$ModelPath,
     [Nullable[int]]$GpuLayers = $null,
+    [ValidateRange(1,64)][Nullable[int]]$Threads = $null,
     [ValidateRange(1,32)][int]$Parallel = 1,
     [ValidateRange(1,65535)][int]$Port = 18965
 )
@@ -95,13 +96,13 @@ $engineArgs = @(
     '--port', [string]$Port,
     '--model', $realModel,
     '--ctx-size', [string]([int]$canonical.runtime.n_ctx),
-    '--threads', [string]([int]$canonical.runtime.n_threads),
+    '--threads', [string]$(if ($null -eq $Threads) { [int]$canonical.runtime.n_threads } else { [int]$Threads }),
     '--parallel', [string]$Parallel,
     '--n-gpu-layers', [string]$effectiveGpuLayers,
     '--temp', [string]([double]$canonical.runtime.temperature)
 )
 
-Write-Output "STAGING ONLY: loopback $Port, profile=$Profile gpu_layers=$effectiveGpuLayers"
+Write-Output "STAGING ONLY: loopback $Port, profile=$Profile gpu_layers=$effectiveGpuLayers threads=$(if ($null -eq $Threads) { [int]$canonical.runtime.n_threads } else { [int]$Threads })"
 & $exe.FullName @engineArgs 2>&1 | Tee-Object -FilePath (Join-Path $logDir ("llama-" + $Profile + ".log")) -Append
 
 if ($LASTEXITCODE -ne 0) {
