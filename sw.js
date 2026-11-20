@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.320';
+const CACHE_VERSION = 'v3.0.322';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -48,7 +48,7 @@ const CORE_ASSETS = [
   '/header-footer.css?v=2.73.0',
   '/script.js?v=5',
   '/site-layout.js?v=3.8.11',
-  '/site-layout.js?v=3.8.16',
+  '/site-layout.js?v=3.8.18',
   '/styles/bonds-redesign-2026.css?v=9',
   '/assets/bonds-hero-globe.svg',
   '/assets/bonds-world-dots.svg',
@@ -61,7 +61,7 @@ const CORE_ASSETS = [
   '/auth-guard.js',
   '/calculators/auth-gate.js?v=4',
   '/global-auth-gate.js?v=4',
-  '/bonds-auth-2026.js?v=3.1.3',
+  '/bonds-auth-2026.js?v=3.1.4',
   '/supabase-client.js',
   '/admin/funding-cases/service.js?v=3',
   '/admin/funding-cases/app.js?v=3',

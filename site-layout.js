@@ -347,7 +347,7 @@
     }
 
     const script = document.createElement('script');
-    script.src = '/v3/components/ai-chat-widget.js?v=global-assistant-767373489a';
+    script.src = '/v3/components/ai-chat-widget.js?v=global-assistant-78ab271cfa';
     script.async = false;
     script.addEventListener('load', mountAssistant, { once:true });
     document.head.appendChild(script);
@@ -357,7 +357,7 @@
     const loadDiscovery = () => {
       if (document.querySelector('script[src*="service-discovery.js"]')) return;
       const script = document.createElement('script');
-      script.src = '/components/service-discovery.js?v=9';
+      script.src = '/components/service-discovery.js?v=10';
       script.async = false;
       document.head.appendChild(script);
     };

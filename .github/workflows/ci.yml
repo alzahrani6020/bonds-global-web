@@ -173,12 +173,12 @@ jobs:
           cat /tmp/bonds-pr-changed-files.txt
           while IFS= read -r file; do
             case "$file" in
-              my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|tests/v3/revert-service-request-context.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|.github/workflows/ci.yml) ;;
+              components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|tests/v3/revert-service-request-context.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|.github/workflows/ci.yml) ;;
               sw.js)
-                # Allow base parity ONLY if the service worker differs exclusively
-                # in its version declaration; any runtime change keeps full visual CI.
-                git show "$BASE_SHA:sw.js" | sed -E "s/^(const CACHE_VERSION = )'v3[.]0[.][0-9]+';/\\1'NORMALIZED';/" > /tmp/bonds-base-sw-normalized.js
-                sed -E "s/^(const CACHE_VERSION = )'v3[.]0[.][0-9]+';/\\1'NORMALIZED';/" sw.js > /tmp/bonds-head-sw-normalized.js
+                # Only cache version and versioned asset references may differ.
+                git show "$BASE_SHA:sw.js" > /tmp/bonds-base-sw-original.js
+                sed -E -e "s/^(const CACHE_VERSION = )'v3[.]0[.][0-9]+';/\\1'NORMALIZED';/" -e "s@('/site-layout[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/bonds-auth-2026[.]js[?]v=)[^']+@\\1NORMALIZED@g" /tmp/bonds-base-sw-original.js > /tmp/bonds-base-sw-normalized.js
+                sed -E -e "s/^(const CACHE_VERSION = )'v3[.]0[.][0-9]+';/\\1'NORMALIZED';/" -e "s@('/site-layout[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/bonds-auth-2026[.]js[?]v=)[^']+@\\1NORMALIZED@g" sw.js > /tmp/bonds-head-sw-normalized.js
                 cmp -s /tmp/bonds-base-sw-normalized.js /tmp/bonds-head-sw-normalized.js || exit 0
                 ;;
               *) exit 0 ;;

@@ -470,6 +470,6 @@ html body.bonds-redesign #site-header .main-header__inner{
     display: none !important;
   }
   body.bonds-redesign.bonds-service-cta-visible #bonds-ai-chat-root .bonds-ai-chat-toggle {
-    display: none !important;
+    bottom: max(84px, calc(env(safe-area-inset-bottom) + 68px)) !important;
   }
 }
