@@ -60,7 +60,6 @@ jobs:
 
   production-auth-smoke:
     name: Production bilingual auth browser acceptance
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: bilingual-auth-acceptance
     runs-on: ubuntu-latest
     timeout-minutes: 12
