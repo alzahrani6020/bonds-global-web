@@ -349,7 +349,7 @@
       border-top: 1px solid rgba(197,160,40,0.15);
       background: #0d1321;
     }
-    .bonds-ai-chat-input input {
+    .bonds-ai-chat-input textarea {
       flex: 1;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(197,160,40,0.15);
@@ -951,14 +951,15 @@
       padding: 10px 12px;
       gap: 8px;
     }
-    #bonds-ai-chat-root .bonds-ai-chat-input input {
+    #bonds-ai-chat-root .bonds-ai-chat-input textarea {
       background: #fff;
       color: #0b2340;
       border-color: #cfd8e3;
       border-radius: 10px;
       min-width: 0;
     }
-    #bonds-ai-chat-root .bonds-ai-chat-input input::placeholder { color: #8491a3; }
+    #bonds-ai-chat-root .bonds-ai-chat-input textarea::placeholder { color: #8491a3; }
+    #bonds-ai-chat-root .bonds-ai-chat-input textarea { resize: vertical; max-height: 140px; min-height: 40px; line-height: 1.45; overflow-y: auto; }
     #bonds-ai-chat-root .bonds-ai-chat-input button {
       width: 44px;
       flex: 0 0 44px;
@@ -1236,7 +1237,7 @@
   function createWidgetHTML() {
     return `
       <button class="bonds-ai-chat-toggle" aria-label="فتح مساعد بوندز"><span class="bonds-ai-notification-badge" aria-label="إشعارات غير مقروءة"></span><span class="bonds-ai-chat-toggle-status" aria-hidden="true"></span><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><ellipse fill="#F4900C" cx="33.5" cy="14.5" rx="2.5" ry="3.5"/><ellipse fill="#F4900C" cx="2.5" cy="14.5" rx="2.5" ry="3.5"/><path fill="#FFAC33" d="M34 19c0 .553-.447 1-1 1h-3c-.553 0-1-.447-1-1v-9c0-.552.447-1 1-1h3c.553 0 1 .448 1 1v9zM7 19c0 .553-.448 1-1 1H3c-.552 0-1-.447-1-1v-9c0-.552.448-1 1-1h3c.552 0 1 .448 1 1v9z"/><path fill="#FFCC4D" d="M28 5c0 2.761-4.478 4-10 4C12.477 9 8 7.761 8 5s4.477-5 10-5c5.522 0 10 2.239 10 5z"/><path fill="#F4900C" d="M25 4.083C25 5.694 21.865 7 18 7c-3.866 0-7-1.306-7-2.917 0-1.611 3.134-2.917 7-2.917 3.865 0 7 1.306 7 2.917z"/><path fill="#269" d="M30 5.5C30 6.881 28.881 7 27.5 7h-19C7.119 7 6 6.881 6 5.5S7.119 3 8.5 3h19C28.881 3 30 4.119 30 5.5z"/><path fill="#55ACEE" d="M30 6H6c-1.104 0-2 .896-2 2v26h28V8c0-1.104-.896-2-2-2z"/><path fill="#3B88C3" d="M35 33v-1c0-1.104-.896-2-2-2H22.071l-3.364 3.364c-.391.391-1.023.391-1.414 0L13.929 30H3c-1.104 0-2 .896-2 2v1c0 1.104-.104 2 1 2h32c1.104 0 1-.896 1-2z"/><circle fill="#FFF" cx="24.5" cy="14.5" r="4.5"/><circle fill="#DD2E44" cx="24.5" cy="14.5" r="2.721"/><circle fill="#FFF" cx="11.5" cy="14.5" r="4.5"/><path fill="#F5F8FA" d="M29 25.5c0 1.381-1.119 2.5-2.5 2.5h-17C8.119 28 7 26.881 7 25.5S8.119 23 9.5 23h17c1.381 0 2.5 1.119 2.5 2.5z"/><path fill="#CCD6DD" d="M17 23h2v5h-2zm-5 0h2v5h-2zm10 0h2v5h-2zM7 25.5c0 1.21.859 2.218 2 2.45v-4.9c-1.141.232-2 1.24-2 2.45zm20-2.45v4.899c1.141-.232 2-1.24 2-2.45s-.859-2.217-2-2.449z"/><circle fill="#DD2E44" cx="11.5" cy="14.5" r="2.721"/></svg><span class="bonds-ai-chat-toggle-label">مساعد بوندز</span></button>
-      <div class="bonds-ai-chat-window" role="dialog" aria-label="مساعد بوندز الذكي">
+      <div class="bonds-ai-chat-window" role="dialog" aria-label="مساعد بوندز الذكي" aria-hidden="true">
         <div class="bonds-ai-chat-header">
           <div>
             <strong>مساعد بوندز</strong>
@@ -1330,7 +1331,7 @@
           <button type="button" class="bonds-ai-attach-button" aria-label="إرفاق ملف أو صورة" title="إرفاق ملف أو صورة">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m21.4 11.6-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7l-9.7 9.6a2 2 0 0 1-2.8-2.8l8.9-8.9"/></svg>
           </button>
-          <input class="bonds-ai-text-input" type="text" placeholder="اكتب سؤالك هنا..." autocomplete="off">
+          <textarea class="bonds-ai-text-input" rows="1" aria-label="رسالة إلى مساعد بوندز" placeholder="اكتب سؤالك هنا..." autocomplete="off"></textarea>
           <button type="button" class="bonds-ai-voice-button" aria-label="التحدث إلى مساعد بوندز" title="التحدث" hidden>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg>
           </button>
@@ -2756,6 +2757,8 @@
     async function toggleOpen() {
       state.isOpen = !state.isOpen;
       windowEl.classList.toggle('open', state.isOpen);
+      windowEl.setAttribute('aria-hidden', state.isOpen ? 'false' : 'true');
+      toggle.setAttribute('aria-expanded', state.isOpen ? 'true' : 'false');
       root.classList.toggle('assistant-open', state.isOpen);
 
       if (state.isOpen && state.messages.length === 0) {
@@ -2787,6 +2790,7 @@
         stopRecognition();
         stopSpeaking();
         setVoiceStatus('idle');
+        toggle.focus();
       }
     }
 
@@ -3292,7 +3296,7 @@
       set('.bonds-ai-conversation-modes', { aria: 'Conversation mode' });
       set('.bonds-ai-home-launchpad', { aria: 'Start with BONDS Assistant' });
       set('.bonds-ai-attach-button', { aria: 'Attach a file or image', title: 'Attach a file or image' });
-      set('.bonds-ai-text-input', { placeholder: 'Type your question here...' });
+      set('.bonds-ai-text-input', { placeholder: 'Type your question here...', aria: 'Message to BONDS Assistant' });
       set('.bonds-ai-voice-button', { aria: 'Talk to BONDS Assistant', title: 'Speak' });
       set('.bonds-ai-send-button', { aria: 'Send' });
       set('.bonds-ai-send-label', { text: 'Send' });
@@ -5024,7 +5028,16 @@
     voiceBtn.addEventListener('click', startRecognition);
     sendBtn.addEventListener('click', () => sendMessage(input.value));
     input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') sendMessage(input.value);
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
+        e.preventDefault();
+        sendMessage(input.value);
+      }
+    });
+    windowEl.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && state.isOpen) {
+        e.preventDefault();
+        toggleOpen();
+      }
     });
     if (humanEscalationButton) {
       humanEscalationButton.addEventListener('click', () => {
