@@ -63,6 +63,7 @@ async function assertAssistantProduction({
   }
   const marker = `assistant-smoke-${expectedSha.slice(0, 12)}-${crypto.randomUUID()}`;
   let requestCount = 0;
+  let nextAllowedAtMs = 0;
   log(`Assistant API smoke START (marker=${marker})`);
 
   function check(condition, label) {
@@ -89,6 +90,14 @@ async function assertAssistantProduction({
     if (body !== undefined) headers['Content-Type'] = 'application/json';
 
     for (let attempt = 1; attempt <= 2; attempt++) {
+      // Pace only the synthetic smoke client when the previous server response
+      // reports an exhausted bucket. Do not bypass or change production limits.
+      const waitMs = Math.max(0, nextAllowedAtMs - Date.now());
+      if (waitMs) {
+        nextAllowedAtMs = 0;
+        log(`Assistant smoke pacing to advertised rate reset (wait_ms=${waitMs}, marker=${marker})`);
+        await sleepImpl(waitMs);
+      }
       requestCount += 1;
       let response;
       const startedAt = Date.now();
@@ -125,6 +134,14 @@ async function assertAssistantProduction({
       try { data = JSON.parse(await response.text()); }
       catch (_) { throw new Error(`Assistant smoke invalid JSON: ${method} ${path} (marker=${marker})`); }
       check(data && typeof data === 'object' && !Array.isArray(data), `${path} object response`);
+      const remaining = Number(response.headers.get('x-ratelimit-remaining'));
+      const resetSeconds = Number(response.headers.get('x-ratelimit-reset'));
+      if (response.ok && response.headers.has('x-ratelimit-remaining') &&
+          remaining === 0 && Number.isFinite(resetSeconds) &&
+          resetSeconds > Date.now() / 1000) {
+        nextAllowedAtMs = Date.now() + Math.min(65000,
+          Math.max(1, Math.ceil(resetSeconds * 1000 - Date.now()) + 250));
+      }
       return { status: response.status, data };
     }
 
@@ -284,8 +301,10 @@ async function assertAssistantProduction({
 
   // Endpoint responses cannot prove best-effort audit writes. Use this marker
   // to verify session_id and governed metadata.request_id directly in the DB.
-  log(`Assistant API smoke PASS (marker=${marker}, requests=${requestCount}, synthetic_idempotency=uncertain)`);
-  return { marker, requestCount, idempotencyState: 'uncertain',
+  // The synthetic ledger has no saved draft. An uncertain terminal state is
+  // deliberate; the verified acceptance condition is that replay is denied.
+  log(`Assistant API smoke PASS (marker=${marker}, requests=${requestCount}, synthetic_replay_blocked=true, synthetic_ledger_state=uncertain)`);
+  return { marker, requestCount, syntheticReplayBlocked: true, idempotencyState: 'uncertain',
     expectedAudit: { sessionEvents: 9, governedEvents: 2 } };
 }
 

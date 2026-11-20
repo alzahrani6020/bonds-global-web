@@ -133,9 +133,23 @@ describe('rate-limit-distributed', () => {
 
     expect(limited).toBe(true);
     expect(res.statusCode).toBe(429);
+    expect(Number(res.headers['Retry-After'])).toBeGreaterThan(0);
+    expect(Number(res.headers['Retry-After'])).toBeLessThanOrEqual(60);
     expect(res.body).toEqual({
       error: 'Too many requests. Please try again later.'
     });
+  });
+
+  test('Retry-After reflects the actual bucket reset instead of another full window', async () => {
+    const resetAt = Date.now() + 5_000;
+    mockRpc.mockResolvedValue({ data: [{ allowed: false, count: 11, reset_at: resetAt }], error: null });
+    const res = mockRes();
+    const limited = await checkRateLimitDistributed('ai', cfg, mockReq(), res, 'test-identity', false);
+    expect(limited).toBe(true);
+    expect(res.statusCode).toBe(429);
+    expect(Number(res.headers['Retry-After'])).toBeGreaterThanOrEqual(1);
+    expect(Number(res.headers['Retry-After'])).toBeLessThanOrEqual(5);
+    expect(res.headers['X-RateLimit-Reset']).toBe(String(Math.ceil(resetAt / 1000)));
   });
 
   test('fails closed on malformed RPC response when requested', async () => {

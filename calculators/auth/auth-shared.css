@@ -102,3 +102,7 @@ html[dir="ltr"] .step-header{text-align:left}
   .auth-card .forgot-row{margin-top:0;margin-bottom:10px}
   .auth-card .divider{margin:12px 0}
 }
+
+/* UI-only: ensure the password generator is touch accessible without resizing inputs. */
+.auth-card #genPwBtn{min-height:44px;min-width:44px;padding:8px 12px;touch-action:manipulation}
+.auth-card #genPwBtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
