@@ -284,8 +284,10 @@ async function assertAssistantProduction({
 
   // Endpoint responses cannot prove best-effort audit writes. Use this marker
   // to verify session_id and governed metadata.request_id directly in the DB.
-  log(`Assistant API smoke PASS (marker=${marker}, requests=${requestCount}, synthetic_idempotency=uncertain)`);
-  return { marker, requestCount, idempotencyState: 'uncertain',
+  // The synthetic ledger has no saved draft. An uncertain terminal state is
+  // deliberate; the verified acceptance condition is that replay is denied.
+  log(`Assistant API smoke PASS (marker=${marker}, requests=${requestCount}, synthetic_replay_blocked=true, synthetic_ledger_state=uncertain)`);
+  return { marker, requestCount, syntheticReplayBlocked: true, idempotencyState: 'uncertain',
     expectedAudit: { sessionEvents: 9, governedEvents: 2 } };
 }
 
