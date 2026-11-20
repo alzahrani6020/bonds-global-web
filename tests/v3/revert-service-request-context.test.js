@@ -36,7 +36,7 @@ describe('user-directed removal of unused service request atomic context additio
    expect(read(file)).toContain('/components/service-request.js?v=24');
   }
   // Require the current-or-newer Service Worker generation without pinning a stale value.
-  const match=read('sw.js').match(/const CACHE_VERSION = 'v3\\.0\\.(\\d+)';/);
+  const match=read('sw.js').match(/const CACHE_VERSION = 'v3\.0\.(\d+)';/);
   expect(match).not.toBeNull();
   expect(Number(match[1])).toBeGreaterThanOrEqual(319);
  });
