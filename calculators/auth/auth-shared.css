@@ -77,8 +77,9 @@ html[dir="ltr"] .step-header{text-align:left}
 }
 .auth-card .pw-wrap input{
   /* Keep LTR password characters away from the right-side eye in AR and EN. */
-  padding-right:3.25rem;
-  padding-left:1rem;
+  /* institutional-system.css sets input padding with !important. */
+  padding-right:3.25rem !important;
+  padding-left:1rem !important;
 }
 .pw-wrap .pw-toggle:focus-visible,
 .tab-btn:focus-visible,
