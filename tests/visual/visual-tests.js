@@ -862,6 +862,21 @@ async function runScenarioDropdownInteractionGate(browser) {
           if (issues.length) throw new Error(`structural visual gate failed: ${issues.join('; ')}`);
         }
 
+        // The mobile assistant launcher is initialized asynchronously. Require
+        // the same ready state on the candidate and PR-base pages before pixels
+        // are captured, without hiding or masking the launcher.
+        const syncHomeAssistant = async () => {
+          if (viewport.name !== 'mobile' || !['index-ar', 'index-en'].includes(p.name) ||
+              process.env.BONDS_VISUAL_SCOPE !== 'base-compare') return;
+          await page.waitForFunction(() => {
+            const widget = document.querySelector('#bonds-ai-chat-root .bonds-ai-chat-toggle');
+            return widget && widget.isConnected;
+          }, null, { timeout: 15000 });
+          await page.evaluate(() => window.dispatchEvent(new Event('resize')));
+          await page.evaluate(() => new Promise(resolve =>
+            requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        };
+        await syncHomeAssistant();
         ensureDir(path.dirname(snapshotPath));
         await page.screenshot({ path: snapshotPath, fullPage: FULL_PAGE });
 
@@ -905,6 +920,7 @@ async function runScenarioDropdownInteractionGate(browser) {
           });
           const referencePath = path.join(DIFFS_DIR, 'pr-base', viewport.name, p.name + '.png');
           ensureDir(path.dirname(referencePath));
+          await syncHomeAssistant();
           await page.screenshot({ path: referencePath, fullPage: FULL_PAGE });
           const candidate = readPng(snapshotPath);
           const reference = readPng(referencePath);
