@@ -21,6 +21,8 @@ describe('independent CRM/HR products in one company programs dashboard',()=>{
   expect(controller).toContain("$('hr-nav').addEventListener('click'");
   expect(controller).toContain("history.pushState(null,'',url.pathname+url.search+url.hash)");
   expect(controller).toContain("window.addEventListener('popstate'");
+  expect(controller).toContain('companyNameCounts.get(c.name)>1');
+  expect(controller).toContain("c.id.slice(0,8)");
   // Early event binding must survive failed Supabase initialization.
   expect(controller.indexOf("$('hr-open-workspace').addEventListener('click'"))
    .toBeLessThan(controller.lastIndexOf(' initialize();'));
