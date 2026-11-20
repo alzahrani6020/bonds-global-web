@@ -798,8 +798,8 @@ async function runPlannerTelemetryProbe() {
   ));
   // Distinguish the full HTTP request, planner execution, and measured Native
   // runtime. This is diagnostic evidence, not a claim of performance improvement.
-  const numeric = (value) => Number.isFinite(Number(value)) && Number(value) >= 0
-    ? Number(value) : null;
+  const numeric = (value) => value !== null && value !== undefined && value !== '' &&
+    Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : null;
   const plannerTimes = safeTelemetry.map(row => numeric(row.planner_ms));
   const nativeTimes = safeTelemetry.map(row => numeric(row.request_total_seconds));
   const plannerMeasuredMs = plannerTimes.every(value => value !== null)
