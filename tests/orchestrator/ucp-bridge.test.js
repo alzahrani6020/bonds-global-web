@@ -13,6 +13,22 @@ describe('UCP Bridge', () => {
     expect(inputs.loan_amount).toBe(100000);
   });
 
+  test('maps investment amount to computation while treating an estimate as unverified evidence', () => {
+    const estimate = buildMappedInputs({ investment_amount: 1250000000, total_assets: 500 }, 'company');
+    expect(estimate.inputs.initial_investment).toBe(1250000000);
+    expect(estimate.provenance.initial_investment.kind).toBe('user_estimate');
+    expect(estimate.provenance.initial_investment.grounded).toBe(false);
+
+    const detailed = buildMappedInputs({ initial_investment: 750000, investment_amount: 800000, machine_cost: 100000 }, 'company');
+    expect(detailed.inputs.initial_investment).toBe(750000);
+    expect(detailed.provenance.initial_investment.detail).toBe('initial_investment');
+    expect(detailed.provenance.initial_investment.grounded).toBe(true);
+
+    const invalid = buildMappedInputs({ investment_amount: 'n/a' }, 'company');
+    expect(invalid.provenance.initial_investment.kind).toBe('invalid');
+    expect(invalid.provenance.initial_investment.grounded).toBe(false);
+  });
+
   test('derives engine results from UCP output', () => {
     const ucpResult = {
       confidence: 0.85,
