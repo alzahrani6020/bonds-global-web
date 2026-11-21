@@ -200,6 +200,114 @@ jobs:
           cat /tmp/bonds-pr-changed-files.txt
           while IFS= read -r file; do
             case "$file" in
+              site-layout.js)
+                # Any broader page-layout modification still runs full visual regression.
+                stats="$(git diff --numstat "$BASE_SHA" HEAD -- site-layout.js)"
+                [[ "$stats" ==               components/service-request.js|components/service-workspace.css|my-bonds/workspace/index.html|en/my-bonds/workspace/index.html|service-request.html|en/service-request.html|lib/finance/engines/feasibility-engine.js|lib/finance/feasibility-input-validator.js|lib/finance/shared/math.js|lib/orchestrator/intelligence-orchestrator.js|lib/orchestrator/ucp-bridge.js|tests/finance/feasibility-input-validator.test.js|tests/orchestrator/ucp-bridge.test.js|tests/v3/feasibility-integrity-gate.test.js|tests/v3/feasibility-workspace-browser.test.js|tests/v3/service-artifact-persistence-contract.test.js|tests/v3/service-request-readback-contract.test.js|tests/v3/service-workspace-continuity.test.js|tests/v3/service-workspace-routing.test.js|v3/api/services.js) ;;
+              api/payments.js|api/platform.js|vercel.json|jest.config.js|lib/api/company-programs.js|lib/api/hr-calculations.js|lib/hr/*|tests/hr/*|tests/admin/company-programs-standalone-hr.test.js|tests/admin/crm-unified-shell.test.js|tests/auth-callback-bootstrap.test.js|supabase/migrations/20261117*|supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql|
+lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|calculators/auth/auth-shared.css|calculators/auth/index.html|en/calculators/auth/index.html|tests/v3/revert-service-request-context.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|tests/visual/auth-login-acceptance.js|.github/workflows/auth-ui-acceptance.yml|assets/bonds-mark-transparent.svg|tests/auth/mobile-onboarding-session.acceptance.cjs|.github/workflows/mobile-onboarding-session.yml|calculators/auth/onboarding.html|en/calculators/auth/onboarding.html|.github/workflows/ci.yml) ;;
+              sw.js)
+                # Only cache version and versioned asset references may differ.
+                git show "$BASE_SHA:sw.js" > /tmp/bonds-base-sw-original.js
+                sed -E -e "s/^(const CACHE_VERSION = )'v3[.]0[.][0-9]+';/\\1'NORMALIZED';/" -e "s@('/site-layout[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/bonds-auth-2026[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-request[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-workspace[.]css[?]v=)[^']+@\\1NORMALIZED@g" /tmp/bonds-base-sw-original.js > /tmp/bonds-base-sw-normalized.js
+                sed -E -e "s/^(const CACHE_VERSION = )'v3[.]0[.][0-9]+';/\\1'NORMALIZED';/" -e "s@('/site-layout[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/bonds-auth-2026[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-request[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-workspace[.]css[?]v=)[^']+@\\1NORMALIZED@g" sw.js > /tmp/bonds-head-sw-normalized.js
+                cmp -s /tmp/bonds-base-sw-normalized.js /tmp/bonds-head-sw-normalized.js || exit 0
+                ;;
+              *) exit 0 ;;
+            esac
+          done < /tmp/bonds-pr-changed-files.txt
+          echo "scope=base-compare" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare exact PR-base homepage visual reference
+        if: steps.visual-scope.outputs.scope == 'base-compare'
+        shell: bash
+        env:
+          BASE_SHA: ${{ steps.visual-scope.outputs.reference-sha }}
+        run: |
+          set -euo pipefail
+          test -n "$BASE_SHA"
+          git worktree add --detach "$RUNNER_TEMP/bonds-ui-base" "$BASE_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/bonds-ui-base/node_modules"
+          (cd "$RUNNER_TEMP/bonds-ui-base" && PORT=3006 node scripts/dev-server.js > "$RUNNER_TEMP/bonds-ui-base.log" 2>&1 &)
+          ready=0
+          for i in {1..30}; do
+            if curl -fsS http://localhost:3006/ > /dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          if [[ "$ready" -ne 1 ]]; then cat "$RUNNER_TEMP/bonds-ui-base.log"; exit 1; fi
+
+      - name: Run Visual Regression Tests
+        env:
+          BONDS_VISUAL_SCOPE: ${{ steps.visual-scope.outputs.scope }}
+          BONDS_HOME_BASE_URL: http://localhost:3006
+        run: npm run test:visual
+
+      - name: Validate service manifests and token policies
+        run: npm run services:check
+
+      - name: Upload Visual Artifacts
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: visual-diffs
+          path: |
+            tests/visual/diffs/
+            tests/visual/snapshots/
+          if-no-files-found: ignore
+          retention-days: 1
+
+  token-runtime-windows-acceptance:
+    name: Token Runtime Windows service acceptance (isolated)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      BONDS_TOKEN_WINDOWS_ISOLATED_ACCEPTANCE: '1'
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Set up Python for the isolated service
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+          architecture: x64
+
+      - name: Install Windows service dependency on the disposable runner
+        run: |
+          python -m pip install pywin32==312
+          if ($LASTEXITCODE -ne 0) { throw "pywin32 installation failed" }
+          # The pinned wheel contains two script copies and one canonical entry point.
+          python -c "import importlib.metadata as m, sys; entries = [p for p in m.distribution('pywin32').entry_points if p.group == 'console_scripts' and p.name == 'pywin32_postinstall']; assert len(entries) == 1, 'Installed pywin32 postinstall entry point is missing or ambiguous'; print('Running pywin32 postinstall entry point:', entries[0].value); sys.argv = ['pywin32_postinstall', '-install']; sys.exit(entries[0].load()())"
+          if ($LASTEXITCODE -ne 0) { throw "pywin32 service registration prerequisites failed" }
+
+      - name: Verify SCM restart, revocation persistence and failed rollout recovery
+        run: ./services/bonds_token_runtime/tests/test_windows_service_lifecycle.ps1
+
+      - name: Report isolated acceptance evidence
+        if: always()
+        run: |
+          $report = Join-Path $env:RUNNER_TEMP "bonds-windows-token-lifecycle-acceptance.json"
+          if (-not (Test-Path -LiteralPath $report -PathType Leaf)) { throw "Windows acceptance report is missing" }
+          Get-Content -LiteralPath $report -Raw
+
+      - name: Upload sanitized isolated acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: token-runtime-windows-acceptance
+          path: ${{ runner.temp }}/bonds-windows-token-lifecycle-acceptance.json
+          if-no-files-found: error
+          retention-days: 14
+1\t0\tsite-layout.js' ]] || exit 0
+                added="$(git diff --unified=0 "$BASE_SHA" HEAD -- site-layout.js | grep '^+' | grep -v '^+++')"
+                [[ "$added" == *"label: isEn ? 'Human Resources System' : 'نظام الموارد البشرية'"* ]] || exit 0
+                [[ "$added" == *"href: isEn ? '/en/my-bonds/crm/?program=hr' : '/my-bonds/crm/?program=hr'"* ]] || exit 0
+                ;;
               components/service-request.js|components/service-workspace.css|my-bonds/workspace/index.html|en/my-bonds/workspace/index.html|service-request.html|en/service-request.html|lib/finance/engines/feasibility-engine.js|lib/finance/feasibility-input-validator.js|lib/finance/shared/math.js|lib/orchestrator/intelligence-orchestrator.js|lib/orchestrator/ucp-bridge.js|tests/finance/feasibility-input-validator.test.js|tests/orchestrator/ucp-bridge.test.js|tests/v3/feasibility-integrity-gate.test.js|tests/v3/feasibility-workspace-browser.test.js|tests/v3/service-artifact-persistence-contract.test.js|tests/v3/service-request-readback-contract.test.js|tests/v3/service-workspace-continuity.test.js|tests/v3/service-workspace-routing.test.js|v3/api/services.js) ;;
               lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|calculators/auth/auth-shared.css|calculators/auth/index.html|en/calculators/auth/index.html|tests/v3/revert-service-request-context.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|tests/visual/auth-login-acceptance.js|.github/workflows/auth-ui-acceptance.yml|assets/bonds-mark-transparent.svg|tests/auth/mobile-onboarding-session.acceptance.cjs|.github/workflows/mobile-onboarding-session.yml|calculators/auth/onboarding.html|en/calculators/auth/onboarding.html|.github/workflows/ci.yml) ;;
               sw.js)
