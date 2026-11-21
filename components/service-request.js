@@ -445,7 +445,7 @@ function studiesFillSelect(el,rows,valueKey,labelFn,placeholder,selected){
   if(row.flag) option.dataset.icon=row.flag;
   el.appendChild(option);
  });
- if(el.id==='studiesSector'||el.id==='studiesActivity'){
+ if(el.id==='studiesSector'||(el.id==='studiesActivity'&&!!$('#studiesSector')?.value)){
   const add=document.createElement('option');
   add.value=el.id==='studiesSector'?STUDIES_CUSTOM_SECTOR:STUDIES_CUSTOM_ACTIVITY;
   add.textContent=el.id==='studiesSector'
