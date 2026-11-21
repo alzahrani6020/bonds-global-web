@@ -7,5 +7,5 @@ BEGIN
    RETURN;
  END IF;
  EXECUTE 'GRANT UPDATE (id) ON TABLE public.profiles TO authenticated';
-END
+END;
 $preview$;
