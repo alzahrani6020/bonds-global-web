@@ -125,8 +125,10 @@ async function run(){
     assert.equal(await page.locator('#hr-setup').isVisible(),false,'Signed-out user accessed HR setup');
     assert.equal(await page.locator('#hr-status').isVisible(),false,'Missing session shown as an app failure');
     const link=await page.locator('#hr-sign-in').getAttribute('href');
-    assert.ok(link.startsWith('/calculators/auth/index.html?redirect='));
-    assert.ok(decodeURIComponent(link).includes('/my-bonds/crm/?program=hr'));
+    const authUrl=new URL(link,page.url());
+    assert.equal(authUrl.origin,new URL(page.url()).origin,'HR sign-in must preserve the current browser origin');
+    assert.equal(authUrl.pathname,'/calculators/auth','HR sign-in must use the canonical OAuth path');
+    assert.equal(authUrl.searchParams.get('redirect'),'/my-bonds/crm/?program=hr','HR return path must be preserved');
     assert.equal((await page.evaluate(()=>window.__hrTest.writes)).length,0);
    }else if(scenario==='auth-error'){
     await page.waitForFunction(()=>document.querySelector('#hr-status')?.textContent.includes('Simulated auth connection failure'));
