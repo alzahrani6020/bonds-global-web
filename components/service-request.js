@@ -2093,7 +2093,7 @@ function renderFinancialExecution(result,metrics){
 function showExecutionPersistenceStatus(execution){
  if(serviceCode==='feasibility_studies'){
   const feasibility=execution?.result?.engineResults?.feasibility;
-  if(feasibility && (feasibility.executed!==true || (feasibility.metrics?.npv==null && feasibility.metrics?.irr==null && feasibility.npv==null && feasibility.irr==null))){
+  if(!feasibility || feasibility.executed!==true || (feasibility.metrics?.npv==null && feasibility.metrics?.irr==null && feasibility.npv==null && feasibility.irr==null)){
    showStatus(lang==='ar'
     ?'وصلت استجابة من محرك الدراسة، لكن مؤشرات الجدوى NPV وIRR لم تُحسب. أدخل الاستثمار والتدفقات النقدية ومعدل الخصم، أو اجلب بيانات السوق ثم وثّق افتراضات الإيرادات.'
     :'The study engine responded, but NPV and IRR were not calculated. Provide investment, cash flows and discount rate, or research the market and document revenue assumptions.',false);
@@ -2138,10 +2138,13 @@ function renderExecutionResult(payload){
  const studies=renderStudiesExecution(result);
  const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined&&typeof v!=='object');
  const confirmedSaved=payload?.artifact_persistence?.status==='saved'&&!!payload?.artifact_persistence?.artifact_id;
+ const calculated=serviceCode==='feasibility_studies'&&payload?.result?.engineResults?.feasibility?.executed===true;
  const title=serviceCode==='feasibility_studies'
-  ?(confirmedSaved
-    ?(lang==='ar'?'الدراسة محفوظة في المشروع':'Study saved to project')
-    :(lang==='ar'?'نتائج التحليل — لم يتم تأكيد حفظها':'Analysis results — save not verified'))
+  ?(!calculated
+    ?(lang==='ar'?'استجابة جزئية — الدراسة لم تُحسب':'Partial response — feasibility not calculated')
+    :(confirmedSaved
+      ?(lang==='ar'?'الدراسة محفوظة في المشروع':'Study saved to project')
+      :(lang==='ar'?'نتائج التحليل — لم يتم تأكيد حفظها':'Analysis results — save not verified')))
   :T.executed;
  box.innerHTML='<h2>'+escapeHtml(title)+'</h2>'+ 
   (['feasibility_studies','risk_analysis'].includes(serviceCode)?'<button type="button" id="srDownloadExecution" class="sr-secondary">'+(lang==='ar'?'تنزيل نسخة النتائج (JSON)':'Download results copy (JSON)')+'</button>':'')+
