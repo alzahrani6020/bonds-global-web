@@ -41,7 +41,7 @@ BEGIN
    city_name text
  );
 
- COMMENT ON TABLE public.profiles IS 'BONDS_HR_PREVIEW_PROFILE_CONTRACT_V1';
+ EXECUTE 'COMMENT ON TABLE public.profiles IS ''BONDS_HR_PREVIEW_PROFILE_CONTRACT_V1''';
  ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
  CREATE POLICY "Users can read own profile" ON public.profiles
   FOR SELECT TO authenticated USING ((SELECT auth.uid()) = id);
