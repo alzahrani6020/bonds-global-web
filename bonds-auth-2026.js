@@ -591,7 +591,8 @@
       // Navigate BEFORE calling signInWithOAuth; PKCE and persisted sessions
       // cannot be transferred between Vercel Preview hostnames.
       const intended = new URL(getRedirectUrl());
-      const target = new URL('/calculators/auth', stableOrigin);
+      const languagePrefix = window.location.pathname.startsWith('/en/') ? '/en' : '';
+      const target = new URL(languagePrefix + '/calculators/auth', stableOrigin);
       target.searchParams.set('redirect', intended.pathname + intended.search);
       // This query is set only in response to a user-initiated Google click.
       // The canonical login page consumes it once before invoking OAuth.
