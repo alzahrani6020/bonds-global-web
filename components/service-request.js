@@ -728,6 +728,9 @@ function renderFeasibilityControls(){
  const host=$('#srDynamicFields');
  const actions=form?.querySelector('.sr-actions');
  if(!form||!host||!actions||$('#srFeasibilitySaveDraft'))return;
+ // Reuse the single accessible status node, but keep it next to study actions.
+ // Errors such as PERMISSION_DENIED must not send the viewport to the page header.
+ const status=$('#srStatus');
  const buttons=document.createElement('div');
  buttons.className='sr-actions feasibility-secondary-actions';
  buttons.innerHTML='<button type="button" id="srFeasibilitySaveDraft" class="sr-secondary">'+
@@ -854,6 +857,8 @@ function renderFeasibilityControls(){
  review.className='sr-card';
  review.hidden=true;
  actions.insertAdjacentElement('beforebegin',review);
+ // Place errors directly next to the actual submit button, after review panels.
+ if(status)actions.insertAdjacentElement('beforebegin',status);
  const guidance=document.createElement('div');
  guidance.id='srFeasibilitySizeGuidance';
  guidance.className='sr-warning';
@@ -1534,7 +1539,23 @@ window.addEventListener('beforeunload',e=>{
 function text(row,ar='name_ar',en='name_en'){return lang==='ar'?(row?.[ar]||row?.[en]||''):(row?.[en]||row?.[ar]||'')}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function json(url,opts){const r=await fetch(url,opts);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'HTTP '+r.status);return d}
-function showStatus(msg,ok){const e=$('#srStatus');e.textContent=msg;e.className='sr-status show '+(ok?'ok':'err');e.setAttribute('role',ok?'status':'alert');e.setAttribute('aria-live',ok?'polite':'assertive');if(!ok&&typeof e.scrollIntoView==='function')e.scrollIntoView({block:'nearest',behavior:'smooth'})}
+function showStatus(msg,ok){
+ const e=$('#srStatus');if(!e)return;
+ let message=String(msg??'');
+ if(!ok&&serviceCode==='feasibility_studies'&&message.includes('PERMISSION_DENIED')){
+  message=lang==='ar'
+   ?'رفض الخادم صلاحية تنفيذ العملية (PERMISSION_DENIED). تحقق من استحقاق الخدمة وصلاحية الحساب أو المشروع؛ لم يتأكد حفظ أي نتيجة.'
+   :'The server denied permission (PERMISSION_DENIED). Verify service entitlement and account or project access; result persistence is not confirmed.';
+ }
+ e.textContent=message;
+ e.className='sr-status show '+(ok?'ok':'err');
+ e.setAttribute('role',ok?'status':'alert');
+ e.setAttribute('aria-live',ok?'polite':'assertive');
+ // The feasibility form has its own inline status beside the action buttons.
+ // Never scroll users to the global header when the server denies an action.
+ if(!ok&&serviceCode!=='feasibility_studies'&&typeof e.scrollIntoView==='function')
+  e.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
 function contextQuery(){const p=new URLSearchParams();for(const k of ['country','sector','activity']){const v=params.get(k);if(v)p.set(k,v)}return p.toString()}
 function renderList(id,items,fn){const el=$(id);if(!el)return;el.innerHTML=items.length?'<ul class="sr-list">'+items.map(fn).join('')+'</ul>':'<div class="sr-empty">—</div>'}
 function renderRequestProfileField(field){
