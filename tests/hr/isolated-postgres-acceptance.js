@@ -24,6 +24,8 @@ async function main(){
   await db.query(balanceMigration);
   const rolesMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117110000_hr_saas_roles_self_service.sql'),'utf8');
   await db.query(rolesMigration);
+  const orgWorkflowMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261121190000_hr_org_attendance_leave_workflows.sql'),'utf8');
+  await db.query(orgWorkflowMigration);
 
   const ids=[randomUUID(),randomUUID(),randomUUID()];
   await db.query('insert into auth.users(id) values($1),($2),($3)',ids);
@@ -90,11 +92,14 @@ async function main(){
    "insert into hr_saas_attendance(workspace_id,employee_id,work_date,attendance_status) values($1,$2,'2026-11-18','present')",[wa,employee])),
    e=>e.code==='42501','Other company must not write attendance');
   const leave=await as(owner,()=>db.query(
-   "insert into hr_saas_leave_requests(workspace_id,employee_id,leave_type,start_date,end_date,status,decided_at) values($1,$2,'annual','2026-12-01','2026-12-03','approved',now()) returning id",
+   "insert into hr_saas_leave_requests(workspace_id,employee_id,leave_type,start_date,end_date) values($1,$2,'annual','2026-12-01','2026-12-03') returning id",
    [wa,employee]));
   assert.equal(leave.rowCount,1);
+  await as(owner,()=>db.query("update hr_saas_leave_requests set status='approved' where id=$1",[leave.rows[0].id]));
+  const overlap=await as(owner,()=>db.query(
+   "insert into hr_saas_leave_requests(workspace_id,employee_id,leave_type,start_date,end_date) values($1,$2,'annual','2026-12-02','2026-12-04') returning id",[wa,employee]));
   await assert.rejects(()=>as(owner,()=>db.query(
-   "insert into hr_saas_leave_requests(workspace_id,employee_id,leave_type,start_date,end_date,status,decided_at) values($1,$2,'annual','2026-12-02','2026-12-04','approved',now())",[wa,employee])),
+   "update hr_saas_leave_requests set status='approved' where id=$1",[overlap.rows[0].id])),
    e=>e.code==='23514','Approved leave intervals must not overlap');
   const outsiderLeaves=await as(other,()=>db.query("select id from hr_saas_leave_requests where workspace_id=$1",[wa]));
   assert.equal(outsiderLeaves.rowCount,0,'Other company could read private leave');
@@ -102,6 +107,33 @@ async function main(){
   assert.equal(outsiderAttendance.rowCount,0,'Other company could read attendance');
   const auditOps=await as(owner,()=>db.query("select entity from hr_saas_audit where workspace_id=$1 and entity in ('hr_saas_attendance','hr_saas_leave_requests')",[wa]));
   assert.equal(auditOps.rowCount,2,'Operational writes need an immutable audit');
+
+  // New organizational entities are workspace-scoped, and employee department
+  // and position references must belong to the same tenant.
+  const department=(await as(owner,()=>db.query(
+   "insert into hr_saas_departments(workspace_id,department_code,name) values($1,'OPS','Operations') returning id",[wa]))).rows[0].id;
+  const position=(await as(owner,()=>db.query(
+   "insert into hr_saas_positions(workspace_id,department_id,position_code,title) values($1,$2,'OPS-01','Operator') returning id",
+   [wa,department]))).rows[0].id;
+  await as(owner,()=>db.query("update hr_saas_employees set department_id=$1,position_id=$2 where id=$3",[department,position,employee]));
+  const orgReadback=await as(owner,()=>db.query(
+   "select department_id,position_id from hr_saas_employees where id=$1",[employee]));
+  assert.equal(orgReadback.rows[0].department_id,department);
+  assert.equal(orgReadback.rows[0].position_id,position);
+  const otherOrg=await as(other,()=>db.query("select id from hr_saas_positions where id=$1",[position]));
+  assert.equal(otherOrg.rowCount,0,'Organization positions leaked between owners');
+  await assert.rejects(()=>as(other,()=>db.query(
+   "insert into hr_saas_positions(workspace_id,department_id,position_code,title) values($1,$2,'B-01','Wrong')",[wb,department])),
+   error=>['23503','42501'].includes(error.code),'Cross-tenant department reference was accepted');
+  await as(owner,()=>db.query("update hr_saas_attendance set review_status='submitted' where id=$1",[attendance.rows[0].id]));
+  await as(owner,()=>db.query("update hr_saas_attendance set review_status='approved' where id=$1",[attendance.rows[0].id]));
+  const reviewed=await as(owner,()=>db.query("select review_status,reviewed_at from hr_saas_attendance where id=$1",[attendance.rows[0].id]));
+  assert.equal(reviewed.rows[0].review_status,'approved');
+  assert.ok(reviewed.rows[0].reviewed_at);
+  await assert.rejects(()=>as(owner,()=>db.query("update hr_saas_attendance set note='overwrite' where id=$1",[attendance.rows[0].id])),
+   error=>error.code==='23514','Approved attendance was modified');
+  await assert.rejects(()=>as(owner,()=>db.query("update hr_saas_leave_requests set reason='overwrite' where id=$1",[leave.rows[0].id])),
+   error=>error.code==='23514','Approved leave was modified');
   const period=(await as(owner,()=>db.query(
    "insert into hr_saas_payroll_periods(workspace_id,payroll_year,payroll_month) values($1,2026,11) returning id",[wa]))).rows[0].id;
   const line=(await as(owner,()=>db.query(
