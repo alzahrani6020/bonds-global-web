@@ -283,7 +283,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
             confidence: { decisionIntegrity: {
               status: 'blocked', groundedCoverage: 40, blockedDecisionEngines: ['risk']
             } },
-            engineResults: { feasibility: { metrics: {
+            engineResults: { feasibility: { executed:true, status:'computed_unverified', metrics: {
               npv: 124500, irr_pct: 21, payback_periods: 3.2,
               total_cash_inflows: 800000, total_cash_outflows: 100000, net_cash_flows: 700000
             } } }
