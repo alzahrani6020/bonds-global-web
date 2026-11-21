@@ -95,5 +95,6 @@ describe('feasibility integrity gate', () => {
     expect(ui).toContain('name="project_size" required');
     expect(ui).toContain('value="mega"');
     expect(ui).toContain('name="currency" required');
+    expect(ui).toContain("currency:values.currency||'SAR'");
   });
 });
