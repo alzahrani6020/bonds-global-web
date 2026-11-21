@@ -3,6 +3,13 @@
 // In-memory auth/database only: no user secrets, network database or real charges.
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
+async function chooseHrModule(page,id){
+ const link=page.locator('#hr-nav [data-hr-category="'+id+'"]');
+ const group=link.locator('xpath=ancestor::details[1]');
+ if(!(await group.evaluate(element=>element.open)))await group.locator('summary').click();
+ await link.click();
+}
+
 async function run(){
  const browser=await chromium.launch({headless:true});
  const base=process.env.CRM_TEST_BASE_URL||'http://localhost:3005';
@@ -138,6 +145,10 @@ async function run(){
    assert.equal(await page.locator('#install').isVisible(),false,'CRM installer must not be presented as an HR installer');
 
    assert.equal(await page.locator('#hr-nav').isVisible(),true,'HR navigation must remain in the same sidebar');
+   assert.equal(await page.locator('#hr-nav details.hr-nav-group').count(),6,'All HR modules must be grouped into six disclosures');
+   assert.equal(await page.locator('#hr-nav [data-hr-category]').count(),26,'Every existing HR module must remain reachable');
+   assert.equal(await page.locator('#company-program-brand').textContent(),'BONDS HR','HR mode must be branded independently');
+
    if(scenario==='signedout'){
     await page.waitForFunction(()=>!document.querySelector('#hr-auth').hidden);
     assert.equal(await page.locator('#hr-setup').isVisible(),false,'Signed-out user accessed HR setup');
@@ -155,7 +166,7 @@ async function run(){
    }else if(scenario==='unlicensed'){
     await page.waitForFunction(()=>!document.querySelector('#hr-license').hidden);
     assert.equal(await page.locator('#hr-setup').isVisible(),false,'Unlicensed user accessed HR records');
-    await page.locator('[data-hr-category="departments"]').click();
+    await chooseHrModule(page,'departments');
     assert.equal(await page.locator('#hr-license').isVisible(),true,'Blocked HR navigation must show entitlement');
     assert.match(await page.locator('#hr-status').textContent(),/اشتراك HR|subscription/,'Blocked HR navigation must explain the missing entitlement');
     assert.equal(new URL(page.url()).searchParams.get('hr_module'),'departments','Blocked navigation must preserve requested HR module in URL');
@@ -202,11 +213,12 @@ async function run(){
     await page.locator('#hr-open-workspace').click();
     assert.equal(await page.locator('#hr-app').isVisible(),true,'Open company did not show records');
     assert.ok((await page.locator('#hr-heading').textContent()).includes('الملفات الوظيفية'),'Open company showed wrong HR module');
-    await page.locator('[data-hr-category="departments"]').click();
+    await chooseHrModule(page,'departments');
     await page.waitForURL(/hr_module=departments/);
+    assert.equal(await page.locator('[data-hr-group="people"]').evaluate(x=>x.open),true,'Active organizational group should be expanded');
     await page.waitForFunction(()=>document.querySelector('#hr-heading')?.textContent.includes('الإدارات'));
     assert.equal(await page.locator('#hr-app').isVisible(),true,'Department link did not show module records');
-    await page.locator('[data-hr-category="employees"]').click();
+    await chooseHrModule(page,'employees');
     await page.waitForURL(/hr_module=employees/);
     await page.waitForFunction(()=>document.querySelector('#hr-heading')?.textContent.includes('الملفات الوظيفية'));
    }else{
@@ -224,20 +236,20 @@ async function run(){
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employees.length===1);
     assert.equal(await page.locator('#hr-count').textContent(),'1 / 1');
     // Organization data must use dedicated tables rather than generic records.
-    await page.locator('[data-hr-category="departments"]').click();
+    await chooseHrModule(page,'departments');
     await page.locator('#hr-add').click();
     await page.locator('#hr-fields input[name="department_code"]').fill('OPS');
     await page.locator('#hr-fields input[name="name"]').fill('Operations');
     await page.locator('#hr-save').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_departments.length===1);
-    await page.locator('[data-hr-category="positions"]').click();
+    await chooseHrModule(page,'positions');
     await page.locator('#hr-add').click();
     await page.locator('#hr-fields input[name="position_code"]').fill('OPS-1');
     await page.locator('#hr-fields input[name="title"]').fill('Operations Specialist');
     await page.locator('#hr-fields select[name="department_id"]').selectOption({index:1});
     await page.locator('#hr-save').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_positions.length===1);
-    await page.locator('[data-hr-category="employees"]').click();
+    await chooseHrModule(page,'employees');
     await page.locator('#hr-body [data-hr-edit]').click();
     await page.locator('#hr-fields select[name="department_id"]').selectOption({index:1});
     await page.locator('#hr-fields select[name="position_id"]').selectOption({index:1});
@@ -315,7 +327,7 @@ async function run(){
       description:'Annual leave',status:'pending',created_at:new Date().toISOString()
      });
     });
-    await page.locator('[data-hr-category="employee_requests"]').click();
+    await chooseHrModule(page,'employee_requests');
     await page.waitForFunction(()=>document.querySelector('#hr-body')?.textContent.includes('Owner request inbox check'));
     assert.equal(await page.locator('#hr-add').isVisible(),false,'Request inbox must not create generic HR records');
     await page.locator('#hr-body [data-hr-request-decision="approved"]').click();
@@ -324,7 +336,7 @@ async function run(){
     assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_records)).length,0,'Request workflow must not create generic records');
 
     // Contract must be created in draft status before activation.
-    await page.locator('[data-hr-category="contracts"]').click();
+    await chooseHrModule(page,'contracts');
     await page.locator('#hr-add').click();
     await page.locator('#hr-fields select[name="employee_id"]').selectOption({index:1});
     await page.locator('#hr-fields input[name="contract_number"]').fill('CT-001');
@@ -353,7 +365,7 @@ async function run(){
     assert.equal(revisedContract.employee_id,(await page.evaluate(()=>window.__hrTest.tables.hr_saas_employees[0].id)),'Contract employee identity changed');
 
     // Employee rights are entered as draft claims before review and approval.
-    await page.locator('[data-hr-category="claims"]').click();
+    await chooseHrModule(page,'claims');
     await page.locator('#hr-add').click();
     await page.locator('#hr-fields select[name="employee_id"]').selectOption({index:1});
     await page.locator('#hr-fields input[name="claim_reference"]').fill('BEN-001');
@@ -365,7 +377,7 @@ async function run(){
     const claim=await page.evaluate(()=>window.__hrTest.tables.hr_saas_entitlements[0]);
     assert.equal(claim.status,'draft');
     assert.equal(claim.amount,300);
-    await page.locator('[data-hr-category="leave_balances"]').click();
+    await chooseHrModule(page,'leave_balances');
     await page.locator('#hr-add').click();
     await page.locator('#hr-fields select[name="employee_id"]').selectOption({index:1});
     await page.locator('#hr-fields input[name="entry_reference"]').fill('BAL-001');
@@ -379,7 +391,7 @@ async function run(){
     assert.equal(adjustment.days_delta,20);
     assert.equal(adjustment.status,'draft');
     // Attendance is an operational record with employee/date and clock timestamps.
-    await page.locator('[data-hr-category="attendance"]').click();
+    await chooseHrModule(page,'attendance');
     await page.locator('#hr-add').click();
     await page.locator('#hr-fields select[name="employee_id"]').selectOption({index:1});
     await page.locator('#hr-fields input[name="work_date"]').fill('2026-11-17');
@@ -397,7 +409,7 @@ async function run(){
     await page.locator('#hr-body [data-hr-transition="approved"]').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_attendance[0].review_status==='approved');
     assert.equal(await page.locator('#hr-body [data-hr-edit]').count(),1,'Attendance row must remain visible');
-    await page.locator('[data-hr-category="attendance_corrections"]').click();
+    await chooseHrModule(page,'attendance_corrections');
     await page.locator('#hr-add').click();
     await page.locator('#hr-fields select[name="attendance_id"]').selectOption({index:1});
     await page.locator('#hr-fields select[name="requested_status"]').selectOption('remote');
@@ -406,12 +418,12 @@ async function run(){
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_attendance_corrections.length===1);
     await page.locator('#hr-body [data-hr-transition="approved"]').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_attendance_corrections[0].status==='approved');
-    await page.locator('[data-hr-category="attendance"]').click();
+    await chooseHrModule(page,'attendance');
     await page.waitForFunction(()=>document.querySelector('#hr-body')?.textContent.includes('remote'));
     assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_attendance[0])).attendance_status,'present','Original attendance must not be overwritten');
 
     // Leave request supports approval state and server-side overlap verification.
-    await page.locator('[data-hr-category="leaves"]').click();
+    await chooseHrModule(page,'leaves');
     await page.locator('#hr-add').click();
     await page.locator('#hr-fields select[name="employee_id"]').selectOption({index:1});
     await page.locator('#hr-fields input[name="start_date"]').fill('2026-12-01');
@@ -426,13 +438,13 @@ async function run(){
     assert.ok(leave.decided_at);
     assert.equal(leave.start_date,'2026-12-01');
     // Payroll stays independent of CRM and cannot be mistaken for bank settlement.
-    await page.locator('[data-hr-category="payroll_runs"]').click();
+    await chooseHrModule(page,'payroll_runs');
     await page.locator('#hr-add').click();
     await page.locator('#hr-fields input[name="payroll_year"]').fill('2026');
     await page.locator('#hr-fields input[name="payroll_month"]').fill('11');
     await page.locator('#hr-save').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_payroll_periods.length===1);
-    await page.locator('[data-hr-category="payroll"]').click();
+    await chooseHrModule(page,'payroll');
     await page.locator('#hr-add').click();
     await page.locator('#hr-fields select[name="period_id"]').selectOption({index:1});
     await page.locator('#hr-fields select[name="employee_id"]').selectOption({index:1});
