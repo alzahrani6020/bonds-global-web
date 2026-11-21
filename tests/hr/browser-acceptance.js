@@ -454,7 +454,7 @@ async function run(){
     assert.equal(revisedPayroll.period_id,(await page.evaluate(()=>window.__hrTest.tables.hr_saas_payroll_periods[0].id)));
     assert.equal(revisedPayroll.employee_id,(await page.evaluate(()=>window.__hrTest.tables.hr_saas_employees[0].id)));
 
-    assert.equal(await page.locator('#hr-count').textContent(),'1 / 1');
+    assert.equal(await page.locator('#hr-count').textContent(),'1','Payroll module count must show its own records, not employee directory total');
 
 
     await page.locator('#crm-product-tab').click();
