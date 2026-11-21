@@ -453,6 +453,32 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await context.close();
   });
 
+  test('old add-activity URL sentinel is removed and never forwarded to the engine', async () => {
+    const { page, context } = await openFeasibility();
+    const oldUrl=new URL(page.url());
+    oldUrl.searchParams.set('activity','__add_custom_activity__');
+    await page.goto(oldUrl.toString(),{waitUntil:'domcontentloaded'});
+    await page.locator('input[name="project_name"]').waitFor({state:'visible'});
+    await page.waitForFunction(()=>document.querySelector('#studiesCountry')?.value==='SA');
+    expect(await page.locator('#studiesActivity').inputValue()).not.toBe('__add_custom_activity__');
+    await page.locator('input[name="project_name"]').fill('Sector sanitization');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('textarea[name="project_brief"]').fill('Sell office supplies');
+    let payload;
+    await page.route('**/api/v3/services/execute',route=>{
+      payload=route.request().postDataJSON();
+      return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+        ok:true,executed:true,result:{intent:{intent:'feasibility'},engineResults:{feasibility:{executed:false}}}
+      })});
+    });
+    await page.locator('#srSubmit').click();
+    await page.waitForFunction(()=>!!document.querySelector('#srFeasibilityMissingInputs'));
+    expect(payload?.activity).not.toBe('__add_custom_activity__');
+    expect(payload?.values?.activity_code).not.toBe('__add_custom_activity__');
+    expect(new URL(page.url()).searchParams.get('activity')).not.toBe('__add_custom_activity__');
+    await context.close();
+  });
+
   test('offers end-of-list sector and activity creation, and retains them for the signed-in user after refresh', async () => {
     const {page,context}=await openFeasibility();
     const sector=page.locator('#studiesSector');
