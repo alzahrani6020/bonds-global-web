@@ -37,6 +37,30 @@ describe('feasibility integrity gate', () => {
     expect(badRate.executed).toBe(false);
   });
 
+  test('invalid explicit discount rates and projection horizons fail closed', () => {
+    const invalidRate = feasibilityAnalysis({
+      initial_investment: 1000, annual_cash_flow: 400,
+      discount_rate: '', years: 5
+    });
+    expect(invalidRate.executed).toBe(false);
+    expect(invalidRate.required_inputs).toContain('discount_rate_gt_minus_one');
+    expect(invalidRate.metrics.npv).toBeNull();
+
+    for (const years of [0, 61, 1.5, 'invalid']) {
+      const invalidYears = feasibilityAnalysis({
+        initial_investment: 1000, annual_cash_flow: 400, years
+      });
+      expect(invalidYears.executed).toBe(false);
+      expect(invalidYears.required_inputs).toContain('years_integer_1_to_60');
+    }
+
+    const missingYearFlow = feasibilityAnalysis({
+      initial_investment: 1000, cash_flows: Array(61).fill(50)
+    });
+    expect(missingYearFlow.executed).toBe(false);
+    expect(missingYearFlow.required_inputs).toContain('cash_flows_max_60_periods');
+  });
+
   test.each([
     ['small', 100000],
     ['large', 10000000],
