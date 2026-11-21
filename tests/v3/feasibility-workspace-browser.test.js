@@ -190,7 +190,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
       scrollY:window.scrollY,
       errorText:document.querySelector('#srStatus')?.textContent||'',
       formContainsStatus:document.querySelector('#srRequestForm')?.contains(document.querySelector('#srStatus')),
-      statusImmediatelyBeforeActions:document.querySelector('#srStatus')?.nextElementSibling===document.querySelector('#srRequestForm .sr-actions:last-of-type'),
+      statusImmediatelyBeforeActions:document.querySelector('#srStatus')?.nextElementSibling===document.querySelector('#srSubmit')?.closest('.sr-actions'),
       buttonEnabled:!document.querySelector('#srSubmit')?.disabled
     }));
     expect(result.formContainsStatus).toBe(true);
