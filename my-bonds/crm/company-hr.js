@@ -77,7 +77,7 @@
   return '<label class="field">'+name+'<input name="'+key+'" type="'+(type==='signed-number'?'number':type)+'" value="'+escape(type==='datetime-local'?localDateTime(value):value)+'"'+(needed?' required':'')+(type==='number'?' min="0" step="0.01"':type==='signed-number'?' step="0.01"':'')+'></label>';
  }
  function showEditor(row=null){
-  if(row&&(category==='leave_balances'&&['approved','cancelled'].includes(row.status)||category==='claims'&&['approved','rejected'].includes(row.status)||category==='contracts'&&['terminated','expired','cancelled'].includes(row.status)||category==='payroll_runs'&&row.status==='approved'||category==='payroll'&&payrollPeriods.some(p=>p.id===row.period_id&&p.status!=='draft'))){
+  if(row&&(category==='leaves'&&['approved','rejected','cancelled'].includes(row.status)||category==='leave_balances'&&['approved','cancelled'].includes(row.status)||category==='claims'&&['approved','rejected'].includes(row.status)||category==='contracts'&&['terminated','expired','cancelled'].includes(row.status)||category==='payroll_runs'&&row.status==='approved'||category==='payroll'&&payrollPeriods.some(p=>p.id===row.period_id&&p.status!=='draft'))){
    status(t('المسير المعتمد أو قيد المراجعة غير قابل للتعديل','Reviewed/approved payroll cannot be edited'),true);
    return;
   }
