@@ -639,6 +639,7 @@ function renderStudiesOperationalInputs(){
    '<div class="sr-field"><label>'+(lang==='ar'?'اسم المشروع':'Project name')+req+'</label><input type="text" name="project_name" required></div>'+
    '<div class="sr-field"><label>'+(lang==='ar'?'حجم المشروع':'Project size')+req+'</label><select name="project_size" required>'+ 
     '<option value="">'+(lang==='ar'?'اختر حجم المشروع':'Choose project size')+'</option>'+ 
+    '<option value="household">'+(lang==='ar'?'منزلي':'Household')+'</option>'+
     '<option value="micro">'+(lang==='ar'?'متناهي الصغر':'Micro')+'</option>'+ 
     '<option value="small">'+(lang==='ar'?'صغير':'Small')+'</option>'+ 
     '<option value="medium">'+(lang==='ar'?'متوسط':'Medium')+'</option>'+ 
@@ -686,7 +687,9 @@ function renderStudiesExecution(result){
    [lang==='ar'?'صافي القيمة الحالية (NPV)':'Net present value (NPV)',m.npv],
    [lang==='ar'?'معدل العائد الداخلي (IRR %)':'Internal rate of return (IRR %)',m.irr_pct],
    [lang==='ar'?'فترة الاسترداد (سنوات)':'Payback (years)',m.payback_periods],
-   [lang==='ar'?'إجمالي التدفقات النقدية':'Total cash flows',m.total_cash_inflows]
+   [lang==='ar'?'إجمالي التدفقات الداخلة':'Total cash inflows',m.total_cash_inflows],
+   [lang==='ar'?'إجمالي التدفقات الخارجة':'Total cash outflows',m.total_cash_outflows],
+   [lang==='ar'?'صافي التدفقات النقدية':'Net cash flows',m.net_cash_flows]
   ];
   parts.push('<section class="financial-result-section"><h3>'+(lang==='ar'?'نتائج حسابية أولية — غير معتمدة':'Preliminary calculations — not approved')+'</h3><div class="financial-result-kpis">'+
    rows.map(([label,value])=>'<div><span>'+escapeHtml(label)+'</span><strong>'+formatFinancialValue(value)+'</strong></div>').join('')+
