@@ -1150,7 +1150,7 @@ function collectPlanningBudgetValues(){
 }
 
 // Scope drafts to their owning workflow; never restore a draft from a different project.
-const workspaceDraftScope=['project_id','deal_id','opportunity_id']
+const workspaceDraftScope=['company_id','project_id','deal_id','opportunity_id']
  .map(key=>{const id=params.get(key);return id?key+':'+id:null})
  .filter(Boolean).join('|')||'unassigned';
 const workspaceDraftKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+workspaceDraftScope;
@@ -1296,6 +1296,9 @@ const FINANCIAL_ACTIONS=new Set([
 ]);
 function isFinancialIntakeService(){
  if(isFinancialWorkspaceService())return false;
+ // Study workspaces must honor the server-declared intake contract.
+ // A financial capability does not imply that intake/prepare supports it.
+ if(isStudiesWorkspaceService())return detail?.intake?.supported===true;
  if(detail?.intake?.supported===true)return true;
  return (detail?.capabilities||[]).some(item=>FINANCIAL_ACTIONS.has(item.capability_code));
 }
@@ -1585,9 +1588,16 @@ function renderFinancialExecution(result,metrics){
 }
 function showExecutionPersistenceStatus(execution){
  const projectId=params.get('project_id');
- const requiresArtifact=projectId&&['feasibility_studies','risk_analysis'].includes(serviceCode);
+ const isStudyArtifact=['feasibility_studies','risk_analysis'].includes(serviceCode);
+ const requiresArtifact=projectId&&isStudyArtifact;
  const persistence=execution?.artifact_persistence;
- if(!requiresArtifact){showStatus(T.executed,true);return true;}
+ if(!requiresArtifact){
+  if(isStudyArtifact){
+   showStatus(T.executed+' — '+(lang==='ar'?'لم يُربط المخرج بمشروع، ولم يتأكد حفظه. احتفظ بالنتائج قبل المغادرة.':'Result is not linked to a project and persistence is unconfirmed. Keep the results before leaving.'),false);
+   return false;
+  }
+  showStatus(T.executed,true);return true;
+ }
  if(persistence?.status==='saved'&&persistence.artifact_id){
   showStatus(T.executed+' — '+(lang==='ar'?'حُفظ المخرج في المشروع':'Artifact saved to project'),true);
   return true;
@@ -1639,6 +1649,7 @@ function collectValues(){
  const values={};const form=$('#srRequestForm');
  form.querySelectorAll('[name]').forEach(el=>{
    if(el.type==='file')return;
+   if(el.type==='radio'){if(el.checked)values[el.name]=el.value;return;}
    if(el.type==='checkbox')values[el.name]=el.checked;
    else if(el.multiple)values[el.name]=Array.from(el.selectedOptions).map(o=>o.value);
    else values[el.name]=el.type==='number'&&el.value!==''?Number(el.value):el.value;
