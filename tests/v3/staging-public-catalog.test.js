@@ -7,8 +7,8 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 describe('Staging public catalog access without privileged credentials', () => {
   const api = read('v3/api/index.js');
   const client = read('v3/lib/supabase.js');
-  test('public country and city catalogs use an RLS-constrained publishable client', () => {
-    for (const handler of ['handleCatalogCountries', 'handleCatalogCities']) {
+  test('public country activity and city catalogs use an RLS-constrained publishable client', () => {
+    for (const handler of ['handleCatalogCountries', 'handleCatalogActivities', 'handleCatalogCities']) {
       const begin = api.indexOf('async function ' + handler + '(');
       expect(begin).toBeGreaterThan(-1);
       const next = api.indexOf('\nasync function ', begin + 12);
