@@ -74,6 +74,18 @@ async function openFeasibility({ mobile = false, projectId = null } = {}) {
 }
 
 describe('feasibility study browser acceptance — isolated service contracts', () => {
+  test('missing project id routes to the project portfolio rather than an error page', async () => {
+    for (const [detailPath, portfolioPath] of [
+      ['/v3/project/', '/v3/portfolio/'],
+      ['/en/v3/project/', '/en/v3/portfolio/']
+    ]) {
+      const page=await browser.newPage();
+      await page.goto(new URL(detailPath,baseUrl).toString(),{waitUntil:'domcontentloaded'});
+      await page.waitForURL(url=>url.pathname.startsWith(portfolioPath),{timeout:12000});
+      await page.close();
+    }
+  });
+
   test('never offers a standalone activity without a selected sector',async()=>{
     const vm=require('vm');
     const start=ui.indexOf('async function studiesOnSector(');
