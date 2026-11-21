@@ -227,6 +227,23 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await context.close();
   });
 
+  test('does not claim feasibility success when orchestration returned no financial metrics', async () => {
+    const {page,context}=await openFeasibility();
+    await page.route('**/api/v3/services/execute',route=>route.fulfill({
+      status:200,contentType:'application/json',
+      body:JSON.stringify({executed:true,result:{
+        engineResults:{feasibility:{executed:false,status:'insufficient_inputs',metrics:{npv:null,irr:null}}}
+      }})
+    }));
+    await page.locator('input[name="project_name"]').fill('Office supplies');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('textarea[name="project_brief"]').fill('Office coffee supplies');
+    await page.locator('#srSubmit').click();
+    await page.locator('#srStatus.err').waitFor({state:'visible'});
+    expect(await page.locator('#srStatus').innerText()).toContain('NPV وIRR لم تُحسب');
+    await context.close();
+  });
+
   test('market information action reports absence of evidence and leaves revenue blank', async () => {
     const { page, context } = await openFeasibility();
     await page.route('**/api/v3/services/execute', route => route.fulfill({
