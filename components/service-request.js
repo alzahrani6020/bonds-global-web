@@ -727,8 +727,17 @@ function renderFeasibilityControls(){
  buttons.innerHTML='<button type="button" id="srFeasibilitySaveDraft" class="sr-secondary">'+
   (lang==='ar'?'حفظ المسودة في هذه الجلسة':'Save draft in this tab')+'</button>'+
   '<button type="button" id="srFeasibilityReviewButton" class="sr-secondary">'+
-  (lang==='ar'?'مراجعة المدخلات':'Review inputs')+'</button>';
+  (lang==='ar'?'مراجعة المدخلات':'Review inputs')+'</button>'+
+  '<button type="button" id="srFeasibilityResearchButton" class="sr-secondary">'+
+  (lang==='ar'?'جلب معلومات السوق':'Fetch market information')+'</button>';
  actions.insertAdjacentElement('beforebegin',buttons);
+ const marketPanel=document.createElement('section');
+ marketPanel.id='srFeasibilityMarketEvidence';
+ marketPanel.className='sr-card';
+ marketPanel.setAttribute('role','status');
+ marketPanel.setAttribute('aria-live','polite');
+ marketPanel.hidden=true;
+ actions.insertAdjacentElement('beforebegin',marketPanel);
  const projectChooser=document.createElement('section');
  projectChooser.id='srFeasibilityProjectChooser';
  projectChooser.className='sr-card';
@@ -860,6 +869,104 @@ function renderFeasibilityControls(){
    ? (lang==='ar'?'تعذّر حفظ المسودة محليًا':'Local draft save failed')
    : (lang==='ar'?'حُفظت المسودة في هذه الجلسة فقط، وليس في قاعدة المشروع':'Draft saved in this tab only, not in the project database'),
    !workspaceDirty);
+ });
+ form.addEventListener('invalid',event=>{
+  if(!event.target?.name)return;
+  const label=event.target.closest('.sr-field')?.querySelector('label')?.textContent?.trim()||event.target.name;
+  showStatus((lang==='ar'?'لا يمكن تشغيل الدراسة: أكمل الحقل المطلوب «':'Cannot run the study: complete required field “')+
+    label+(lang==='ar'?'» أولًا.':'” first.'),false);
+ },true);
+ $('#srFeasibilityResearchButton').addEventListener('click',async()=>{
+  const button=$('#srFeasibilityResearchButton');
+  const project=form.querySelector('[name="project_name"]')?.value?.trim()||'';
+  const brief=form.querySelector('[name="project_brief"]')?.value?.trim()||'';
+  if(!project||!brief){
+   const missing=!project?'project_name':'project_brief';
+   const field=form.querySelector('[name="'+missing+'"]');
+   field?.focus();
+   showStatus(lang==='ar'
+    ?'لجلب معلومات سوقية مرتبطة بالمشروع، أدخل اسم المشروع ووصف نشاطه أولًا.'
+    :'Enter the project name and business description before fetching market evidence.',false);
+   return;
+  }
+  button.disabled=true;
+  marketPanel.hidden=false;
+  marketPanel.textContent=lang==='ar'?'يجري البحث عن بيانات سوقية. لن تُدرج إيرادات تقديرية دون أدلة.':'Researching market evidence. No revenue forecasts will be invented.';
+  try{
+   await window.BondsAuth.ensureEnv();
+   const sb=window.BondsAuth.getSupabase();
+   const session=(await sb.auth.getSession()).data?.session;
+   if(!session?.access_token)throw new Error(T.login);
+   const country=form.querySelector('[name="country_code"]')?.value||params.get('country')||'';
+   const sector=form.querySelector('[name="sector_code"]')?.value||'';
+   const activity=sector?(form.querySelector('[name="activity_code"]')?.value||''):'';
+   const city=form.querySelector('[name="locality_name"]')?.value||'';
+   const topic=[project,brief,[city,country].filter(Boolean).join(' ')].filter(Boolean).join(' — ').slice(0,500);
+   const response=await fetch('/api/v3/services/execute',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+    credentials:'same-origin',
+    body:JSON.stringify({
+     service_code:'market_research',
+     project_id:params.get('project_id')||null,
+     inputs:{research_question:topic,project_name:project,project_brief:brief,country_code:country,sector_code:sector,activity_code:activity},
+     values:{research_question:topic,project_name:project,project_brief:brief,country_code:country,sector_code:sector,activity_code:activity},
+     research:{enabled:true,topic,query:topic,queryVariants:[topic]},
+     country_code:country,sector:sector||'company',activity,city,
+     language:lang,source:'feasibility_workspace_market_research'
+    })
+   });
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok||data.executed!==true){
+    throw new Error(data?.error?.code||data?.status||('HTTP '+response.status));
+   }
+   const outcome=data.result||{};
+   const research=outcome.research||outcome.decisionOS?.research||{};
+   const evidence=Array.isArray(research.evidence)?research.evidence:[];
+   const status=String(research.status||'unknown');
+   marketPanel.textContent='';
+   const heading=document.createElement('h3');
+   heading.textContent=lang==='ar'?'نتيجة البحث السوقي':'Market research result';
+   marketPanel.appendChild(heading);
+   const description=document.createElement('p');
+   description.textContent=(lang==='ar'?'حالة البحث: ':'Research status: ')+status+
+    (lang==='ar'?' — الأدلة المتاحة: ':' — evidence records: ')+evidence.length;
+   marketPanel.appendChild(description);
+   if(evidence.length){
+    const list=document.createElement('ul');
+    list.className='sr-list';
+    evidence.slice(0,12).forEach(record=>{
+     const item=document.createElement('li');
+     const label=String(record?.evidence_code||record?.source||record?.title||'Market evidence');
+     const url=record?.url||record?.source_url||record?.metadata?.url||record?.metadata?.source_url;
+     let safe=null;
+     try{const parsed=new URL(String(url));if(['https:','http:'].includes(parsed.protocol))safe=parsed.href}catch(_){}
+     if(safe){
+      const a=document.createElement('a');a.href=safe;a.target='_blank';a.rel='noopener noreferrer';
+      a.textContent=label;item.appendChild(a);
+     }else item.textContent=label;
+     list.appendChild(item);
+    });
+    marketPanel.appendChild(list);
+   }else{
+    const warning=document.createElement('p');
+    warning.textContent=lang==='ar'
+     ?'لم يتم إرجاع أدلة سوقية قابلة للفحص. لا تُستخدم هذه النتيجة لتحديد الإيرادات تلقائيًا.'
+     :'No inspectable market evidence was returned. Revenue cannot be estimated automatically from this result.';
+    marketPanel.appendChild(warning);
+   }
+   const note=document.createElement('p');
+   note.textContent=lang==='ar'
+    ?'مراجعة المصادر والتحقق من الأسعار وحجم الطلب مطلوبة قبل وضع توقعات الإيرادات.'
+    :'Verify sources, prices and demand before setting revenue projections.';
+   marketPanel.appendChild(note);
+  }catch(error){
+   marketPanel.textContent=(lang==='ar'?'تعذّر جلب معلومات السوق: ':'Market research failed: ')+error.message;
+   showStatus(marketPanel.textContent,false);
+  }finally{
+   button.disabled=false;
+   marketPanel.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
  });
  $('#srFeasibilityReviewButton').addEventListener('click',()=>{
   try{
