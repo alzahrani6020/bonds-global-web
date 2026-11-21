@@ -71,6 +71,63 @@ async function openFeasibility({ mobile = false, projectId = null } = {}) {
 }
 
 describe('feasibility study browser acceptance — isolated service contracts', () => {
+  test('run button reports an incomplete required project description instead of silently doing nothing', async () => {
+    const { page, context } = await openFeasibility();
+    await page.locator('input[name="project_name"]').fill('Small business');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('#srSubmit').click();
+    await page.locator('#srStatus.err').waitFor({ state: 'visible' });
+    expect(await page.locator('#srStatus').innerText()).toContain('أكمل الحقل المطلوب');
+    expect(await page.locator('textarea[name="project_brief"]').evaluate(e => e.validity.valueMissing)).toBe(true);
+    await context.close();
+  });
+
+  test('market information action runs governed market_research and reports only returned evidence', async () => {
+    const { page, context } = await openFeasibility();
+    let payload;
+    await page.route('**/api/v3/services/execute', async route => {
+      payload = JSON.parse(route.request().postData() || '{}');
+      await route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({
+          executed: true,
+          result: {
+            research: {
+              status:'completed',
+              evidence:[
+                {evidence_code:'market_size',source_url:'https://example.org/market-study'}
+              ]
+            }
+          }
+        })
+      });
+    });
+    await page.locator('input[name="project_name"]').fill('Office coffee supply');
+    await page.locator('textarea[name="project_brief"]').fill('Supply coffee, tea, water and cleaning products to commercial offices');
+    await page.locator('#srFeasibilityResearchButton').click();
+    await page.locator('#srFeasibilityMarketEvidence a').waitFor({state:'visible'});
+    expect(payload.service_code).toBe('market_research');
+    expect(payload.research.enabled).toBe(true);
+    expect(payload.values.project_name).toBe('Office coffee supply');
+    expect(await page.locator('#srFeasibilityMarketEvidence').innerText()).toContain('market_size');
+    expect(await page.locator('#srFeasibilityMarketEvidence a').getAttribute('href')).toBe('https://example.org/market-study');
+    expect(await page.locator('input[name="annual_revenue"]').inputValue()).toBe('');
+    await context.close();
+  });
+
+  test('market information action reports absence of evidence and leaves revenue blank', async () => {
+    const { page, context } = await openFeasibility();
+    await page.route('**/api/v3/services/execute', route => route.fulfill({
+      status:200,contentType:'application/json',
+      body:JSON.stringify({executed:true,result:{research:{status:'insufficient_evidence',evidence:[]}}})
+    }));
+    await page.locator('input[name="project_name"]').fill('Office supplies');
+    await page.locator('textarea[name="project_brief"]').fill('Office consumable supplies');
+    await page.locator('#srFeasibilityResearchButton').click();
+    await page.waitForFunction(()=>document.querySelector('#srFeasibilityMarketEvidence')?.textContent?.includes('لم يتم إرجاع أدلة'));
+    expect(await page.locator('input[name="annual_revenue"]').inputValue()).toBe('');
+    await context.close();
+  });
+
   test('offers study inputs rather than unsupported file import, submits typed cash flows and displays unapproved metrics', async () => {
     const { page, context } = await openFeasibility();
     let payload = null;
