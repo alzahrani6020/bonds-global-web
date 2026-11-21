@@ -881,6 +881,21 @@ async function handleServiceExecute(req, res, supabase, user) {
     };
   }
 
+  if (serviceCode === 'feasibility_studies') {
+    const { validateFeasibilityInputs } = require('../../lib/finance/feasibility-input-validator');
+    const inputs = body.inputs && typeof body.inputs === 'object' && !Array.isArray(body.inputs)
+      ? body.inputs : body.values;
+    const check = validateFeasibilityInputs(inputs || {});
+    if (!check.valid) {
+      return sendJson(res, 422, {
+        ok: false,
+        executed: false,
+        error: { code: 'FEASIBILITY_INPUT_VALIDATION_FAILED' },
+        invalid_fields: check.invalid_fields
+      });
+    }
+  }
+
   const artifactType = serviceCode === 'feasibility_studies'
     ? 'feasibility'
     : serviceCode === 'risk_analysis'
@@ -932,7 +947,28 @@ async function handleServiceExecute(req, res, supabase, user) {
           status:'saved'
         }).select('id').single();
         if (insertError || !artifact?.id) throw insertError || new Error('INVESTMENT_ARTIFACT_ID_MISSING');
-        artifactPersistence = { status:'saved', artifact_id:artifact.id };
+        // An INSERT response is not proof of readback. Verify the inserted
+        // artifact in its owner's exact project before claiming persistence.
+        // On readback uncertainty, retain the ID to prevent blind retries.
+        const { data:readback, error:readbackError } = await supabase
+          .from('bonds_investment_artifacts')
+          .select('id,user_id,project_id,artifact_type,status')
+          .eq('id',artifact.id)
+          .eq('user_id',user.id)
+          .maybeSingle();
+        if (readbackError || !readback ||
+            readback.project_id !== owned.project.id ||
+            readback.user_id !== user.id ||
+            readback.artifact_type !== artifactType ||
+            readback.status !== 'saved') {
+          artifactPersistence = {
+            status:'unverified',
+            artifact_id:artifact.id,
+            code:'INVESTMENT_ARTIFACT_READBACK_UNCONFIRMED'
+          };
+        } else {
+          artifactPersistence = { status:'saved', artifact_id:artifact.id };
+        }
       } catch (contextErr) {
         console.warn('[services/execute] investment artifact persistence failed:', contextErr.message);
       }

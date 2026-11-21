@@ -149,11 +149,13 @@ function studiesContextChips(){
 function renderStudiesWorkspaceShell(){
  if(!isStudiesWorkspaceService())return;
  document.body.classList.add('studies-workspace-mode');
+ if(serviceCode==='feasibility_studies')document.body.classList.add('feasibility-workspace-mode');
  if($('#studiesWorkspaceNav'))return;
  const grid=document.querySelector('.sr-grid');
  if(!grid)return;
  const detailsBtn=$('#srDetails');
- if(detailsBtn) detailsBtn.hidden=true;
+ // Keep the service details link available to study users.
+ if(detailsBtn&&serviceCode!=='feasibility_studies') detailsBtn.hidden=true;
  const shell=document.createElement('section');
  shell.id='studiesWorkspaceNav';
  shell.className='financial-workspace-shell studies-workspace-shell';
@@ -214,7 +216,13 @@ function studiesRuntimeFromValues(values){
 function syncStudiesAssistantContext(){
  if(!isStudiesWorkspaceService())return;
  const bindings=studiesBindings();
- const values=typeof collectValues==='function'?collectValues():{};
+ let values={};
+ try{values=typeof collectValues==='function'?collectValues():{}}catch(_){
+  // A partially typed financial schedule may be invalid for execution,
+  // but must not interrupt draft persistence or leave stale assistant context.
+  try{sessionStorage.removeItem('bonds_service_assistant_context_v1')}catch(_){}
+  return;
+ }
  const payload=bindings
   ?bindings.studiesAssistantContext(serviceCode,values,studiesParamMap(),lang,text(detail?.service))
   :{version:1,source:'service_workspace',serviceCode,language:lang,executionInputs:values};
@@ -314,13 +322,9 @@ function studiesFillSelect(el,rows,valueKey,labelFn,placeholder,selected){
   const byName=[...el.options].find(o=>o.value===current||o.textContent===current||o.dataset.name===current);
   if(byName) el.value=byName.value;
   else{
-   const extra=document.createElement('option');
-   extra.value=current;
-   extra.textContent=current;
-   extra.dataset.name=current;
-   extra.selected=true;
-   el.appendChild(extra);
-   el.value=current;
+   // Never reintroduce a stale selection that is absent from the catalog
+   // for the current country, region or sector.
+   el.value='';
   }
  }
  studiesEnhanceSelect(el,placeholder,true);
@@ -492,13 +496,13 @@ function studiesBindCatalogEvents(){
  const activity=$('#studiesActivity');
  if(!country||country.dataset.studiesBound==='1')return;
  country.dataset.studiesBound='1';
- country.addEventListener('change',()=>{studiesOnCountry().catch(()=>{})});
+ country.addEventListener('change',()=>{studiesOnCountry().catch(error=>showStatus(T.failed+': '+error.message,false))});
  region?.addEventListener('change',()=>{
   studiesFilterLocalities(region.value,$('#studiesLocality')?.value||'');
   studiesWriteLocationToUrl();
  });
  locality?.addEventListener('change',studiesWriteLocationToUrl);
- sector?.addEventListener('change',()=>{studiesOnSector(false).catch(()=>{})});
+ sector?.addEventListener('change',()=>{studiesOnSector(false).catch(error=>showStatus(T.failed+': '+error.message,false))});
  activity?.addEventListener('change',studiesWriteLocationToUrl);
 }
 function studiesPullDiscovery(){
@@ -563,8 +567,9 @@ function bindStudiesCatalogDropdowns(){
    await studiesOnCountry();
    studiesCatalogBound=true;
    studiesListenDiscovery();
-  }catch(_){
+  }catch(error){
    enhanceStudiesStaticSelects();
+   showStatus(T.failed+': '+error.message,false);
   }
  };
  if(window.UniversalDropdown) start();
@@ -638,8 +643,24 @@ function renderStudiesOperationalInputs(){
   $('#srFormTitle').textContent=lang==='ar'?'مدخلات دراسة الجدوى':'Feasibility study inputs';
   host.innerHTML=
    '<div class="sr-field"><label>'+(lang==='ar'?'اسم المشروع':'Project name')+req+'</label><input type="text" name="project_name" required></div>'+
+   '<div class="sr-field"><label>'+(lang==='ar'?'حجم المشروع':'Project size')+req+'</label><select name="project_size" required>'+ 
+    '<option value="">'+(lang==='ar'?'اختر حجم المشروع':'Choose project size')+'</option>'+ 
+    '<option value="household">'+(lang==='ar'?'منزلي':'Household')+'</option>'+
+    '<option value="micro">'+(lang==='ar'?'متناهي الصغر':'Micro')+'</option>'+ 
+    '<option value="small">'+(lang==='ar'?'صغير':'Small')+'</option>'+ 
+    '<option value="medium">'+(lang==='ar'?'متوسط':'Medium')+'</option>'+ 
+    '<option value="large">'+(lang==='ar'?'كبير':'Large')+'</option>'+ 
+    '<option value="mega">'+(lang==='ar'?'عملاق / استراتيجي':'Mega / strategic')+'</option>'+ 
+   '</select></div>'+ 
    locationFields+
-   '<div class="sr-field"><label>'+(lang==='ar'?'حجم الاستثمار المتوقع':'Expected investment')+opt+'</label><input type="number" name="investment_amount" min="0" step="any"></div>'+
+   '<div class="sr-field"><label>'+(lang==='ar'?'حجم الاستثمار المتوقع':'Expected investment')+opt+'</label><input type="number" name="investment_amount" min="0" step="any"></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'عملة الدراسة':'Study currency')+req+'</label><select name="currency" required><option value="SAR" selected>SAR</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'أفق الدراسة بالسنوات':'Study horizon in years')+opt+'</label><input type="number" name="years" min="1" max="60" step="1" placeholder="5"></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'الإيرادات السنوية المتوقعة':'Expected annual revenue')+opt+'</label><input type="number" name="annual_revenue" min="0" step="any"></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'تكلفة المبيعات السنوية':'Annual cost of sales')+opt+'</label><input type="number" name="cogs" min="0" step="any"></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'المصروفات التشغيلية السنوية':'Annual operating expenses')+opt+'</label><input type="number" name="operating_expenses" min="0" step="any"></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'معدل الخصم %':'Discount rate %')+opt+'</label><input type="number" name="discount_rate_pct" min="0" max="100" step="any" placeholder="10"></div>'+ 
+   '<div class="sr-field full"><label>'+(lang==='ar'?'التدفقات النقدية السنوية (سطر لكل سنة أو فاصلة منقوطة، دون فواصل الآلاف)':'Annual cash flows (one per line or semicolon; no thousands separators)')+opt+'</label><textarea name="cash_flows_text" placeholder="'+(lang==='ar'?'مثال: 100000; 120000; 140000':'Example: 100000; 120000; 140000')+'"></textarea><small>'+(lang==='ar'?'أدخل صافي التدفق النقدي لكل سنة. تُعرض النتائج الحسابية على أنها أولية إلى حين التحقق من الأدلة.':'Enter one net cash flow per year. Calculations remain preliminary until evidence is verified.')+'</small></div>'+
    '<div class="sr-field full"><label>'+(lang==='ar'?'وصف المشروع':'Project brief')+req+'</label><textarea name="project_brief" required></textarea></div>';
  }
  else if(serviceCode==='risk_analysis'){
@@ -657,6 +678,29 @@ function renderStudiesExecution(result){
  const summary=result.summary||result.executive_summary||result.narrative||result.analysis;
  const findings=result.findings||result.insights||result.recommendations||result.competitors;
  const parts=[];
+ const integrity=result.confidence?.decisionIntegrity;
+ if(integrity&&typeof integrity==='object'){
+  const state=integrity.status||'unknown';
+  const labels={decision_ready:lang==='ar'?'مؤهل للمراجعة الاستثمارية':'Decision-ready for review',review_required:lang==='ar'?'يحتاج مراجعة':'Review required',blocked:lang==='ar'?'غير صالح للاعتماد':'Blocked from approval'};
+  const coverage=Number.isFinite(Number(integrity.groundedCoverage))?Number(integrity.groundedCoverage)+'%':'—';
+  const blocked=Array.isArray(integrity.blockedDecisionEngines)?integrity.blockedDecisionEngines.join(', '):'';
+  parts.push('<section class="financial-result-section"><h3>'+(lang==='ar'?'حالة صلاحية القرار':'Decision integrity status')+'</h3><div class="studies-result-copy"><strong>'+escapeHtml(labels[state]||state)+'</strong><div>'+(lang==='ar'?'تغطية الأدلة: ':'Evidence coverage: ')+escapeHtml(coverage)+'</div>'+(blocked?'<div>'+(lang==='ar'?'محركات غير مكتملة: ':'Incomplete engines: ')+escapeHtml(blocked)+'</div>':'')+'</div></section>');
+ }
+ const computed=result.engineResults?.feasibility;
+ if(serviceCode==='feasibility_studies'&&computed?.metrics){
+  const m=computed.metrics;
+  const rows=[
+   [lang==='ar'?'صافي القيمة الحالية (NPV)':'Net present value (NPV)',m.npv],
+   [lang==='ar'?'معدل العائد الداخلي (IRR %)':'Internal rate of return (IRR %)',m.irr_pct],
+   [lang==='ar'?'فترة الاسترداد (سنوات)':'Payback (years)',m.payback_periods],
+   [lang==='ar'?'إجمالي التدفقات الداخلة':'Total cash inflows',m.total_cash_inflows],
+   [lang==='ar'?'إجمالي التدفقات الخارجة':'Total cash outflows',m.total_cash_outflows],
+   [lang==='ar'?'صافي التدفقات النقدية':'Net cash flows',m.net_cash_flows]
+  ];
+  parts.push('<section class="financial-result-section"><h3>'+(lang==='ar'?'نتائج حسابية أولية — غير معتمدة':'Preliminary calculations — not approved')+'</h3><div class="financial-result-kpis">'+
+   rows.map(([label,value])=>'<div><span>'+escapeHtml(label)+'</span><strong>'+formatFinancialValue(value)+'</strong></div>').join('')+
+   '</div><div class="studies-result-copy">'+(lang==='ar'?'هذه المؤشرات حسابية فقط ولا تُعتمد دون مراجعة مصادر البيانات وافتراضات المشروع.':'These figures are mathematical results only and require verification of inputs and project assumptions.')+'</div></section>');
+ }
  if(typeof summary==='string'&&summary.trim()){
   parts.push('<section class="financial-result-section"><h3>'+(lang==='ar'?'ملخص الدراسة':'Study summary')+'</h3><div class="studies-result-copy">'+escapeHtml(summary)+'</div></section>');
  }
@@ -667,7 +711,174 @@ function renderStudiesExecution(result){
    parts.push('<section class="financial-result-section"><h3>'+(lang==='ar'?'النتائج':'Findings')+'</h3>'+renderFinancialRows(findings)+'</section>');
   }
  }
+ if(parts.length){
+  parts.push('<details class="financial-result-section"><summary>'+(lang==='ar'?'التفاصيل الفنية الكاملة':'Full technical details')+'</summary><pre style="white-space:pre-wrap;overflow:auto;padding:12px">'+escapeHtml(JSON.stringify(result,null,2))+'</pre></details>');
+ }
  return parts.length?'<div class="financial-result-stack studies-result-stack">'+parts.join('')+'</div>':'';
+}
+function renderFeasibilityControls(){
+ if(serviceCode!=='feasibility_studies'||!isStudiesWorkspaceService())return;
+ const form=$('#srRequestForm');
+ const host=$('#srDynamicFields');
+ const actions=form?.querySelector('.sr-actions');
+ if(!form||!host||!actions||$('#srFeasibilitySaveDraft'))return;
+ const buttons=document.createElement('div');
+ buttons.className='sr-actions feasibility-secondary-actions';
+ buttons.innerHTML='<button type="button" id="srFeasibilitySaveDraft" class="sr-secondary">'+
+  (lang==='ar'?'حفظ المسودة في هذه الجلسة':'Save draft in this tab')+'</button>'+
+  '<button type="button" id="srFeasibilityReviewButton" class="sr-secondary">'+
+  (lang==='ar'?'مراجعة المدخلات':'Review inputs')+'</button>';
+ actions.insertAdjacentElement('beforebegin',buttons);
+ const projectChooser=document.createElement('section');
+ projectChooser.id='srFeasibilityProjectChooser';
+ projectChooser.className='sr-card';
+ const linked=params.get('project_id')||'';
+ projectChooser.innerHTML='<h3>'+(lang==='ar'?'ربط الدراسة بمشروع':'Link study to a project')+'</h3>'+
+  '<p class="sr-muted">'+(linked
+   ? (lang==='ar'?'معرّف المشروع المرتبط: ':'Linked project ID: ')+escapeHtml(linked)
+   : (lang==='ar'?'لا يوجد مشروع مرتبط؛ لن يُحفظ مخرج الدراسة في الأرشيف المؤسسي.':'No linked project. The study result will not be archived to a project.'))+'</p>'+
+  '<div class="sr-actions feasibility-secondary-actions">'+
+  '<button type="button" class="sr-secondary" id="srFeasibilityListProjects">'+(lang==='ar'?'اختيار من مشاريعي':'Choose from my projects')+'</button>'+
+  '<a class="sr-secondary" href="'+(lang==='ar'?'/v3/project/':'/en/v3/project/')+'">'+(lang==='ar'?'فتح مركز المشاريع':'Open project center')+'</a></div>'+
+  '<div id="srFeasibilityProjectPicker" hidden><label for="srFeasibilityProjectSelect">'+(lang==='ar'?'المشروعات المتاحة':'Available projects')+'</label>'+
+  '<select id="srFeasibilityProjectSelect" class="sr-input"></select>'+
+  '<button type="button" id="srFeasibilityLinkProject" class="sr-secondary">'+(lang==='ar'?'ربط المشروع المحدد':'Link selected project')+'</button></div>';
+ buttons.insertAdjacentElement('beforebegin',projectChooser);
+ if(linked){
+  const historyButton=document.createElement('button');
+  historyButton.type='button';
+  historyButton.id='srFeasibilityHistoryButton';
+  historyButton.className='sr-secondary';
+  historyButton.textContent=lang==='ar'?'الدراسات المحفوظة للمشروع':'Saved project studies';
+  projectChooser.querySelector('.sr-actions')?.appendChild(historyButton);
+  const history=document.createElement('section');
+  history.id='srFeasibilityStudyHistory';
+  history.className='sr-card';
+  history.hidden=true;
+  projectChooser.insertAdjacentElement('afterend',history);
+  historyButton.addEventListener('click',async()=>{
+   historyButton.disabled=true;
+   try{
+    await window.BondsAuth.ensureEnv();
+    const session=(await window.BondsAuth.getSupabase().auth.getSession()).data?.session;
+    if(!session?.access_token)throw new Error(T.login);
+    const response=await fetch('/api/v3/investment-context/artifacts?project_id='+encodeURIComponent(linked),{
+     headers:{Authorization:'Bearer '+session.access_token},credentials:'same-origin',cache:'no-store'
+    });
+    const payload=await response.json().catch(()=>({}));
+    if(!response.ok||!Array.isArray(payload.artifacts))throw new Error(payload.error||('HTTP '+response.status));
+    const records=payload.artifacts.filter(item=>item.project_id===linked&&item.artifact_type==='feasibility'&&item.status==='saved');
+    history.innerHTML='<h3>'+(lang==='ar'?'الدراسات المؤرشفة لهذا المشروع':'Archived studies for this project')+'</h3>'+
+     (records.length?'<ul class="sr-list">'+records.map(item=>
+      '<li><strong>'+escapeHtml(item.title||item.id)+'</strong> '+
+      '<small>'+escapeHtml(item.updated_at||item.created_at||'')+'</small> '+
+      '<button type="button" class="sr-secondary" data-study-artifact="'+escapeHtml(item.id)+'">'+
+      (lang==='ar'?'تنزيل النسخة المحفوظة':'Download saved copy')+'</button></li>'
+     ).join('')+'</ul>':'<p class="sr-muted">'+(lang==='ar'?'لا توجد دراسات جدوى محفوظة في هذا المشروع.':'No saved feasibility studies for this project.')+'</p>');
+    history.hidden=false;
+    history.querySelectorAll('[data-study-artifact]').forEach(button=>button.addEventListener('click',()=>{
+     const item=records.find(row=>row.id===button.dataset.studyArtifact);
+     if(!item)return;
+     const data=JSON.stringify({
+      artifact_id:item.id,project_id:item.project_id,
+      created_at:item.created_at,updated_at:item.updated_at,
+      inputs:item.inputs,results:item.results,metadata:item.metadata,status:item.status
+     },null,2);
+     const href=URL.createObjectURL(new Blob([data],{type:'application/json;charset=utf-8'}));
+     const anchor=document.createElement('a');
+     anchor.href=href;anchor.download='bonds-feasibility-'+item.id+'.json';anchor.click();
+     setTimeout(()=>URL.revokeObjectURL(href),1000);
+    }));
+    history.scrollIntoView({block:'nearest',behavior:'smooth'});
+   }catch(error){showStatus(T.failed+': '+error.message,false)}
+   finally{historyButton.disabled=false}
+  });
+ }
+ const listProjects=$('#srFeasibilityListProjects');
+ listProjects.addEventListener('click',async()=>{
+  listProjects.disabled=true;
+  try{
+   await window.BondsAuth.ensureEnv();
+   const sb=window.BondsAuth.getSupabase();
+   const session=(await sb.auth.getSession()).data?.session;
+   if(!session?.access_token)throw new Error(T.login);
+   const response=await fetch('/api/v3/projects',{
+    headers:{Authorization:'Bearer '+session.access_token},
+    credentials:'same-origin',cache:'no-store'
+   });
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok||!Array.isArray(result.projects))throw new Error(result.error||('HTTP '+response.status));
+   const select=$('#srFeasibilityProjectSelect');
+   select.innerHTML='<option value="">'+(lang==='ar'?'اختر مشروعًا':'Select a project')+'</option>'+
+    result.projects.map(row=>'<option value="'+escapeHtml(row.id)+'"'+(row.id===linked?' selected':'')+'>'+escapeHtml(row.name||row.project_number||row.id)+'</option>').join('');
+   $('#srFeasibilityProjectPicker').hidden=false;
+   if(!result.projects.length)showStatus(lang==='ar'?'لا توجد مشروعات مملوكة لهذا الحساب':'No projects owned by this account',false);
+  }catch(error){showStatus(T.failed+': '+error.message,false)}
+  finally{listProjects.disabled=false}
+ });
+ $('#srFeasibilityLinkProject').addEventListener('click',()=>{
+  const select=$('#srFeasibilityProjectSelect');
+  const id=select?.value||'';
+  if(!id){showStatus(lang==='ar'?'اختر المشروع أولًا':'Select a project first',false);return}
+  saveWorkspaceDraft();
+  if(workspaceDirty){showStatus(lang==='ar'?'تعذّر حفظ المسودة قبل تبديل المشروع':'Unable to save draft before changing project',false);return}
+  const next=new URL(location.href);
+  next.searchParams.set('project_id',id);
+  const targetScope=['company_id','project_id','deal_id','opportunity_id']
+   .map(key=>{const value=next.searchParams.get(key);return value?key+':'+value:null})
+   .filter(Boolean).join('|')||'unassigned';
+  const targetKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+targetScope;
+  try{
+   const stored=sessionStorage.getItem(workspaceDraftKey);
+   if(stored)sessionStorage.setItem(targetKey,stored);
+  }catch(error){showStatus(T.failed+': '+error.message,false);return}
+  location.assign(next.href);
+ });
+ const review=document.createElement('section');
+ review.id='srFeasibilityReview';
+ review.className='sr-card';
+ review.hidden=true;
+ actions.insertAdjacentElement('beforebegin',review);
+ const guidance=document.createElement('div');
+ guidance.id='srFeasibilitySizeGuidance';
+ guidance.className='sr-warning';
+ guidance.setAttribute('role','status');
+ guidance.setAttribute('aria-live','polite');
+ host.insertAdjacentElement('afterend',guidance);
+ const updateGuidance=()=>{
+  const size=form.querySelector('[name="project_size"]')?.value||'';
+  const large=size==='large'||size==='mega';
+  guidance.textContent=large
+   ? (lang==='ar'?'هذا نموذج حسابي أولي فقط. المشاريع الكبيرة والعملاقة تتطلب نموذجًا متعدد المراحل ومراجعة مستقلة قبل أي قرار استثماري.':'This is a preliminary calculation only. Large and mega projects require phased modeling and independent review before an investment decision.')
+   : (lang==='ar'?'المدخلات والنتائج أولية حتى توثيق الافتراضات ومراجعتها.':'Inputs and results are preliminary until assumptions and evidence are verified.');
+ };
+ form.querySelector('[name="project_size"]')?.addEventListener('change',updateGuidance);
+ updateGuidance();
+ $('#srFeasibilitySaveDraft').addEventListener('click',()=>{
+  saveWorkspaceDraft();
+  showStatus(workspaceDirty
+   ? (lang==='ar'?'تعذّر حفظ المسودة محليًا':'Local draft save failed')
+   : (lang==='ar'?'حُفظت المسودة في هذه الجلسة فقط، وليس في قاعدة المشروع':'Draft saved in this tab only, not in the project database'),
+   !workspaceDirty);
+ });
+ $('#srFeasibilityReviewButton').addEventListener('click',()=>{
+  try{
+   if(!form.checkValidity()){form.reportValidity();return;}
+   const values=collectValues();
+   const labels=lang==='ar'
+    ? [['project_name','اسم المشروع'],['project_size','الحجم'],['investment_amount','الاستثمار المتوقع'],['currency','العملة'],['years','الأفق بالسنوات'],['discount_rate_pct','معدل الخصم %']]
+    : [['project_name','Project name'],['project_size','Project size'],['investment_amount','Investment estimate'],['currency','Currency'],['years','Horizon (years)'],['discount_rate_pct','Discount rate %']];
+   const summary=labels.map(([key,label])=>'<li><strong>'+escapeHtml(label)+'</strong>: '+escapeHtml(values[key]??'—')+'</li>').join('');
+   const flowCount=Array.isArray(values.cash_flows)?values.cash_flows.length:0;
+   review.innerHTML='<h3>'+(lang==='ar'?'مراجعة البيانات قبل التشغيل':'Input review before execution')+'</h3>'+
+    '<ul class="sr-list">'+summary+'<li><strong>'+(lang==='ar'?'عدد التدفقات السنوية':'Annual cash-flow entries')+'</strong>: '+flowCount+'</li></ul>'+
+    '<p class="sr-muted">'+(lang==='ar'?'هذه مراجعة للمدخلات فقط وليست اعتمادًا لصحة البيانات.':'This reviews submitted inputs, not their independent validity.')+'</p>';
+   review.hidden=false;
+   review.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }catch(error){showStatus(T.failed+': '+error.message,false)}
+ });
+ form.addEventListener('input',()=>{review.hidden=true});
+ form.addEventListener('change',()=>{review.hidden=true});
 }
 function renderFinancialWorkspaceShell(){
  if(!isFinancialWorkspaceService())return;
@@ -1150,11 +1361,11 @@ function collectPlanningBudgetValues(){
 }
 
 // Scope drafts to their owning workflow; never restore a draft from a different project.
-const workspaceDraftScope=['project_id','deal_id','opportunity_id']
+const workspaceDraftScope=['company_id','project_id','deal_id','opportunity_id']
  .map(key=>{const id=params.get(key);return id?key+':'+id:null})
  .filter(Boolean).join('|')||'unassigned';
 const workspaceDraftKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+workspaceDraftScope;
-const workspaceDraftStorage=workspaceDraftScope==='unassigned'?sessionStorage:localStorage;
+const workspaceDraftStorage=(workspaceDraftScope==='unassigned'||isStudiesWorkspaceService())?sessionStorage:localStorage;
 let workspaceDirty=false;
 function saveWorkspaceDraft(){
  if(!isServiceWorkspace)return;
@@ -1210,7 +1421,7 @@ window.addEventListener('beforeunload',e=>{
 function text(row,ar='name_ar',en='name_en'){return lang==='ar'?(row?.[ar]||row?.[en]||''):(row?.[en]||row?.[ar]||'')}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function json(url,opts){const r=await fetch(url,opts);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'HTTP '+r.status);return d}
-function showStatus(msg,ok){const e=$('#srStatus');e.textContent=msg;e.className='sr-status show '+(ok?'ok':'err')}
+function showStatus(msg,ok){const e=$('#srStatus');e.textContent=msg;e.className='sr-status show '+(ok?'ok':'err');e.setAttribute('role',ok?'status':'alert');e.setAttribute('aria-live',ok?'polite':'assertive');if(!ok&&typeof e.scrollIntoView==='function')e.scrollIntoView({block:'nearest',behavior:'smooth'})}
 function contextQuery(){const p=new URLSearchParams();for(const k of ['country','sector','activity']){const v=params.get(k);if(v)p.set(k,v)}return p.toString()}
 function renderList(id,items,fn){const el=$(id);if(!el)return;el.innerHTML=items.length?'<ul class="sr-list">'+items.map(fn).join('')+'</ul>':'<div class="sr-empty">—</div>'}
 function renderRequestProfileField(field){
@@ -1285,6 +1496,7 @@ function render(){
  renderStudiesOperationalInputs();
  renderFinancialIntake();
  restoreWorkspaceDraft();
+ renderFeasibilityControls();
  bindWorkspaceDraft();
  applyStudiesSubmitLabel();
  bindStudiesCatalogDropdowns();
@@ -1296,6 +1508,9 @@ const FINANCIAL_ACTIONS=new Set([
 ]);
 function isFinancialIntakeService(){
  if(isFinancialWorkspaceService())return false;
+ // Study workspaces must honor the server-declared intake contract.
+ // A financial capability does not imply that intake/prepare supports it.
+ if(serviceCode==='feasibility_studies'||serviceCode==='risk_analysis')return detail?.intake?.supported===true;
  if(detail?.intake?.supported===true)return true;
  return (detail?.capabilities||[]).some(item=>FINANCIAL_ACTIONS.has(item.capability_code));
 }
@@ -1585,12 +1800,25 @@ function renderFinancialExecution(result,metrics){
 }
 function showExecutionPersistenceStatus(execution){
  const projectId=params.get('project_id');
- const requiresArtifact=projectId&&['feasibility_studies','risk_analysis'].includes(serviceCode);
+ const isStudyArtifact=['feasibility_studies','risk_analysis'].includes(serviceCode);
+ const requiresArtifact=projectId&&isStudyArtifact;
  const persistence=execution?.artifact_persistence;
- if(!requiresArtifact){showStatus(T.executed,true);return true;}
+ if(!requiresArtifact){
+  if(isStudyArtifact){
+   showStatus(T.executed+' — '+(lang==='ar'?'لم يُربط المخرج بمشروع، ولم يتأكد حفظه. احتفظ بالنتائج قبل المغادرة.':'Result is not linked to a project and persistence is unconfirmed. Keep the results before leaving.'),false);
+   return false;
+  }
+  showStatus(T.executed,true);return true;
+ }
  if(persistence?.status==='saved'&&persistence.artifact_id){
-  showStatus(T.executed+' — '+(lang==='ar'?'حُفظ المخرج في المشروع':'Artifact saved to project'),true);
+  showStatus(T.executed+' — '+(lang==='ar'?'حُفظ المخرج في المشروع وتأكدت قراءته':'Artifact saved and verified by project readback'),true);
   return true;
+ }
+ if(persistence?.status==='unverified'&&persistence.artifact_id){
+  showStatus(T.executed+' — '+(lang==='ar'
+   ?'أُنشئ معرّف المخرج ولكن تعذّر تأكيد استرجاعه. لا تعِد تشغيل الدراسة قبل التحقق من أرشيف المشروع.'
+   :'Artifact ID was issued, but its readback was not verified. Do not rerun before checking the project archive.'),false);
+  return false;
  }
  showStatus(T.executed+' — '+(lang==='ar'?'تعذّر تأكيد حفظ المخرج في المشروع. احتفظ بنسخة من النتائج.':'Project artifact persistence was not confirmed. Keep a copy of the results.'),false);
  return false;
@@ -1608,11 +1836,26 @@ function renderExecutionResult(payload){
  const financial=renderFinancialExecution(result,metrics);
  const studies=renderStudiesExecution(result);
  const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined&&typeof v!=='object');
- box.innerHTML='<h2>'+escapeHtml(T.executed)+'</h2>'+
+ box.innerHTML='<h2>'+escapeHtml(T.executed)+'</h2>'+ 
+  (['feasibility_studies','risk_analysis'].includes(serviceCode)?'<button type="button" id="srDownloadExecution" class="sr-secondary">'+(lang==='ar'?'تنزيل نسخة النتائج (JSON)':'Download results copy (JSON)')+'</button>':'')+
   (financial||studies||(
    entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+formatFinancialValue(v)+'</li>').join('')+'</ul></div>':
    '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>'
   ));
+ const successLink=$('#srSuccessLink');
+ if(successLink && ['feasibility_studies','risk_analysis'].includes(serviceCode)){
+  successLink.href=workspaceReturnTarget()||(lang==='ar'?'/my-bonds/':'/en/my-bonds/');
+  successLink.textContent=lang==='ar'?'العودة إلى مساحة العمل':'Return to workspace';
+  successLink.hidden=false;
+ }
+ const download=$('#srDownloadExecution');
+ if(download)download.addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
+  const href=URL.createObjectURL(blob);
+  const anchor=document.createElement('a');anchor.href=href;
+  anchor.download=serviceCode+'-execution-results.json';anchor.click();
+  setTimeout(()=>URL.revokeObjectURL(href),1000);
+ });
 }
 
 function track(event,properties={}){
@@ -1639,10 +1882,34 @@ function collectValues(){
  const values={};const form=$('#srRequestForm');
  form.querySelectorAll('[name]').forEach(el=>{
    if(el.type==='file')return;
+   if(el.type==='radio'){if(el.checked)values[el.name]=el.value;return;}
    if(el.type==='checkbox')values[el.name]=el.checked;
    else if(el.multiple)values[el.name]=Array.from(el.selectedOptions).map(o=>o.value);
    else values[el.name]=el.type==='number'&&el.value!==''?Number(el.value):el.value;
  });
+ if(serviceCode==='feasibility_studies'){
+  const raw=String(values.cash_flows_text||'').trim();
+  if(raw){
+   const items=raw.split(/[;\n]/).map(x=>x.trim());
+   if(items.some(x=>!x||!Number.isFinite(Number(x)))||items.length>60){
+    throw new Error(lang==='ar'?'التدفقات النقدية غير صالحة: أدخل حتى 60 قيمة رقمية':'Invalid cash flows: enter up to 60 numeric values');
+   }
+   values.cash_flows=items.map(Number);
+   if(values.years!==''&&values.years!==undefined&&values.years!==values.cash_flows.length){
+    throw new Error(lang==='ar'?'أفق الدراسة يجب أن يساوي عدد التدفقات السنوية':'Study horizon must equal the number of annual cash flows');
+   }
+   if(values.discount_rate_pct===''||values.discount_rate_pct===undefined){
+    throw new Error(lang==='ar'?'حدد معدل الخصم قبل حساب التدفقات النقدية':'Provide a discount rate before calculating cash flows');
+   }
+  }
+  if(values.discount_rate_pct!==''&&values.discount_rate_pct!==undefined){
+   const percentage=Number(values.discount_rate_pct);
+   if(!Number.isFinite(percentage)||percentage<0||percentage>100){
+    throw new Error(lang==='ar'?'معدل الخصم يجب أن يكون بين 0 و100%':'Discount rate must be between 0 and 100%');
+   }
+   values.discount_rate=percentage/100;
+  }
+ }
  return values;
 }
 // Never claim a saved request until its owner can read back the persisted fields.
@@ -1751,6 +2018,7 @@ async function submit(e){
         deal_id:params.get('deal_id')||null,
         opportunity_id:params.get('opportunity_id')||null,
         country_code:context.country,
+        currency:values.currency||'SAR',
         sector:context.sector,
         activity:context.activity,
         language:lang,
@@ -1785,6 +2053,7 @@ async function submit(e){
       input:runtime.input||undefined,
       research:runtime.packet||undefined,
       country_code:context.country,
+      currency:values.currency||'SAR',
       sector:context.sector,
       activity:context.activity,
       city:context.locality_name,

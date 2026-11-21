@@ -13,6 +13,22 @@ describe('UCP Bridge', () => {
     expect(inputs.loan_amount).toBe(100000);
   });
 
+  test('maps investment amount to computation while treating an estimate as unverified evidence', () => {
+    const estimate = buildMappedInputs({ investment_amount: 1250000000, total_assets: 500 }, 'company');
+    expect(estimate.inputs.initial_investment).toBe(1250000000);
+    expect(estimate.provenance.initial_investment.kind).toBe('user_estimate');
+    expect(estimate.provenance.initial_investment.grounded).toBe(false);
+
+    const detailed = buildMappedInputs({ initial_investment: 750000, investment_amount: 800000, machine_cost: 100000 }, 'company');
+    expect(detailed.inputs.initial_investment).toBe(750000);
+    expect(detailed.provenance.initial_investment.detail).toBe('initial_investment');
+    expect(detailed.provenance.initial_investment.grounded).toBe(true);
+
+    const invalid = buildMappedInputs({ investment_amount: 'n/a' }, 'company');
+    expect(invalid.provenance.initial_investment.kind).toBe('invalid');
+    expect(invalid.provenance.initial_investment.grounded).toBe(false);
+  });
+
   test('derives engine results from UCP output', () => {
     const ucpResult = {
       confidence: 0.85,
@@ -29,6 +45,26 @@ describe('UCP Bridge', () => {
     expect(engines.valuation.value).toBe(500000);
     expect(engines.financing.dscr).toBe(1.5);
     expect(engines.risk.risk_grade).toBe('B');
+  });
+
+  test('does not misrepresent net profit and ROI as NPV and IRR or grant approval', () => {
+    const engines = deriveEngineResults({
+      confidence: 0.95,
+      outputs: {
+        net_profit: { value: 250000 },
+        roi: { value: 30 },
+        payback_period: { value: 3 }
+      },
+      bridge: { requiredSyntheticInputs: [], validationValid: true }
+    });
+    expect(engines.feasibility.executed).toBe(true);
+    expect(engines.feasibility.status).toBe('partial_metrics');
+    expect(engines.feasibility.decisionEligible).toBe(false);
+    expect(engines.feasibility.npv).toBeNull();
+    expect(engines.feasibility.irr).toBeNull();
+    expect(engines.feasibility.net_profit).toBe(250000);
+    expect(engines.feasibility.roi_pct).toBe(30);
+    expect(engines.feasibility.warnings).toContain('project_cash_flows_and_discount_rate_required_for_npv_irr');
   });
 
   test('flags high risk when DSCR is low', () => {
