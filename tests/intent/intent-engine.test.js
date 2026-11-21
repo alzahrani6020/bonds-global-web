@@ -36,6 +36,30 @@ describe('Intent Engine', () => {
     expect(intents.length).toBeGreaterThan(10);
   });
 
+
+  it('preserves explicitly routed feasibility over incidental words about selling goods', () => {
+    const result = detectIntent('بيع القهوة والمنظفات والمياه للمكاتب بسعر البقالة', {
+      intent: 'feasibility',
+      action: 'feasibility',
+      sector: 'trade'
+    });
+    expect(result.intent).toBe('feasibility');
+    expect(result.engines).toContain('feasibility');
+  });
+
+  it('preserves explicit market analysis instead of incidental financing words', () => {
+    const result = detectIntent('دراسة حجم سوق التمويل', {
+      intent: 'market_analysis',
+      sector: 'company'
+    });
+    expect(result.intent).toBe('market_analysis');
+  });
+
+  it('does not accept arbitrary unknown explicit intents', () => {
+    const result = detectIntent('دراسة جدوى', { intent: '__invalid_intent__' });
+    expect(result.intent).toBe('feasibility');
+  });
+
   it('gets a single intent', () => {
     expect(getIntent('buy_asset').id).toBe('buy_asset');
   });
