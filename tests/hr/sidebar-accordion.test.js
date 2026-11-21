@@ -13,7 +13,9 @@ describe('BONDS HR accordion sidebar',()=>{
  for(const [language,html] of [['Arabic',arabic],['English',english]]){
   test(language+' uses six native disclosure groups with 26 distinct modules',()=>{
    expect((html.match(/<details class="hr-nav-group"/g)||[])).toHaveLength(6);
-   expect((html.match(/<summary>/g)||[])).toHaveLength(6);
+   const nav=html.match(/<nav class="sidebar-nav hr-nav"[^>]*>[\s\S]*?<\/nav>/)?.[0];
+   expect(nav).toBeDefined();
+   expect((nav.match(/<summary>/g)||[])).toHaveLength(6);
    for(const group of groups)expect(html).toContain('data-hr-group="'+group+'"');
    const found=[...html.matchAll(/data-hr-category="([^"]+)"/g)].map(x=>x[1]);
    expect(found).toHaveLength(26);
