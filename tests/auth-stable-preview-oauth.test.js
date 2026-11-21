@@ -102,6 +102,17 @@ describe('stable HR Staging OAuth handoff', () => {
     expect(hrSource).toContain("+'/calculators/auth?redirect='");
   });
 
+  test('both languages load the updated OAuth and HR JS instead of old SW cache keys', () => {
+    for (const pathPart of ['calculators/auth/index.html','en/calculators/auth/index.html',
+      'my-bonds/crm/index.html','en/my-bonds/crm/index.html']) {
+      const html = fs.readFileSync(path.join(root, pathPart), 'utf8');
+      expect(html).toContain('/bonds-auth-2026.js?v=3.1.5');
+      if (pathPart.includes('/crm/')) {
+        expect(html).toContain('/my-bonds/crm/company-hr.js?v=13');
+      }
+    }
+  });
+
   test('stable callback page consumes the one-time flag before beginning OAuth', () => {
     expect(loginHtml).toContain("const pendingProvider = new URLSearchParams(location.search).get('start_provider')");
     expect(loginHtml).toContain("clean.searchParams.delete('start_provider')");
