@@ -133,6 +133,9 @@ jobs:
       - name: Run Assistant End-to-End CI Journeys
         run: npm run test:assistant:e2e-ci
 
+      - name: Run standalone HR Node.js native test suites
+        run: node --test tests/hr/company-programs-api.test.cjs tests/hr/calculations-api.test.cjs tests/hr/policy-calculator.test.cjs tests/hr/stripe-programs.test.cjs
+
       - name: Run Unit and Integration Tests
         run: npm test
 
