@@ -731,7 +731,6 @@ function renderFeasibilityControls(){
  // Reuse the single accessible status node, but keep it next to study actions.
  // Errors such as PERMISSION_DENIED must not send the viewport to the page header.
  const status=$('#srStatus');
- if(status)actions.insertAdjacentElement('beforebegin',status);
  const buttons=document.createElement('div');
  buttons.className='sr-actions feasibility-secondary-actions';
  buttons.innerHTML='<button type="button" id="srFeasibilitySaveDraft" class="sr-secondary">'+
@@ -858,6 +857,8 @@ function renderFeasibilityControls(){
  review.className='sr-card';
  review.hidden=true;
  actions.insertAdjacentElement('beforebegin',review);
+ // Place errors directly next to the actual submit button, after review panels.
+ if(status)actions.insertAdjacentElement('beforebegin',status);
  const guidance=document.createElement('div');
  guidance.id='srFeasibilitySizeGuidance';
  guidance.className='sr-warning';
