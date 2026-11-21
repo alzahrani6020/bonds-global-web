@@ -1761,8 +1761,14 @@ function showExecutionPersistenceStatus(execution){
   showStatus(T.executed,true);return true;
  }
  if(persistence?.status==='saved'&&persistence.artifact_id){
-  showStatus(T.executed+' — '+(lang==='ar'?'حُفظ المخرج في المشروع':'Artifact saved to project'),true);
+  showStatus(T.executed+' — '+(lang==='ar'?'حُفظ المخرج في المشروع وتأكدت قراءته':'Artifact saved and verified by project readback'),true);
   return true;
+ }
+ if(persistence?.status==='unverified'&&persistence.artifact_id){
+  showStatus(T.executed+' — '+(lang==='ar'
+   ?'أُنشئ معرّف المخرج ولكن تعذّر تأكيد استرجاعه. لا تعِد تشغيل الدراسة قبل التحقق من أرشيف المشروع.'
+   :'Artifact ID was issued, but its readback was not verified. Do not rerun before checking the project archive.'),false);
+  return false;
  }
  showStatus(T.executed+' — '+(lang==='ar'?'تعذّر تأكيد حفظ المخرج في المشروع. احتفظ بنسخة من النتائج.':'Project artifact persistence was not confirmed. Keep a copy of the results.'),false);
  return false;
