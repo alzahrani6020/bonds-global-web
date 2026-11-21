@@ -1912,6 +1912,15 @@ function renderFinancialExecution(result,metrics){
  return '';
 }
 function showExecutionPersistenceStatus(execution){
+ if(serviceCode==='feasibility_studies'){
+  const feasibility=execution?.result?.engineResults?.feasibility;
+  if(feasibility && (feasibility.executed!==true || (feasibility.metrics?.npv==null && feasibility.metrics?.irr==null && feasibility.npv==null && feasibility.irr==null))){
+   showStatus(lang==='ar'
+    ?'وصلت استجابة من محرك الدراسة، لكن مؤشرات الجدوى NPV وIRR لم تُحسب. أدخل الاستثمار والتدفقات النقدية ومعدل الخصم، أو اجلب بيانات السوق ثم وثّق افتراضات الإيرادات.'
+    :'The study engine responded, but NPV and IRR were not calculated. Provide investment, cash flows and discount rate, or research the market and document revenue assumptions.',false);
+   return false;
+  }
+ }
  const projectId=params.get('project_id');
  const isStudyArtifact=['feasibility_studies','risk_analysis'].includes(serviceCode);
  const requiresArtifact=projectId&&isStudyArtifact;
