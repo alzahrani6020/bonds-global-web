@@ -37,6 +37,30 @@
  ['audit','سجل التدقيق','Audit log']
  ];
  const labels=Object.fromEntries(modules.map(([id,ar,eng])=>[id,t(ar,eng)]));
+ // Keep the active module accessible after a deep link, refresh or browser history.
+ // The disclosure groups are native <details>, so keyboard and screen readers work.
+ function syncHrNavigation(active){
+  const current=document.querySelector('#hr-nav [data-hr-category="'+active+'"]');
+  if(!current)return;
+  document.querySelectorAll('#hr-nav [data-hr-category]').forEach(node=>{
+   const selected=node===current;
+   node.classList.toggle('active',selected);
+   if(selected)node.setAttribute('aria-current','page');
+   else node.removeAttribute('aria-current');
+  });
+  const group=current.closest('details.hr-nav-group');
+  if(group)group.open=true;
+ }
+ const navRoot=$('hr-nav');
+ navRoot.querySelectorAll('details.hr-nav-group').forEach(group=>{
+  group.addEventListener('toggle',()=>{
+   if(!group.open)return;
+   navRoot.querySelectorAll('details.hr-nav-group').forEach(other=>{
+    if(other!==group)other.open=false;
+   });
+  });
+ });
+ syncHrNavigation(labels[category]?category:'employees');
  const status=(msg,err=false)=>{const n=$('hr-status');n.textContent=msg;n.hidden=!msg;n.style.display=msg?'block':'none';n.classList.toggle('error',err);};
  let db,user,license=false,workspace=null,workspaces=[],employees=[],departments=[],positions=[],attendanceRecords=[],payrollPeriods=[],records=[],category=new URLSearchParams(location.search).get('hr_module')||'employees',editing=null;
  let companySpaces=[],activateCompanyWorkspace=null;
@@ -318,7 +342,7 @@
   // Remember the requested module even before owner workspace initialization.
   // Once the company opens, activateCompanyWorkspace renders this module.
   ++loadRequestId;category=next;editing=null;$('hr-editor').hidden=true;
-  document.querySelectorAll('[data-hr-category]').forEach(x=>{x.classList.toggle('active',x.dataset.hrCategory===category);if(x.dataset.hrCategory===category)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});
+  syncHrNavigation(category);
   if(!workspace){showWorkspaceRequirement();return;}
   if(focus)(workspace?$('hr-app'):$('hr-setup')).scrollIntoView({behavior:'smooth',block:'start'});
   status(t('جارٍ تحميل الوحدة...','Loading module...'));
@@ -521,7 +545,12 @@
  // Preserve the CRM display snapshot only on an actual product transition.
  // Re-clicking the selected tab must not overwrite it or hide a live CRM view.
  let activeProduct='crm';
+ function updateProgramHeading(name){
+  const heading=$('company-program-brand');
+  if(heading)heading.textContent=name==='hr'?'BONDS HR':'BONDS CRM';
+ }
  function toggleProduct(name){
+  updateProgramHeading(name);
   if(name===activeProduct){if(name==='hr')enforceHrVisibility();return;}
   const hr=name==='hr';
   activeProduct=name;
@@ -541,6 +570,7 @@
   $('crm-nav').hidden=hr;$('hr-page-heading').hidden=!hr;$('crm-main-heading').hidden=hr;
   $('workspace-content').hidden=hr?true:$('workspace-content').dataset.programPrevious!=='visible';
   $('onboarding').hidden=hr?true:$('onboarding').dataset.programPrevious!=='visible';
+  if(hr)syncHrNavigation(labels[category]?category:'employees');
   $('hr-product-tab').classList.toggle('active',hr);
   $('crm-product-tab').classList.toggle('active',!hr);
  }
@@ -553,6 +583,8 @@
   }
   $('hr-section').hidden=false;$('hr-nav').hidden=false;$('crm-nav').hidden=true;
   $('hr-page-heading').hidden=false;$('crm-main-heading').hidden=true;
+  updateProgramHeading('hr');
+  syncHrNavigation(labels[category]?category:'employees');
  }
  document.addEventListener('bonds-crm-workspace-initialized',()=>{
   if(activeProduct!=='hr')return;
