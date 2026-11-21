@@ -291,6 +291,19 @@
         }
       } catch (e) {}
       if (response.status === 401 || !refreshed) {
+        // An application endpoint can return 401 because its own backend
+        // configuration is broken. Verify Auth separately before logging out.
+        // Never erase an otherwise-valid Google session for an API failure.
+        try {
+          const { data: verified, error: verifyError } = await sb.auth.getUser();
+          if (!verifyError && verified?.user?.id === sessionData.session.user?.id) {
+            return responseLikeError({ __serverError: true, serverError: true, error: 'API_UNAUTHORIZED' }, 401, requestId);
+          }
+        } catch (e) {
+          // Authentication could not be verified; keep the established
+          // session and surface an error rather than guessing it is revoked.
+          return responseLikeError({ __networkError: 'AUTH_VERIFICATION_UNAVAILABLE', offline: true, error: 'AUTH_VERIFICATION_UNAVAILABLE' }, 0, requestId);
+        }
         if (options.redirectOnAuth !== false) {
           clearBondsSession();
           const loginUrl = options.loginUrl || getDefaultLoginUrl(options.returnTo);
