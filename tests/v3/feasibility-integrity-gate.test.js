@@ -12,6 +12,36 @@ describe('feasibility integrity gate', () => {
     expect(() => new Function(ui)).not.toThrow();
   });
 
+  test('parses study cash-flow entries into a typed, validated array', () => {
+    const vm = require('vm');
+    const start = ui.indexOf('function collectValues(){');
+    const end = ui.indexOf('// Never claim a saved request', start);
+    expect(start).toBeGreaterThan(0);
+    expect(end).toBeGreaterThan(start);
+    const source = ui.slice(start, end);
+    const make = (cashFlows, percentage = '10', years = '3') => {
+      const elements = [
+        {name:'cash_flows_text', type:'textarea', value:cashFlows},
+        {name:'discount_rate_pct', type:'number', value:percentage},
+        {name:'years', type:'number', value:years}
+      ];
+      const context = {
+        serviceCode:'feasibility_studies',
+        isFinancialWorkspaceService:()=>false,
+        lang:'en',
+        $:()=>({querySelectorAll:()=>elements})
+      };
+      return vm.runInNewContext(source + '; collectValues', context)();
+    };
+    const result = make('100, 0; -20');
+    expect(Array.from(result.cash_flows)).toEqual([100, 0, -20]);
+    expect(result.discount_rate).toBeCloseTo(0.1, 9);
+    expect(() => make('100,,200')).toThrow('Invalid cash flows');
+    expect(() => make('100,none,200')).toThrow('Invalid cash flows');
+    expect(() => make('100,200', '10', '3')).toThrow('Study horizon');
+    expect(() => make('100,200,300', '')).toThrow('Provide a discount rate');
+  });
+
   test('rejects missing financial fields instead of interpreting them as zero', () => {
     expect(finite(null)).toBeNull();
     expect(finite(undefined)).toBeNull();
