@@ -729,6 +729,61 @@ function renderFeasibilityControls(){
   '<button type="button" id="srFeasibilityReviewButton" class="sr-secondary">'+
   (lang==='ar'?'مراجعة المدخلات':'Review inputs')+'</button>';
  actions.insertAdjacentElement('beforebegin',buttons);
+ const projectChooser=document.createElement('section');
+ projectChooser.id='srFeasibilityProjectChooser';
+ projectChooser.className='sr-card';
+ const linked=params.get('project_id')||'';
+ projectChooser.innerHTML='<h3>'+(lang==='ar'?'ربط الدراسة بمشروع':'Link study to a project')+'</h3>'+
+  '<p class="sr-muted">'+(linked
+   ? (lang==='ar'?'معرّف المشروع المرتبط: ':'Linked project ID: ')+escapeHtml(linked)
+   : (lang==='ar'?'لا يوجد مشروع مرتبط؛ لن يُحفظ مخرج الدراسة في الأرشيف المؤسسي.':'No linked project. The study result will not be archived to a project.'))+'</p>'+
+  '<div class="sr-actions feasibility-secondary-actions">'+
+  '<button type="button" class="sr-secondary" id="srFeasibilityListProjects">'+(lang==='ar'?'اختيار من مشاريعي':'Choose from my projects')+'</button>'+
+  '<a class="sr-secondary" href="'+(lang==='ar'?'/v3/project/':'/en/v3/project/')+'">'+(lang==='ar'?'فتح مركز المشاريع':'Open project center')+'</a></div>'+
+  '<div id="srFeasibilityProjectPicker" hidden><label for="srFeasibilityProjectSelect">'+(lang==='ar'?'المشروعات المتاحة':'Available projects')+'</label>'+
+  '<select id="srFeasibilityProjectSelect" class="sr-input"></select>'+
+  '<button type="button" id="srFeasibilityLinkProject" class="sr-secondary">'+(lang==='ar'?'ربط المشروع المحدد':'Link selected project')+'</button></div>';
+ buttons.insertAdjacentElement('beforebegin',projectChooser);
+ const listProjects=$('#srFeasibilityListProjects');
+ listProjects.addEventListener('click',async()=>{
+  listProjects.disabled=true;
+  try{
+   await window.BondsAuth.ensureEnv();
+   const sb=window.BondsAuth.getSupabase();
+   const session=(await sb.auth.getSession()).data?.session;
+   if(!session?.access_token)throw new Error(T.login);
+   const response=await fetch('/api/v3/projects',{
+    headers:{Authorization:'Bearer '+session.access_token},
+    credentials:'same-origin',cache:'no-store'
+   });
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok||!Array.isArray(result.projects))throw new Error(result.error||('HTTP '+response.status));
+   const select=$('#srFeasibilityProjectSelect');
+   select.innerHTML='<option value="">'+(lang==='ar'?'اختر مشروعًا':'Select a project')+'</option>'+
+    result.projects.map(row=>'<option value="'+escapeHtml(row.id)+'"'+(row.id===linked?' selected':'')+'>'+escapeHtml(row.name||row.project_number||row.id)+'</option>').join('');
+   $('#srFeasibilityProjectPicker').hidden=false;
+   if(!result.projects.length)showStatus(lang==='ar'?'لا توجد مشروعات مملوكة لهذا الحساب':'No projects owned by this account',false);
+  }catch(error){showStatus(T.failed+': '+error.message,false)}
+  finally{listProjects.disabled=false}
+ });
+ $('#srFeasibilityLinkProject').addEventListener('click',()=>{
+  const select=$('#srFeasibilityProjectSelect');
+  const id=select?.value||'';
+  if(!id){showStatus(lang==='ar'?'اختر المشروع أولًا':'Select a project first',false);return}
+  saveWorkspaceDraft();
+  if(workspaceDirty){showStatus(lang==='ar'?'تعذّر حفظ المسودة قبل تبديل المشروع':'Unable to save draft before changing project',false);return}
+  const next=new URL(location.href);
+  next.searchParams.set('project_id',id);
+  const targetScope=['company_id','project_id','deal_id','opportunity_id']
+   .map(key=>{const value=next.searchParams.get(key);return value?key+':'+value:null})
+   .filter(Boolean).join('|')||'unassigned';
+  const targetKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+targetScope;
+  try{
+   const stored=sessionStorage.getItem(workspaceDraftKey);
+   if(stored)sessionStorage.setItem(targetKey,stored);
+  }catch(error){showStatus(T.failed+': '+error.message,false);return}
+  location.assign(next.href);
+ });
  const review=document.createElement('section');
  review.id='srFeasibilityReview';
  review.className='sr-card';
