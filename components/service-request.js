@@ -1195,7 +1195,7 @@ const workspaceDraftScope=['company_id','project_id','deal_id','opportunity_id']
  .map(key=>{const id=params.get(key);return id?key+':'+id:null})
  .filter(Boolean).join('|')||'unassigned';
 const workspaceDraftKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+workspaceDraftScope;
-const workspaceDraftStorage=workspaceDraftScope==='unassigned'?sessionStorage:localStorage;
+const workspaceDraftStorage=(workspaceDraftScope==='unassigned'||isStudiesWorkspaceService())?sessionStorage:localStorage;
 let workspaceDirty=false;
 function saveWorkspaceDraft(){
  if(!isServiceWorkspace)return;
