@@ -113,7 +113,7 @@ describe('feasibility integrity gate', () => {
   });
 
   test('study workspace obeys the server intake flag before considering capabilities', () => {
-    expect(ui).toContain('if(isStudiesWorkspaceService())return detail?.intake?.supported===true;');
+    expect(ui).toContain('if(serviceCode==='feasibility_studies'||serviceCode==='risk_analysis')return detail?.intake?.supported===true;');
     expect(ui).toContain("if(el.type==='radio'){if(el.checked)values[el.name]=el.value;return;}");
   });
 
