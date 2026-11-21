@@ -216,7 +216,13 @@ function studiesRuntimeFromValues(values){
 function syncStudiesAssistantContext(){
  if(!isStudiesWorkspaceService())return;
  const bindings=studiesBindings();
- const values=typeof collectValues==='function'?collectValues():{};
+ let values={};
+ try{values=typeof collectValues==='function'?collectValues():{}}catch(_){
+  // A partially typed financial schedule may be invalid for execution,
+  // but must not interrupt draft persistence or leave stale assistant context.
+  try{sessionStorage.removeItem('bonds_service_assistant_context_v1')}catch(_){}
+  return;
+ }
  const payload=bindings
   ?bindings.studiesAssistantContext(serviceCode,values,studiesParamMap(),lang,text(detail?.service))
   :{version:1,source:'service_workspace',serviceCode,language:lang,executionInputs:values};
