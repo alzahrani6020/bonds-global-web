@@ -682,6 +682,19 @@ function renderStudiesExecution(result){
   const blocked=Array.isArray(integrity.blockedDecisionEngines)?integrity.blockedDecisionEngines.join(', '):'';
   parts.push('<section class="financial-result-section"><h3>'+(lang==='ar'?'حالة صلاحية القرار':'Decision integrity status')+'</h3><div class="studies-result-copy"><strong>'+escapeHtml(labels[state]||state)+'</strong><div>'+(lang==='ar'?'تغطية الأدلة: ':'Evidence coverage: ')+escapeHtml(coverage)+'</div>'+(blocked?'<div>'+(lang==='ar'?'محركات غير مكتملة: ':'Incomplete engines: ')+escapeHtml(blocked)+'</div>':'')+'</div></section>');
  }
+ const computed=result.engineResults?.feasibility;
+ if(serviceCode==='feasibility_studies'&&computed?.metrics){
+  const m=computed.metrics;
+  const rows=[
+   [lang==='ar'?'صافي القيمة الحالية (NPV)':'Net present value (NPV)',m.npv],
+   [lang==='ar'?'معدل العائد الداخلي (IRR %)':'Internal rate of return (IRR %)',m.irr_pct],
+   [lang==='ar'?'فترة الاسترداد (سنوات)':'Payback (years)',m.payback_periods],
+   [lang==='ar'?'إجمالي التدفقات النقدية':'Total cash flows',m.total_cash_inflows]
+  ];
+  parts.push('<section class="financial-result-section"><h3>'+(lang==='ar'?'نتائج حسابية أولية — غير معتمدة':'Preliminary calculations — not approved')+'</h3><div class="financial-result-kpis">'+
+   rows.map(([label,value])=>'<div><span>'+escapeHtml(label)+'</span><strong>'+formatFinancialValue(value)+'</strong></div>').join('')+
+   '</div><div class="studies-result-copy">'+(lang==='ar'?'هذه المؤشرات حسابية فقط ولا تُعتمد دون مراجعة مصادر البيانات وافتراضات المشروع.':'These figures are mathematical results only and require verification of inputs and project assumptions.')+'</div></section>');
+ }
  if(typeof summary==='string'&&summary.trim()){
   parts.push('<section class="financial-result-section"><h3>'+(lang==='ar'?'ملخص الدراسة':'Study summary')+'</h3><div class="studies-result-copy">'+escapeHtml(summary)+'</div></section>');
  }
