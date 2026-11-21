@@ -15,7 +15,7 @@ afterAll(async () => {
   stopSpawnedServer();
 });
 
-async function openFeasibility({ mobile = false } = {}) {
+async function openFeasibility({ mobile = false, projectId = null } = {}) {
   const context = await browser.newContext({
     viewport: mobile ? { width: 390, height: 844 } : { width: 1280, height: 900 }
   });
@@ -61,7 +61,9 @@ async function openFeasibility({ mobile = false } = {}) {
   await page.route('**/api/v3/investment-taxonomy*', route =>
     route.fulfill({ status: 200, contentType: 'application/json', body: '{"sectors":[],"activities":[]}' })
   );
-  await page.goto(new URL('/my-bonds/workspace/?service=feasibility_studies&country=SA', baseUrl).toString(), {
+  const workspaceUrl = new URL('/my-bonds/workspace/?service=feasibility_studies&country=SA', baseUrl);
+  if (projectId) workspaceUrl.searchParams.set('project_id', projectId);
+  await page.goto(workspaceUrl.toString(), {
     waitUntil: 'domcontentloaded', timeout: 30000
   });
   await page.locator('input[name="project_name"]').waitFor({ state: 'visible' });
@@ -139,6 +141,39 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('input[name="project_name"]').waitFor({ state: 'visible' });
     expect(await page.locator('input[name="project_name"]').inputValue()).toBe('Linked feasibility draft');
     expect(await page.locator('select[name="project_size"]').inputValue()).toBe('small');
+    await context.close();
+  });
+
+  test('loads archived feasibility artifacts for the linked project and downloads exact saved values', async () => {
+    const projectId = '11111111-1111-4111-8111-111111111111';
+    const artifactId = '22222222-2222-4222-8222-222222222222';
+    const { page, context } = await openFeasibility({ projectId });
+    let requestedUrl = '';
+    await page.route('**/api/v3/investment-context/artifacts*', route => {
+      requestedUrl = route.request().url();
+      return route.fulfill({
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({ artifacts: [
+          { id:artifactId,project_id:projectId,artifact_type:'feasibility',status:'saved',
+            title:'Saved Feasibility Study',inputs:{initial_investment:100000},
+            results:{ok:true,executed:true},created_at:'2026-11-21T00:00:00Z' },
+          { id:'33333333-3333-4333-8333-333333333333',
+            project_id:'44444444-4444-4444-8444-444444444444',
+            artifact_type:'feasibility',status:'saved',title:'Other project study' }
+        ] })
+      });
+    });
+    await page.locator('#srFeasibilityHistoryButton').click();
+    await page.locator('#srFeasibilityStudyHistory').waitFor({ state:'visible' });
+    const history = await page.locator('#srFeasibilityStudyHistory').innerText();
+    expect(requestedUrl).toContain('project_id=' + projectId);
+    expect(history).toContain('Saved Feasibility Study');
+    expect(history).not.toContain('Other project study');
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.locator('[data-study-artifact="' + artifactId + '"]').click()
+    ]);
+    expect(download.suggestedFilename()).toBe('bonds-feasibility-' + artifactId + '.json');
     await context.close();
   });
 
