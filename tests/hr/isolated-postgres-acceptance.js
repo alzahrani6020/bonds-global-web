@@ -134,6 +134,31 @@ async function main(){
    error=>error.code==='23514','Approved attendance was modified');
   await assert.rejects(()=>as(owner,()=>db.query("update hr_saas_leave_requests set reason='overwrite' where id=$1",[leave.rows[0].id])),
    error=>error.code==='23514','Approved leave was modified');
+  const correction=(await as(owner,()=>db.query(
+   "insert into hr_saas_attendance_corrections(workspace_id,attendance_id,requested_status,reason) values($1,$2,'remote','Approved correction request') returning id",
+   [wa,attendance.rows[0].id]))).rows[0].id;
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_attendance_corrections set status='approved',requested_status='absent' where id=$1",[correction])),
+   error=>error.code==='23514','Correction decision cannot rewrite requested change');
+  await as(owner,()=>db.query(
+   "update hr_saas_attendance_corrections set status='approved' where id=$1",[correction]));
+  const effective=await as(owner,()=>db.query(
+   "select attendance_status,approved_correction_id from hr_saas_attendance_effective where id=$1",[attendance.rows[0].id]));
+  assert.equal(effective.rows[0].attendance_status,'remote','Approved correction must be visible in effective attendance');
+  assert.equal(effective.rows[0].approved_correction_id,correction);
+  const originalAttendance=await as(owner,()=>db.query(
+   "select attendance_status from hr_saas_attendance where id=$1",[attendance.rows[0].id]));
+  assert.equal(originalAttendance.rows[0].attendance_status,'present','Approved correction must never overwrite original');
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_attendance_corrections set reason='tampered' where id=$1",[correction])),
+   error=>error.code==='23514','Approved correction cannot be rewritten');
+  const otherCorrections=await as(other,()=>db.query(
+   "select id from hr_saas_attendance_corrections where id=$1",[correction]));
+  assert.equal(otherCorrections.rowCount,0,'Other tenant read approved correction');
+  const otherEffective=await as(other,()=>db.query(
+   "select id from hr_saas_attendance_effective where id=$1",[attendance.rows[0].id]));
+  assert.equal(otherEffective.rowCount,0,'Effective view leaked private attendance to another tenant');
+
   const period=(await as(owner,()=>db.query(
    "insert into hr_saas_payroll_periods(workspace_id,payroll_year,payroll_month) values($1,2026,11) returning id",[wa]))).rows[0].id;
   const line=(await as(owner,()=>db.query(
