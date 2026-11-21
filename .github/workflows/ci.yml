@@ -256,7 +256,7 @@ jobs:
                   console.error('Non-HR CI step changed: full visual gate required');
                   process.exit(1);
                 }
-                NODE
+          NODE
                 ;;
               sw.js)
                 # Only cache version and versioned asset references may differ.
