@@ -48,6 +48,36 @@ describe('studies execution preserves explicitly supplied input and research', (
     expect(request.forceResearch).toBe(true);
   });
 
+
+  test('explicit analysis model preserves the original non-native sector classification', () => {
+    const request = enrichStudiesExecutionRequest(
+      feasibility, { orchestrator_intent: 'feasibility' },
+      { sector: 'hospitality', context: { sector: 'hospitality' } },
+      {
+        input: 'Hotel hospitality project',
+        values: {
+          sector_code: 'hospitality',
+          sector_name: 'الضيافة',
+          sector_engine_profile: 'hotel',
+          project_name: 'Hospitality study'
+        }
+      }
+    );
+    expect(request.sector).toBe('hotel');
+    expect(request.values.sector_code).toBe('hospitality');
+    expect(request.values.sector_name).toBe('الضيافة');
+    expect(request.intent).toBe('feasibility');
+  });
+
+  test('a custom sector is not silently mapped to a model without explicit choice', () => {
+    const request = enrichStudiesExecutionRequest(
+      feasibility, {}, { sector: 'user_sector_123' },
+      { values: { sector_code: 'user_sector_123', sector_name: 'قطاع جديد' }, input: 'Study' }
+    );
+    expect(request.sector).toBe('user_sector_123');
+    expect(request.values.sector_name).toBe('قطاع جديد');
+  });
+
   test('no explicit input falls back to generated research query', () => {
     const request = enrichStudiesExecutionRequest(
       feasibility, {}, {},
