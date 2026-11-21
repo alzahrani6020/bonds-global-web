@@ -2400,12 +2400,14 @@ async function submit(e){
         throw new Error(lang==='ar'?'أعاد المحرك نية مختلفة عن دراسة الجدوى. لم تُعتمد النتيجة.':'Engine returned an intent other than feasibility. Result rejected.');
       }
     }
-    submitted=true;
     track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null});
     const artifactSaved=showExecutionPersistenceStatus(execution);
     renderExecutionResult(execution);
+    // An unverified or incomplete response is not a completed submission.
+    // Keep the user's draft editable so missing inputs can be corrected.
+    submitted=artifactSaved || !['feasibility_studies','risk_analysis'].includes(serviceCode);
     if(artifactSaved)clearWorkspaceDraft();
-    $('#srSubmit').disabled=true;
+    $('#srSubmit').disabled=submitted;
     return;
   }
 
