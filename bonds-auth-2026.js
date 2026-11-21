@@ -560,6 +560,19 @@
     return origin + (url.startsWith('/') ? url : '/' + url);
   }
 
+  // Keep HR Staging OAuth on the persistent branch alias. A temporary Preview
+  // hostname has a separate browser session and PKCE verifier.
+  function hrPreviewAuthOrigin() {
+    if (typeof window === 'undefined' || !window.location) return '';
+    const hostname = window.location.hostname.toLowerCase();
+    const stableHost = 'bonds-global-web-git-fix-hr-clean-integration-20261120-dr-talal.vercel.app';
+    const backend = String(getEnv().SUPABASE_URL || '');
+    if (!hostname.startsWith('bonds-global-') ||
+        !hostname.endsWith('-dr-talal.vercel.app') ||
+        !/^https:\/\/gjwppwtgsecwmqlsmbmq\.supabase\.co(?:\/|$)/.test(backend)) return '';
+    return 'https://' + stableHost;
+  }
+
   function oauthCallbackUrl() {
     if (typeof window === 'undefined' || !window.location) {
       return 'https://bonds-global.com/calculators/auth/';
@@ -573,6 +586,16 @@
 
   async function signInWithOAuth(provider, options) {
     await ensureEnv();
+    const stableOrigin = hrPreviewAuthOrigin();
+    if (stableOrigin && window.location.origin !== stableOrigin) {
+      // Navigate BEFORE calling signInWithOAuth; PKCE and persisted sessions
+      // cannot be transferred between Vercel Preview hostnames.
+      const intended = new URL(getRedirectUrl());
+      const target = new URL('/calculators/auth', stableOrigin);
+      target.searchParams.set('redirect', intended.pathname + intended.search);
+      window.location.assign(target.href);
+      return { data: { url: target.href }, error: null };
+    }
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
     const { redirectTo: _ignored, ...rest } = options || {};
@@ -999,7 +1022,7 @@
   window.BondsAuth = {
     getSupabase, ensureEnv, getUser, getSession, authenticatedFetch, getProfile, updateProfile, getSubscription, getAdminRole,
     signUp, signIn, signInWithOTP, verifyOTP, sendOtpViaProxy, verifyOtpViaProxy, updateUser, signInWithOAuth, resendConfirmation, signOut, checkFeatureAccess,
-    getRedirectUrl, clearRedirectUrl,
+    getRedirectUrl, clearRedirectUrl, hrPreviewAuthOrigin,
     normalizePhone, isValidPhone,
     initSiteAuth, initAdminGuard
   };
