@@ -151,6 +151,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     });
     expect(await page.locator('#srFinancialIntake').count()).toBe(0);
     expect(await page.locator('#srDetails').isVisible()).toBe(true);
+    expect(await page.locator('#srFeasibilityProjectChooser a').getAttribute('href')).toBe('/v3/portfolio/');
     await page.locator('input[name="project_name"]').fill('Acceptance project');
     await page.locator('select[name="project_size"]').selectOption('large');
     await page.locator('input[name="investment_amount"]').fill('50000000');
