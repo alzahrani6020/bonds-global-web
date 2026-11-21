@@ -278,3 +278,37 @@ test('site auth header renders from resolved session, not a hardcoded admin labe
   expect(container.innerHTML).not.toContain('ادمن');
   expect(container.innerHTML).toContain('a');
 });
+
+
+test('a valid Google session survives an unrelated API 401', async () => {
+  const session = {
+    access_token: 'valid-access',
+    refresh_token: 'valid-refresh',
+    user: { id: 'user-1', email: 'user@example.com' }
+  };
+  const fetchMock = jest.fn().mockResolvedValue({ status: 401, ok: false, headers: new Map() });
+  const { window, auth, localStorage } = loadAuth({
+    initialStorage: { 'bonds-auth-token': JSON.stringify(session) },
+    fetchMock
+  });
+  const result = await window.BondsAuth.authenticatedFetch('/api/v3/projects', { method: 'GET' });
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(auth.getUser).toHaveBeenCalled();
+  expect(result.status).toBe(401);
+  expect(result.serverError).toBe(true);
+  expect(result.authError).toBeUndefined();
+  expect(localStorage.getItem('bonds-auth-token')).toContain('user-1');
+  expect(window.location.href).toBe('https://bonds-global.com/calculators/auth/');
+});
+
+test('project data access runs under the verified caller JWT and RLS', () => {
+  const source = fs.readFileSync(path.join(__dirname, '..', 'v3/api/projects.js'), 'utf8');
+  const router = fs.readFileSync(path.join(__dirname, '..', 'v3/api/index.js'), 'utf8');
+  expect(source).toContain("global: { headers: { Authorization: authorization } }");
+  expect(source).toContain('persistSession: false');
+  expect(source).not.toContain('SUPABASE_SERVICE_ROLE_KEY');
+  expect(source).not.toContain("getSupabaseClient()");
+  expect(source).toContain("projectClient(req)");
+  expect(router).toContain("const user = await getUserFromToken(req);");
+  expect(router).toContain("return await projectsRouter(req, res, path, user);");
+});

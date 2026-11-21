@@ -1,4 +1,18 @@
-const { getSupabaseClient } = require('../lib/supabase');
+const { createClient } = require('@supabase/supabase-js');
+
+// Project operations run as the already-authenticated caller, not as service_role.
+// v3/api/index.js verifies the same Bearer token before invoking projectsRouter.
+function projectClient(req) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+  const authorization = String(req.headers?.authorization || '');
+  if (!url || !key) throw new Error('Missing Supabase URL or anon key');
+  if (!/^Bearer\s+\S+$/i.test(authorization)) throw new Error('Missing authenticated user token');
+  return createClient(url, key, {
+    global: { headers: { Authorization: authorization } },
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+  });
+}
 const { resolveGeoContext } = require('../../lib/geo/resolve-context');
 const { LifecycleEngine } = require('../../lib/enterprise-lifecycle');
 const { getUserRole, can } = require('../../lib/ecc/role-guard');
@@ -25,7 +39,7 @@ function parseBody(req) {
 }
 
 async function listProjects(req, res, user) {
-  const supabase = getSupabaseClient();
+  const supabase = projectClient(req);
 
   const { data, error } = await supabase
     .from('bonds_projects')
@@ -71,7 +85,7 @@ async function resolveCityContext(supabase, cityCode) {
 }
 
 async function createProject(req, res, user) {
-  const supabase = getSupabaseClient();
+  const supabase = projectClient(req);
   // RLS policies already enforce that users can only create projects for themselves.
   // Role guard is reserved for shared/team assets in the Executive Command Center.
   const body = await parseBody(req);
@@ -145,7 +159,7 @@ async function createProject(req, res, user) {
 }
 
 async function getProject(req, res, user, projectId) {
-  const supabase = getSupabaseClient();
+  const supabase = projectClient(req);
 
   const { data, error } = await supabase
     .from('bonds_projects')
@@ -163,7 +177,7 @@ async function getProject(req, res, user, projectId) {
 }
 
 async function deleteProject(req, res, user, projectId) {
-  const supabase = getSupabaseClient();
+  const supabase = projectClient(req);
   // RLS policies already enforce user-scoped deletes.
   const { error } = await supabase
     .from('bonds_projects')
