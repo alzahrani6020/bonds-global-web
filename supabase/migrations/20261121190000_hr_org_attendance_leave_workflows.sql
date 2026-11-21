@@ -13,6 +13,29 @@ create table public.hr_saas_departments (
  foreign key(workspace_id,parent_department_id) references public.hr_saas_departments(workspace_id,id) on delete restrict,
  check(parent_department_id is null or parent_department_id<>id)
 );
+-- Reject multi-level hierarchy cycles; same-row cycles are also blocked by CHECK.
+create function hr_saas_private.department_hierarchy_guard() returns trigger
+ language plpgsql security invoker set search_path='' as $
+declare cycle_found boolean;
+begin
+ if new.parent_department_id is not null then
+  with recursive ancestors(id,parent_department_id) as (
+   select d.id,d.parent_department_id from public.hr_saas_departments d
+    where d.workspace_id=new.workspace_id and d.id=new.parent_department_id
+   union all
+   select d.id,d.parent_department_id from public.hr_saas_departments d
+    join ancestors a on a.parent_department_id=d.id
+    where d.workspace_id=new.workspace_id
+  )
+  select exists(select 1 from ancestors where id=new.id) into cycle_found;
+  if cycle_found then
+   raise exception 'Department hierarchy cycle' using errcode='23514'; end if;
+ end if;
+ return new;
+end $;
+revoke all on function hr_saas_private.department_hierarchy_guard() from public,anon,authenticated;
+create trigger hr_saas_department_hierarchy_guard before insert or update of parent_department_id
+ on public.hr_saas_departments for each row execute function hr_saas_private.department_hierarchy_guard();
 create table public.hr_saas_positions (
  id uuid primary key default gen_random_uuid(),
  workspace_id uuid not null references public.hr_saas_workspaces(id) on delete restrict,
