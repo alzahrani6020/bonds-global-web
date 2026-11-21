@@ -178,3 +178,116 @@ end $$;
 revoke all on function hr_saas_private.leave_decision_guard() from public,anon,authenticated;
 create trigger hr_saas_leave_decision_guard before insert or update on public.hr_saas_leave_requests
  for each row execute function hr_saas_private.leave_decision_guard();
+
+-- Approved attendance is immutable. Corrections have a separate audited lifecycle
+-- and an invoker-security read model; the original source row is never rewritten.
+create table public.hr_saas_attendance_corrections (
+ id uuid primary key default gen_random_uuid(),
+ workspace_id uuid not null references public.hr_saas_workspaces(id) on delete restrict,
+ attendance_id uuid not null,
+ requested_status text not null check(requested_status in ('present','absent','leave','remote','holiday')),
+ requested_clock_in timestamptz,
+ requested_clock_out timestamptz,
+ reason text not null check(length(btrim(reason)) between 5 and 1000),
+ status text not null default 'pending' check(status in ('pending','approved','rejected')),
+ requested_by uuid not null references auth.users(id) on delete restrict,
+ decided_by uuid references auth.users(id) on delete restrict,
+ decided_at timestamptz,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now(),
+ unique(workspace_id,id),
+ foreign key(workspace_id,attendance_id)
+  references public.hr_saas_attendance(workspace_id,id) on delete restrict,
+ check(requested_clock_out is null or requested_clock_in is not null),
+ check(requested_clock_out is null or requested_clock_out>requested_clock_in),
+ check(requested_status not in ('absent','leave','holiday') or
+       (requested_clock_in is null and requested_clock_out is null)),
+ check((status in ('approved','rejected'))=(decided_at is not null))
+);
+create unique index hr_saas_corrections_one_pending on public.hr_saas_attendance_corrections(workspace_id,attendance_id)
+ where status='pending';
+create index hr_saas_corrections_timeline on public.hr_saas_attendance_corrections(workspace_id,attendance_id,decided_at desc);
+create function hr_saas_private.attendance_correction_guard() returns trigger
+ language plpgsql security invoker set search_path='' as $$
+declare source_date date; source_state text;
+begin
+ if tg_op='INSERT' then
+  if new.status<>'pending' or new.decided_at is not null or new.decided_by is not null then
+   raise exception 'Correction must start pending' using errcode='23514'; end if;
+  new.requested_by=(select auth.uid());
+  if new.requested_by is null then
+   raise exception 'Authenticated requester required' using errcode='42501'; end if;
+ else
+  if new.workspace_id<>old.workspace_id or new.attendance_id<>old.attendance_id
+     or new.requested_by<>old.requested_by then
+   raise exception 'Correction identity is immutable' using errcode='23514'; end if;
+  if old.status in ('approved','rejected') and new is distinct from old then
+   raise exception 'Final attendance correction is immutable' using errcode='23514'; end if;
+  if old.status='pending' and new.status not in ('pending','approved','rejected') then
+   raise exception 'Invalid correction transition' using errcode='23514'; end if;
+  if old.status='pending' and new.status in ('approved','rejected') and
+   (new.requested_status,new.requested_clock_in,new.requested_clock_out,new.reason)
+   is distinct from (old.requested_status,old.requested_clock_in,old.requested_clock_out,old.reason) then
+    raise exception 'Decision cannot alter correction proposal' using errcode='23514'; end if;
+ end if;
+ select a.work_date,a.review_status into source_date,source_state
+ from public.hr_saas_attendance a where a.workspace_id=new.workspace_id and a.id=new.attendance_id for update;
+ if source_state is distinct from 'approved' then
+  raise exception 'Correction requires approved attendance' using errcode='23514'; end if;
+ if new.requested_clock_in is not null and
+    (new.requested_clock_in at time zone 'Asia/Riyadh')::date<>source_date then
+  raise exception 'Corrected time does not match work date' using errcode='23514'; end if;
+ if new.status in ('approved','rejected') then
+  new.decided_by=(select auth.uid());
+  new.decided_at=now();
+ else
+  new.decided_by=null;new.decided_at=null;
+ end if;
+ return new;
+end $$;
+revoke all on function hr_saas_private.attendance_correction_guard() from public,anon,authenticated;
+create trigger hr_saas_attendance_correction_guard before insert or update
+ on public.hr_saas_attendance_corrections for each row execute function hr_saas_private.attendance_correction_guard();
+alter table public.hr_saas_attendance_corrections enable row level security;
+create policy hr_attendance_corrections_read on public.hr_saas_attendance_corrections for select to authenticated using (
+ exists(select 1 from public.hr_saas_workspaces w join public.company_program_entitlements e
+ on e.owner_user_id=w.owner_user_id where w.id=workspace_id and w.owner_user_id=(select auth.uid())
+ and e.product_code in ('hr','suite') and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now()))
+);
+create policy hr_attendance_corrections_add on public.hr_saas_attendance_corrections for insert to authenticated with check (
+ exists(select 1 from public.hr_saas_workspaces w join public.company_program_entitlements e
+ on e.owner_user_id=w.owner_user_id where w.id=workspace_id and w.owner_user_id=(select auth.uid())
+ and e.product_code in ('hr','suite') and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now()))
+);
+create policy hr_attendance_corrections_edit on public.hr_saas_attendance_corrections for update to authenticated using (
+ exists(select 1 from public.hr_saas_workspaces w join public.company_program_entitlements e
+ on e.owner_user_id=w.owner_user_id where w.id=workspace_id and w.owner_user_id=(select auth.uid())
+ and e.product_code in ('hr','suite') and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now()))
+) with check (
+ exists(select 1 from public.hr_saas_workspaces w join public.company_program_entitlements e
+ on e.owner_user_id=w.owner_user_id where w.id=workspace_id and w.owner_user_id=(select auth.uid())
+ and e.product_code in ('hr','suite') and e.status in ('active','trial') and e.starts_at<=now()
+ and (e.ends_at is null or e.ends_at>now()))
+);
+revoke all on public.hr_saas_attendance_corrections from public,anon,authenticated;
+grant select,insert,update on public.hr_saas_attendance_corrections to authenticated;
+create trigger hr_saas_attendance_corrections_audit after insert or update on public.hr_saas_attendance_corrections
+ for each row execute function hr_saas_private.audit_change();
+create view public.hr_saas_attendance_effective with (security_invoker=true) as
+ select a.id,a.workspace_id,a.employee_id,a.work_date,a.review_status,
+  case when c.id is null then a.attendance_status else c.requested_status end as attendance_status,
+  case when c.id is null then a.clock_in else c.requested_clock_in end as clock_in,
+  case when c.id is null then a.clock_out else c.requested_clock_out end as clock_out,
+  c.id as approved_correction_id,a.created_at
+ from public.hr_saas_attendance a
+ left join lateral (
+  select c.id,c.requested_status,c.requested_clock_in,c.requested_clock_out
+  from public.hr_saas_attendance_corrections c
+  where c.workspace_id=a.workspace_id and c.attendance_id=a.id and c.status='approved'
+  order by c.decided_at desc,c.id desc limit 1
+ ) c on true;
+revoke all on public.hr_saas_attendance_effective from public,anon,authenticated;
+grant select on public.hr_saas_attendance_effective to authenticated;
