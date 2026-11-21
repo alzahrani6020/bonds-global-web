@@ -48,6 +48,11 @@ jobs:
           CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
         run: node tests/crm/isolated-postgres-acceptance.js
 
+      - name: Verify standalone HR migrations, employee persistence and tenant isolation (disposable PostgreSQL)
+        env:
+          CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
+        run: node tests/hr/isolated-postgres-acceptance.js
+
       - name: Verify owner-authorized invitation server and failure handling
         run: node --test tests/crm/invite-handler-contract.cjs
 
@@ -122,8 +127,14 @@ jobs:
       - name: Verify CRM browser workflow (isolated auth and database)
         run: node tests/crm/browser-acceptance.js
 
+      - name: Verify HR browser workflow and save/readback with isolated auth fixtures
+        run: node tests/hr/browser-acceptance.js
+
       - name: Run Assistant End-to-End CI Journeys
         run: npm run test:assistant:e2e-ci
+
+      - name: Run standalone HR Node.js native test suites
+        run: node --test tests/hr/company-programs-api.test.cjs tests/hr/calculations-api.test.cjs tests/hr/policy-calculator.test.cjs tests/hr/stripe-programs.test.cjs
 
       - name: Run Unit and Integration Tests
         run: npm test
@@ -187,10 +198,17 @@ jobs:
           git fetch --no-tags --depth=1 origin "$BASE_SHA"
           git diff --name-only "$BASE_SHA" HEAD > /tmp/bonds-pr-changed-files.txt
           cat /tmp/bonds-pr-changed-files.txt
+          # For pull requests, test screenshots against the exact base commit.
+          # This is a pixel comparison, not a screenshot exclusion or update.
+          # It avoids comparing an unrelated current design to old Nov 15 images.
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            echo "scope=base-compare" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           while IFS= read -r file; do
             case "$file" in
               components/service-request.js|components/service-workspace.css|my-bonds/workspace/index.html|en/my-bonds/workspace/index.html|service-request.html|en/service-request.html|lib/finance/engines/feasibility-engine.js|lib/finance/feasibility-input-validator.js|lib/finance/shared/math.js|lib/orchestrator/intelligence-orchestrator.js|lib/orchestrator/ucp-bridge.js|tests/finance/feasibility-input-validator.test.js|tests/orchestrator/ucp-bridge.test.js|tests/v3/feasibility-integrity-gate.test.js|tests/v3/feasibility-workspace-browser.test.js|tests/v3/service-artifact-persistence-contract.test.js|tests/v3/service-request-readback-contract.test.js|tests/v3/service-workspace-continuity.test.js|tests/v3/service-workspace-routing.test.js|v3/api/services.js) ;;
-              lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|calculators/auth/auth-shared.css|calculators/auth/index.html|en/calculators/auth/index.html|tests/v3/revert-service-request-context.test.js|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|tests/visual/auth-login-acceptance.js|.github/workflows/auth-ui-acceptance.yml|assets/bonds-mark-transparent.svg|tests/auth/mobile-onboarding-session.acceptance.cjs|.github/workflows/mobile-onboarding-session.yml|calculators/auth/onboarding.html|en/calculators/auth/onboarding.html|.github/workflows/ci.yml) ;;
+              lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|calculators/auth/auth-shared.css|calculators/auth/index.html|en/calculators/auth/index.html|tests/v3/revert-service-request-context.test.js|supabase/migrations/20261117040000_standalone_hr_saas_baseline.sql|supabase/migrations/20261117060000_hr_saas_attendance_leaves.sql|supabase/migrations/20261117070000_hr_saas_payroll_review.sql|supabase/migrations/20261117080000_hr_saas_employment_contracts.sql|supabase/migrations/20261117090000_hr_saas_entitlements.sql|supabase/migrations/20261117100000_hr_saas_leave_ledger.sql|supabase/migrations/20261117110000_hr_saas_roles_self_service.sql|supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql|supabase/migrations/20261121060000_hr_draft_policy_integrity.sql|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|tests/visual/auth-login-acceptance.js|.github/workflows/auth-ui-acceptance.yml|assets/bonds-mark-transparent.svg|tests/auth/mobile-onboarding-session.acceptance.cjs|.github/workflows/mobile-onboarding-session.yml|calculators/auth/onboarding.html|en/calculators/auth/onboarding.html|.github/workflows/ci.yml) ;;
               sw.js)
                 # Only cache version and versioned asset references may differ.
                 git show "$BASE_SHA:sw.js" > /tmp/bonds-base-sw-original.js

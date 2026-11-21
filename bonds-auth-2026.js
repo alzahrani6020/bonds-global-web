@@ -291,6 +291,16 @@
         }
       } catch (e) {}
       if (response.status === 401 || !refreshed) {
+        // A backend authorization error is not proof that Google sign-in expired.
+        // Verify the identity with Supabase before discarding the browser session.
+        try {
+          const { data: verified, error: verifyError } = await sb.auth.getUser();
+          if (!verifyError && verified?.user?.id === sessionData.session.user?.id) {
+            return responseLikeError({ __serverError: true, serverError: true, error: 'API_UNAUTHORIZED' }, 401, requestId);
+          }
+        } catch (e) {
+          return responseLikeError({ __networkError: 'AUTH_VERIFICATION_UNAVAILABLE', offline: true, error: 'AUTH_VERIFICATION_UNAVAILABLE' }, 0, requestId);
+        }
         if (options.redirectOnAuth !== false) {
           clearBondsSession();
           const loginUrl = options.loginUrl || getDefaultLoginUrl(options.returnTo);
@@ -566,7 +576,7 @@
     }
     getRedirectUrl();
     const prefix = window.location.pathname.startsWith('/en/') ? '/en' : '';
-    return window.location.origin + prefix + '/calculators/auth/';
+    return window.location.origin + prefix + '/calculators/auth';
   }
 
   async function signInWithOAuth(provider, options) {
