@@ -1700,7 +1700,7 @@ function collectValues(){
  if(serviceCode==='feasibility_studies'){
   const raw=String(values.cash_flows_text||'').trim();
   if(raw){
-   const items=raw.split(/[,;\\n]+/).map(x=>x.trim());
+   const items=raw.split(/[,;\n]+/).map(x=>x.trim());
    if(items.some(x=>!x||!Number.isFinite(Number(x)))||items.length>60){
     throw new Error(lang==='ar'?'التدفقات النقدية غير صالحة: أدخل حتى 60 قيمة رقمية':'Invalid cash flows: enter up to 60 numeric values');
    }
