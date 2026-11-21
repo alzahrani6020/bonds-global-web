@@ -82,6 +82,30 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await context.close();
   });
 
+  test('shows an active running state until the feasibility API responds', async () => {
+    const {page,context}=await openFeasibility();
+    let releaseRequest;
+    const pending=new Promise(resolve=>{releaseRequest=resolve});
+    await page.route('**/api/v3/services/execute', async route=>{
+      await pending;
+      await route.fulfill({status:422,contentType:'application/json',body:JSON.stringify({
+        executed:false,error:{code:'FEASIBILITY_INPUT_VALIDATION_FAILED'}
+      })});
+    });
+    await page.locator('input[name="project_name"]').fill('Office-supply investment');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('textarea[name="project_brief"]').fill('Coffee and office supplies for commercial offices');
+    await page.locator('#srSubmit').click();
+    await page.waitForFunction(()=>document.querySelector('#srSubmit')?.textContent?.includes('جارٍ تشغيل الدراسة'));
+    expect(await page.locator('#srSubmit').isDisabled()).toBe(true);
+    expect(await page.locator('#srStatus').innerText()).toContain('يجري التحقق');
+    releaseRequest();
+    await page.locator('#srStatus.err').waitFor({state:'visible'});
+    expect(await page.locator('#srStatus').innerText()).toContain('FEASIBILITY_INPUT_VALIDATION_FAILED');
+    expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
+    await context.close();
+  });
+
   test('market information action runs governed market_research and reports only returned evidence', async () => {
     const { page, context } = await openFeasibility();
     let payload;
