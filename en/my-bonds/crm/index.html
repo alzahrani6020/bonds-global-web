@@ -26,6 +26,9 @@
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
  <script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
  <script src="/my-bonds/crm/crm-app.js?v=3" defer></script>
+ <script src="/my-bonds/crm/company-hr.js?v=12" defer></script>
+ <script src="/my-bonds/crm/company-hr-self-service.js?v=1" defer></script>
+ <script src="/my-bonds/crm/company-hr-policies.js?v=1" defer></script>
  <script src="/my-bonds/crm/crm-internal.js?v=1" defer></script>
  <style>html[lang="en"]{direction:ltr}html[lang="en"] body{text-align:left}html[lang="en"] .sidebar{border-left:0;border-right:1px solid var(--stroke)}html[lang="en"] .sidebar-nav button,html[lang="en"] th,html[lang="en"] td{text-align:left}</style>
 </head>
@@ -36,6 +39,36 @@
   <div class="workspace-name" id="workspace-name">Client workspace</div>
   <label id="workspace-switch-label" hidden>Choose workspace<select id="workspace-select" aria-label="Choose workspace"></select></label>
   <button type="button" id="workspace-create-open" class="secondary workspace-create-open" hidden>Create another workspace</button>
+  <div class="company-product-switch" aria-label="Available company programs">
+   <button id="crm-product-tab" type="button" class="secondary active">Customer Relationship Management (CRM)</button>
+   <button id="hr-product-tab" type="button" class="secondary">Human Resources</button>
+  </div>
+  <nav class="sidebar-nav hr-nav" id="hr-nav" hidden aria-label="Human resources modules">
+   <button type="button" data-hr-category="employees" class="active">Employees</button>
+   <button type="button" data-hr-category="departments">Departments</button>
+   <button type="button" data-hr-category="recruitment">Recruitment</button>
+   <button type="button" data-hr-category="contracts">Contracts</button>
+   <button type="button" data-hr-category="attendance">Attendance</button>
+   <button type="button" data-hr-category="shifts">Shifts</button>
+   <button type="button" data-hr-category="leaves">Leave</button>
+   <button type="button" data-hr-category="leave_balances">Leave balances</button>
+   <button type="button" data-hr-category="payroll">Payroll</button>
+   <button type="button" data-hr-category="payroll_runs">Payroll runs</button>
+   <button type="button" data-hr-category="benefits">Benefits</button>
+   <button type="button" data-hr-category="allowances">Allowances</button>
+   <button type="button" data-hr-category="deductions">Deductions</button>
+   <button type="button" data-hr-category="claims">Entitlements</button>
+   <button type="button" data-hr-category="loans">Loans</button>
+   <button type="button" data-hr-category="settlements">Settlements</button>
+   <button type="button" data-hr-category="performance">Performance</button>
+   <button type="button" data-hr-category="training">Training</button>
+   <button type="button" data-hr-category="documents">Documents</button>
+   <button type="button" data-hr-category="employee_requests">Requests</button>
+   <button type="button" data-hr-category="assets">Custody</button>
+   <button type="button" data-hr-category="governance">Compliance</button>
+   <button type="button" data-hr-category="lifecycle">Lifecycle</button>
+   <button type="button" data-hr-category="audit">Audit</button>
+  </nav>
   <nav class="sidebar-nav" id="crm-nav" aria-label="CRM navigation">
    <button type="button" data-section="overview" class="active">Overview</button>
    <button type="button" data-section="companies">Companies</button>
@@ -56,7 +89,7 @@
  </aside>
  <main class="content">
   <header class="toolbar">
-   <div><p class="eyebrow">Business CRM · Saved in your account</p><h1 id="section-heading">Overview</h1></div>
+   <div><p class="eyebrow">Business CRM · Saved in your account</p><h1 id="section-heading"><span id="crm-main-heading">Overview</span><span id="hr-page-heading" hidden>Human Resources</span></h1></div>
    <div class="toolbar-actions">
     <button class="secondary" id="refresh" type="button">Refresh</button>
     <button class="primary" id="install" type="button">Install app</button>
@@ -126,6 +159,119 @@
     <form id="record-form"><div class="editor-fields" id="editor-fields"></div>
       <button class="primary" type="submit" id="save-record">Save</button>
     </form>
+   </section>
+  </section>
+  <section id="hr-section" hidden>
+   <section id="hr-license" class="panel" hidden>
+    <h2>Human Resources subscription</h2>
+    <p>Each program has a separate entitlement. Checkout uses the verified payment provider; access activates only after the server confirms the Stripe subscription state.</p>
+    <label>Program<select id="hr-purchase-product"><option value="hr">Human Resources</option><option value="crm">CRM</option><option value="suite">Full suite</option></select></label>
+    <button type="button" class="primary" id="hr-checkout-start">Continue to secure checkout</button>
+    <a href="/contact.html">Subscription assistance</a>
+   </section>
+   <section id="hr-auth" class="panel" hidden>Sign in to use company programs. <a id="hr-sign-in" href="/en/calculators/auth/index.html">Sign in</a></section>
+   <section id="hr-setup" class="panel" hidden>
+    <h2>Shared company workspaces</h2>
+    <label>Choose workspace<select id="hr-workspace"></select></label>
+    <button type="button" id="hr-open-workspace" class="primary">Open selected workspace</button>
+    <details id="hr-create-details">
+     <summary>Create new company (optional)</summary>
+     <form id="hr-create-workspace">
+      <label>New company name<input name="name" required maxlength="180"></label>
+      <button type="submit" class="secondary">Create and link new company</button>
+     </form>
+    </details>
+   </section>
+   <p id="hr-status" class="notice" role="status" aria-live="polite" hidden></p>
+   <section id="hr-membership-admin" class="panel" hidden>
+    <div class="section-actions"><h2>Employee access and roles</h2>
+     <button type="button" class="secondary" id="hr-member-refresh">Refresh</button></div>
+    <p class="muted">Only the company owner can grant or revoke roles. Enter an existing authenticated user UUID. HR managers can review requests, but cannot read salary records or manage memberships.</p>
+    <form id="hr-member-form" class="editor-fields">
+     <label>Registered user UUID<input name="user_id" required maxlength="36" autocomplete="off"></label>
+     <label>Employee record<select id="hr-member-employee" name="employee_id" required><option value="">Select employee</option></select></label>
+     <label>Access role<select name="role" required><option value="employee">Employee</option><option value="hr_manager">HR manager</option></select></label>
+     <button type="submit" class="primary">Grant access</button>
+    </form>
+    <h3>Invite staff using verified email</h3>
+    <p class="muted">Invitations are bound to employee, email and role. Access begins only after the recipient signs in with the matching verified email.</p>
+    <form id="hr-invite-form" class="editor-fields">
+     <label>Recipient email<input name="email" type="email" required maxlength="320" autocomplete="off"></label>
+     <label>Employee record<select id="hr-invite-employee" name="employee_id" required><option value="">Select employee</option></select></label>
+     <label>Access role<select name="role" required><option value="employee">Employee</option><option value="hr_manager">HR manager</option></select></label>
+     <button type="submit" class="primary">Create secure invitation</button>
+    </form>
+    <div class="overflow"><table><thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Link</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
+    <div class="overflow"><table><thead><tr><th>Employee</th><th>Account</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody id="hr-members-table"></tbody></table></div>
+   </section>
+   <section id="hr-self-section" class="panel" hidden>
+    <h2>My employee services</h2>
+    <p class="muted">Employee requests are separate from sensitive payroll, employment documents and employee identity records. Approval records a decision; it does not change payroll, attendance, or leave balances automatically.</p>
+    <label>My company workspace<select id="hr-self-workspace"></select></label>
+    <div id="hr-self-app" hidden>
+     <p>My role: <strong id="hr-self-role"></strong></p>
+     <form id="hr-request-form" class="editor-fields">
+      <label>Request type<select name="request_type" required>
+       <option value="leave">Leave</option><option value="attendance_correction">Attendance correction</option><option value="certificate">Employee certificate</option><option value="training">Training</option><option value="other">Other</option></select></label>
+      <label>Subject<input name="subject" required maxlength="180"></label>
+      <label>Description<textarea name="description" required maxlength="2000" rows="3"></textarea></label>
+      <label>From date (optional)<input type="date" name="from_date"></label>
+      <label>To date (optional)<input type="date" name="to_date"></label>
+      <button type="submit" class="primary">Submit request</button>
+     </form>
+     <div class="section-actions"><h3>Requests and decisions</h3>
+      <button type="button" class="secondary" id="hr-requests-refresh">Refresh</button></div>
+     <label>Decision note (HR manager)<input id="hr-decision-note" maxlength="1000"></label>
+     <div class="overflow"><table><thead><tr><th>Type</th><th>Subject</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody id="hr-request-rows"></tbody></table></div>
+    </div>
+   </section>
+   <p id="hr-self-status" class="notice" role="status" aria-live="polite" hidden></p>
+   <section id="hr-policy-panel" class="panel" hidden>
+    <h2>Reviewed entitlement policies and draft calculations</h2>
+    <p class="muted">Company-approved country rules must be legally reviewed before approval. No statutory rates are assumed. Results are review-only drafts, not payable balances.</p>
+    <form id="hr-policy-form" class="editor-fields">
+     <label>ISO country code<input name="jurisdiction" required minlength="2" maxlength="2" pattern="[A-Za-z]{2}"></label>
+     <label>Effective from<input name="effective_from" type="date" required></label>
+     <label>Effective to<input name="effective_to" type="date"></label>
+     <label>Annual leave days<input name="annual_leave_days" type="number" min="0" max="366" step="0.0001" required></label>
+     <label>Accrual year days<input name="accrual_year_days" type="number" min="1" max="366" step="1" required></label>
+     <label>Service tiers JSON<textarea name="service_tiers" required rows="4" placeholder='[{"through_days":365,"wage_days_per_service_day":0.001}]'></textarea></label>
+     <button type="submit" class="primary">Save draft policy</button>
+    </form>
+    <div class="overflow"><table><thead><tr><th>Country</th><th>Effective</th><th>Status</th><th>Action</th></tr></thead><tbody id="hr-policy-rows"></tbody></table></div>
+    <h3>Persisted draft entitlement calculation</h3>
+    <form id="hr-calculation-form" class="editor-fields">
+     <label>Employee<select id="hr-calc-employee" name="employee_id" required></select></label>
+     <label>Approved policy<select id="hr-calc-policy" name="policy_id" required></select></label>
+     <label>Calculation type<select name="kind" required><option value="leave_accrual">Leave accrual</option><option value="end_of_service">End of service</option></select></label>
+     <label>As-of date<input name="as_of" type="date"></label>
+     <label>Eligible days<input name="eligible_days" type="number" min="0" step="1"></label>
+     <label>Service start<input name="start_date" type="date"></label>
+     <label>Service end<input name="end_date" type="date"></label>
+     <label>Eligible daily wage<input name="eligible_daily_wage" type="number" min="0" step="0.01"></label>
+     <label>Currency ISO<input name="currency" minlength="3" maxlength="3" pattern="[A-Za-z]{3}"></label>
+     <button type="submit" class="primary">Calculate and save review draft</button>
+    </form>
+    <p id="hr-policy-status" class="notice" role="status" hidden></p>
+    <pre id="hr-calculation-result" hidden></pre>
+   </section>
+   <section id="hr-app" hidden>
+    <div class="section-actions"><h2 id="hr-heading">Employees</h2>
+     <button id="hr-refresh" type="button" class="secondary">Refresh</button>
+     <button id="hr-add" type="button" class="primary">Add record</button>
+    </div>
+    <p class="muted">Salary, claims and payroll entries are internal draft records; no real payments or statutory filing occur.</p>
+    <p class="muted">Rows: <span id="hr-count">0</span></p>
+    <section id="hr-balance-summary" class="panel overflow" hidden>
+     <h3>Approved leave balances by employee</h3>
+     <p class="muted">Balances reflect approved manual entries; they do not automatically calculate statutory accrual or leave usage.</p>
+     <table><thead><tr><th>Employee</th><th>Leave type</th><th>Days balance</th></tr></thead><tbody id="hr-balance-rows"></tbody></table>
+    </section>
+    <div class="panel overflow"><table><thead id="hr-head"></thead><tbody id="hr-body"></tbody></table></div>
+    <section id="hr-editor" class="panel" hidden>
+     <div class="editor-head"><h2 id="hr-editor-title"></h2><button id="hr-close" type="button" class="secondary">Close</button></div>
+     <form id="hr-save-form"><div id="hr-fields" class="editor-fields"></div><button id="hr-save" type="submit" class="primary">Save</button></form>
+    </section>
    </section>
   </section>
   <section id="internal-crm-panel" class="panel" hidden aria-label="BONDS administrative CRM">

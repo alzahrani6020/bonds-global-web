@@ -566,7 +566,9 @@
     }
     getRedirectUrl();
     const prefix = window.location.pathname.startsWith('/en/') ? '/en' : '';
-    return window.location.origin + prefix + '/calculators/auth/';
+    // Vercel canonicalizes /calculators/auth/ to /calculators/auth with a 308.
+    // The OAuth code query must arrive at the callback handler without that redirect.
+    return window.location.origin + prefix + '/calculators/auth';
   }
 
   async function signInWithOAuth(provider, options) {
