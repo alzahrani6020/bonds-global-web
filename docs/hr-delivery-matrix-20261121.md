@@ -32,11 +32,11 @@ The 84 candidate capabilities discussed are **feature ideas, not 84 implemented 
 
 ## Current change set in PR #1190
 
-- Employee search by number, name, department and job title, with employment-status filter.
-- The UI reports the **loaded** count and flags a full 250-row page; it does not claim a complete dataset.
+- Employee search by number, name, department and job title, with employment-status filter, executed in a tenant-scoped Supabase query.
+- Server-side pagination uses deterministic ordering, exact matching count and 50 rows per page; the UI distinguishes page rows from total matches.
 - Filters reset when switching company; no schema, RLS, billing, or payroll changes.
-- This iteration is **not** server-side search/pagination; production readiness is **not** claimed.
+- Non-directory employee selectors and other modules still use their original 250-item ceiling; runtime authenticated acceptance is **not** claimed.
 
 ## Next engineering iteration (separate PR)
 
-Implement server-side, workspace-scoped employee pagination and search with a consistent ordered cursor or offset and verified count, then integration tests for pagination across more than 250 records and tenant isolation. Follow by dedicated organization records and integrated employee lifecycle state machine. No unverified production writes.
+Verify server-side employee pagination with authenticated tests beyond 250 records, including tenant isolation, query correctness and page consistency; then expand paginated employee selection to other HR modules. Follow by dedicated organization records and integrated employee lifecycle state machine. No unverified production writes.
