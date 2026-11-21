@@ -4,7 +4,7 @@ create table public.hr_saas_departments (
  id uuid primary key default gen_random_uuid(),
  workspace_id uuid not null references public.hr_saas_workspaces(id) on delete restrict,
  department_code text not null check (length(btrim(department_code)) between 1 and 40),
- name text not null check (length(btrim(name)) between 1 and 180),
+ name text not null check (length(btrim(name)) between 1 and 240),
  parent_department_id uuid,
  is_active boolean not null default true,
  created_at timestamptz not null default now(),
@@ -127,6 +127,11 @@ create trigger hr_saas_departments_audit after insert or update on public.hr_saa
  for each row execute function hr_saas_private.audit_change();
 create trigger hr_saas_positions_audit after insert or update on public.hr_saas_positions
  for each row execute function hr_saas_private.audit_change();
+-- Preserve previously entered department catalog records; originals remain immutable here.
+-- The deterministic code is derived from the source UUID, never a guessed business code.
+insert into public.hr_saas_departments(workspace_id,department_code,name)
+select r.workspace_id,'L-'||replace(r.id::text,'-',''),r.title
+from public.hr_saas_records r where r.category='departments';
 
 -- Attendance requires a draft -> submitted -> approved/rejected lifecycle.
 alter table public.hr_saas_attendance
