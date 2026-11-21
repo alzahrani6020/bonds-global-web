@@ -257,7 +257,7 @@ function studiesLocationFieldsHtml(){
   '<div class="sr-field"><label for="studiesRegion">'+L.region+opt+'</label>'+studiesSelectMarkup('studiesRegion','region_code',L.regionPh,region)+'</div>'+
   '<div class="sr-field"><label for="studiesLocality">'+L.locality+opt+'</label>'+studiesSelectMarkup('studiesLocality','locality_code',L.localityPh,locality||localityName)+'</div>'+
   '<div class="sr-field"><label for="studiesSector">'+L.sector+opt+'</label>'+studiesSelectMarkup('studiesSector','sector_code',L.sectorPh,sector)+'</div>'+
-  '<div class="sr-field"><label for="studiesActivity">'+L.activity+opt+'</label>'+studiesSelectMarkup('studiesActivity','activity_code',L.activityPh,activity)+'</div>'+
+  '<div class="sr-field"><label for="studiesActivity">'+L.activity+opt+'</label>'+studiesSelectMarkup('studiesActivity','activity_code',L.activityPh,sector?activity:'')+'</div>'+
   '<input type="hidden" name="region_name" id="studiesRegionName" value="'+escapeHtml(studiesPrefill('region_name','region_name')||region)+'">'+
   '<input type="hidden" name="locality_name" id="studiesLocalityName" value="'+escapeHtml(localityName)+'">'+
   '<input type="hidden" name="sector_name" id="studiesSectorName">'+
