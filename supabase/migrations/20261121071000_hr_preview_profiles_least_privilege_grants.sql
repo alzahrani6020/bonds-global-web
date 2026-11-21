@@ -15,5 +15,5 @@ BEGIN
  EXECUTE $sql$GRANT UPDATE (restaurant_name, country, governorate, city, city_name,
  business_type, phone, employee_count, branch_count, bio, needs, language,
  updated_at, avatar_url, neighborhood, email) ON TABLE public.profiles TO authenticated$sql$;
-END
+END;
 $preview$;
