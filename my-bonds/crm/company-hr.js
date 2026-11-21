@@ -39,6 +39,8 @@
  let db,user,license=false,workspace=null,workspaces=[],employees=[],payrollPeriods=[],records=[],category=new URLSearchParams(location.search).get('hr_module')||'employees',editing=null;
  let companySpaces=[],activateCompanyWorkspace=null;
  let loadRequestId=0;
+ let employeeSearch='',employeeStatusFilter='all',employeePage=0,employeeTotal=0,employeeSearchTimer=null;
+ const employeePageSize=50;
  const check=r=>{if(r.error)throw r.error;return r.data;};
  const table=()=>category==='employees'?'hr_saas_employees':category==='attendance'?'hr_saas_attendance':category==='leaves'?'hr_saas_leave_requests':category==='contracts'?'hr_saas_employment_contracts':category==='claims'?'hr_saas_entitlements':category==='leave_balances'?'hr_saas_leave_ledger':category==='payroll_runs'?'hr_saas_payroll_periods':category==='payroll'?'hr_saas_payroll_lines':category==='employee_requests'?'hr_saas_employee_requests':'hr_saas_records';
  const activeSpecs=()=>specs[category]||specs.records;
@@ -86,8 +88,72 @@
   $('hr-editor-title').textContent=(row?t('تعديل','Edit'):t('إضافة','New'))+' — '+labels[category];
   $('hr-editor').scrollIntoView({behavior:'smooth',block:'start'});
  }
+ function ensureEmployeeFilters(){
+  let toolbar=$('hr-employee-filters');
+  if(toolbar)return toolbar;
+  toolbar=document.createElement('div');
+  toolbar.id='hr-employee-filters';
+  toolbar.className='section-actions';
+  const searchLabel=document.createElement('label');
+  searchLabel.textContent=t('البحث في جميع موظفي الشركة','Search all company employees');
+  const search=document.createElement('input');
+  search.id='hr-employee-search';
+  search.type='search';
+  search.autocomplete='off';
+  search.placeholder=t('الاسم، الرقم، الإدارة، المسمى','Name, number, department, title');
+  search.addEventListener('input',()=>{
+   employeeSearch=search.value.trim();employeePage=0;
+   if(employeeSearchTimer)clearTimeout(employeeSearchTimer);
+   employeeSearchTimer=setTimeout(()=>{employeeSearchTimer=null;load().catch(e=>status(e.message,true));},300);
+  });
+  searchLabel.appendChild(search);
+  const statusLabel=document.createElement('label');
+  statusLabel.textContent=t('الحالة الوظيفية','Employment status');
+  const select=document.createElement('select');
+  select.id='hr-employee-status-filter';
+  for(const [value,ar,english] of [
+   ['all','جميع الحالات','All statuses'],['active','نشط','Active'],
+   ['draft','مسودة','Draft'],['on_leave','في إجازة','On leave'],
+   ['suspended','موقوف','Suspended'],['terminated','منتهي الخدمة','Terminated']
+  ]){
+   const option=document.createElement('option');
+   option.value=value;option.textContent=t(ar,english);select.appendChild(option);
+  }
+  select.addEventListener('change',()=>{
+   employeeStatusFilter=select.value;employeePage=0;
+   if(employeeSearchTimer){clearTimeout(employeeSearchTimer);employeeSearchTimer=null;}
+   load().catch(e=>status(e.message,true));
+  });
+  statusLabel.appendChild(select);
+  toolbar.append(searchLabel,statusLabel);
+  const paging=document.createElement('div');
+  paging.id='hr-employee-paging';
+  const previous=document.createElement('button');
+  previous.type='button';previous.className='secondary';
+  previous.id='hr-employee-prev';previous.textContent=t('السابق','Previous');
+  previous.addEventListener('click',()=>{if(employeePage>0){employeePage--;load().catch(e=>status(e.message,true));}});
+  const next=document.createElement('button');
+  next.type='button';next.className='secondary';
+  next.id='hr-employee-next';next.textContent=t('التالي','Next');
+  next.addEventListener('click',()=>{if((employeePage+1)*employeePageSize<employeeTotal){employeePage++;load().catch(e=>status(e.message,true));}});
+  const page=document.createElement('span');
+  page.id='hr-employee-page-label';page.setAttribute('aria-live','polite');
+  paging.append(previous,page,next);
+  toolbar.appendChild(paging);
+  const counter=$('hr-count').parentElement;
+  counter.parentNode.insertBefore(toolbar,counter);
+  return toolbar;
+ }
  function render(){
-  const isEmployees=category==='employees',source=isEmployees?employees:records;
+  const isEmployees=category==='employees';
+  ensureEmployeeFilters().hidden=!isEmployees;
+  const source=isEmployees?employees:records;
+  if(isEmployees){
+   $('hr-employee-prev').disabled=employeePage===0;
+   $('hr-employee-next').disabled=(employeePage+1)*employeePageSize>=employeeTotal;
+   $('hr-employee-page-label').textContent=t(' صفحة ',' Page ')+(employeeTotal?employeePage+1:0)+
+    ' / '+Math.ceil(employeeTotal/employeePageSize)+' ';
+  }
   $('hr-heading').textContent=labels[category]+(workspace?' — '+workspace.name:'');
   $('hr-add').hidden=['audit','employee_requests'].includes(category);
   const columns=isEmployees?['employee_number','full_name','department','job_title','employment_status']:category==='attendance'?['employee_id','work_date','attendance_status','clock_in','clock_out']:category==='leaves'?['employee_id','leave_type','start_date','end_date','status']:category==='contracts'?['employee_id','contract_number','contract_type','status','start_date']:category==='claims'?['employee_id','claim_reference','claim_type','amount','status']:category==='leave_balances'?['employee_id','entry_reference','leave_type','days_delta','status']:category==='payroll_runs'?['payroll_year','payroll_month','status','approved_at']:category==='payroll'?['employee_id','period_id','base_salary','allowance_total','deduction_total','net_salary']:category==='audit'?['created_at','entity','action','changed_columns']:category==='employee_requests'?['employee_id','request_type','subject','status','created_at']:['employee_id','title','status','effective_date','amount'];
@@ -102,13 +168,34 @@
   }).join('')+(category==='audit'?'':category==='employee_requests'?
     '<td>'+(row.status==='pending'?'<button type="button" class="secondary" data-hr-request-decision="approved" data-hr-request-id="'+escape(row.id)+'">'+t('اعتماد','Approve')+'</button> <button type="button" class="secondary" data-hr-request-decision="rejected" data-hr-request-id="'+escape(row.id)+'">'+t('رفض','Reject')+'</button>':'—')+'</td>':
     '<td><button type="button" class="secondary" data-hr-edit="'+escape(row.id)+'">'+t('تعديل','Edit')+'</button></td>')+'</tr>').join('')||'<tr><td colspan="6">'+t('لا توجد سجلات','No records')+'</td></tr>';
-  $('hr-count').textContent=String(source.length);
+  $('hr-count').textContent=isEmployees?String(source.length)+' / '+String(employeeTotal):String(source.length);
  }
  async function load(){
   if(!workspace)return;
   const owner=workspace.id,requestedCategory=category,requestId=++loadRequestId;
   const isCurrent=()=>requestId===loadRequestId&&workspace?.id===owner&&category===requestedCategory;
-  const fetchedEmployees=check(await db.from('hr_saas_employees').select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250));
+  // All employee-directory queries are scoped by workspace AND underlying RLS.
+  // Other HR modules retain the existing bounded employee selector until their
+  // own paginated/remote selector work is delivered.
+  let fetchedEmployees, fetchedEmployeeTotal=0;
+  if(requestedCategory==='employees'){
+   let query=db.from('hr_saas_employees').select('*',{count:'exact'}).eq('workspace_id',owner);
+   if(employeeStatusFilter!=='all')query=query.eq('employment_status',employeeStatusFilter);
+   const term=employeeSearch.replace(/[^\p{L}\p{N}\s-]/gu,'').trim().slice(0,80);
+   if(term){
+    const pattern='%'+term+'%';
+    query=query.or(['employee_number','full_name','department','job_title']
+     .map(field=>field+'.ilike.'+pattern).join(','));
+   }
+   const start=employeePage*employeePageSize;
+   const response=await query.order('employee_number',{ascending:true})
+    .order('id',{ascending:true}).range(start,start+employeePageSize-1);
+   fetchedEmployees=check(response);
+   fetchedEmployeeTotal=response.count??0;
+  }else{
+   fetchedEmployees=check(await db.from('hr_saas_employees').select('*')
+    .eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250));
+  }
   if(!isCurrent())return;
   const fetchedPeriods=['payroll','payroll_runs'].includes(requestedCategory)?
    check(await db.from('hr_saas_payroll_periods').select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250)):[];
@@ -126,7 +213,7 @@
     .select('employee_id,leave_type,days_balance').eq('workspace_id',owner).limit(1000));
    if(!isCurrent())return;
   }
-  employees=fetchedEmployees;payrollPeriods=fetchedPeriods;records=fetchedRecords;
+  employees=fetchedEmployees;employeeTotal=fetchedEmployeeTotal;payrollPeriods=fetchedPeriods;records=fetchedRecords;
   $('hr-balance-summary').hidden=requestedCategory!=='leave_balances';
   if(requestedCategory==='leave_balances'){
    $('hr-balance-rows').innerHTML=balances.map(b=>'<tr><td>'+
@@ -290,6 +377,10 @@
    $('hr-open-workspace').disabled=!companySpaces.length;
    if(!companySpaces.length)status(t('لا توجد مساحة شركة لهذا الحساب. أنشئ شركة جديدة لبدء العمل','No company workspace belongs to this account. Create a company to begin'),true);
    activateCompanyWorkspace=async crmId=>{
+    employeeSearch='';employeeStatusFilter='all';employeePage=0;employeeTotal=0;
+    if(employeeSearchTimer){clearTimeout(employeeSearchTimer);employeeSearchTimer=null;}
+    if($('hr-employee-search'))$('hr-employee-search').value='';
+    if($('hr-employee-status-filter'))$('hr-employee-status-filter').value='all';
     ++loadRequestId;
     const selected=companySpaces.find(c=>c.id===crmId);
     workspace=workspaces.find(w=>w.crm_workspace_id===crmId)||null;
