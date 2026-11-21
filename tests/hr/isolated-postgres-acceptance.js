@@ -10,6 +10,9 @@ async function main(){
  const db=new Client({connectionString:url,connectionTimeoutMillis:5000});
  await db.connect();
  try{
+  // Match Supabase's privileged server role only inside the disposable CI cluster.
+  // The preceding CRM fixture creates service_role without BYPASSRLS.
+  await db.query('alter role service_role bypassrls');
   const migration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117040000_standalone_hr_saas_baseline.sql'),'utf8');
   await db.query(migration);
   const opsMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261117060000_hr_saas_attendance_leaves.sql'),'utf8');
