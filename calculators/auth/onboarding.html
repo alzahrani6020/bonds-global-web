@@ -200,10 +200,31 @@
         return window.BondsAuth.isValidPhone(phone, country);
       }
 
+      // A transient mobile session refresh must not erase the form or navigate away.
+      async function recoverOnboardingUser() {
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const result = await window.BondsAuth.getUser();
+            if (result?.data?.user) return result.data.user;
+            // Supabase may still be recovering its persisted session after navigation.
+            const session = await window.BondsAuth.getSession();
+            if (session?.data?.session?.user) return session.data.session.user;
+          } catch (error) {
+            console.warn('[onboarding] session recovery attempt failed', error?.message || error);
+          }
+          if (!attempt) await new Promise(resolve => setTimeout(resolve, 350));
+        }
+        return null;
+      }
+
+      function showSessionWarning() {
+        showError('تعذر التحقق من الجلسة حاليًا. بيانات النموذج لا تزال هنا. تحقق من الاتصال ثم أعد الحفظ؛ لا يلزم تسجيل الدخول مجددًا إلا إذا انتهت الجلسة فعليًا.');
+      }
+
       async function init() {
 
-        const { data: { user } } = await window.BondsAuth.getUser();
-        if (!user) return location.href = 'index.html';
+        const user = await recoverOnboardingUser();
+        if (!user) { showSessionWarning(); return; }
 
         // Pre-fill from user metadata if available
         document.getElementById('restaurantName').value = user.user_metadata?.restaurant_name || '';
@@ -224,16 +245,20 @@
           if (profile.needs) document.getElementById('needs').value = profile.needs;
         }
       }
-      init();
+      init().catch(error => {
+        console.warn('[onboarding] initialization failed', error?.message || error);
+        showSessionWarning();
+      });
 
       document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        const { data: { user } } = await window.BondsAuth.getUser();
+        const user = await recoverOnboardingUser();
         if (!user) {
           setLoading(false);
-          return location.href = 'index.html';
+          showSessionWarning();
+          return;
         }
 
         const country = countrySelect.value;
@@ -279,10 +304,11 @@
 
       document.getElementById('skipBtn').addEventListener('click', async () => {
         setLoading(true);
-        const { data: { user } } = await window.BondsAuth.getUser();
+        const user = await recoverOnboardingUser();
         if (!user) {
           setLoading(false);
-          return location.href = 'index.html';
+          showSessionWarning();
+          return;
         }
         const payload = {
           id: user.id,

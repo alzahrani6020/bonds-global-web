@@ -1,0 +1,47 @@
+name: Mobile Onboarding Session Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'calculators/auth/onboarding.html'
+      - 'en/calculators/auth/onboarding.html'
+      - 'tests/auth/mobile-onboarding-session.acceptance.cjs'
+      - '.github/workflows/mobile-onboarding-session.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'calculators/auth/onboarding.html'
+      - 'en/calculators/auth/onboarding.html'
+      - 'tests/auth/mobile-onboarding-session.acceptance.cjs'
+      - '.github/workflows/mobile-onboarding-session.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-onboarding-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start isolated static server
+        run: |
+          PORT=3005 node scripts/dev-server.js > "$RUNNER_TEMP/mobile-onboarding-server.log" 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:3005/calculators/auth/onboarding.html > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/mobile-onboarding-server.log"
+          exit 1
+      - name: Verify form survives temporary auth loss on mobile in both languages
+        env:
+          BASE_URL: http://127.0.0.1:3005
+        run: node tests/auth/mobile-onboarding-session.acceptance.cjs
