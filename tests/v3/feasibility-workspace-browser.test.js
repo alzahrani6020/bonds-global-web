@@ -172,6 +172,52 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await context.close();
   });
 
+  test('permission denial remains next to feasibility controls without scrolling to page header', async () => {
+    const { page, context } = await openFeasibility();
+    await page.route('**/api/v3/services/execute',route=>route.fulfill({
+      status:403,contentType:'application/json',
+      body:JSON.stringify({ok:false,executed:false,error:{code:'PERMISSION_DENIED'}})
+    }));
+    await page.locator('input[name="project_name"]').fill('Office supply feasibility');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('textarea[name="project_brief"]').fill('Coffee and office products to commercial companies');
+    await page.locator('#srSubmit').scrollIntoViewIfNeeded();
+    const start=await page.evaluate(()=>window.scrollY);
+    expect(start).toBeGreaterThan(100);
+    await page.locator('#srSubmit').click();
+    await page.locator('#srStatus.err').waitFor({state:'visible'});
+    const result=await page.evaluate(()=>({
+      scrollY:window.scrollY,
+      errorText:document.querySelector('#srStatus')?.textContent||'',
+      formContainsStatus:document.querySelector('#srRequestForm')?.contains(document.querySelector('#srStatus')),
+      buttonEnabled:!document.querySelector('#srSubmit')?.disabled
+    }));
+    expect(result.formContainsStatus).toBe(true);
+    expect(result.scrollY).toBeGreaterThan(100);
+    expect(result.errorText).toContain('PERMISSION_DENIED');
+    expect(result.errorText).toContain('رفض الخادم صلاحية');
+    expect(result.buttonEnabled).toBe(true);
+    await context.close();
+  });
+
+  test('market research denial stays inline without discarding the draft', async () => {
+    const { page, context } = await openFeasibility();
+    await page.route('**/api/v3/services/execute',route=>route.fulfill({
+      status:403,contentType:'application/json',
+      body:JSON.stringify({ok:false,executed:false,error:{code:'PERMISSION_DENIED'}})
+    }));
+    await page.locator('input[name="project_name"]').fill('Office market project');
+    await page.locator('textarea[name="project_brief"]').fill('Coffee and water office supply');
+    await page.locator('#srFeasibilityResearchButton').scrollIntoViewIfNeeded();
+    await page.locator('#srFeasibilityResearchButton').click();
+    await page.locator('#srStatus.err').waitFor({state:'visible'});
+    expect(await page.locator('#srStatus').innerText()).toContain('PERMISSION_DENIED');
+    expect(await page.locator('#srFeasibilityResearchButton').isEnabled()).toBe(true);
+    expect(await page.locator('textarea[name="project_brief"]').inputValue()).toBe('Coffee and water office supply');
+    expect(await page.evaluate(()=>document.querySelector('#srRequestForm').contains(document.querySelector('#srStatus')))).toBe(true);
+    await context.close();
+  });
+
   test('run button reports an incomplete required project description instead of silently doing nothing', async () => {
     const { page, context } = await openFeasibility();
     await page.locator('input[name="project_name"]').fill('Small business');
