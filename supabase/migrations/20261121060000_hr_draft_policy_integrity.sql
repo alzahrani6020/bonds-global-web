@@ -1,5 +1,10 @@
 -- Additive guard for privileged HR calculation-draft writes. No existing rows are rewritten.
 -- An RLS policy alone cannot guard writes using service_role (BYPASSRLS).
+-- The invoker-role trigger reads only these reviewed policy columns.
+-- CI's service_role deliberately has narrower table grants than the hosted project.
+GRANT SELECT (id, workspace_id, jurisdiction, status)
+ON public.hr_saas_rule_sets TO service_role;
+
 CREATE OR REPLACE FUNCTION hr_saas_private.assert_calculation_draft_policy_integrity()
 RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER SET search_path = '' AS $$
 BEGIN
