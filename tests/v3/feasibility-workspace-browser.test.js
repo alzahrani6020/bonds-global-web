@@ -431,7 +431,13 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     const {page,context}=await openFeasibility();
     const sector=page.locator('#studiesSector');
     await page.waitForFunction(()=>!!document.querySelector('#studiesSector option[value="__add_custom_sector__"]'));
-    await sector.selectOption('__add_custom_sector__');
+    // UniversalDropdown hides the backing native <select>; exercise the
+    // same native change event emitted by the visual dropdown instead of
+    // waiting for the hidden control to become visible.
+    await sector.evaluate(el => {
+      el.value = '__add_custom_sector__';
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
     await page.locator('#studiesCustomSectorEditor').waitFor({state:'visible'});
     await page.locator('#studiesCustomSectorName').fill('توريد المنتجات للمكاتب');
     await page.locator('#studiesCustomSectorModel').selectOption('trade');
@@ -439,7 +445,10 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.waitForFunction(()=>document.querySelector('#studiesSector')?.value.startsWith('user_sector_'));
     const sectorCode=await sector.inputValue();
     expect(await page.locator('#studiesEngineProfile').inputValue()).toBe('trade');
-    await page.locator('#studiesActivity').selectOption('__add_custom_activity__');
+    await page.locator('#studiesActivity').evaluate(el => {
+      el.value = '__add_custom_activity__';
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
     await page.locator('#studiesCustomActivityEditor').waitFor({state:'visible'});
     await page.locator('#studiesCustomActivityName').fill('توزيع القهوة والمستلزمات');
     await page.locator('#studiesCustomActivitySave').click();
