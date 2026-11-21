@@ -301,6 +301,8 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('#srSubmit').click();
     await page.locator('#srStatus.err').waitFor({state:'visible'});
     expect(await page.locator('#srStatus').innerText()).toContain('NPV وIRR لم تُحسب');
+    expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
+    expect(await page.locator('#srExecutionResult h2').innerText()).toContain('استجابة جزئية');
     await context.close();
   });
 
