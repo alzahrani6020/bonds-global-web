@@ -57,3 +57,17 @@ jobs:
         run: npx jest --runInBand tests/hr/org-attendance-workflows.test.js tests/hr/workflow-decisions.test.js tests/hr/employee-directory-filters.test.js
       - name: Check changed HR JavaScript syntax
         run: node --check my-bonds/crm/company-hr.js
+      - name: Install Chromium for isolated browser acceptance
+        run: npx playwright install chromium
+      - name: Start local dev server
+        run: npm run dev:local &
+      - name: Wait for local dev server
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:3005 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Verify HR browser journeys (mocked auth and data)
+        run: node tests/hr/browser-acceptance.js
+
