@@ -9,7 +9,7 @@ describe('service workspace continuity contract',()=>{
 
   test('workspace persists draft inputs and restores them',()=>{
     expect(ui).toContain("const workspaceDraftKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+workspaceDraftScope");
-    expect(ui).toContain("['project_id','deal_id','opportunity_id']");
+    expect(ui).toContain("['company_id','project_id','deal_id','opportunity_id']");
     expect(ui).toContain("workspaceDraftScope==='unassigned'?sessionStorage:localStorage");
     expect(ui).toContain('function saveWorkspaceDraft()');
     expect(ui).toContain('function restoreWorkspaceDraft()');
