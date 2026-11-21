@@ -223,7 +223,40 @@ jobs:
                 # A changed build, test, or release step still requires full.
                 git show "$BASE_SHA:$file" | sed '/^      - name: Determine visual regression scope from PR base$/,/^      - name: Prepare exact PR-base homepage visual reference$/c\VISUAL_SCOPE_CLASSIFIER' > /tmp/bonds-base-ci-other-steps.yml
                 sed '/^      - name: Determine visual regression scope from PR base$/,/^      - name: Prepare exact PR-base homepage visual reference$/c\VISUAL_SCOPE_CLASSIFIER' "$file" > /tmp/bonds-head-ci-other-steps.yml
-                cmp -s /tmp/bonds-base-ci-other-steps.yml /tmp/bonds-head-ci-other-steps.yml || exit 0
+                # The three named HR acceptance steps are the only approved
+                # changes outside the visual classifier itself. Compare every
+                # other workflow byte against the PR-base workflow, fail closed.
+                node - /tmp/bonds-base-ci-other-steps.yml /tmp/bonds-head-ci-other-steps.yml <<'NODE'
+                const fs = require('fs');
+                const base = fs.readFileSync(process.argv[2], 'utf8');
+                let head = fs.readFileSync(process.argv[3], 'utf8');
+                const allowed = [
+                  ['Verify isolated HR migrations and tenant RLS on disposable PostgreSQL', [
+                    'env:',
+                    '  CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres',
+                    'run: node tests/hr/isolated-postgres-acceptance.js'
+                  ]],
+                  ['Verify HR browser workflows (isolated authentication and data)', [
+                    'run: node tests/hr/browser-acceptance.js'
+                  ]],
+                  ['Run HR Node native tests', [
+                    'run: node --test tests/hr/*.test.cjs'
+                  ]]
+                ];
+                for (const [name, lines] of allowed) {
+                  const block = '      - name: ' + name + '\n' +
+                    lines.map(line => '        ' + line + '\n').join('') + '\n';
+                  if (head.split(block).length !== 2) {
+                    console.error('HR CI step is absent, duplicated or changed:', name);
+                    process.exit(1);
+                  }
+                  head = head.replace(block, '');
+                }
+                if (head !== base) {
+                  console.error('Non-HR CI step changed: full visual gate required');
+                  process.exit(1);
+                }
+                NODE
                 ;;
               sw.js)
                 # Only cache version and versioned asset references may differ.
@@ -233,13 +266,7 @@ jobs:
                 cmp -s /tmp/bonds-base-sw-normalized.js /tmp/bonds-head-sw-normalized.js || exit 0
                 ;;
               api/payments.js|api/platform.js|vercel.json|jest.config.js|lib/api/company-programs.js|lib/api/hr-calculations.js|lib/hr/*|tests/hr/*|tests/admin/company-programs-standalone-hr.test.js|tests/admin/crm-unified-shell.test.js|tests/auth-callback-bootstrap.test.js|supabase/migrations/20261117*|supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql|lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|calculators/auth/auth-shared.css|calculators/auth/index.html|en/calculators/auth/index.html|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|tests/visual/auth-login-acceptance.js|.github/workflows/auth-ui-acceptance.yml|assets/bonds-mark-transparent.svg|tests/auth/mobile-onboarding-session.acceptance.cjs|.github/workflows/mobile-onboarding-session.yml|calculators/auth/onboarding.html|en/calculators/auth/onboarding.html|.github/workflows/ci.yml) ;;
-              sw.js)
-                # Only cache version and versioned asset references may differ.
-                git show "$BASE_SHA:sw.js" > /tmp/bonds-base-sw-original.js
-                sed -E -e "s/^(const CACHE_VERSION = )'v3[.]0[.][0-9]+';/\\1'NORMALIZED';/" -e "s@('/site-layout[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/bonds-auth-2026[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-request[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-workspace[.]css[?]v=)[^']+@\\1NORMALIZED@g" /tmp/bonds-base-sw-original.js > /tmp/bonds-base-sw-normalized.js
-                sed -E -e "s/^(const CACHE_VERSION = )'v3[.]0[.][0-9]+';/\\1'NORMALIZED';/" -e "s@('/site-layout[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/bonds-auth-2026[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-request[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-workspace[.]css[?]v=)[^']+@\\1NORMALIZED@g" sw.js > /tmp/bonds-head-sw-normalized.js
-                cmp -s /tmp/bonds-base-sw-normalized.js /tmp/bonds-head-sw-normalized.js || exit 0
-                ;;
+
               *) exit 0 ;;
             esac
           done < /tmp/bonds-pr-changed-files.txt
