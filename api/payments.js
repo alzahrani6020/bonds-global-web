@@ -895,6 +895,9 @@ async function handler(req, res) {
   const pathname = url.pathname;
 
   try {
+    if (pathname === '/api/company-programs' || pathname === '/api/company-programs/') {
+      return require('../lib/api/company-programs')(req, res);
+    }
     // Stripe checkout
     if (pathname === '/api/checkout' || pathname === '/api/checkout/') {
       const body = await parseJsonBody(req);
