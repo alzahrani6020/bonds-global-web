@@ -118,6 +118,30 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await context.close();
   });
 
+  test('loads only account-owned project choices and retains the draft after linking', async () => {
+    const { page, context } = await openFeasibility();
+    const projectId = '11111111-1111-4111-8111-111111111111';
+    await page.route('**/api/v3/projects', route =>
+      route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ projects: [{ id: projectId, name: 'Owned Project' }] }) })
+    );
+    await page.locator('input[name="project_name"]').fill('Linked feasibility draft');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('#srFeasibilityListProjects').click();
+    await page.locator('#srFeasibilityProjectSelect').waitFor({ state: 'visible' });
+    expect(await page.locator('#srFeasibilityProjectSelect option').allTextContents())
+      .toContain('Owned Project');
+    await page.locator('#srFeasibilityProjectSelect').selectOption(projectId);
+    await Promise.all([
+      page.waitForURL(url => url.searchParams.get('project_id') === projectId),
+      page.locator('#srFeasibilityLinkProject').click()
+    ]);
+    await page.locator('input[name="project_name"]').waitFor({ state: 'visible' });
+    expect(await page.locator('input[name="project_name"]').inputValue()).toBe('Linked feasibility draft');
+    expect(await page.locator('select[name="project_size"]').inputValue()).toBe('small');
+    await context.close();
+  });
+
   test('rejects invalid annual cash flows before execution and remains usable on mobile', async () => {
     const { page, context } = await openFeasibility({ mobile: true });
     let executed = false;
