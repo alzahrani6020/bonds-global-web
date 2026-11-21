@@ -881,6 +881,21 @@ async function handleServiceExecute(req, res, supabase, user) {
     };
   }
 
+  if (serviceCode === 'feasibility_studies') {
+    const { validateFeasibilityInputs } = require('../../lib/finance/feasibility-input-validator');
+    const inputs = body.inputs && typeof body.inputs === 'object' && !Array.isArray(body.inputs)
+      ? body.inputs : body.values;
+    const check = validateFeasibilityInputs(inputs || {});
+    if (!check.valid) {
+      return sendJson(res, 422, {
+        ok: false,
+        executed: false,
+        error: { code: 'FEASIBILITY_INPUT_VALIDATION_FAILED' },
+        invalid_fields: check.invalid_fields
+      });
+    }
+  }
+
   const artifactType = serviceCode === 'feasibility_studies'
     ? 'feasibility'
     : serviceCode === 'risk_analysis'
