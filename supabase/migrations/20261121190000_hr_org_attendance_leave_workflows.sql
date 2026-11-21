@@ -136,7 +136,7 @@ begin
   end if;
  end if;
  if new.review_status in ('approved','rejected') then
-  new.reviewed_at=coalesce(old.reviewed_at,now());
+  new.reviewed_at=now();
   new.reviewed_by=(select auth.uid());
  else
   new.reviewed_at=null;new.reviewed_by=null;
