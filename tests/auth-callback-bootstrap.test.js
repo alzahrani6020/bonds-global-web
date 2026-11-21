@@ -19,6 +19,16 @@ function runBootstrap(search, hash, alreadyVisited = false) {
   return { replace, values };
 }
 
+describe('OAuth callback routing contract', () => {
+  test('Google OAuth returns to the canonical Vercel path without a trailing slash', () => {
+    const source = fs.readFileSync(path.join(__dirname, '..', 'bonds-auth-2026.js'), 'utf8');
+    const callback = source.match(/function oauthCallbackUrl\(\)\s*\{([\s\S]*?)\n  \}/);
+    expect(callback).not.toBeNull();
+    expect(callback[1]).toContain("return window.location.origin + prefix + '/calculators/auth';");
+    expect(callback[1]).not.toContain("return window.location.origin + prefix + '/calculators/auth/';");
+  });
+});
+
 describe('first-visit authentication callback cache refresh', () => {
   test.each([
     ['?redirect=%2Fmy-bonds%2Fcrm%3Fprogram%3Dhr', '#access_token=synthetic-access&refresh_token=synthetic-refresh&type=magiclink'],
