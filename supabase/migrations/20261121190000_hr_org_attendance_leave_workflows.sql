@@ -129,11 +129,14 @@ begin
    raise exception 'Invalid attendance decision' using errcode='23514'; end if;
   if old.review_status='rejected' and new.review_status not in ('rejected','draft') then
    raise exception 'Rejected attendance must return to draft' using errcode='23514'; end if;
-  if old.review_status='submitted' and new.review_status in ('approved','rejected') then
-   if (new.clock_in,new.clock_out,new.attendance_status,new.note)
-      is distinct from (old.clock_in,old.clock_out,old.attendance_status,old.note) then
-    raise exception 'Decision cannot silently alter attendance time' using errcode='23514'; end if;
-  end if;
+  if old.review_status in ('submitted','rejected') and new.review_status<>'draft' and
+     (new.clock_in,new.clock_out,new.attendance_status,new.note)
+     is distinct from (old.clock_in,old.clock_out,old.attendance_status,old.note) then
+   raise exception 'Reviewed attendance values are locked until returned to draft' using errcode='23514'; end if;
+  if old.review_status='rejected' and new.review_status='rejected' and new is distinct from old then
+   raise exception 'Rejected attendance cannot be edited before reopening' using errcode='23514'; end if;
+  if old.review_status='submitted' and new.review_status='submitted' and new is distinct from old then
+   raise exception 'Submitted attendance cannot be edited before returning to draft' using errcode='23514'; end if;
  end if;
  if new.review_status in ('approved','rejected') then
   new.reviewed_at=now();
