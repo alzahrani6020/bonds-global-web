@@ -652,6 +652,11 @@ function renderStudiesOperationalInputs(){
    '<div class="sr-field"><label>'+(lang==='ar'?'حجم الاستثمار المتوقع':'Expected investment')+opt+'</label><input type="number" name="investment_amount" min="0" step="any"></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'عملة الدراسة':'Study currency')+req+'</label><select name="currency" required><option value="SAR" selected>SAR</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'أفق الدراسة بالسنوات':'Study horizon in years')+opt+'</label><input type="number" name="years" min="1" max="60" step="1" placeholder="5"></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'الإيرادات السنوية المتوقعة':'Expected annual revenue')+opt+'</label><input type="number" name="annual_revenue" min="0" step="any"></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'تكلفة المبيعات السنوية':'Annual cost of sales')+opt+'</label><input type="number" name="cogs" min="0" step="any"></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'المصروفات التشغيلية السنوية':'Annual operating expenses')+opt+'</label><input type="number" name="operating_expenses" min="0" step="any"></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'معدل الخصم %':'Discount rate %')+opt+'</label><input type="number" name="discount_rate_pct" min="0" max="100" step="any" placeholder="10"></div>'+ 
+   '<div class="sr-field full"><label>'+(lang==='ar'?'التدفقات النقدية السنوية، مفصولة بفواصل':'Annual cash flows, separated by commas')+opt+'</label><textarea name="cash_flows_text" placeholder="'+(lang==='ar'?'مثال: 100000, 120000, 140000':'Example: 100000, 120000, 140000')+'"></textarea><small>'+(lang==='ar'?'أدخل صافي التدفق النقدي لكل سنة. تُعرض النتائج الحسابية على أنها أولية إلى حين التحقق من الأدلة.':'Enter one net cash flow per year. Calculations remain preliminary until evidence is verified.')+'</small></div>'+
    '<div class="sr-field full"><label>'+(lang==='ar'?'وصف المشروع':'Project brief')+req+'</label><textarea name="project_brief" required></textarea></div>';
  }
  else if(serviceCode==='risk_analysis'){
@@ -1692,6 +1697,29 @@ function collectValues(){
    else if(el.multiple)values[el.name]=Array.from(el.selectedOptions).map(o=>o.value);
    else values[el.name]=el.type==='number'&&el.value!==''?Number(el.value):el.value;
  });
+ if(serviceCode==='feasibility_studies'){
+  const raw=String(values.cash_flows_text||'').trim();
+  if(raw){
+   const items=raw.split(/[,;\\n]+/).map(x=>x.trim());
+   if(items.some(x=>!x||!Number.isFinite(Number(x)))||items.length>60){
+    throw new Error(lang==='ar'?'التدفقات النقدية غير صالحة: أدخل حتى 60 قيمة رقمية':'Invalid cash flows: enter up to 60 numeric values');
+   }
+   values.cash_flows=items.map(Number);
+   if(values.years!==''&&values.years!==undefined&&values.years!==values.cash_flows.length){
+    throw new Error(lang==='ar'?'أفق الدراسة يجب أن يساوي عدد التدفقات السنوية':'Study horizon must equal the number of annual cash flows');
+   }
+   if(values.discount_rate_pct===''||values.discount_rate_pct===undefined){
+    throw new Error(lang==='ar'?'حدد معدل الخصم قبل حساب التدفقات النقدية':'Provide a discount rate before calculating cash flows');
+   }
+  }
+  if(values.discount_rate_pct!==''&&values.discount_rate_pct!==undefined){
+   const percentage=Number(values.discount_rate_pct);
+   if(!Number.isFinite(percentage)||percentage<0||percentage>100){
+    throw new Error(lang==='ar'?'معدل الخصم يجب أن يكون بين 0 و100%':'Discount rate must be between 0 and 100%');
+   }
+   values.discount_rate=percentage/100;
+  }
+ }
  return values;
 }
 // Never claim a saved request until its owner can read back the persisted fields.
