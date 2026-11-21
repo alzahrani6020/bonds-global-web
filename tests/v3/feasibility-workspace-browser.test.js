@@ -1,5 +1,8 @@
 /** @jest-environment node */
 const { chromium } = require('playwright');
+const fs=require('fs');
+const path=require('path');
+const ui=fs.readFileSync(path.join(process.cwd(),'components/service-request.js'),'utf8');
 const { resolveBaseUrl, stopSpawnedServer } = require('../helpers/local-dev-server');
 
 jest.setTimeout(180000);
@@ -71,6 +74,202 @@ async function openFeasibility({ mobile = false, projectId = null } = {}) {
 }
 
 describe('feasibility study browser acceptance — isolated service contracts', () => {
+  test('missing project id routes to the project portfolio rather than an error page', async () => {
+    for (const [detailPath, portfolioPath] of [
+      ['/v3/project/', '/v3/portfolio/'],
+      ['/en/v3/project/', '/en/v3/portfolio/']
+    ]) {
+      const page=await browser.newPage();
+      await page.goto(new URL(detailPath,baseUrl).toString(),{waitUntil:'domcontentloaded'});
+      await page.waitForURL(url=>url.pathname.startsWith(portfolioPath),{timeout:12000});
+      await page.close();
+    }
+  });
+
+  test('never offers a standalone activity without a selected sector',async()=>{
+    const vm=require('vm');
+    const start=ui.indexOf('async function studiesOnSector(');
+    const end=ui.indexOf('function studiesBindCatalogEvents()',start);
+    expect(start).toBeGreaterThan(0);
+    expect(end).toBeGreaterThan(start);
+    const source=ui.slice(start,end);
+    const fields={
+      studiesSector:{value:''},
+      studiesCountry:{value:'SA'},
+      studiesActivity:{value:'retail',options:[{value:'retail'}]}
+    };
+    const fills=[];
+    let urlWrites=0;
+    let fetches=0;
+    const context={
+      $:selector=>fields[selector.replace(/^#/,'')]||null,
+      lang:'ar',
+      studiesCatalogLabel:()=>'', studiesFillSelect:(el,rows,key,label,placeholder,selected)=>{
+        fills.push({rows,selected});
+        el.options=[{value:''},...rows.map(row=>({value:row.code}))];
+        el.value=selected&&el.options.some(row=>row.value===selected)?selected:'';
+      },
+      studiesCatalogJson:async()=>{fetches++;return {activities:[{code:'retail'}]}},
+      studiesWriteLocationToUrl:()=>{urlWrites++},
+      encodeURIComponent
+    };
+    const onSector=vm.runInNewContext(source+';studiesOnSector',context);
+    await onSector(false);
+    expect(fields.studiesActivity.value).toBe('');
+    expect(fields.studiesActivity.options.map(x=>x.value)).toEqual(['']);
+    expect(fills).toHaveLength(1);
+    expect(fetches).toBe(0);
+    expect(urlWrites).toBe(1);
+  });
+
+  test('only allows activities belonging to the selected sector and ignores stale responses',async()=>{
+    const vm=require('vm');
+    const start=ui.indexOf('async function studiesOnSector(');
+    const end=ui.indexOf('function studiesBindCatalogEvents()',start);
+    const source=ui.slice(start,end);
+    const fields={
+      studiesSector:{value:'SECTOR_A'},
+      studiesCountry:{value:'SA'},
+      studiesActivity:{value:'retail',options:[{value:'retail'}]}
+    };
+    let resolveFetch;
+    let writes=0;
+    const context={
+      $:selector=>fields[selector.replace(/^#/,'')]||null,
+      lang:'ar',studiesCatalogLabel:()=>'',encodeURIComponent,
+      studiesFillSelect:(el,rows,key,label,placeholder,selected)=>{
+        el.options=[{value:''},...rows.map(row=>({value:row.code}))];
+        el.value=selected&&el.options.some(row=>row.value===selected)?selected:'';
+      },
+      studiesCatalogJson:()=>new Promise(resolve=>{resolveFetch=resolve}),
+      studiesWriteLocationToUrl:()=>{writes++}
+    };
+    const onSector=vm.runInNewContext(source+';studiesOnSector',context);
+    const pending=onSector(false);
+    expect(fields.studiesActivity.value).toBe('');
+    fields.studiesSector.value='SECTOR_B';
+    resolveFetch({activities:[{code:'retail'}]});
+    await pending;
+    expect(fields.studiesActivity.value).toBe('');
+    expect(fields.studiesActivity.options.map(x=>x.value)).toEqual(['']);
+    expect(writes).toBe(0);
+    context.studiesCatalogJson=async()=>({activities:[{code:'b_activity'}]});
+    await onSector(false,'retail');
+    expect(fields.studiesActivity.value).toBe('');
+    expect(fields.studiesActivity.options.map(x=>x.value)).toEqual(['','b_activity']);
+    expect(writes).toBe(1);
+  });
+
+  test('screenshot regression: activity must clear when sector is not chosen',async()=>{
+    const {page,context}=await openFeasibility();
+    const sector=page.locator('select[name="sector_code"]');
+    const activity=page.locator('select[name="activity_code"]');
+    await sector.waitFor({state:'visible'});
+    await page.waitForFunction(()=>document.querySelector('select[name="activity_code"]')?.options.length===1);
+    expect(await sector.inputValue()).toBe('');
+    expect(await activity.inputValue()).toBe('');
+    expect(await activity.locator('option').allTextContents()).toEqual(['اختر النشاط']);
+    await context.close();
+  });
+
+  test('run button reports an incomplete required project description instead of silently doing nothing', async () => {
+    const { page, context } = await openFeasibility();
+    await page.locator('input[name="project_name"]').fill('Small business');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('#srSubmit').click();
+    await page.locator('#srStatus.err').waitFor({ state: 'visible' });
+    expect(await page.locator('#srStatus').innerText()).toContain('أكمل الحقل المطلوب');
+    expect(await page.locator('textarea[name="project_brief"]').evaluate(e => e.validity.valueMissing)).toBe(true);
+    await context.close();
+  });
+
+  test('shows an active running state until the feasibility API responds', async () => {
+    const {page,context}=await openFeasibility();
+    let releaseRequest;
+    const pending=new Promise(resolve=>{releaseRequest=resolve});
+    await page.route('**/api/v3/services/execute', async route=>{
+      await pending;
+      await route.fulfill({status:422,contentType:'application/json',body:JSON.stringify({
+        executed:false,error:{code:'FEASIBILITY_INPUT_VALIDATION_FAILED'}
+      })});
+    });
+    await page.locator('input[name="project_name"]').fill('Office-supply investment');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('textarea[name="project_brief"]').fill('Coffee and office supplies for commercial offices');
+    await page.locator('#srSubmit').click();
+    await page.waitForFunction(()=>document.querySelector('#srSubmit')?.textContent?.includes('جارٍ تشغيل الدراسة'));
+    expect(await page.locator('#srSubmit').isDisabled()).toBe(true);
+    expect(await page.locator('#srStatus').innerText()).toContain('يجري التحقق');
+    releaseRequest();
+    await page.locator('#srStatus.err').waitFor({state:'visible'});
+    expect(await page.locator('#srStatus').innerText()).toContain('FEASIBILITY_INPUT_VALIDATION_FAILED');
+    expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
+    await context.close();
+  });
+
+  test('market information action runs governed market_research and reports only returned evidence', async () => {
+    const { page, context } = await openFeasibility();
+    let payload;
+    await page.route('**/api/v3/services/execute', async route => {
+      payload = JSON.parse(route.request().postData() || '{}');
+      await route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({
+          executed: true,
+          result: {
+            research: {
+              status:'completed',
+              evidence:[
+                {evidence_code:'market_size',source_url:'https://example.org/market-study'}
+              ]
+            }
+          }
+        })
+      });
+    });
+    await page.locator('input[name="project_name"]').fill('Office coffee supply');
+    await page.locator('textarea[name="project_brief"]').fill('Supply coffee, tea, water and cleaning products to commercial offices');
+    await page.locator('#srFeasibilityResearchButton').click();
+    await page.locator('#srFeasibilityMarketEvidence a').waitFor({state:'visible'});
+    expect(payload.service_code).toBe('market_research');
+    expect(payload.research.enabled).toBe(true);
+    expect(payload.values.project_name).toBe('Office coffee supply');
+    expect(await page.locator('#srFeasibilityMarketEvidence').innerText()).toContain('market_size');
+    expect(await page.locator('#srFeasibilityMarketEvidence a').getAttribute('href')).toBe('https://example.org/market-study');
+    expect(await page.locator('input[name="annual_revenue"]').inputValue()).toBe('');
+    await context.close();
+  });
+
+  test('does not claim feasibility success when orchestration returned no financial metrics', async () => {
+    const {page,context}=await openFeasibility();
+    await page.route('**/api/v3/services/execute',route=>route.fulfill({
+      status:200,contentType:'application/json',
+      body:JSON.stringify({executed:true,result:{
+        engineResults:{feasibility:{executed:false,status:'insufficient_inputs',metrics:{npv:null,irr:null}}}
+      }})
+    }));
+    await page.locator('input[name="project_name"]').fill('Office supplies');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('textarea[name="project_brief"]').fill('Office coffee supplies');
+    await page.locator('#srSubmit').click();
+    await page.locator('#srStatus.err').waitFor({state:'visible'});
+    expect(await page.locator('#srStatus').innerText()).toContain('NPV وIRR لم تُحسب');
+    await context.close();
+  });
+
+  test('market information action reports absence of evidence and leaves revenue blank', async () => {
+    const { page, context } = await openFeasibility();
+    await page.route('**/api/v3/services/execute', route => route.fulfill({
+      status:200,contentType:'application/json',
+      body:JSON.stringify({executed:true,result:{research:{status:'insufficient_evidence',evidence:[]}}})
+    }));
+    await page.locator('input[name="project_name"]').fill('Office supplies');
+    await page.locator('textarea[name="project_brief"]').fill('Office consumable supplies');
+    await page.locator('#srFeasibilityResearchButton').click();
+    await page.waitForFunction(()=>document.querySelector('#srFeasibilityMarketEvidence')?.textContent?.includes('لم يتم إرجاع أدلة'));
+    expect(await page.locator('input[name="annual_revenue"]').inputValue()).toBe('');
+    await context.close();
+  });
+
   test('offers study inputs rather than unsupported file import, submits typed cash flows and displays unapproved metrics', async () => {
     const { page, context } = await openFeasibility();
     let payload = null;
@@ -84,7 +283,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
             confidence: { decisionIntegrity: {
               status: 'blocked', groundedCoverage: 40, blockedDecisionEngines: ['risk']
             } },
-            engineResults: { feasibility: { metrics: {
+            engineResults: { feasibility: { executed:true, status:'computed_unverified', metrics: {
               npv: 124500, irr_pct: 21, payback_periods: 3.2,
               total_cash_inflows: 800000, total_cash_outflows: 100000, net_cash_flows: 700000
             } } }
@@ -94,6 +293,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     });
     expect(await page.locator('#srFinancialIntake').count()).toBe(0);
     expect(await page.locator('#srDetails').isVisible()).toBe(true);
+    expect(await page.locator('#srFeasibilityProjectChooser a').getAttribute('href')).toBe('/v3/portfolio/');
     await page.locator('input[name="project_name"]').fill('Acceptance project');
     await page.locator('select[name="project_size"]').selectOption('large');
     await page.locator('input[name="investment_amount"]').fill('50000000');
