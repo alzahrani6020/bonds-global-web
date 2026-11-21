@@ -744,6 +744,56 @@ function renderFeasibilityControls(){
   '<select id="srFeasibilityProjectSelect" class="sr-input"></select>'+
   '<button type="button" id="srFeasibilityLinkProject" class="sr-secondary">'+(lang==='ar'?'ربط المشروع المحدد':'Link selected project')+'</button></div>';
  buttons.insertAdjacentElement('beforebegin',projectChooser);
+ if(linked){
+  const historyButton=document.createElement('button');
+  historyButton.type='button';
+  historyButton.id='srFeasibilityHistoryButton';
+  historyButton.className='sr-secondary';
+  historyButton.textContent=lang==='ar'?'الدراسات المحفوظة للمشروع':'Saved project studies';
+  projectChooser.querySelector('.sr-actions')?.appendChild(historyButton);
+  const history=document.createElement('section');
+  history.id='srFeasibilityStudyHistory';
+  history.className='sr-card';
+  history.hidden=true;
+  projectChooser.insertAdjacentElement('afterend',history);
+  historyButton.addEventListener('click',async()=>{
+   historyButton.disabled=true;
+   try{
+    await window.BondsAuth.ensureEnv();
+    const session=(await window.BondsAuth.getSupabase().auth.getSession()).data?.session;
+    if(!session?.access_token)throw new Error(T.login);
+    const response=await fetch('/api/v3/investment-context/artifacts?project_id='+encodeURIComponent(linked),{
+     headers:{Authorization:'Bearer '+session.access_token},credentials:'same-origin',cache:'no-store'
+    });
+    const payload=await response.json().catch(()=>({}));
+    if(!response.ok||!Array.isArray(payload.artifacts))throw new Error(payload.error||('HTTP '+response.status));
+    const records=payload.artifacts.filter(item=>item.project_id===linked&&item.artifact_type==='feasibility'&&item.status==='saved');
+    history.innerHTML='<h3>'+(lang==='ar'?'الدراسات المؤرشفة لهذا المشروع':'Archived studies for this project')+'</h3>'+
+     (records.length?'<ul class="sr-list">'+records.map(item=>
+      '<li><strong>'+escapeHtml(item.title||item.id)+'</strong> '+
+      '<small>'+escapeHtml(item.updated_at||item.created_at||'')+'</small> '+
+      '<button type="button" class="sr-secondary" data-study-artifact="'+escapeHtml(item.id)+'">'+
+      (lang==='ar'?'تنزيل النسخة المحفوظة':'Download saved copy')+'</button></li>'
+     ).join('')+'</ul>':'<p class="sr-muted">'+(lang==='ar'?'لا توجد دراسات جدوى محفوظة في هذا المشروع.':'No saved feasibility studies for this project.')+'</p>');
+    history.hidden=false;
+    history.querySelectorAll('[data-study-artifact]').forEach(button=>button.addEventListener('click',()=>{
+     const item=records.find(row=>row.id===button.dataset.studyArtifact);
+     if(!item)return;
+     const data=JSON.stringify({
+      artifact_id:item.id,project_id:item.project_id,
+      created_at:item.created_at,updated_at:item.updated_at,
+      inputs:item.inputs,results:item.results,metadata:item.metadata,status:item.status
+     },null,2);
+     const href=URL.createObjectURL(new Blob([data],{type:'application/json;charset=utf-8'}));
+     const anchor=document.createElement('a');
+     anchor.href=href;anchor.download='bonds-feasibility-'+item.id+'.json';anchor.click();
+     setTimeout(()=>URL.revokeObjectURL(href),1000);
+    }));
+    history.scrollIntoView({block:'nearest',behavior:'smooth'});
+   }catch(error){showStatus(T.failed+': '+error.message,false)}
+   finally{historyButton.disabled=false}
+  });
+ }
  const listProjects=$('#srFeasibilityListProjects');
  listProjects.addEventListener('click',async()=>{
   listProjects.disabled=true;
