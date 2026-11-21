@@ -1389,9 +1389,9 @@ function render(){
  renderCorrespondenceWorkspaceLink();
  renderFinancialOperationalInputs();
  renderStudiesOperationalInputs();
- renderFeasibilityControls();
  renderFinancialIntake();
  restoreWorkspaceDraft();
+ renderFeasibilityControls();
  bindWorkspaceDraft();
  applyStudiesSubmitLabel();
  bindStudiesCatalogDropdowns();
