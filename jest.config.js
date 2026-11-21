@@ -3,10 +3,7 @@ module.exports = {
     '<rootDir>/node_modules/',
     '<rootDir>/.vercel/',
     '<rootDir>/bonds-v2/',
-    // These suites use node:test and are executed explicitly by the HR CI step.
-    '<rootDir>/tests/hr/.*\\.test\\.cjs
-  ]
-};
-
+    // Native node:test suites are executed explicitly by HR CI, not by Jest.
+    '<rootDir>/tests/hr/.*\\.test\\.cjs$'
   ]
 };
