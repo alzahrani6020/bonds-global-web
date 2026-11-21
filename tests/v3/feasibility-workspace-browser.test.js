@@ -97,7 +97,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('input[name="investment_amount"]').fill('50000000');
     await page.locator('input[name="years"]').fill('3');
     await page.locator('input[name="discount_rate_pct"]').fill('10');
-    await page.locator('textarea[name="cash_flows_text"]').fill('1000000,1200000,1400000');
+    await page.locator('textarea[name="cash_flows_text"]').fill('1000000;1200000;1400000');
     await page.locator('textarea[name="project_brief"]').fill('Isolated financial study browser test');
     await page.locator('#srSubmit').click();
     await page.locator('#srExecutionResult').waitFor({ state: 'visible' });
@@ -123,7 +123,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('input[name="project_name"]').fill('Mobile validation');
     await page.locator('select[name="project_size"]').selectOption('mega');
     await page.locator('textarea[name="project_brief"]').fill('Mobile study');
-    await page.locator('textarea[name="cash_flows_text"]').fill('100,,200');
+    await page.locator('textarea[name="cash_flows_text"]').fill('100;;200');
     await page.locator('input[name="discount_rate_pct"]').fill('10');
     await page.locator('#srSubmit').click();
     await page.locator('#srStatus.err').waitFor({ state: 'visible' });
