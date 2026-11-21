@@ -35,6 +35,7 @@ describe('studies and market research workspace',()=>{
     expect(ui).toContain('function studiesLocationFieldsHtml()');
     expect(ui).toContain('function bindStudiesCatalogDropdowns()');
     expect(ui).toContain("studiesSelectMarkup('studiesCountry'");
+    expect(ui).toContain("studiesSelectMarkup('studiesActivity','activity_code',L.activityPh,sector?activity:'')");
     expect(ui).toContain("'/api/v3/catalog/countries'");
     expect(ui).toContain('/api/v3/investment-taxonomy?country=');
     expect(ui).not.toContain('<input type="text" name="country_code"');
