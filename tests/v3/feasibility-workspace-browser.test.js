@@ -370,6 +370,32 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await context.close();
   });
 
+  test('a feasibility response without calculated financial metrics links each missing financial input', async () => {
+    const { page, context } = await openFeasibility();
+    await page.route('**/api/v3/services/execute', route => route.fulfill({
+      status: 200, contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true, executed: true, result: {
+          intent: { intent: 'feasibility' },
+          engineResults: { feasibility: { executed: false, status: 'insufficient_inputs' } }
+        }
+      })
+    }));
+    await page.locator('input[name="project_name"]').fill('Office supplies');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('textarea[name="project_brief"]').fill('Wholesale distribution feasibility');
+    await page.locator('#srSubmit').click();
+    await page.locator('#srFeasibilityMissingInputs').waitFor({ state: 'visible' });
+    const labels = await page.locator('#srFeasibilityMissingInputs button').allTextContents();
+    expect(labels).toContain('حجم الاستثمار المتوقع');
+    expect(labels).toContain('التدفقات النقدية السنوية');
+    expect(labels).toContain('معدل الخصم');
+    await page.locator('#srFeasibilityMissingInputs button').first().click();
+    expect(await page.evaluate(() => document.activeElement?.name)).toBe('investment_amount');
+    expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
+    await context.close();
+  });
+
   test('loads only account-owned project choices and retains the draft after linking', async () => {
     const { page, context } = await openFeasibility();
     const projectId = '11111111-1111-4111-8111-111111111111';
