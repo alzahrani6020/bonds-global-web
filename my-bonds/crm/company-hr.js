@@ -105,7 +105,7 @@
   }
   editing=row;
   $('hr-editor').hidden=false;
-  const fields=row&&category==='leave_balances'?activeSpecs().filter(x=>!['employee_id','entry_reference'].includes(x[0])):row&&category==='claims'?activeSpecs().filter(x=>!['employee_id','claim_reference'].includes(x[0])):row&&category==='contracts'?activeSpecs().filter(x=>!['employee_id','contract_number'].includes(x[0])):row&&category==='payroll_runs'?activeSpecs().filter(x=>x[0]==='status'):row&&category==='payroll'?activeSpecs().filter(x=>x[0]!=='employee_id'&&x[0]!=='period_id'):activeSpecs();
+  const fields=row&&category==='attendance_corrections'?activeSpecs().filter(x=>x[0]!=='attendance_id'):row&&category==='leave_balances'?activeSpecs().filter(x=>!['employee_id','entry_reference'].includes(x[0])):row&&category==='claims'?activeSpecs().filter(x=>!['employee_id','claim_reference'].includes(x[0])):row&&category==='contracts'?activeSpecs().filter(x=>!['employee_id','contract_number'].includes(x[0])):row&&category==='payroll_runs'?activeSpecs().filter(x=>x[0]==='status'):row&&category==='payroll'?activeSpecs().filter(x=>x[0]!=='employee_id'&&x[0]!=='period_id'):activeSpecs();
   $('hr-fields').innerHTML=fields.map(x=>memberField(x,row||{})).join('');
   if(category==='employees'){
    const dept=$('hr-fields').querySelector('[name="department_id"]');
@@ -350,7 +350,7 @@
      if(category==='departments'&&editing&&row.parent_department_id===editing.id)throw Error(t('لا يمكن اختيار الإدارة نفسها','Cannot select same parent'));
     }
     if(!operational&&!isOrg){row.category=category;row.status=row.status||'draft';row.currency=row.currency||'SAR';}
-    if(!editing&&!isOrg&&category!=='payroll_runs'&&!row.employee_id&&(!(!operational&&['departments','recruitment','governance'].includes(category))))throw Error(t('اختر الموظف','Select employee'));
+    if(!editing&&!isOrg&&!['payroll_runs','attendance_corrections'].includes(category)&&!row.employee_id&&(!(!operational&&['departments','recruitment','governance'].includes(category))))throw Error(t('اختر الموظف','Select employee'));
     if(category==='attendance_corrections'){
      if(!editing)row.status='pending';
      if(!editing&&!row.attendance_id)throw Error(t('اختر سجل حضور معتمدًا','Select approved attendance'));
