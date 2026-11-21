@@ -623,11 +623,11 @@ async function studiesOnSector(skipUrl,initialActivity=''){
   if(!skipUrl) studiesWriteLocationToUrl();
   return;
  }
- const isCustom=studiesCustomCatalog.sectors.some(row=>row.code===sector&&row.country===country);
+ const isCustom=typeof studiesCustomCatalog==='object'&&studiesCustomCatalog.sectors.some(row=>row.code===sector&&row.country===country);
  const data=isCustom?{activities:[]}:await studiesCatalogJson('/api/v3/investment-taxonomy?country='+encodeURIComponent(country)+'&sector='+encodeURIComponent(sector)+'&include=activities&depth=subsector');
  if($('#studiesSector')?.value!==sector||$('#studiesCountry')?.value!==country)return;
- studiesCatalog.activities=data.activities||[];
- studiesFillSelect($('#studiesActivity'),studiesCatalog.activities,'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity',initialActivity);
+ if(typeof studiesCatalog==='object') studiesCatalog.activities=data.activities||[];
+ studiesFillSelect($('#studiesActivity'),data.activities||[],'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity',initialActivity);
  if(!skipUrl) studiesWriteLocationToUrl();
 }
 function studiesBindCatalogEvents(){
