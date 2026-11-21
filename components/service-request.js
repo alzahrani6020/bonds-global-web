@@ -2059,7 +2059,20 @@ async function submit(e){
  if(submitting||submitted)return;
  submitting=true;
  const submitButton=$('#srSubmit');
- if(submitButton)submitButton.disabled=true;
+ const originalSubmitLabel=submitButton?.textContent||T.submit;
+ if(submitButton){
+  submitButton.disabled=true;
+  submitButton.textContent=lang==='ar'?'جارٍ تشغيل الدراسة...':'Running study...';
+ }
+ if(serviceCode==='feasibility_studies'){
+  const status=$('#srStatus');
+  if(status){
+   status.textContent=lang==='ar'?'يجري التحقق من البيانات وطلب التحليل، وقد تستغرق العملية بعض الوقت.':'Validating inputs and requesting analysis. This may take some time.';
+   status.className='sr-status show';
+   status.setAttribute('role','status');
+   status.setAttribute('aria-live','polite');
+  }
+ }
  try{
   await window.BondsAuth.ensureEnv();
   const u=await window.BondsAuth.getUser();const user=u.data?.user;
@@ -2218,7 +2231,10 @@ async function submit(e){
  }catch(err){showStatus(T.failed+': '+err.message,false)}
  finally{
   submitting=false;
-  if(submitButton&&!submitted)submitButton.disabled=false;
+  if(submitButton){
+   submitButton.textContent=originalSubmitLabel;
+   if(!submitted)submitButton.disabled=false;
+  }
  }
 }
 function studiesFallbackDetail(){
