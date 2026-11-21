@@ -118,5 +118,8 @@ describe('stable HR Staging OAuth handoff', () => {
     expect(loginHtml).toContain("clean.searchParams.delete('start_provider')");
     expect(loginHtml).toContain("history.replaceState(null, '', clean.pathname + clean.search + clean.hash)");
     expect(loginHtml).toContain("else if (pendingProvider === 'google')");
+    const englishLogin = fs.readFileSync(path.join(root, 'en/calculators/auth/index.html'), 'utf8');
+    expect(englishLogin).toContain("else if (pendingProvider === 'google')");
+    expect(englishLogin).toContain("clean.searchParams.delete('start_provider')");
   });
 });
