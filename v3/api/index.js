@@ -1246,7 +1246,7 @@ async function handleCatalogActivities(req, res) {
   }
 
   try {
-    const supabase = getSupabaseClient();
+    const supabase = getPublicCatalogClient();
 
     // Durable path: canonical identities are persisted in the database and
     // legacy activity rows are aliases/context, not separate dropdown entries.
