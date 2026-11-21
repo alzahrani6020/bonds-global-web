@@ -316,13 +316,9 @@ function studiesFillSelect(el,rows,valueKey,labelFn,placeholder,selected){
   const byName=[...el.options].find(o=>o.value===current||o.textContent===current||o.dataset.name===current);
   if(byName) el.value=byName.value;
   else{
-   const extra=document.createElement('option');
-   extra.value=current;
-   extra.textContent=current;
-   extra.dataset.name=current;
-   extra.selected=true;
-   el.appendChild(extra);
-   el.value=current;
+   // Never reintroduce a stale selection that is absent from the catalog
+   // for the current country, region or sector.
+   el.value='';
   }
  }
  studiesEnhanceSelect(el,placeholder,true);
@@ -494,13 +490,13 @@ function studiesBindCatalogEvents(){
  const activity=$('#studiesActivity');
  if(!country||country.dataset.studiesBound==='1')return;
  country.dataset.studiesBound='1';
- country.addEventListener('change',()=>{studiesOnCountry().catch(()=>{})});
+ country.addEventListener('change',()=>{studiesOnCountry().catch(error=>showStatus(T.failed+': '+error.message,false))});
  region?.addEventListener('change',()=>{
   studiesFilterLocalities(region.value,$('#studiesLocality')?.value||'');
   studiesWriteLocationToUrl();
  });
  locality?.addEventListener('change',studiesWriteLocationToUrl);
- sector?.addEventListener('change',()=>{studiesOnSector(false).catch(()=>{})});
+ sector?.addEventListener('change',()=>{studiesOnSector(false).catch(error=>showStatus(T.failed+': '+error.message,false))});
  activity?.addEventListener('change',studiesWriteLocationToUrl);
 }
 function studiesPullDiscovery(){
@@ -565,8 +561,9 @@ function bindStudiesCatalogDropdowns(){
    await studiesOnCountry();
    studiesCatalogBound=true;
    studiesListenDiscovery();
-  }catch(_){
+  }catch(error){
    enhanceStudiesStaticSelects();
+   showStatus(T.failed+': '+error.message,false);
   }
  };
  if(window.UniversalDropdown) start();
