@@ -181,7 +181,7 @@
   if(requestedCategory==='employees'){
    let query=db.from('hr_saas_employees').select('*',{count:'exact'}).eq('workspace_id',owner);
    if(employeeStatusFilter!=='all')query=query.eq('employment_status',employeeStatusFilter);
-   const term=employeeSearch.replace(/[^\\p{L}\\p{N}\\s-]/gu,'').trim().slice(0,80);
+   const term=employeeSearch.replace(/[^\p{L}\p{N}\s-]/gu,'').trim().slice(0,80);
    if(term){
     const pattern='%'+term+'%';
     query=query.or(['employee_number','full_name','department','job_title']
