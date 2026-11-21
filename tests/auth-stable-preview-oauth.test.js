@@ -15,14 +15,14 @@ function getBody(name) {
   return match[0];
 }
 
-function setup(origin, backend) {
+function setup(origin, backend, pathname = '/calculators/auth') {
   const assigned = [];
   const calls = [];
   const window = {
     location: {
       origin,
       hostname: new URL(origin).hostname,
-      pathname: '/calculators/auth',
+      pathname,
       search: '?redirect=%2Fmy-bonds%2Fcrm%3Fprogram%3Dhr',
       assign: value => assigned.push(value)
     }
@@ -59,6 +59,16 @@ describe('stable HR Staging OAuth handoff', () => {
     expect(target.searchParams.get('redirect')).toBe('/my-bonds/crm?program=hr');
     expect(target.searchParams.get('start_provider')).toBe('google');
     expect(target.searchParams.has('access_token')).toBe(false);
+  });
+
+  test('English Preview retains the English login and HR destination', async () => {
+    const env = setup('https://bonds-global-luhf1ra3e-dr-talal.vercel.app',
+      'https://gjwppwtgsecwmqlsmbmq.supabase.co', '/en/calculators/auth');
+    await env.context.signInWithOAuth('google');
+    const target = new URL(env.assigned[0]);
+    expect(target.origin).toBe(STABLE);
+    expect(target.pathname).toBe('/en/calculators/auth');
+    expect(target.searchParams.get('start_provider')).toBe('google');
   });
 
   test('stable Preview starts OAuth on the same host', async () => {
