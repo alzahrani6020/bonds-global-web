@@ -99,6 +99,11 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('input[name="discount_rate_pct"]').fill('10');
     await page.locator('textarea[name="cash_flows_text"]').fill('1000000;1200000;1400000');
     await page.locator('textarea[name="project_brief"]').fill('Isolated financial study browser test');
+    await page.locator('#srFeasibilityReviewButton').click();
+    expect(await page.locator('#srFeasibilityReview').isVisible()).toBe(true);
+    expect(await page.locator('#srFeasibilityReview').innerText()).toContain('Acceptance project');
+    await page.locator('#srFeasibilitySaveDraft').click();
+    expect(await page.locator('#srStatus').innerText()).toContain('حُفظت المسودة');
     await page.locator('#srSubmit').click();
     await page.locator('#srExecutionResult').waitFor({ state: 'visible' });
     expect(payload).toBeTruthy();
