@@ -256,8 +256,13 @@
    if(!sessionResult.data?.session){
     $('hr-auth').hidden=false;
     const login=$('hr-sign-in');
-    if(login)login.href=(en?'/en':'')+'/calculators/auth/index.html?redirect='+
-     encodeURIComponent(location.pathname+location.search);
+    if(login){
+     // Use the same durable Staging origin for the login and OAuth callback.
+     // This avoids creating a session on a short-lived deployment hostname.
+     const loginOrigin=window.BondsAuth.hrPreviewAuthOrigin?.()||location.origin;
+     login.href=loginOrigin+(en?'/en':'')+'/calculators/auth?redirect='+
+      encodeURIComponent(location.pathname+location.search);
+    }
     if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
     return;
    }
