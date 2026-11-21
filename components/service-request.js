@@ -1405,7 +1405,7 @@ function isFinancialIntakeService(){
  if(isFinancialWorkspaceService())return false;
  // Study workspaces must honor the server-declared intake contract.
  // A financial capability does not imply that intake/prepare supports it.
- if(isStudiesWorkspaceService())return detail?.intake?.supported===true;
+ if(serviceCode==='feasibility_studies'||serviceCode==='risk_analysis')return detail?.intake?.supported===true;
  if(detail?.intake?.supported===true)return true;
  return (detail?.capabilities||[]).some(item=>FINANCIAL_ACTIONS.has(item.capability_code));
 }
