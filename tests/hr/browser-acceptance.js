@@ -223,6 +223,29 @@ async function run(){
     await page.locator('#hr-save').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employees.length===1);
     assert.equal(await page.locator('#hr-count').textContent(),'1 / 1');
+    // Organization data must use dedicated tables rather than generic records.
+    await page.locator('[data-hr-category="departments"]').click();
+    await page.locator('#hr-add').click();
+    await page.locator('#hr-fields input[name="department_code"]').fill('OPS');
+    await page.locator('#hr-fields input[name="name"]').fill('Operations');
+    await page.locator('#hr-save').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_departments.length===1);
+    await page.locator('[data-hr-category="positions"]').click();
+    await page.locator('#hr-add').click();
+    await page.locator('#hr-fields input[name="position_code"]').fill('OPS-1');
+    await page.locator('#hr-fields input[name="title"]').fill('Operations Specialist');
+    await page.locator('#hr-fields select[name="department_id"]').selectOption({index:1});
+    await page.locator('#hr-save').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_positions.length===1);
+    await page.locator('[data-hr-category="employees"]').click();
+    await page.locator('#hr-body [data-hr-edit]').click();
+    await page.locator('#hr-fields select[name="department_id"]').selectOption({index:1});
+    await page.locator('#hr-fields select[name="position_id"]').selectOption({index:1});
+    await page.locator('#hr-save').click();
+    await page.waitForFunction(()=>Boolean(window.__hrTest.tables.hr_saas_employees[0].position_id));
+    const mappedEmployee=await page.evaluate(()=>window.__hrTest.tables.hr_saas_employees[0]);
+    assert.equal(mappedEmployee.department_id,(await page.evaluate(()=>window.__hrTest.tables.hr_saas_departments[0].id)));
+    assert.equal(mappedEmployee.position_id,(await page.evaluate(()=>window.__hrTest.tables.hr_saas_positions[0].id)));
     // Owner can issue verified-email invitations without knowing a user's UUID.
     await page.locator('#hr-invite-form input[name="email"]').fill('invitee@example.test');
     await page.locator('#hr-invite-form select[name="employee_id"]').selectOption({index:1});
@@ -369,6 +392,23 @@ async function run(){
     assert.equal(attendance.attendance_status,'present');
     assert.ok(attendance.clock_in.endsWith('Z'));
     assert.ok(attendance.clock_out.endsWith('Z'));
+    await page.locator('#hr-body [data-hr-transition="submitted"]').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_attendance[0].review_status==='submitted');
+    await page.locator('#hr-body [data-hr-transition="approved"]').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_attendance[0].review_status==='approved');
+    assert.equal(await page.locator('#hr-body [data-hr-edit]').count(),1,'Attendance row must remain visible');
+    await page.locator('[data-hr-category="attendance_corrections"]').click();
+    await page.locator('#hr-add').click();
+    await page.locator('#hr-fields select[name="attendance_id"]').selectOption({index:1});
+    await page.locator('#hr-fields select[name="requested_status"]').selectOption('remote');
+    await page.locator('#hr-fields input[name="reason"]').fill('Corrected work location');
+    await page.locator('#hr-save').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_attendance_corrections.length===1);
+    await page.locator('#hr-body [data-hr-transition="approved"]').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_attendance_corrections[0].status==='approved');
+    await page.locator('[data-hr-category="attendance"]').click();
+    await page.waitForFunction(()=>document.querySelector('#hr-body')?.textContent.includes('remote'));
+    assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_attendance[0])).attendance_status,'present','Original attendance must not be overwritten');
 
     // Leave request supports approval state and server-side overlap verification.
     await page.locator('[data-hr-category="leaves"]').click();
@@ -376,9 +416,11 @@ async function run(){
     await page.locator('#hr-fields select[name="employee_id"]').selectOption({index:1});
     await page.locator('#hr-fields input[name="start_date"]').fill('2026-12-01');
     await page.locator('#hr-fields input[name="end_date"]').fill('2026-12-03');
-    await page.locator('#hr-fields select[name="status"]').selectOption('approved');
+    await page.locator('#hr-fields select[name="status"]').selectOption('pending');
     await page.locator('#hr-save').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_leave_requests.length===1);
+    await page.locator('#hr-body [data-hr-transition="approved"]').click();
+    await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_leave_requests[0].status==='approved');
     const leave=await page.evaluate(()=>window.__hrTest.tables.hr_saas_leave_requests[0]);
     assert.equal(leave.status,'approved');
     assert.ok(leave.decided_at);
