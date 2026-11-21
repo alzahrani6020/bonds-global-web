@@ -748,7 +748,7 @@ function renderFeasibilityControls(){
    : (lang==='ar'?'لا يوجد مشروع مرتبط؛ لن يُحفظ مخرج الدراسة في الأرشيف المؤسسي.':'No linked project. The study result will not be archived to a project.'))+'</p>'+
   '<div class="sr-actions feasibility-secondary-actions">'+
   '<button type="button" class="sr-secondary" id="srFeasibilityListProjects">'+(lang==='ar'?'اختيار من مشاريعي':'Choose from my projects')+'</button>'+
-  '<a class="sr-secondary" href="'+(lang==='ar'?'/v3/project/':'/en/v3/project/')+'">'+(lang==='ar'?'فتح مركز المشاريع':'Open project center')+'</a></div>'+
+  '<a class="sr-secondary" href="'+(lang==='ar'?'/v3/portfolio/':'/en/v3/portfolio/')+'">'+(lang==='ar'?'فتح مركز المشاريع':'Open project center')+'</a></div>'+
   '<div id="srFeasibilityProjectPicker" hidden><label for="srFeasibilityProjectSelect">'+(lang==='ar'?'المشروعات المتاحة':'Available projects')+'</label>'+
   '<select id="srFeasibilityProjectSelect" class="sr-input"></select>'+
   '<button type="button" id="srFeasibilityLinkProject" class="sr-secondary">'+(lang==='ar'?'ربط المشروع المحدد':'Link selected project')+'</button></div>';
