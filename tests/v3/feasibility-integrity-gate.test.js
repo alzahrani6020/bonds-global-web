@@ -33,13 +33,13 @@ describe('feasibility integrity gate', () => {
       };
       return vm.runInNewContext(source + '; collectValues', context)();
     };
-    const result = make('100, 0; -20');
+    const result = make('100; 0; -20');
     expect(Array.from(result.cash_flows)).toEqual([100, 0, -20]);
     expect(result.discount_rate).toBeCloseTo(0.1, 9);
-    expect(() => make('100,,200')).toThrow('Invalid cash flows');
-    expect(() => make('100,none,200')).toThrow('Invalid cash flows');
-    expect(() => make('100,200', '10', '3')).toThrow('Study horizon');
-    expect(() => make('100,200,300', '')).toThrow('Provide a discount rate');
+    expect(() => make('100;;200')).toThrow('Invalid cash flows');
+    expect(() => make('100;none;200')).toThrow('Invalid cash flows');
+    expect(() => make('100;200', '10', '3')).toThrow('Study horizon');
+    expect(() => make('100;200;300', '')).toThrow('Provide a discount rate');
   });
 
   test('rejects missing financial fields instead of interpreting them as zero', () => {
