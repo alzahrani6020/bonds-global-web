@@ -654,7 +654,7 @@ function renderStudiesOperationalInputs(){
    '<div class="sr-field"><label>'+(lang==='ar'?'تكلفة المبيعات السنوية':'Annual cost of sales')+opt+'</label><input type="number" name="cogs" min="0" step="any"></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'المصروفات التشغيلية السنوية':'Annual operating expenses')+opt+'</label><input type="number" name="operating_expenses" min="0" step="any"></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'معدل الخصم %':'Discount rate %')+opt+'</label><input type="number" name="discount_rate_pct" min="0" max="100" step="any" placeholder="10"></div>'+ 
-   '<div class="sr-field full"><label>'+(lang==='ar'?'التدفقات النقدية السنوية، مفصولة بفواصل':'Annual cash flows, separated by commas')+opt+'</label><textarea name="cash_flows_text" placeholder="'+(lang==='ar'?'مثال: 100000, 120000, 140000':'Example: 100000, 120000, 140000')+'"></textarea><small>'+(lang==='ar'?'أدخل صافي التدفق النقدي لكل سنة. تُعرض النتائج الحسابية على أنها أولية إلى حين التحقق من الأدلة.':'Enter one net cash flow per year. Calculations remain preliminary until evidence is verified.')+'</small></div>'+
+   '<div class="sr-field full"><label>'+(lang==='ar'?'التدفقات النقدية السنوية (سطر لكل سنة أو فاصلة منقوطة، دون فواصل الآلاف)':'Annual cash flows (one per line or semicolon; no thousands separators)')+opt+'</label><textarea name="cash_flows_text" placeholder="'+(lang==='ar'?'مثال: 100000; 120000; 140000':'Example: 100000; 120000; 140000')+'"></textarea><small>'+(lang==='ar'?'أدخل صافي التدفق النقدي لكل سنة. تُعرض النتائج الحسابية على أنها أولية إلى حين التحقق من الأدلة.':'Enter one net cash flow per year. Calculations remain preliminary until evidence is verified.')+'</small></div>'+
    '<div class="sr-field full"><label>'+(lang==='ar'?'وصف المشروع':'Project brief')+req+'</label><textarea name="project_brief" required></textarea></div>';
  }
  else if(serviceCode==='risk_analysis'){
@@ -1713,7 +1713,7 @@ function collectValues(){
  if(serviceCode==='feasibility_studies'){
   const raw=String(values.cash_flows_text||'').trim();
   if(raw){
-   const items=raw.split(/[,;\n]/).map(x=>x.trim());
+   const items=raw.split(/[;\n]/).map(x=>x.trim());
    if(items.some(x=>!x||!Number.isFinite(Number(x)))||items.length>60){
     throw new Error(lang==='ar'?'التدفقات النقدية غير صالحة: أدخل حتى 60 قيمة رقمية':'Invalid cash flows: enter up to 60 numeric values');
    }
