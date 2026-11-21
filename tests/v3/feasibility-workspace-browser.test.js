@@ -15,7 +15,7 @@ afterAll(async () => {
   stopSpawnedServer();
 });
 
-async function openFeasibility({ mobile = false, projectId = null } = {}) {
+async function openFeasibility({ mobile = false, projectId = null, seedActivity = null } = {}) {
   const context = await browser.newContext({
     viewport: mobile ? { width: 390, height: 844 } : { width: 1280, height: 900 }
   });
@@ -59,10 +59,11 @@ async function openFeasibility({ mobile = false, projectId = null } = {}) {
     route.fulfill({ status: 200, contentType: 'application/json', body: '{"cities":[]}' })
   );
   await page.route('**/api/v3/investment-taxonomy*', route =>
-    route.fulfill({ status: 200, contentType: 'application/json', body: '{"sectors":[],"activities":[]}' })
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({sectors:[],activities:seedActivity?[{code:seedActivity,name_ar:'تجزئة',name_en:'Retail'}]:[]}) })
   );
   const workspaceUrl = new URL('/my-bonds/workspace/?service=feasibility_studies&country=SA', baseUrl);
   if (projectId) workspaceUrl.searchParams.set('project_id', projectId);
+  if (seedActivity) workspaceUrl.searchParams.set('activity', seedActivity);
   await page.goto(workspaceUrl.toString(), {
     waitUntil: 'domcontentloaded', timeout: 30000
   });
@@ -71,6 +72,20 @@ async function openFeasibility({ mobile = false, projectId = null } = {}) {
 }
 
 describe('feasibility study browser acceptance — isolated service contracts', () => {
+  test('screenshot regression: activity must clear when sector is not chosen',async()=>{
+    const {page,context}=await openFeasibility({seedActivity:'retail'});
+    await page.waitForFunction(()=>{
+      const country=document.querySelector('select[name="country_code"]');
+      const sector=document.querySelector('select[name="sector_code"]');
+      const activity=document.querySelector('select[name="activity_code"]');
+      return country?.value==='SA'&&sector?.value===''&&activity?.value===''&&activity.options.length===1;
+    },null,{timeout:12000});
+    expect(await page.locator('select[name="sector_code"]').inputValue()).toBe('');
+    expect(await page.locator('select[name="activity_code"]').inputValue()).toBe('');
+    expect(await page.locator('select[name="activity_code"] option').allTextContents()).toEqual(['اختر النشاط']);
+    await context.close();
+  });
+
   test('offers study inputs rather than unsupported file import, submits typed cash flows and displays unapproved metrics', async () => {
     const { page, context } = await openFeasibility();
     let payload = null;
