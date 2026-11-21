@@ -176,6 +176,25 @@
       "defaultContexts": ["investment", "financing", "expansion", "purchase"],
       "dataSources": ["healthcare_statistics", "medical_equipment_prices"]
     },
+    "trade": {
+      "sector": "trade",
+      "names": { "ar": "التجارة والتوزيع", "en": "Trade and Distribution" },
+      "aliases": ["trade", "تجارة", "التجارة", "تجارة الجملة", "توزيع", "distribution", "wholesale", "trading"],
+      "concepts": [
+        "revenue", "cost_of_goods_sold", "gross_margin", "inventory_turnover",
+        "accounts_receivable", "operating_expenses", "working_capital", "delivery_cost"
+      ],
+      "defaultFields": [
+        { "name": "annual_revenue", "type": "number", "unit": "currency/year", "required": false },
+        { "name": "cost_of_goods_sold", "type": "number", "unit": "currency/year", "required": false },
+        { "name": "operating_expenses", "type": "number", "unit": "currency/year", "required": false },
+        { "name": "initial_investment", "type": "number", "unit": "currency", "required": false },
+        { "name": "inventory_turnover", "type": "number", "unit": "times/year", "required": false }
+      ],
+      "defaultEngines": ["feasibility", "valuation", "risk"],
+      "defaultContexts": ["investment", "financing", "expansion"],
+      "dataSources": []
+    },
     "retail": {
       "sector": "retail",
       "names": { "ar": "تجزئة", "en": "Retail" },
