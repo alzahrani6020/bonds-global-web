@@ -144,6 +144,26 @@
   counter.parentNode.insertBefore(toolbar,counter);
   return toolbar;
  }
+ // Transitions are additionally enforced by existing PostgreSQL guards and workspace RLS.
+ // These controls record decisions; they never transfer money or issue statutory filings.
+ const workflowActions=row=>{
+  if(category==='contracts')
+   return row.status==='draft'?[['active',t('تفعيل العقد','Activate contract')],['cancelled',t('إلغاء المسودة','Cancel draft')]]:
+    row.status==='active'?[['terminated',t('إنهاء العقد','Terminate contract')],['expired',t('انتهاء العقد','Expire contract')]]:[];
+  if(category==='leaves'&&row.status==='pending')
+   return [['approved',t('اعتماد الإجازة','Approve leave')],['rejected',t('رفض الإجازة','Reject leave')]];
+  if(category==='payroll_runs')
+   return row.status==='draft'?[['reviewed',t('إرسال للمراجعة','Submit for review')]]:
+    row.status==='reviewed'?[['approved',t('اعتماد المسير','Approve payroll')],['draft',t('إعادة للمسودة','Return to draft')]]:[];
+  if(category==='claims')
+   return row.status==='draft'?[['submitted',t('رفع للمراجعة','Submit claim')]]:
+    row.status==='submitted'?[['approved',t('اعتماد المستحق','Approve claim')],['rejected',t('رفض المستحق','Reject claim')],['draft',t('إعادة للمسودة','Return to draft')]]:[];
+  return [];
+ };
+ function workflowButtons(row){
+  return workflowActions(row).map(([next,label])=>'<button type="button" class="secondary" data-hr-transition="'+
+   escape(next)+'" data-hr-transition-id="'+escape(row.id)+'">'+escape(label)+'</button>').join(' ');
+ }
  function render(){
   const isEmployees=category==='employees';
   ensureEmployeeFilters().hidden=!isEmployees;
@@ -167,7 +187,7 @@
    return '<td>'+escape(value??'—')+'</td>';
   }).join('')+(category==='audit'?'':category==='employee_requests'?
     '<td>'+(row.status==='pending'?'<button type="button" class="secondary" data-hr-request-decision="approved" data-hr-request-id="'+escape(row.id)+'">'+t('اعتماد','Approve')+'</button> <button type="button" class="secondary" data-hr-request-decision="rejected" data-hr-request-id="'+escape(row.id)+'">'+t('رفض','Reject')+'</button>':'—')+'</td>':
-    '<td><button type="button" class="secondary" data-hr-edit="'+escape(row.id)+'">'+t('تعديل','Edit')+'</button></td>')+'</tr>').join('')||'<tr><td colspan="6">'+t('لا توجد سجلات','No records')+'</td></tr>';
+    '<td><button type="button" class="secondary" data-hr-edit="'+escape(row.id)+'">'+t('تعديل','Edit')+'</button> '+workflowButtons(row)+'</td>')+'</tr>').join('')||'<tr><td colspan="6">'+t('لا توجد سجلات','No records')+'</td></tr>';
   $('hr-count').textContent=isEmployees?String(source.length)+' / '+String(employeeTotal):String(source.length);
  }
  async function load(){
@@ -271,6 +291,7 @@
     }
     if(category==='leaves'){
      row.status=row.status||'pending';
+     if(!editing&&row.status!=='pending')throw Error(t('أضف طلب الإجازة كمعلق أولًا','Create leave as pending first'));
      if(row.end_date<row.start_date)throw Error(t('تاريخ النهاية يسبق البداية','End date precedes start date'));
      if(['approved','rejected'].includes(row.status))row.decided_at=editing?.decided_at||new Date().toISOString();
      else row.decided_at=null;
@@ -558,6 +579,31 @@
     if(!result?.id)throw Error(t('لم يتم تأكيد القرار','Decision not confirmed'));
     await load();status(t('تم تسجيل قرار الطلب','Request decision recorded'));
    }catch(e){status(e.message,true);}finally{decision.disabled=false;}
+   return;
+  }
+  const transition=event.target.closest('[data-hr-transition]');
+  if(transition&&workspace&&license){
+   const tableCategory=category;
+   const item=records.find(row=>row.id===transition.dataset.hrTransitionId);
+   const target=transition.dataset.hrTransition;
+   if(!item||!workflowActions(item).some(([next])=>next===target))return;
+   // A return to draft is a workflow decision, not an editable salary transfer.
+   const changes={status:target,updated_at:new Date().toISOString()};
+   if(tableCategory==='leaves')
+    changes.decided_at=['approved','rejected'].includes(target)?new Date().toISOString():null;
+   if(tableCategory==='contracts'&&target==='terminated'&&
+      !window.confirm(t('تأكيد إنهاء عقد العمل؟','Confirm contract termination?')))return;
+   if(tableCategory==='payroll_runs'&&target==='approved'&&
+      !window.confirm(t('تأكيد اعتماد مسير الرواتب؟ لا يمكن تعديل المسير بعد الاعتماد.','Approve payroll? Approved runs cannot be edited.')))return;
+   transition.disabled=true;
+   try{
+    const result=check(await db.from(table()).update(changes)
+     .eq('workspace_id',workspace.id).eq('id',item.id).eq('status',item.status)
+     .select('id,status').single());
+    if(!result?.id||result.status!==target)throw Error(t('لم يؤكد النظام تغيير الحالة','Status transition was not confirmed'));
+    await load();
+    status(t('حُفظ قرار الاعتماد','Workflow decision saved'));
+   }catch(e){status(e.message,true);}finally{transition.disabled=false;}
    return;
   }
   const button=event.target.closest('[data-hr-edit]');if(!button)return;
