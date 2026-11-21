@@ -71,3 +71,14 @@ body[data-workspace-type] .sr-eyebrow{display:inline-flex;align-items:center;pad
 
 /* Keep the study intake panel full-width at every breakpoint. */
 .studies-workspace-mode .sr-intake.full{grid-column:1/-1;min-width:0}
+
+/* Feasibility controls: wrapping and single-column mobile touch targets. */
+.studies-workspace-mode .feasibility-secondary-actions{flex-wrap:wrap;gap:8px}
+.studies-workspace-mode .feasibility-secondary-actions button{cursor:pointer;min-height:44px;background:#fff}
+.studies-workspace-mode #srFeasibilityReview{margin-top:12px}
+.studies-workspace-mode #srFeasibilitySizeGuidance{grid-column:1/-1;margin-top:12px}
+@media(max-width:560px){
+ .studies-workspace-mode .feasibility-secondary-actions{display:grid;grid-template-columns:1fr}
+ .studies-workspace-mode .feasibility-secondary-actions button{width:100%;justify-content:center}
+ .studies-workspace-mode .sr-actions{flex-wrap:wrap}
+}
