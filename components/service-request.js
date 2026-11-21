@@ -257,7 +257,7 @@ function studiesLocationFieldsHtml(){
   '<div class="sr-field"><label for="studiesRegion">'+L.region+opt+'</label>'+studiesSelectMarkup('studiesRegion','region_code',L.regionPh,region)+'</div>'+
   '<div class="sr-field"><label for="studiesLocality">'+L.locality+opt+'</label>'+studiesSelectMarkup('studiesLocality','locality_code',L.localityPh,locality||localityName)+'</div>'+
   '<div class="sr-field"><label for="studiesSector">'+L.sector+opt+'</label>'+studiesSelectMarkup('studiesSector','sector_code',L.sectorPh,sector)+'</div>'+
-  '<div class="sr-field"><label for="studiesActivity">'+L.activity+opt+'</label>'+studiesSelectMarkup('studiesActivity','activity_code',L.activityPh,activity)+'</div>'+
+  '<div class="sr-field"><label for="studiesActivity">'+L.activity+opt+'</label>'+studiesSelectMarkup('studiesActivity','activity_code',L.activityPh,sector?activity:'')+'</div>'+
   '<input type="hidden" name="region_name" id="studiesRegionName" value="'+escapeHtml(studiesPrefill('region_name','region_name')||region)+'">'+
   '<input type="hidden" name="locality_name" id="studiesLocalityName" value="'+escapeHtml(localityName)+'">'+
   '<input type="hidden" name="sector_name" id="studiesSectorName">'+
@@ -464,11 +464,11 @@ async function studiesOnCountry(){
  studiesFillSelect($('#studiesRegion'),regions,'code',studiesCatalogLabel,lang==='ar'?'اختر المنطقة':'Choose region',wantedRegion);
  studiesFillSelect($('#studiesLocality'),studiesCatalog.cities,'code',studiesLocalityLabel,lang==='ar'?'اختر المدينة':'Choose city',wantedLocality);
  studiesFillSelect($('#studiesSector'),studiesCatalog.sectors,'code',studiesCatalogLabel,lang==='ar'?'اختر القطاع':'Choose sector',wantedSector);
- studiesFillSelect($('#studiesActivity'),studiesCatalog.activities,'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity',wantedActivity);
+ studiesFillSelect($('#studiesActivity'),[],'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity','');
  if(wantedRegion && studiesCatalog.cities.some(city=>city.region===wantedRegion)){
   studiesFilterLocalities(wantedRegion,wantedLocality);
  }
- if(wantedSector && studiesCatalog.sectors.some(row=>row.code===wantedSector)) await studiesOnSector(true);
+ if(wantedSector && studiesCatalog.sectors.some(row=>row.code===wantedSector)) await studiesOnSector(true,wantedActivity);
  studiesWriteLocationToUrl();
 }
 function studiesFilterLocalities(region,selected){
@@ -476,16 +476,19 @@ function studiesFilterLocalities(region,selected){
  const rows=matched.length?matched:studiesCatalog.cities;
  studiesFillSelect($('#studiesLocality'),rows,'code',studiesLocalityLabel,lang==='ar'?'اختر المدينة':'Choose city',selected||'');
 }
-async function studiesOnSector(skipUrl){
+async function studiesOnSector(skipUrl,initialActivity=''){
  const sector=$('#studiesSector')?.value||'';
  const country=$('#studiesCountry')?.value||'';
+ // Activity choices belong to a specific sector. Never display a stale activity
+ // when no sector is selected or while another sector is loading.
+ studiesFillSelect($('#studiesActivity'),[],'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity','');
  if(!sector||!country){
-  studiesFillSelect($('#studiesActivity'),studiesCatalog.activities,'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity',$('#studiesActivity')?.value||'');
   if(!skipUrl) studiesWriteLocationToUrl();
   return;
  }
  const data=await studiesCatalogJson('/api/v3/investment-taxonomy?country='+encodeURIComponent(country)+'&sector='+encodeURIComponent(sector)+'&include=activities&depth=subsector');
- studiesFillSelect($('#studiesActivity'),data.activities||[],'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity',liveParams().get('activity')||$('#studiesActivity')?.value||'');
+ if($('#studiesSector')?.value!==sector||$('#studiesCountry')?.value!==country)return;
+ studiesFillSelect($('#studiesActivity'),data.activities||[],'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity',initialActivity);
  if(!skipUrl) studiesWriteLocationToUrl();
 }
 function studiesBindCatalogEvents(){
@@ -531,7 +534,10 @@ function studiesPullDiscovery(){
     $('#studiesSector').value=sector;
     await studiesOnSector(true);
    }
-   if(activity&&$('#studiesActivity')) $('#studiesActivity').value=activity;
+   if(activity&&$('#studiesSector')?.value&&$('#studiesActivity')){
+    const option=[...$('#studiesActivity').options].find(row=>row.value===activity);
+    if(option) $('#studiesActivity').value=activity;
+   }
    studiesWriteLocationToUrl();
   }finally{studiesCatalogLock=false}
  };
