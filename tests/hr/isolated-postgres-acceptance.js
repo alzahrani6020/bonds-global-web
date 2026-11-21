@@ -416,18 +416,31 @@ async function main(){
   const draftInsertPrivilege=await db.query("select has_table_privilege('authenticated','public.hr_saas_calculation_drafts','INSERT') as browser,has_table_privilege('service_role','public.hr_saas_calculation_drafts','INSERT') as service");
   assert.equal(draftInsertPrivilege.rows[0].browser,false,'Browser can forge calculation results');
   assert.equal(draftInsertPrivilege.rows[0].service,true,'Server cannot persist reviewed draft');
-  // Privileged server fixture writes; the authenticated browser grant is deliberately absent.
-  const drafted=(await db.query(
+  // Verify the exact service_role database path, rather than relying on postgres superuser.
+  async function asServiceRole(callback) {
+   await db.query('begin');
+   try{
+    await db.query('set local role service_role');
+    const result=await callback();
+    await db.query('commit');
+    return result;
+   }catch(error){
+    await db.query('rollback');
+    throw error;
+   }
+  }
+  // Privileged service-role fixture writes; authenticated browser INSERT remains denied.
+  const drafted=(await asServiceRole(()=>db.query(
    "insert into hr_saas_calculation_drafts(workspace_id,employee_id,policy_id,kind,jurisdiction,inputs,result,created_by) values($1,$2,$3,'leave_accrual','SA',$4::jsonb,$5::jsonb,$6) returning id",
-   [wa,employee,policyId,JSON.stringify({as_of:'2026-11-17',eligible_days:365}),JSON.stringify({accrued_days:30,status:'draft_review_required'}),owner])).rows[0].id;
+   [wa,employee,policyId,JSON.stringify({as_of:'2026-11-17',eligible_days:365}),JSON.stringify({accrued_days:30,status:'draft_review_required'}),owner]))).rows[0].id;
   // Privileged writes must be denied for mismatched jurisdiction, not only RLS clients.
-  const wrongJurisdictionInsert=()=>db.query(
+  const wrongJurisdictionInsert=()=>asServiceRole(()=>db.query(
    "insert into hr_saas_calculation_drafts(workspace_id,employee_id,policy_id,kind,jurisdiction,inputs,result,created_by) values($1,$2,$3,'leave_accrual','EG',$4::jsonb,$5::jsonb,$6)",
-   [wa,employee,policyId,JSON.stringify({as_of:'2026-11-17',eligible_days:365}),JSON.stringify({accrued_days:30,status:'draft_review_required'}),owner]);
+   [wa,employee,policyId,JSON.stringify({as_of:'2026-11-17',eligible_days:365}),JSON.stringify({accrued_days:30,status:'draft_review_required'}),owner]));
   await assert.rejects(wrongJurisdictionInsert,
    e=>e.code==='23514','Privileged draft must reject jurisdiction mismatch');
-  await assert.rejects(()=>db.query(
-   "update hr_saas_calculation_drafts set jurisdiction='EG' where id=$1",[drafted]),
+  await assert.rejects(()=>asServiceRole(()=>db.query(
+   "update hr_saas_calculation_drafts set jurisdiction='EG' where id=$1",[drafted])),
    e=>e.code==='23514','Privileged draft update must reject jurisdiction mismatch');
   const preservedJurisdiction=await db.query(
    'select jurisdiction from hr_saas_calculation_drafts where id=$1',[drafted]);
