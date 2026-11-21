@@ -793,11 +793,25 @@
         if (error) showError(error.message);
       });
 
-      window.BondsAuth.getSession().then(function (result) {
+      // Complete a user-initiated Google handoff from a temporary Preview
+      // hostname on this durable alias. Consume the one-shot flag before
+      // starting OAuth so a failure cannot create a redirect loop.
+      const pendingProvider = new URLSearchParams(location.search).get('start_provider');
+      if (pendingProvider === 'google') {
+        const clean = new URL(location.href);
+        clean.searchParams.delete('start_provider');
+        history.replaceState(null, '', clean.pathname + clean.search + clean.hash);
+      }
+      window.BondsAuth.getSession().then(async function (result) {
         if (result && result.data && result.data.session) {
           window.location.href = redirectTo;
+        } else if (pendingProvider === 'google') {
+          const { error } = await window.BondsAuth.signInWithOAuth('google');
+          if (error) showError(error.message);
         }
-      }).catch(function () {});
+      }).catch(function (error) {
+        if (pendingProvider === 'google') showError(error?.message || 'تعذر التحقق من الجلسة');
+      });
 
       // Two-step signup navigation
       function validateSignupStep1() {
