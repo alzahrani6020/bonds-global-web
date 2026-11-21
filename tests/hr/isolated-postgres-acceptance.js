@@ -106,7 +106,9 @@ async function main(){
   const outsiderAttendance=await as(other,()=>db.query("select id from hr_saas_attendance where workspace_id=$1",[wa]));
   assert.equal(outsiderAttendance.rowCount,0,'Other company could read attendance');
   const auditOps=await as(owner,()=>db.query("select entity from hr_saas_audit where workspace_id=$1 and entity in ('hr_saas_attendance','hr_saas_leave_requests')",[wa]));
-  assert.equal(auditOps.rowCount,2,'Operational writes need an immutable audit');
+  assert.ok(auditOps.rowCount>=4,'Operational create/decision events must be audited separately');
+  assert.ok(auditOps.rows.some(r=>r.entity==='hr_saas_attendance'),'Attendance insert must be audited');
+  assert.ok(auditOps.rows.some(r=>r.entity==='hr_saas_leave_requests'),'Leave request and decisions must be audited');
 
   // New organizational entities are workspace-scoped, and employee department
   // and position references must belong to the same tenant.
