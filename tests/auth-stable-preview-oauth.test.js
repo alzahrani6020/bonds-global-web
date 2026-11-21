@@ -6,6 +6,7 @@ const vm = require('vm');
 const root = path.join(__dirname, '..');
 const authSource = fs.readFileSync(path.join(root, 'bonds-auth-2026.js'), 'utf8');
 const loginHtml = fs.readFileSync(path.join(root, 'calculators/auth/index.html'), 'utf8');
+const hrSource = fs.readFileSync(path.join(root, 'my-bonds/crm/company-hr.js'), 'utf8');
 const STABLE = 'https://bonds-global-web-git-fix-hr-clean-integration-20261120-dr-talal.vercel.app';
 
 function getBody(name) {
@@ -93,6 +94,12 @@ describe('stable HR Staging OAuth handoff', () => {
       expect(env.calls).toHaveLength(1);
       expect(env.calls[0].options.redirectTo).toBe(origin + '/calculators/auth');
     }
+  });
+
+  test('HR sign-in link uses the durable Staging host without losing HR query', () => {
+    expect(hrSource).toContain("window.BondsAuth.hrPreviewAuthOrigin?.()||location.origin");
+    expect(hrSource).toContain("encodeURIComponent(location.pathname+location.search)");
+    expect(hrSource).toContain("+'/calculators/auth?redirect='");
   });
 
   test('stable callback page consumes the one-time flag before beginning OAuth', () => {
