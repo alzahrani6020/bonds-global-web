@@ -22,7 +22,7 @@ async function run(){
     const tables={
      crm_app_workspaces:scenario==='existing'?[{id:'90000000-0000-4000-8000-000000000007',name:'Existing CRM Company',owner_user_id:user.id}]:[],
      company_program_entitlements:isLicensed?[{owner_user_id:user.id,product_code:'hr',status:'active',starts_at:'2020-01-01T00:00:00.000Z',ends_at:null}]:[],
-     hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[],hr_saas_entitlements:[],hr_saas_leave_ledger:[],hr_saas_leave_balance_summary:[],
+     hr_saas_workspaces:[],hr_saas_employees:[],hr_saas_departments:[],hr_saas_positions:[],hr_saas_attendance_corrections:[],hr_saas_attendance_effective:[],hr_saas_records:[],hr_saas_audit:[],hr_saas_attendance:[],hr_saas_leave_requests:[],hr_saas_payroll_periods:[],hr_saas_payroll_lines:[],hr_saas_employment_contracts:[],hr_saas_entitlements:[],hr_saas_leave_ledger:[],hr_saas_leave_balance_summary:[],
      hr_saas_invitations:[],hr_saas_rule_sets:[],hr_saas_calculation_drafts:[],
      hr_saas_memberships:['employee','manager'].includes(scenario)?[{
       id:'40000000-0000-4000-8000-000000000001',workspace_id:'50000000-0000-4000-8000-000000000001',
@@ -52,15 +52,33 @@ async function run(){
     });
     function from(table){
      if(!tables[table])throw Error('Unexpected table: '+table);
-     let kind='read',value=null,filters=[],limit=1000;
+     let kind='read',value=null,filters=[],limit=1000,offset=0,rangeEnd=null;
      const q={
       select(){return q;},eq(k,v){filters.push(r=>r[k]===v);return q;},
       in(k,vals){filters.push(r=>vals.includes(r[k]));return q;},
+      or(expr){
+       const clauses=expr.split(',').map(c=>c.split('.ilike.'));
+       filters.push(row=>clauses.some(([field,pattern])=>{
+        const needle=String(pattern||'').replace(/%/g,'').toLocaleLowerCase();
+        return String(row[field]||'').toLocaleLowerCase().includes(needle);
+       }));
+       return q;
+      },
       order(){return q;},limit(n){limit=n;return q;},
+      range(start,end){offset=start;rangeEnd=end;return q;},
       insert(row){kind='insert';value=row;return q;},
       update(row){kind='update';value=row;return q;},
       async eval(single=false){
-       let data=tables[table].filter(r=>filters.every(f=>f(r))).slice(0,limit);
+       const source=table==='hr_saas_attendance_effective'?tables.hr_saas_attendance.map(a=>{
+        const correction=tables.hr_saas_attendance_corrections.filter(c=>
+         c.attendance_id===a.id&&c.workspace_id===a.workspace_id&&c.status==='approved').at(-1);
+        return correction?{...a,attendance_status:correction.requested_status,
+         clock_in:correction.requested_clock_in,clock_out:correction.requested_clock_out,
+         approved_correction_id:correction.id}:{...a,approved_correction_id:null};
+       }):tables[table];
+       const filtered=source.filter(r=>filters.every(f=>f(r)));
+       const count=filtered.length;
+       let data=filtered.slice(offset,rangeEnd===null?offset+limit:rangeEnd+1);
        if(kind==='read'&&table==='hr_saas_employees'&&window.__hrTest.delayNextEmployeesRead){
         window.__hrTest.delayNextEmployeesRead=false;
         await new Promise(resolve=>setTimeout(resolve,200));
@@ -73,7 +91,7 @@ async function run(){
        }else if(kind==='update'){
         data=data.map(r=>{Object.assign(r,value);return r;});
        }
-       return {data:single?data[0]||null:data,error:null};
+       return {data:single?data[0]||null:data,error:null,count};
       },
       single(){return q.eval(true);},then(resolve,reject){return q.eval().then(resolve,reject);}
      };
@@ -204,7 +222,7 @@ async function run(){
     await page.locator('#hr-fields input[name="full_name"]').fill('Employee One');
     await page.locator('#hr-save').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employees.length===1);
-    assert.equal(await page.locator('#hr-count').textContent(),'1');
+    assert.equal(await page.locator('#hr-count').textContent(),'1 / 1');
     // Owner can issue verified-email invitations without knowing a user's UUID.
     await page.locator('#hr-invite-form input[name="email"]').fill('invitee@example.test');
     await page.locator('#hr-invite-form select[name="employee_id"]').selectOption({index:1});
@@ -218,12 +236,12 @@ async function run(){
     await page.locator('#hr-create-workspace button[type="submit"]').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_workspaces.length===2);
     assert.equal(await page.locator('#hr-workspace option').count(),2);
-    assert.equal(await page.locator('#hr-count').textContent(),'0','New workspace leaked first company employees');
+    assert.equal(await page.locator('#hr-count').textContent(),'0 / 0','New workspace leaked first company employees');
     const firstWorkspace=await page.evaluate(()=>window.__hrTest.tables.hr_saas_workspaces[0].id);
     const firstCompany=await page.evaluate(()=>window.__hrTest.tables.crm_app_workspaces[0].id);
     assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_workspaces[0])).crm_workspace_id,firstCompany);
     await page.locator('#hr-workspace').selectOption(firstCompany);
-    await page.waitForFunction(()=>document.querySelector('#hr-count').textContent==='1');
+    await page.waitForFunction(()=>document.querySelector('#hr-count').textContent==='1 / 1');
     assert.equal(await page.locator('#hr-app').isVisible(),true,'Returning to first workspace hid HR application');
     // Delayed reads from the old workspace cannot repopulate the new one.
     await page.evaluate(()=>{window.__hrTest.delayNextEmployeesRead=true;});
@@ -233,9 +251,9 @@ async function run(){
     assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_workspaces[1])).crm_workspace_id,secondCompany);
     await page.locator('#hr-workspace').selectOption(secondCompany);
     await page.waitForTimeout(300);
-    assert.equal(await page.locator('#hr-count').textContent(),'0','Stale first-workspace read leaked into the second workspace');
+    assert.equal(await page.locator('#hr-count').textContent(),'0 / 0','Stale first-workspace read leaked into the second workspace');
     await page.locator('#hr-workspace').selectOption(firstCompany);
-    await page.waitForFunction(()=>document.querySelector('#hr-count').textContent==='1');
+    await page.waitForFunction(()=>document.querySelector('#hr-count').textContent==='1 / 1');
 
     // Owner policy lifecycle: company-reviewed version, then persisted calculation draft.
     await page.waitForFunction(()=>!document.querySelector('#hr-policy-panel').hidden);
@@ -394,7 +412,7 @@ async function run(){
     assert.equal(revisedPayroll.period_id,(await page.evaluate(()=>window.__hrTest.tables.hr_saas_payroll_periods[0].id)));
     assert.equal(revisedPayroll.employee_id,(await page.evaluate(()=>window.__hrTest.tables.hr_saas_employees[0].id)));
 
-    assert.equal(await page.locator('#hr-count').textContent(),'1');
+    assert.equal(await page.locator('#hr-count').textContent(),'1 / 1');
 
 
     await page.locator('#crm-product-tab').click();
