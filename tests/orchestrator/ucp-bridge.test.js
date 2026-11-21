@@ -47,6 +47,26 @@ describe('UCP Bridge', () => {
     expect(engines.risk.risk_grade).toBe('B');
   });
 
+  test('does not misrepresent net profit and ROI as NPV and IRR or grant approval', () => {
+    const engines = deriveEngineResults({
+      confidence: 0.95,
+      outputs: {
+        net_profit: { value: 250000 },
+        roi: { value: 30 },
+        payback_period: { value: 3 }
+      },
+      bridge: { requiredSyntheticInputs: [], validationValid: true }
+    });
+    expect(engines.feasibility.executed).toBe(true);
+    expect(engines.feasibility.status).toBe('partial_metrics');
+    expect(engines.feasibility.decisionEligible).toBe(false);
+    expect(engines.feasibility.npv).toBeNull();
+    expect(engines.feasibility.irr).toBeNull();
+    expect(engines.feasibility.net_profit).toBe(250000);
+    expect(engines.feasibility.roi_pct).toBe(30);
+    expect(engines.feasibility.warnings).toContain('project_cash_flows_and_discount_rate_required_for_npv_irr');
+  });
+
   test('flags high risk when DSCR is low', () => {
     const engines = deriveEngineResults({
       confidence: 0.6,
