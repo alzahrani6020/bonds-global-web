@@ -20,6 +20,12 @@ describe('HR organization and attendance controls',()=>{
    expect(sql).toContain('create table public.'+name);
   expect(sql).toContain('foreign key(workspace_id,department_id)');
   expect(sql).toContain('foreign key(workspace_id,position_id)');
+  expect(sql).toContain('department_hierarchy_guard');
+  expect(sql).toContain('Department hierarchy cycle');
+  expect(sql).toContain("r.category='departments'");
+  expect(sql).toContain("'L-'||replace(r.id::text,'-','')");
+  expect(js).toContain("isEmployees?row.department:'—'");
+  expect(js).toContain("isEmployees?row.job_title:'—'");
   expect(sql).toContain('alter table public.hr_saas_departments enable row level security');
   expect(sql).toContain('alter table public.hr_saas_positions enable row level security');
   expect(js).toContain("category==='departments'?'hr_saas_departments'");
