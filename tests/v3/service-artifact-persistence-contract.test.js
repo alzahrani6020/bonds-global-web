@@ -23,7 +23,7 @@ describe('service execution and artifact persistence contract', () => {
   test('scopes service drafts to project/deal/opportunity, and unassigned drafts to a tab', () => {
     expect(ui).toContain("['company_id','project_id','deal_id','opportunity_id']");
     expect(ui).toContain("'bonds_service_workspace_draft_v2:'");
-    expect(ui).toContain("workspaceDraftScope==='unassigned'?sessionStorage:localStorage");
+    expect(ui).toContain("(workspaceDraftScope==='unassigned'||isStudiesWorkspaceService())?sessionStorage:localStorage");
     expect(ui).toContain('workspaceDraftStorage.getItem(workspaceDraftKey)');
     expect(ui).toContain('workspaceDraftStorage.setItem(workspaceDraftKey,');
   });
