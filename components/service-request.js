@@ -149,11 +149,13 @@ function studiesContextChips(){
 function renderStudiesWorkspaceShell(){
  if(!isStudiesWorkspaceService())return;
  document.body.classList.add('studies-workspace-mode');
+ if(serviceCode==='feasibility_studies')document.body.classList.add('feasibility-workspace-mode');
  if($('#studiesWorkspaceNav'))return;
  const grid=document.querySelector('.sr-grid');
  if(!grid)return;
  const detailsBtn=$('#srDetails');
- if(detailsBtn) detailsBtn.hidden=true;
+ // Keep the service details link available to study users.
+ if(detailsBtn&&serviceCode!=='feasibility_studies') detailsBtn.hidden=true;
  const shell=document.createElement('section');
  shell.id='studiesWorkspaceNav';
  shell.className='financial-workspace-shell studies-workspace-shell';
@@ -1231,7 +1233,7 @@ window.addEventListener('beforeunload',e=>{
 function text(row,ar='name_ar',en='name_en'){return lang==='ar'?(row?.[ar]||row?.[en]||''):(row?.[en]||row?.[ar]||'')}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function json(url,opts){const r=await fetch(url,opts);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'HTTP '+r.status);return d}
-function showStatus(msg,ok){const e=$('#srStatus');e.textContent=msg;e.className='sr-status show '+(ok?'ok':'err')}
+function showStatus(msg,ok){const e=$('#srStatus');e.textContent=msg;e.className='sr-status show '+(ok?'ok':'err');e.setAttribute('role',ok?'status':'alert');e.setAttribute('aria-live',ok?'polite':'assertive');if(!ok&&typeof e.scrollIntoView==='function')e.scrollIntoView({block:'nearest',behavior:'smooth'})}
 function contextQuery(){const p=new URLSearchParams();for(const k of ['country','sector','activity']){const v=params.get(k);if(v)p.set(k,v)}return p.toString()}
 function renderList(id,items,fn){const el=$(id);if(!el)return;el.innerHTML=items.length?'<ul class="sr-list">'+items.map(fn).join('')+'</ul>':'<div class="sr-empty">—</div>'}
 function renderRequestProfileField(field){
@@ -1645,6 +1647,12 @@ function renderExecutionResult(payload){
    entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+formatFinancialValue(v)+'</li>').join('')+'</ul></div>':
    '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>'
   ));
+ const successLink=$('#srSuccessLink');
+ if(successLink && ['feasibility_studies','risk_analysis'].includes(serviceCode)){
+  successLink.href=workspaceReturnTarget()||(lang==='ar'?'/my-bonds/':'/en/my-bonds/');
+  successLink.textContent=lang==='ar'?'العودة إلى مساحة العمل':'Return to workspace';
+  successLink.hidden=false;
+ }
  const download=$('#srDownloadExecution');
  if(download)download.addEventListener('click',()=>{
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
