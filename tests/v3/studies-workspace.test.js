@@ -42,6 +42,80 @@ describe('studies and market research workspace',()=>{
     expect(ui).not.toContain('<input type="text" name="activity_code"');
   });
 
+  test('never offers a standalone activity without a selected sector',async()=>{
+    const vm=require('vm');
+    const start=ui.indexOf('async function studiesOnSector(');
+    const end=ui.indexOf('function studiesBindCatalogEvents()',start);
+    expect(start).toBeGreaterThan(0);
+    expect(end).toBeGreaterThan(start);
+    const source=ui.slice(start,end);
+    const fields={
+      studiesSector:{value:''},
+      studiesCountry:{value:'SA'},
+      studiesActivity:{value:'retail',options:[{value:'retail'}]}
+    };
+    const fills=[];
+    let urlWrites=0;
+    let fetches=0;
+    const context={
+      $:selector=>fields[selector.replace(/^#/,'')]||null,
+      lang:'ar',
+      studiesCatalogLabel:()=>'', studiesFillSelect:(el,rows,key,label,placeholder,selected)=>{
+        fills.push({rows,selected});
+        el.options=[{value:''},...rows.map(row=>({value:row.code}))];
+        el.value=selected&&el.options.some(row=>row.value===selected)?selected:'';
+      },
+      studiesCatalogJson:async()=>{fetches++;return {activities:[{code:'retail'}]}},
+      studiesWriteLocationToUrl:()=>{urlWrites++},
+      encodeURIComponent
+    };
+    const onSector=vm.runInNewContext(source+';studiesOnSector',context);
+    await onSector(false);
+    expect(fields.studiesActivity.value).toBe('');
+    expect(fields.studiesActivity.options.map(x=>x.value)).toEqual(['']);
+    expect(fills).toHaveLength(1);
+    expect(fetches).toBe(0);
+    expect(urlWrites).toBe(1);
+  });
+
+  test('only allows activities belonging to the selected sector and ignores stale responses',async()=>{
+    const vm=require('vm');
+    const start=ui.indexOf('async function studiesOnSector(');
+    const end=ui.indexOf('function studiesBindCatalogEvents()',start);
+    const source=ui.slice(start,end);
+    const fields={
+      studiesSector:{value:'SECTOR_A'},
+      studiesCountry:{value:'SA'},
+      studiesActivity:{value:'retail',options:[{value:'retail'}]}
+    };
+    let resolveFetch;
+    let writes=0;
+    const context={
+      $:selector=>fields[selector.replace(/^#/,'')]||null,
+      lang:'ar',studiesCatalogLabel:()=>'',encodeURIComponent,
+      studiesFillSelect:(el,rows,key,label,placeholder,selected)=>{
+        el.options=[{value:''},...rows.map(row=>({value:row.code}))];
+        el.value=selected&&el.options.some(row=>row.value===selected)?selected:'';
+      },
+      studiesCatalogJson:()=>new Promise(resolve=>{resolveFetch=resolve}),
+      studiesWriteLocationToUrl:()=>{writes++}
+    };
+    const onSector=vm.runInNewContext(source+';studiesOnSector',context);
+    const pending=onSector(false);
+    expect(fields.studiesActivity.value).toBe('');
+    fields.studiesSector.value='SECTOR_B';
+    resolveFetch({activities:[{code:'retail'}]});
+    await pending;
+    expect(fields.studiesActivity.value).toBe('');
+    expect(fields.studiesActivity.options.map(x=>x.value)).toEqual(['']);
+    expect(writes).toBe(0);
+    context.studiesCatalogJson=async()=>({activities:[{code:'b_activity'}]});
+    await onSector(false,'retail');
+    expect(fields.studiesActivity.value).toBe('');
+    expect(fields.studiesActivity.options.map(x=>x.value)).toEqual(['','b_activity']);
+    expect(writes).toBe(1);
+  });
+
   test('workspace HTML puts the work form before procedure chrome',()=>{
     expect(ar.indexOf('id="srRequestForm"')).toBeGreaterThan(-1);
     expect(ar.indexOf('id="srRequestForm"')).toBeLessThan(ar.indexOf('id="srProcedures"'));
