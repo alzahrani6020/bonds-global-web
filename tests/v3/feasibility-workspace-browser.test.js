@@ -364,7 +364,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     expect(await page.locator('#srExecutionResult').innerText()).toContain('غير معتمدة');
     expect(await page.locator('#srDownloadExecution').isVisible()).toBe(true);
     expect(await page.locator('#srSuccessLink').isVisible()).toBe(true);
-    expect(await page.locator('#srStatus').innerText()).toContain('لم يُربط المخرج بمشروع');
+    expect(await page.locator('#srStatus').innerText()).toContain('تم التحليل دون حفظ مؤسسي');
     await context.close();
   });
 
@@ -422,6 +422,54 @@ describe('feasibility study browser acceptance — isolated service contracts', 
       page.locator('[data-study-artifact="' + artifactId + '"]').click()
     ]);
     expect(download.suggestedFilename()).toBe('bonds-feasibility-' + artifactId + '.json');
+    await context.close();
+  });
+
+  test('offers end-of-list sector and activity creation, and retains them for the signed-in user after refresh', async () => {
+    const {page,context}=await openFeasibility();
+    const sector=page.locator('#studiesSector');
+    await page.waitForFunction(()=>!!document.querySelector('#studiesSector option[value="__add_custom_sector__"]'));
+    await sector.selectOption('__add_custom_sector__');
+    await page.locator('#studiesCustomSectorEditor').waitFor({state:'visible'});
+    await page.locator('#studiesCustomSectorName').fill('توريد المنتجات للمكاتب');
+    await page.locator('#studiesCustomSectorModel').selectOption('trade');
+    await page.locator('#studiesCustomSectorSave').click();
+    await page.waitForFunction(()=>document.querySelector('#studiesSector')?.value.startsWith('user_sector_'));
+    const sectorCode=await sector.inputValue();
+    expect(await page.locator('#studiesEngineProfile').inputValue()).toBe('trade');
+    await page.locator('#studiesActivity').selectOption('__add_custom_activity__');
+    await page.locator('#studiesCustomActivityEditor').waitFor({state:'visible'});
+    await page.locator('#studiesCustomActivityName').fill('توزيع القهوة والمستلزمات');
+    await page.locator('#studiesCustomActivitySave').click();
+    await page.waitForFunction(()=>document.querySelector('#studiesActivity')?.value.startsWith('user_activity_'));
+    const activityCode=await page.locator('#studiesActivity').inputValue();
+    const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('bonds_studies_taxonomy_v1:feasibility-browser-fixture')||'{}'));
+    expect(saved.sectors.some(x=>x.code===sectorCode&&x.engine_profile==='trade')).toBe(true);
+    expect(saved.activities.some(x=>x.code===activityCode&&x.sector===sectorCode)).toBe(true);
+    await page.reload({waitUntil:'domcontentloaded'});
+    await page.locator('input[name="project_name"]').waitFor({state:'visible'});
+    await page.waitForFunction(code=>Array.from(document.querySelector('#studiesSector')?.options||[]).some(o=>o.value===code),sectorCode);
+    expect(await page.locator('#studiesSector').inputValue()).toBe(sectorCode);
+    await page.waitForFunction(code=>Array.from(document.querySelector('#studiesActivity')?.options||[]).some(o=>o.value===code),activityCode);
+    expect(await page.locator('#studiesActivity').inputValue()).toBe(activityCode);
+    expect(await page.locator('#studiesEngineProfile').inputValue()).toBe('trade');
+    await context.close();
+  });
+
+  test('rejects a sale-asset intent returned for a feasibility study instead of displaying success', async () => {
+    const {page,context}=await openFeasibility();
+    await page.route('**/api/v3/services/execute',route=>route.fulfill({
+      status:200,contentType:'application/json',
+      body:JSON.stringify({ok:true,executed:true,result:{intent:{intent:'sell_asset'}}})
+    }));
+    await page.locator('input[name="project_name"]').fill('Office supplies');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('textarea[name="project_brief"]').fill('بيع القهوة والمياه والمنظفات بالجملة للمكاتب');
+    await page.locator('#srSubmit').click();
+    await page.locator('#srStatus.err').waitFor({state:'visible'});
+    expect(await page.locator('#srStatus').innerText()).toContain('أعاد المحرك نية مختلفة');
+    expect(await page.locator('#srExecutionResult').count()).toBe(0);
+    expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
     await context.close();
   });
 
