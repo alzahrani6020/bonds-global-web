@@ -8,6 +8,10 @@ const { feasibilityAnalysis } = require('../../lib/finance/engines/feasibility-e
 describe('feasibility integrity gate', () => {
   const ui = fs.readFileSync(path.join(__dirname, '../../components/service-request.js'), 'utf8');
 
+  test('updated shared study workspace JavaScript parses without syntax errors', () => {
+    expect(() => new Function(ui)).not.toThrow();
+  });
+
   test('rejects missing financial fields instead of interpreting them as zero', () => {
     expect(finite(null)).toBeNull();
     expect(finite(undefined)).toBeNull();
