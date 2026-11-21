@@ -409,6 +409,10 @@ async function main(){
   await assert.rejects(()=>as(owner,()=>db.query(
    "update hr_saas_rule_sets set status='approved' where id=$1",[secondPolicy])),
    e=>e.code==='23514','Overlapping company policies should not be approved');
+  // Apply the additive database guard before privileged draft writes.
+  const integrityMigration=fs.readFileSync(path.resolve(__dirname,
+   '../../supabase/migrations/20261121060000_hr_draft_policy_integrity.sql'),'utf8');
+  await db.query(integrityMigration);
   const draftInsertPrivilege=await db.query("select has_table_privilege('authenticated','public.hr_saas_calculation_drafts','INSERT') as browser,has_table_privilege('service_role','public.hr_saas_calculation_drafts','INSERT') as service");
   assert.equal(draftInsertPrivilege.rows[0].browser,false,'Browser can forge calculation results');
   assert.equal(draftInsertPrivilege.rows[0].service,true,'Server cannot persist reviewed draft');
@@ -416,6 +420,19 @@ async function main(){
   const drafted=(await db.query(
    "insert into hr_saas_calculation_drafts(workspace_id,employee_id,policy_id,kind,jurisdiction,inputs,result,created_by) values($1,$2,$3,'leave_accrual','SA',$4::jsonb,$5::jsonb,$6) returning id",
    [wa,employee,policyId,JSON.stringify({as_of:'2026-11-17',eligible_days:365}),JSON.stringify({accrued_days:30,status:'draft_review_required'}),owner])).rows[0].id;
+  // Privileged writes must be denied for mismatched jurisdiction, not only RLS clients.
+  const wrongJurisdictionInsert=()=>db.query(
+   "insert into hr_saas_calculation_drafts(workspace_id,employee_id,policy_id,kind,jurisdiction,inputs,result,created_by) values($1,$2,$3,'leave_accrual','EG',$4::jsonb,$5::jsonb,$6)",
+   [wa,employee,policyId,JSON.stringify({as_of:'2026-11-17',eligible_days:365}),JSON.stringify({accrued_days:30,status:'draft_review_required'}),owner]);
+  await assert.rejects(wrongJurisdictionInsert,
+   e=>e.code==='23514','Privileged draft must reject jurisdiction mismatch');
+  await assert.rejects(()=>db.query(
+   "update hr_saas_calculation_drafts set jurisdiction='EG' where id=$1",[drafted]),
+   e=>e.code==='23514','Privileged draft update must reject jurisdiction mismatch');
+  const preservedJurisdiction=await db.query(
+   'select jurisdiction from hr_saas_calculation_drafts where id=$1',[drafted]);
+  assert.equal(preservedJurisdiction.rows[0].jurisdiction,'SA',
+   'Rejected privileged update changed the draft');
   const draftVisible=await as(owner,()=>db.query(
    "select status from hr_saas_calculation_drafts where id=$1",[drafted]));
   assert.equal(draftVisible.rows[0].status,'draft');
