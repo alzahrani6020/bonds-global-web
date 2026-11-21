@@ -1,4 +1,4 @@
-const { getSupabaseClient } = require('../lib/supabase');
+const { getSupabaseClient, getPublicCatalogClient } = require('../lib/supabase');
 const { loadProjectModel } = require('../engine/loader');
 const { calculate, recommend } = require('../engine/calculator');
 const { generateInsights } = require('../engine/ai');
@@ -1186,7 +1186,7 @@ async function loadCatalogCityRows(supabase, countryCode = null) {
 
 async function handleCatalogCountries(req, res) {
   try {
-    const supabase = getSupabaseClient();
+    const supabase = getPublicCatalogClient();
     const rows = await loadCatalogCityRows(supabase);
     const canonicalDatabaseCities = canonicalizeCities(rows);
     const databaseCounts = {};
@@ -1537,7 +1537,7 @@ async function handleCatalogCities(req, res) {
   }
 
   try {
-    const supabase = getSupabaseClient();
+    const supabase = getPublicCatalogClient();
     const rawCities = await loadCatalogCityRows(supabase, countryCode);
     const databaseCities = canonicalizeCities(rawCities).map(city => ({
       ...city,
