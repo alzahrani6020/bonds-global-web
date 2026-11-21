@@ -48,3 +48,20 @@ The HR UI now exposes contract activation/closure, pending leave decisions, payr
 **Known blocking gaps:** (1) dedicated departments and positions with tenant-scoped foreign keys, (2) attendance approval status and secure correction process, (3) server-side leave decision immutability, (4) authenticated save/readback from UI and independent two-tenant isolation, (5) clean isolated migration restore and production deployment. The current Staging database was observed to have two HR workspaces with one owner and zero employees, contracts, attendance rows, leave requests, or payroll periods; it cannot evidence genuine two-owner end-to-end acceptance.
 
 **Do not merge to main or apply database migrations based on static UI tests alone.**
+
+## 2026-11-21 — Organizational structure, attendance decisions and corrections
+
+**Implemented in the development branch only:**
+- Dedicated `hr_saas_departments` and `hr_saas_positions` tables with workspace-scoped composite foreign keys and active flags; organization hierarchy cycle guard.
+- Employee `department_id` / `position_id` relationships, with server-side department-position consistency. Legacy employee text remains displayed when no linked reference exists.
+- Non-destructive backfill of historical department-category catalog rows into the new table, retaining source records.
+- Attendance `draft -> submitted -> approved/rejected` with an audit trail, decision timestamps, immutability of approved records and locked submitted records.
+- Attendance corrections modeled as separate `pending -> approved/rejected` requests. The original approved attendance is immutable, with a `security_invoker` effective attendance view returning the newest approved correction.
+- Leave decisions locked in PostgreSQL after a final decision; the UI alone is not relied upon.
+- Both locales have menus for departments, positions and corrections; regression and disposable-Postgres acceptance tests were extended.
+
+**Verified on Staging inside BEGIN/ROLLBACK only:** schema execution, employee reference write/readback, attendance/leave approval and immutable decisions, approval of correction and effective-view readback, two-role RLS simulation, department hierarchy cycle denial, and legacy department backfill. Follow-up read queries showed no staged test tables or rows persisted.
+
+**Not verified:** authenticated end-to-end browser/OAuth for two independent companies; actual CI runs on the PR commit; production backup+isolated restore; production migration or publication. As of this review, production has zero `hr_saas_*` tables. These are mandatory release blockers, not optional checks.
+
+**Known follow-up:** remote employee selectors beyond the initial 250 rows, paginated approval queues, attendance policy/time zone per country, staged acceptance of real HR users, and successful production backup/restore before migration.
