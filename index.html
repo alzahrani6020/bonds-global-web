@@ -3,6 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script>
+// Recover the HR staging OAuth callback when Supabase falls back to the old
+// Preview Site URL. Keep credentials in the URL fragment on the same origin.
+(function () {
+  if (window.location.hostname !== 'bonds-global-nsbdgzhzy-dr-talal.vercel.app') return;
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+  const searchParams = new URLSearchParams(window.location.search);
+  const hasImplicitSession = hashParams.has('access_token') && hashParams.has('refresh_token');
+  if (!hasImplicitSession && !searchParams.has('code')) return;
+  searchParams.set('redirect', '/my-bonds/crm/?program=hr');
+  window.location.replace('/calculators/auth/?' + searchParams.toString() + window.location.hash);
+})();
+</script>
 <title>بوندز للاستشارات المالية | قرارات استثمار وتمويل أكثر وضوحًا</title>
 <meta name="description" content="BONDS Global للاستشارات المالية: دراسات جدوى، تقييم، تخطيط مالي، إدارة مخاطر وتحليل استثماري بمنهجية مستقلة.">
 <meta property="og:title" content="بوندز للاستشارات المالية | قرارات استثمار وتمويل أكثر وضوحًا">
