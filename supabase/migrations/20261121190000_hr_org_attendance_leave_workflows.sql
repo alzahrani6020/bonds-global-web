@@ -281,7 +281,7 @@ create view public.hr_saas_attendance_effective with (security_invoker=true) as
   case when c.id is null then a.attendance_status else c.requested_status end as attendance_status,
   case when c.id is null then a.clock_in else c.requested_clock_in end as clock_in,
   case when c.id is null then a.clock_out else c.requested_clock_out end as clock_out,
-  c.id as approved_correction_id,a.created_at
+  c.id as approved_correction_id,a.note,a.created_at,a.updated_at
  from public.hr_saas_attendance a
  left join lateral (
   select c.id,c.requested_status,c.requested_clock_in,c.requested_clock_out
