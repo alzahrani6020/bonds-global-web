@@ -2090,13 +2090,59 @@ function renderFinancialExecution(result,metrics){
  }
  return '';
 }
+function feasibilityMissingInputs(){
+ const form=$('#srRequestForm');
+ if(!form)return [];
+ const fields=[
+  {name:'investment_amount',label:lang==='ar'?'حجم الاستثمار المتوقع':'Initial investment'},
+  {name:'cash_flows_text',label:lang==='ar'?'التدفقات النقدية السنوية':'Annual cash flows'},
+  {name:'discount_rate_pct',label:lang==='ar'?'معدل الخصم':'Discount rate'}
+ ];
+ return fields.filter(item=>{
+  const input=form.querySelector('[name="'+item.name+'"]');
+  return !input||String(input.value||'').trim()==='';
+ });
+}
+function renderFeasibilityMissingInputs(){
+ const previous=$('#srFeasibilityMissingInputs');
+ if(previous)previous.remove();
+ const missing=feasibilityMissingInputs();
+ if(!missing.length)return;
+ const target=$('#srStatus');
+ if(!target)return;
+ const panel=document.createElement('div');
+ panel.id='srFeasibilityMissingInputs';
+ panel.className='sr-card';
+ panel.setAttribute('role','group');
+ const heading=document.createElement('strong');
+ heading.textContent=lang==='ar'?'بيانات مطلوبة لحساب المؤشرات:':'Required to calculate financial indicators:';
+ panel.appendChild(heading);
+ const actions=document.createElement('div');
+ actions.className='sr-actions feasibility-secondary-actions';
+ missing.forEach(item=>{
+  const button=document.createElement('button');
+  button.type='button';
+  button.className='sr-secondary';
+  button.textContent=item.label;
+  button.addEventListener('click',()=>{
+   const input=$('#srRequestForm')?.querySelector('[name="'+item.name+'"]');
+   if(!input)return;
+   input.scrollIntoView({block:'center',behavior:'smooth'});
+   input.focus({preventScroll:true});
+  });
+  actions.appendChild(button);
+ });
+ panel.appendChild(actions);
+ target.insertAdjacentElement('afterend',panel);
+}
 function showExecutionPersistenceStatus(execution){
  if(serviceCode==='feasibility_studies'){
   const feasibility=execution?.result?.engineResults?.feasibility;
   if(!feasibility || feasibility.executed!==true || (feasibility.metrics?.npv==null && feasibility.metrics?.irr==null && feasibility.npv==null && feasibility.irr==null)){
    showStatus(lang==='ar'
-    ?'وصلت استجابة من محرك الدراسة، لكن مؤشرات الجدوى NPV وIRR لم تُحسب. أدخل الاستثمار والتدفقات النقدية ومعدل الخصم، أو اجلب بيانات السوق ثم وثّق افتراضات الإيرادات.'
-    :'The study engine responded, but NPV and IRR were not calculated. Provide investment, cash flows and discount rate, or research the market and document revenue assumptions.',false);
+    ?'وصلت استجابة من محرك الدراسة، لكن مؤشرات الجدوى NPV وIRR لم تُحسب. أكمل المدخلات المالية المحددة أدناه، أو اجلب بيانات السوق ثم وثّق الافتراضات قبل الحساب.'
+    :'The study engine responded, but NPV and IRR were not calculated. Complete the financial inputs below or research and document market assumptions before calculating.',false);
+   renderFeasibilityMissingInputs();
    return false;
   }
  }
@@ -2125,6 +2171,7 @@ function showExecutionPersistenceStatus(execution){
  return false;
 }
 function renderExecutionResult(payload){
+ if(serviceCode==='feasibility_studies' && !feasibilityMissingInputs().length) $('#srFeasibilityMissingInputs')?.remove();
  let box=$('#srExecutionResult');
  if(!box){
   box=document.createElement('section');
