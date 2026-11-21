@@ -60,9 +60,9 @@
    });
   });
  });
- syncHrNavigation(labels[category]?category:'employees');
  const status=(msg,err=false)=>{const n=$('hr-status');n.textContent=msg;n.hidden=!msg;n.style.display=msg?'block':'none';n.classList.toggle('error',err);};
  let db,user,license=false,workspace=null,workspaces=[],employees=[],departments=[],positions=[],attendanceRecords=[],payrollPeriods=[],records=[],category=new URLSearchParams(location.search).get('hr_module')||'employees',editing=null;
+ syncHrNavigation(labels[category]?category:'employees');
  let companySpaces=[],activateCompanyWorkspace=null;
  let loadRequestId=0;
  let employeeSearch='',employeeStatusFilter='all',employeePage=0,employeeTotal=0,employeeSearchTimer=null;
