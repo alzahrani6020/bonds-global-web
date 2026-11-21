@@ -228,10 +228,16 @@ function syncStudiesAssistantContext(){
   :{version:1,source:'service_workspace',serviceCode,language:lang,executionInputs:values};
  try{sessionStorage.setItem('bonds_service_assistant_context_v1',JSON.stringify(payload))}catch(_){}
 }
+function studiesTaxonomySelection(value){
+ const code=String(value||'');
+ return code==='__add_custom_sector__'||code==='__add_custom_activity__'?'':code;
+}
 function studiesPrefill(key,intentKey){
  const intent=readServiceIntent()||{};
  const live=liveParams();
- return live.get(key)||intent[intentKey]||live.get(intentKey)||params.get(key)||'';
+ const raw=live.get(key)||intent[intentKey]||live.get(intentKey)||params.get(key)||'';
+ return ['sector','sector_code','activity','activity_code'].includes(key)
+  ?studiesTaxonomySelection(raw):raw;
 }
 function studiesSelectMarkup(id,name,placeholder,prefill){
  const seeded=prefill?'<option value="'+escapeHtml(prefill)+'" selected>'+escapeHtml(prefill)+'</option>':'';
@@ -498,7 +504,8 @@ function studiesWriteLocationToUrl(){
   ['activity',$('#studiesActivity')?.value]
  ];
  mapping.forEach(([key,value])=>{
-  if(value) url.searchParams.set(key,value);
+  const selected=(key==='sector'||key==='activity')?studiesTaxonomySelection(value):value;
+  if(selected) url.searchParams.set(key,selected);
   else url.searchParams.delete(key);
  });
  history.replaceState({},'',url);
@@ -2330,6 +2337,9 @@ async function submit(e){
   const sb=window.BondsAuth.getSupabase();const session=(await sb.auth.getSession()).data.session;
   if(!session?.access_token)throw new Error(T.login);
   const values=collectValues();
+  if(isStudiesWorkspaceService() && (values.sector_code==='__add_custom_sector__'||values.activity_code==='__add_custom_activity__')){
+   throw new Error(lang==='ar'?'أكمل إضافة القطاع أو النشاط قبل تشغيل الدراسة.':'Complete adding the sector or activity before running the study.');
+  }
   if(isStudiesWorkspaceService() && values.sector_code){
    const supported=STUDIES_ENGINE_PROFILES.some(row=>row[0]===values.sector_code);
    if(!supported && !STUDIES_ENGINE_PROFILES.some(row=>row[0]===values.sector_engine_profile)){
