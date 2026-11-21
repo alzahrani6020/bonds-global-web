@@ -716,6 +716,65 @@ function renderStudiesExecution(result){
  }
  return parts.length?'<div class="financial-result-stack studies-result-stack">'+parts.join('')+'</div>':'';
 }
+function renderFeasibilityControls(){
+ if(serviceCode!=='feasibility_studies'||!isStudiesWorkspaceService())return;
+ const form=$('#srRequestForm');
+ const host=$('#srDynamicFields');
+ const actions=form?.querySelector('.sr-actions');
+ if(!form||!host||!actions||$('#srFeasibilitySaveDraft'))return;
+ const buttons=document.createElement('div');
+ buttons.className='sr-actions feasibility-secondary-actions';
+ buttons.innerHTML='<button type="button" id="srFeasibilitySaveDraft" class="sr-secondary">'+
+  (lang==='ar'?'حفظ المسودة في هذه الجلسة':'Save draft in this tab')+'</button>'+
+  '<button type="button" id="srFeasibilityReviewButton" class="sr-secondary">'+
+  (lang==='ar'?'مراجعة المدخلات':'Review inputs')+'</button>';
+ actions.insertAdjacentElement('beforebegin',buttons);
+ const review=document.createElement('section');
+ review.id='srFeasibilityReview';
+ review.className='sr-card';
+ review.hidden=true;
+ actions.insertAdjacentElement('beforebegin',review);
+ const guidance=document.createElement('div');
+ guidance.id='srFeasibilitySizeGuidance';
+ guidance.className='sr-warning';
+ guidance.setAttribute('role','status');
+ guidance.setAttribute('aria-live','polite');
+ host.insertAdjacentElement('afterend',guidance);
+ const updateGuidance=()=>{
+  const size=form.querySelector('[name="project_size"]')?.value||'';
+  const large=size==='large'||size==='mega';
+  guidance.textContent=large
+   ? (lang==='ar'?'هذا نموذج حسابي أولي فقط. المشاريع الكبيرة والعملاقة تتطلب نموذجًا متعدد المراحل ومراجعة مستقلة قبل أي قرار استثماري.':'This is a preliminary calculation only. Large and mega projects require phased modeling and independent review before an investment decision.')
+   : (lang==='ar'?'المدخلات والنتائج أولية حتى توثيق الافتراضات ومراجعتها.':'Inputs and results are preliminary until assumptions and evidence are verified.');
+ };
+ form.querySelector('[name="project_size"]')?.addEventListener('change',updateGuidance);
+ updateGuidance();
+ $('#srFeasibilitySaveDraft').addEventListener('click',()=>{
+  saveWorkspaceDraft();
+  showStatus(workspaceDirty
+   ? (lang==='ar'?'تعذّر حفظ المسودة محليًا':'Local draft save failed')
+   : (lang==='ar'?'حُفظت المسودة في هذه الجلسة فقط، وليس في قاعدة المشروع':'Draft saved in this tab only, not in the project database'),
+   !workspaceDirty);
+ });
+ $('#srFeasibilityReviewButton').addEventListener('click',()=>{
+  try{
+   if(!form.checkValidity()){form.reportValidity();return;}
+   const values=collectValues();
+   const labels=lang==='ar'
+    ? [['project_name','اسم المشروع'],['project_size','الحجم'],['investment_amount','الاستثمار المتوقع'],['currency','العملة'],['years','الأفق بالسنوات'],['discount_rate_pct','معدل الخصم %']]
+    : [['project_name','Project name'],['project_size','Project size'],['investment_amount','Investment estimate'],['currency','Currency'],['years','Horizon (years)'],['discount_rate_pct','Discount rate %']];
+   const summary=labels.map(([key,label])=>'<li><strong>'+escapeHtml(label)+'</strong>: '+escapeHtml(values[key]??'—')+'</li>').join('');
+   const flowCount=Array.isArray(values.cash_flows)?values.cash_flows.length:0;
+   review.innerHTML='<h3>'+(lang==='ar'?'مراجعة البيانات قبل التشغيل':'Input review before execution')+'</h3>'+
+    '<ul class="sr-list">'+summary+'<li><strong>'+(lang==='ar'?'عدد التدفقات السنوية':'Annual cash-flow entries')+'</strong>: '+flowCount+'</li></ul>'+
+    '<p class="sr-muted">'+(lang==='ar'?'هذه مراجعة للمدخلات فقط وليست اعتمادًا لصحة البيانات.':'This reviews submitted inputs, not their independent validity.')+'</p>';
+   review.hidden=false;
+   review.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }catch(error){showStatus(T.failed+': '+error.message,false)}
+ });
+ form.addEventListener('input',()=>{review.hidden=true});
+ form.addEventListener('change',()=>{review.hidden=true});
+}
 function renderFinancialWorkspaceShell(){
  if(!isFinancialWorkspaceService())return;
  document.body.classList.add('financial-workspace-mode');
@@ -1330,6 +1389,7 @@ function render(){
  renderCorrespondenceWorkspaceLink();
  renderFinancialOperationalInputs();
  renderStudiesOperationalInputs();
+ renderFeasibilityControls();
  renderFinancialIntake();
  restoreWorkspaceDraft();
  bindWorkspaceDraft();
