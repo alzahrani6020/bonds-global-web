@@ -442,9 +442,15 @@ async function main(){
    [wa,employee,policyId,JSON.stringify({as_of:'2026-11-17',eligible_days:365}),JSON.stringify({accrued_days:30,status:'draft_review_required'}),owner]));
   await assert.rejects(wrongJurisdictionInsert,
    e=>e.code==='23514','Privileged draft must reject jurisdiction mismatch');
+  // The API's service_role is deliberately INSERT-only; it must not gain UPDATE.
   await assert.rejects(()=>asServiceRole(()=>db.query(
    "update hr_saas_calculation_drafts set jurisdiction='EG' where id=$1",[drafted])),
-   e=>e.code==='23514','Privileged draft update must reject jurisdiction mismatch');
+   e=>e.code==='42501','Privileged API must not be able to rewrite saved drafts');
+  // A database administrator can UPDATE, so the trigger must separately prevent
+  // incompatible jurisdiction even if a future privileged writer is introduced.
+  await assert.rejects(()=>db.query(
+   "update hr_saas_calculation_drafts set jurisdiction='EG' where id=$1",[drafted]),
+   e=>e.code==='23514','Database guard must reject jurisdiction mismatch on UPDATE');
   const preservedJurisdiction=await db.query(
    'select jurisdiction from hr_saas_calculation_drafts where id=$1',[drafted]);
   assert.equal(preservedJurisdiction.rows[0].jurisdiction,'SA',
