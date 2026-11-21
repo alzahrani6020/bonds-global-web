@@ -1,11 +1,31 @@
 'use strict';
 
 const { enrichStudiesExecutionRequest } = require('../../lib/services/studies-workspace-bindings');
+const { executionRequest } = require('../../lib/services/service-execution-router');
+const { detectIntent } = require('../../lib/intent/intent-engine');
 
 const feasibility = { code: 'feasibility_studies' };
 const market = { code: 'market_research' };
 
 describe('studies execution preserves explicitly supplied input and research', () => {
+  test('the production service route cannot reclassify selling office products as selling an asset', () => {
+    const request = executionRequest(
+      { orchestrator_intent: 'feasibility' },
+      { code: 'feasibility_studies', name_ar: 'دراسة جدوى' },
+      {
+        sector: 'trade',
+        input: 'بيع القهوة والمنظفات والمياه للمكاتب',
+        values: {
+          sector_code: 'trade',
+          project_name: 'توريد مستلزمات المكاتب',
+          project_brief: 'بيع القهوة والمنظفات للمكاتب'
+        }
+      }
+    );
+    expect(request.intent).toBe('feasibility');
+    expect(detectIntent(request.input, { intent: request.intent, sector: request.sector, action: request.action }).intent).toBe('feasibility');
+  });
+
   test('feasibility retains research configuration and sources while generating query defaults', () => {
     const request = enrichStudiesExecutionRequest(
       feasibility, { orchestrator_intent: 'feasibility' },
