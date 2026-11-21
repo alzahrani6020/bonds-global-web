@@ -13,6 +13,17 @@ describe('service execution and artifact persistence contract', () => {
     expect(api).toContain("artifactPersistence = { status:'saved', artifact_id:artifact.id }");
   });
 
+  test('reads back the exact user-owned project artifact before claiming saved', () => {
+    expect(api).toContain(".select('id,user_id,project_id,artifact_type,status')");
+    expect(api).toContain(".eq('id',artifact.id)");
+    expect(api).toContain(".eq('user_id',user.id)");
+    expect(api).toContain("readback.project_id !== owned.project.id");
+    expect(api).toContain("readback.artifact_type !== artifactType");
+    expect(api).toContain("status:'unverified'");
+    expect(api).toContain("code:'INVESTMENT_ARTIFACT_READBACK_UNCONFIRMED'");
+    expect(ui).toContain("persistence?.status==='unverified'&&persistence.artifact_id");
+  });
+
   test('does not silently claim artifact persistence after a failed insert', () => {
     expect(api).toContain("artifactPersistence = { status:'failed', code:'INVESTMENT_ARTIFACT_SAVE_FAILED' }");
     expect(api).toContain('artifact_persistence:artifactPersistence');
