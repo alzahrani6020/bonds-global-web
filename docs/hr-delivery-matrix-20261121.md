@@ -40,3 +40,11 @@ The 84 candidate capabilities discussed are **feature ideas, not 84 implemented 
 ## Next engineering iteration (separate PR)
 
 Verify server-side employee pagination with authenticated tests beyond 250 records, including tenant isolation, query correctness and page consistency; then expand paginated employee selection to other HR modules. Follow by dedicated organization records and integrated employee lifecycle state machine. No unverified production writes.
+
+## Workflow actions delivered in follow-up PR
+
+The HR UI now exposes contract activation/closure, pending leave decisions, payroll period review/approval/return, and claim submission/decision. These update existing tables under workspace-scoped, status-conditional writes. Existing database contract/payroll/claim triggers remain authoritative. **Not accepted as deployed or verified with real OAuth sessions.**
+
+**Known blocking gaps:** (1) dedicated departments and positions with tenant-scoped foreign keys, (2) attendance approval status and secure correction process, (3) server-side leave decision immutability, (4) authenticated save/readback from UI and independent two-tenant isolation, (5) clean isolated migration restore and production deployment. The current Staging database was observed to have two HR workspaces with one owner and zero employees, contracts, attendance rows, leave requests, or payroll periods; it cannot evidence genuine two-owner end-to-end acceptance.
+
+**Do not merge to main or apply database migrations based on static UI tests alone.**
