@@ -15,8 +15,8 @@ describe('service workspace UI contract',()=>{
     expect(en).toContain('/lib/services/studies-workspace-bindings.js?v=2');
     expect(ar).toContain('/components/service-request.js?v=25');
     expect(en).toContain('/components/service-request.js?v=25');
-    expect(ar).toContain('/components/service-workspace.css?v=7');
-    expect(en).toContain('/components/service-workspace.css?v=7');
+    expect(ar).toContain('/components/service-workspace.css?v=9');
+    expect(en).toContain('/components/service-workspace.css?v=9');
     expect(ar).toContain('id="srRequestForm"');
     expect(en).toContain('id="srRequestForm"');
   });
