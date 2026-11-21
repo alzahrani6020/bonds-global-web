@@ -7,7 +7,7 @@ function projectClient(req) {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
   const authorization = String(req.headers?.authorization || '');
   if (!url || !key) throw new Error('Missing Supabase URL or anon key');
-  if (!/^Bearer\\s+\\S+$/i.test(authorization)) throw new Error('Missing authenticated user token');
+  if (!/^Bearer\s+\S+$/i.test(authorization)) throw new Error('Missing authenticated user token');
   return createClient(url, key, {
     global: { headers: { Authorization: authorization } },
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
