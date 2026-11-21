@@ -115,6 +115,13 @@ async function main(){
   const position=(await as(owner,()=>db.query(
    "insert into hr_saas_positions(workspace_id,department_id,position_code,title) values($1,$2,'OPS-01','Operator') returning id",
    [wa,department]))).rows[0].id;
+  const childDepartment=(await as(owner,()=>db.query(
+   "insert into hr_saas_departments(workspace_id,department_code,name,parent_department_id) values($1,'OPS-CHILD','Subdepartment',$2) returning id",
+   [wa,department]))).rows[0].id;
+  await assert.rejects(()=>as(owner,()=>db.query(
+   "update hr_saas_departments set parent_department_id=$1 where id=$2",[childDepartment,department])),
+   error=>error.code==='23514','Department hierarchy must reject recursive cycles');
+
   await as(owner,()=>db.query("update hr_saas_employees set department_id=$1,position_id=$2 where id=$3",[department,position,employee]));
   const orgReadback=await as(owner,()=>db.query(
    "select department_id,position_id from hr_saas_employees where id=$1",[employee]));
