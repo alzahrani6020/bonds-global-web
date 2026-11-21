@@ -198,6 +198,13 @@ jobs:
           git fetch --no-tags --depth=1 origin "$BASE_SHA"
           git diff --name-only "$BASE_SHA" HEAD > /tmp/bonds-pr-changed-files.txt
           cat /tmp/bonds-pr-changed-files.txt
+          # For pull requests, test screenshots against the exact base commit.
+          # This is a pixel comparison, not a screenshot exclusion or update.
+          # It avoids comparing an unrelated current design to old Nov 15 images.
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            echo "scope=base-compare" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           while IFS= read -r file; do
             case "$file" in
               components/service-request.js|components/service-workspace.css|my-bonds/workspace/index.html|en/my-bonds/workspace/index.html|service-request.html|en/service-request.html|lib/finance/engines/feasibility-engine.js|lib/finance/feasibility-input-validator.js|lib/finance/shared/math.js|lib/orchestrator/intelligence-orchestrator.js|lib/orchestrator/ucp-bridge.js|tests/finance/feasibility-input-validator.test.js|tests/orchestrator/ucp-bridge.test.js|tests/v3/feasibility-integrity-gate.test.js|tests/v3/feasibility-workspace-browser.test.js|tests/v3/service-artifact-persistence-contract.test.js|tests/v3/service-request-readback-contract.test.js|tests/v3/service-workspace-continuity.test.js|tests/v3/service-workspace-routing.test.js|v3/api/services.js) ;;
