@@ -593,6 +593,9 @@
       const intended = new URL(getRedirectUrl());
       const target = new URL('/calculators/auth', stableOrigin);
       target.searchParams.set('redirect', intended.pathname + intended.search);
+      // This query is set only in response to a user-initiated Google click.
+      // The canonical login page consumes it once before invoking OAuth.
+      target.searchParams.set('start_provider', provider === 'google' ? 'google' : '');
       window.location.assign(target.href);
       return { data: { url: target.href }, error: null };
     }
