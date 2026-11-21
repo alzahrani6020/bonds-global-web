@@ -226,8 +226,8 @@
    if(key==='employee_id')value=employees.find(x=>x.id===value)?.full_name||'—';
    if(key==='attendance_id')value=attendanceRecords.find(x=>x.id===value)?.work_date||value;
    if(key==='approved_correction_id')value=value?t('نعم','Yes'):'—';
-   if(key==='department_id'||key==='parent_department_id')value=departments.find(x=>x.id===value)?.name||'—';
-   if(key==='position_id')value=positions.find(x=>x.id===value)?.title||'—';
+   if(key==='department_id'||key==='parent_department_id')value=departments.find(x=>x.id===value)?.name||(isEmployees?row.department:'—')||'—';
+   if(key==='position_id')value=positions.find(x=>x.id===value)?.title||(isEmployees?row.job_title:'—')||'—';
    if(key==='period_id'){const p=payrollPeriods.find(x=>x.id===value);value=p?p.payroll_year+'/'+String(p.payroll_month).padStart(2,'0'):'—';}
    if(key==='changed_columns')value=Array.isArray(value)?value.join(', '):'—';
    return '<td>'+escape(value??'—')+'</td>';
