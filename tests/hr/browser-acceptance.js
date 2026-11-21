@@ -103,7 +103,7 @@ async function run(){
     },body);
     await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(response)});
    });
-   const resp=await page.goto(base+'/my-bonds/crm/?program=hr',{waitUntil:'domcontentloaded'});
+   const resp=await page.goto(base+(scenario==='existing'?'/en/my-bonds/crm/?program=hr':'/my-bonds/crm/?program=hr'),{waitUntil:'domcontentloaded'});
    assert.equal(resp.status(),200);
    await page.locator('#hr-product-tab').waitFor();
    await page.waitForFunction(()=>!document.querySelector('#hr-section').hidden,null,{timeout:8000}).catch(async()=>{
@@ -183,14 +183,14 @@ async function run(){
     assert.equal(await page.locator('#hr-open-workspace').isVisible(),true,'Existing company has no explicit open action');
     await page.locator('#hr-open-workspace').click();
     assert.equal(await page.locator('#hr-app').isVisible(),true,'Open company did not show records');
-    assert.ok((await page.locator('#hr-heading').textContent()).includes('الملفات الوظيفية'),'Open company showed wrong HR module');
+    assert.ok((await page.locator('#hr-heading').textContent()).includes('Employees and personnel'),'English company opened wrong HR module');
     await page.locator('[data-hr-category="departments"]').click();
     await page.waitForURL(/hr_module=departments/);
-    await page.waitForFunction(()=>document.querySelector('#hr-heading')?.textContent.includes('الإدارات'));
+    await page.waitForFunction(()=>document.querySelector('#hr-heading')?.textContent.includes('Departments and positions'));
     assert.equal(await page.locator('#hr-app').isVisible(),true,'Department link did not show module records');
     await page.locator('[data-hr-category="employees"]').click();
     await page.waitForURL(/hr_module=employees/);
-    await page.waitForFunction(()=>document.querySelector('#hr-heading')?.textContent.includes('الملفات الوظيفية'));
+    await page.waitForFunction(()=>document.querySelector('#hr-heading')?.textContent.includes('Employees and personnel'));
    }else{
     await page.waitForFunction(()=>!document.querySelector('#hr-setup').hidden);
     await page.locator('#hr-create-details summary').click();
