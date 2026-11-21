@@ -15,7 +15,7 @@ create table public.hr_saas_departments (
 );
 -- Reject multi-level hierarchy cycles; same-row cycles are also blocked by CHECK.
 create function hr_saas_private.department_hierarchy_guard() returns trigger
- language plpgsql security invoker set search_path='' as $
+ language plpgsql security invoker set search_path='' as $$
 declare cycle_found boolean;
 begin
  if new.parent_department_id is not null then
@@ -32,7 +32,7 @@ begin
    raise exception 'Department hierarchy cycle' using errcode='23514'; end if;
  end if;
  return new;
-end $;
+end $$;
 revoke all on function hr_saas_private.department_hierarchy_guard() from public,anon,authenticated;
 create trigger hr_saas_department_hierarchy_guard before insert or update of parent_department_id
  on public.hr_saas_departments for each row execute function hr_saas_private.department_hierarchy_guard();
