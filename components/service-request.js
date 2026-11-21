@@ -256,13 +256,132 @@ function studiesLocationFieldsHtml(){
  return '<div class="sr-field"><label for="studiesCountry">'+L.country+opt+'</label>'+studiesSelectMarkup('studiesCountry','country_code',L.countryPh,country)+'</div>'+
   '<div class="sr-field"><label for="studiesRegion">'+L.region+opt+'</label>'+studiesSelectMarkup('studiesRegion','region_code',L.regionPh,region)+'</div>'+
   '<div class="sr-field"><label for="studiesLocality">'+L.locality+opt+'</label>'+studiesSelectMarkup('studiesLocality','locality_code',L.localityPh,locality||localityName)+'</div>'+
-  '<div class="sr-field"><label for="studiesSector">'+L.sector+opt+'</label>'+studiesSelectMarkup('studiesSector','sector_code',L.sectorPh,sector)+'</div>'+
-  '<div class="sr-field"><label for="studiesActivity">'+L.activity+opt+'</label>'+studiesSelectMarkup('studiesActivity','activity_code',L.activityPh,sector?activity:'')+'</div>'+
+  '<div class="sr-field"><label for="studiesSector">'+L.sector+opt+'</label>'+studiesSelectMarkup('studiesSector','sector_code',L.sectorPh,sector)+
+   '<div id="studiesCustomSectorEditor" class="sr-card" hidden><label for="studiesCustomSectorName">'+(lang==='ar'?'اسم القطاع المضاف':'New sector name')+'</label>'+
+   '<input id="studiesCustomSectorName" type="text" maxlength="120">'+
+   '<label for="studiesCustomSectorModel">'+(lang==='ar'?'نموذج التحليل الموافق للقطاع':'Analytical model for the sector')+'</label>'+
+   '<select id="studiesCustomSectorModel">'+studiesModelOptions()+'</select>'+
+   '<button type="button" id="studiesCustomSectorSave" class="sr-secondary">'+(lang==='ar'?'إضافة القطاع':'Add sector')+'</button>'+
+   '<button type="button" id="studiesCustomSectorCancel" class="sr-secondary">'+(lang==='ar'?'إلغاء':'Cancel')+'</button></div></div>'+
+  '<div class="sr-field" id="studiesEngineProfileField" hidden><label for="studiesEngineProfile">'+(lang==='ar'?'نموذج التحليل — إلزامي للقطاعات غير المعرفة بالمحرك':'Analysis model — required for non-native sectors')+'</label>'+
+   '<select id="studiesEngineProfile" name="sector_engine_profile">'+studiesModelOptions()+'</select>'+
+   '<small>'+(lang==='ar'?'يُحفظ اسم القطاع الحقيقي، ويستخدم المحرك النموذج الذي تختاره دون افتراض تلقائي.':'Your actual sector is retained. The chosen model is used without automatic assumptions.')+'</small></div>'+
+  '<div class="sr-field"><label for="studiesActivity">'+L.activity+opt+'</label>'+studiesSelectMarkup('studiesActivity','activity_code',L.activityPh,sector?activity:'')+
+   '<div id="studiesCustomActivityEditor" class="sr-card" hidden><label for="studiesCustomActivityName">'+(lang==='ar'?'اسم النشاط المضاف':'New activity name')+'</label>'+
+   '<input id="studiesCustomActivityName" type="text" maxlength="120">'+
+   '<button type="button" id="studiesCustomActivitySave" class="sr-secondary">'+(lang==='ar'?'إضافة النشاط':'Add activity')+'</button>'+
+   '<button type="button" id="studiesCustomActivityCancel" class="sr-secondary">'+(lang==='ar'?'إلغاء':'Cancel')+'</button></div></div>'+
   '<input type="hidden" name="region_name" id="studiesRegionName" value="'+escapeHtml(studiesPrefill('region_name','region_name')||region)+'">'+
   '<input type="hidden" name="locality_name" id="studiesLocalityName" value="'+escapeHtml(localityName)+'">'+
   '<input type="hidden" name="sector_name" id="studiesSectorName">'+
   '<input type="hidden" name="activity_name" id="studiesActivityName">';
 }
+const STUDIES_ENGINE_PROFILES = Object.freeze([
+ ['restaurant','مطاعم','Restaurants'],['manufacturing','تصنيع','Manufacturing'],
+ ['hotel','فنادق','Hotels'],['company','شركات','Companies'],
+ ['education','تعليم','Education'],['healthcare','صحة','Healthcare'],
+ ['retail','تجزئة','Retail'],['trade','تجارة وتوزيع','Trade and distribution']
+]);
+const STUDIES_CUSTOM_SECTOR = '__add_custom_sector__';
+const STUDIES_CUSTOM_ACTIVITY = '__add_custom_activity__';
+const studiesCustomCatalog = {sectors:[], activities:[]};
+let studiesCustomCatalogKey = '';
+async function studiesLoadCustomCatalog(){
+ try{
+  await window.BondsAuth.ensureEnv();
+  const response=await window.BondsAuth.getUser();
+  const userId=response?.data?.user?.id;
+  if(!userId)return;
+  studiesCustomCatalogKey='bonds_studies_taxonomy_v1:'+userId;
+  const stored=JSON.parse(localStorage.getItem(studiesCustomCatalogKey)||'{}');
+  if(Array.isArray(stored.sectors))studiesCustomCatalog.sectors=stored.sectors.filter(x=>x&&typeof x.code==='string'&&typeof x.name_ar==='string'&&typeof x.country==='string').slice(0,100);
+  if(Array.isArray(stored.activities))studiesCustomCatalog.activities=stored.activities.filter(x=>x&&typeof x.code==='string'&&typeof x.name_ar==='string'&&typeof x.sector==='string').slice(0,300);
+ }catch(_){studiesCustomCatalogKey=''}
+}
+function studiesSaveCustomCatalog(){
+ if(!studiesCustomCatalogKey)return false;
+ try{
+  localStorage.setItem(studiesCustomCatalogKey,JSON.stringify(studiesCustomCatalog));
+  return true;
+ }catch(_){return false}
+}
+function studiesCustomKey(prefix){
+ return prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+}
+function studiesModelOptions(){
+ return '<option value="">'+(lang==='ar'?'اختر نموذج التحليل':'Choose analysis model')+'</option>'+
+  STUDIES_ENGINE_PROFILES.map(([code,ar,en])=>'<option value="'+code+'">'+(lang==='ar'?ar:en)+'</option>').join('');
+}
+function studiesUpdateEngineModel(){
+ const sector=$('#studiesSector')?.value||'';
+ const field=$('#studiesEngineProfileField');
+ const model=$('#studiesEngineProfile');
+ if(!field||!model)return;
+ const known=STUDIES_ENGINE_PROFILES.some(row=>row[0]===sector);
+ field.hidden=!sector||known;
+ model.required=!!sector&&!known;
+ if(known||!sector)model.value='';
+ else{
+  const custom=studiesCustomCatalog.sectors.find(row=>row.code===sector);
+  if(custom?.engine_profile)model.value=custom.engine_profile;
+ }
+}
+function studiesOpenCustomEditor(type){
+ const isSector=type==='sector';
+ const panel=$('#'+(isSector?'studiesCustomSectorEditor':'studiesCustomActivityEditor'));
+ const input=$('#'+(isSector?'studiesCustomSectorName':'studiesCustomActivityName'));
+ if(!panel||!input)return;
+ panel.hidden=false;
+ input.value='';
+ input.focus();
+}
+function studiesCloseCustomEditor(type){
+ const el=$('#'+(type==='sector'?'studiesCustomSectorEditor':'studiesCustomActivityEditor'));
+ if(el)el.hidden=true;
+}
+function studiesAddCustomSector(){
+ const label=($('#studiesCustomSectorName')?.value||'').trim().slice(0,120);
+ const engine=$('#studiesCustomSectorModel')?.value||'';
+ const country=$('#studiesCountry')?.value||'';
+ if(label.length<2||!country||!STUDIES_ENGINE_PROFILES.some(row=>row[0]===engine)){
+  showStatus(lang==='ar'?'أدخل اسم القطاع وحدد نموذج التحليل المناسب.':'Enter a sector name and select its analysis model.',false);
+  return;
+ }
+ const existing=studiesCustomCatalog.sectors.find(row=>row.country===country&&row.name_ar.toLocaleLowerCase()===label.toLocaleLowerCase());
+ const row=existing||{code:studiesCustomKey('user_sector'),country,name_ar:label,name_en:label,engine_profile:engine};
+ if(!existing)studiesCustomCatalog.sectors.push(row);
+ if(!studiesSaveCustomCatalog()){
+  showStatus(lang==='ar'?'تعذر حفظ القطاع محليًا؛ لم يُضف.':'Could not save this sector locally.',false);
+  if(!existing)studiesCustomCatalog.sectors.pop();
+  return;
+ }
+ const rows=studiesCatalog.sectors;
+ studiesFillSelect($('#studiesSector'),rows,'code',studiesCatalogLabel,lang==='ar'?'اختر القطاع':'Choose sector',row.code);
+ studiesUpdateEngineModel();
+ studiesCloseCustomEditor('sector');
+ studiesOnSector(false).catch(error=>showStatus(T.failed+': '+error.message,false));
+}
+function studiesAddCustomActivity(){
+ const label=($('#studiesCustomActivityName')?.value||'').trim().slice(0,120);
+ const sector=$('#studiesSector')?.value||'';
+ const country=$('#studiesCountry')?.value||'';
+ if(label.length<2||!sector||!country){
+  showStatus(lang==='ar'?'اختر قطاعًا وأدخل اسم النشاط.':'Choose a sector and enter an activity name.',false);
+  return;
+ }
+ const existing=studiesCustomCatalog.activities.find(row=>row.country===country&&row.sector===sector&&row.name_ar.toLocaleLowerCase()===label.toLocaleLowerCase());
+ const row=existing||{code:studiesCustomKey('user_activity'),country,sector,name_ar:label,name_en:label};
+ if(!existing)studiesCustomCatalog.activities.push(row);
+ if(!studiesSaveCustomCatalog()){
+  showStatus(lang==='ar'?'تعذر حفظ النشاط محليًا؛ لم يُضف.':'Could not save this activity locally.',false);
+  if(!existing)studiesCustomCatalog.activities.pop();
+  return;
+ }
+ studiesFillSelect($('#studiesActivity'),studiesCatalog.activities,'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity',row.code);
+ studiesCloseCustomEditor('activity');
+ studiesWriteLocationToUrl();
+}
+
 const studiesCatalog={countries:[],cities:[],sectors:[],activities:[]};
 const studiesDropdowns={};
 let studiesCatalogLock=false;
@@ -309,7 +428,16 @@ function studiesFillSelect(el,rows,valueKey,labelFn,placeholder,selected){
  first.value='';
  first.textContent=placeholder;
  el.appendChild(first);
- (rows||[]).forEach(row=>{
+ let candidates=rows||[];
+ if(el.id==='studiesSector'){
+  const country=$('#studiesCountry')?.value||'';
+  candidates=[...candidates,...studiesCustomCatalog.sectors.filter(row=>row.country===country)];
+ }else if(el.id==='studiesActivity'){
+  const country=$('#studiesCountry')?.value||'';
+  const sector=$('#studiesSector')?.value||'';
+  candidates=[...candidates,...studiesCustomCatalog.activities.filter(row=>row.country===country&&row.sector===sector)];
+ }
+ candidates.forEach(row=>{
   const option=document.createElement('option');
   option.value=String(row[valueKey]||'');
   option.textContent=labelFn(row);
@@ -317,6 +445,14 @@ function studiesFillSelect(el,rows,valueKey,labelFn,placeholder,selected){
   if(row.flag) option.dataset.icon=row.flag;
   el.appendChild(option);
  });
+ if(el.id==='studiesSector'||(el.id==='studiesActivity'&&!!$('#studiesSector')?.value)){
+  const add=document.createElement('option');
+  add.value=el.id==='studiesSector'?STUDIES_CUSTOM_SECTOR:STUDIES_CUSTOM_ACTIVITY;
+  add.textContent=el.id==='studiesSector'
+   ?(lang==='ar'?'+ أضف قطاعًا...':'+ Add sector...')
+   :(lang==='ar'?'+ أضف نشاطًا...':'+ Add activity...');
+  el.appendChild(add);
+ }
  if([...el.options].some(o=>o.value===current)) el.value=current;
  else if(current){
   const byName=[...el.options].find(o=>o.value===current||o.textContent===current||o.dataset.name===current);
@@ -468,7 +604,8 @@ async function studiesOnCountry(){
  if(wantedRegion && studiesCatalog.cities.some(city=>city.region===wantedRegion)){
   studiesFilterLocalities(wantedRegion,wantedLocality);
  }
- if(wantedSector && studiesCatalog.sectors.some(row=>row.code===wantedSector)) await studiesOnSector(true,wantedActivity);
+ if(wantedSector && [...studiesCatalog.sectors,...studiesCustomCatalog.sectors].some(row=>row.code===wantedSector)) await studiesOnSector(true,wantedActivity);
+ studiesUpdateEngineModel();
  studiesWriteLocationToUrl();
 }
 function studiesFilterLocalities(region,selected){
@@ -486,8 +623,10 @@ async function studiesOnSector(skipUrl,initialActivity=''){
   if(!skipUrl) studiesWriteLocationToUrl();
   return;
  }
- const data=await studiesCatalogJson('/api/v3/investment-taxonomy?country='+encodeURIComponent(country)+'&sector='+encodeURIComponent(sector)+'&include=activities&depth=subsector');
+ const isCustom=typeof studiesCustomCatalog==='object'&&studiesCustomCatalog.sectors.some(row=>row.code===sector&&row.country===country);
+ const data=isCustom?{activities:[]}:await studiesCatalogJson('/api/v3/investment-taxonomy?country='+encodeURIComponent(country)+'&sector='+encodeURIComponent(sector)+'&include=activities&depth=subsector');
  if($('#studiesSector')?.value!==sector||$('#studiesCountry')?.value!==country)return;
+ if(typeof studiesCatalog==='object') studiesCatalog.activities=data.activities||[];
  studiesFillSelect($('#studiesActivity'),data.activities||[],'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity',initialActivity);
  if(!skipUrl) studiesWriteLocationToUrl();
 }
@@ -505,8 +644,26 @@ function studiesBindCatalogEvents(){
   studiesWriteLocationToUrl();
  });
  locality?.addEventListener('change',studiesWriteLocationToUrl);
- sector?.addEventListener('change',()=>{studiesOnSector(false).catch(error=>showStatus(T.failed+': '+error.message,false))});
- activity?.addEventListener('change',studiesWriteLocationToUrl);
+ sector?.addEventListener('change',()=>{
+  if(sector.value===STUDIES_CUSTOM_SECTOR){
+   studiesFillSelect(sector,studiesCatalog.sectors,'code',studiesCatalogLabel,lang==='ar'?'اختر القطاع':'Choose sector','');
+   studiesOpenCustomEditor('sector');return;
+  }
+  studiesUpdateEngineModel();
+  studiesOnSector(false).catch(error=>showStatus(T.failed+': '+error.message,false));
+ });
+ activity?.addEventListener('change',()=>{
+  if(activity.value===STUDIES_CUSTOM_ACTIVITY){
+   studiesFillSelect(activity,studiesCatalog.activities,'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity','');
+   studiesOpenCustomEditor('activity');return;
+  }
+  studiesWriteLocationToUrl();
+ });
+ $('#studiesEngineProfile')?.addEventListener('change',studiesWriteLocationToUrl);
+ $('#studiesCustomSectorSave')?.addEventListener('click',studiesAddCustomSector);
+ $('#studiesCustomSectorCancel')?.addEventListener('click',()=>studiesCloseCustomEditor('sector'));
+ $('#studiesCustomActivitySave')?.addEventListener('click',studiesAddCustomActivity);
+ $('#studiesCustomActivityCancel')?.addEventListener('click',()=>studiesCloseCustomEditor('activity'));
 }
 function studiesPullDiscovery(){
  if(studiesCatalogLock)return;
@@ -566,6 +723,7 @@ function bindStudiesCatalogDropdowns(){
  enhanceStudiesStaticSelects();
  const start=async()=>{
   try{
+   await studiesLoadCustomCatalog();
    const data=await studiesCatalogJson('/api/v3/catalog/countries');
    studiesCatalog.countries=data.countries||[];
    const wanted=liveParams().get('country')||$('#studiesCountry').value||localStorage.getItem('bonds_selected_country')||'SA';
@@ -1935,7 +2093,7 @@ function renderFinancialExecution(result,metrics){
 function showExecutionPersistenceStatus(execution){
  if(serviceCode==='feasibility_studies'){
   const feasibility=execution?.result?.engineResults?.feasibility;
-  if(feasibility && (feasibility.executed!==true || (feasibility.metrics?.npv==null && feasibility.metrics?.irr==null && feasibility.npv==null && feasibility.irr==null))){
+  if(!feasibility || feasibility.executed!==true || (feasibility.metrics?.npv==null && feasibility.metrics?.irr==null && feasibility.npv==null && feasibility.irr==null)){
    showStatus(lang==='ar'
     ?'وصلت استجابة من محرك الدراسة، لكن مؤشرات الجدوى NPV وIRR لم تُحسب. أدخل الاستثمار والتدفقات النقدية ومعدل الخصم، أو اجلب بيانات السوق ثم وثّق افتراضات الإيرادات.'
     :'The study engine responded, but NPV and IRR were not calculated. Provide investment, cash flows and discount rate, or research the market and document revenue assumptions.',false);
@@ -1948,7 +2106,7 @@ function showExecutionPersistenceStatus(execution){
  const persistence=execution?.artifact_persistence;
  if(!requiresArtifact){
   if(isStudyArtifact){
-   showStatus(T.executed+' — '+(lang==='ar'?'لم يُربط المخرج بمشروع، ولم يتأكد حفظه. احتفظ بالنتائج قبل المغادرة.':'Result is not linked to a project and persistence is unconfirmed. Keep the results before leaving.'),false);
+   showStatus((lang==='ar'?'تم التحليل دون حفظ مؤسسي':'Analysis finished without project persistence')+' — '+(lang==='ar'?'اختر مشروعًا ثم أعد حفظ الدراسة؛ لم يتأكد أرشفتها.':'Choose a project; archival has not been verified.'),false);
    return false;
   }
   showStatus(T.executed,true);return true;
@@ -1979,7 +2137,16 @@ function renderExecutionResult(payload){
  const financial=renderFinancialExecution(result,metrics);
  const studies=renderStudiesExecution(result);
  const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined&&typeof v!=='object');
- box.innerHTML='<h2>'+escapeHtml(T.executed)+'</h2>'+ 
+ const confirmedSaved=payload?.artifact_persistence?.status==='saved'&&!!payload?.artifact_persistence?.artifact_id;
+ const calculated=serviceCode==='feasibility_studies'&&payload?.result?.engineResults?.feasibility?.executed===true;
+ const title=serviceCode==='feasibility_studies'
+  ?(!calculated
+    ?(lang==='ar'?'استجابة جزئية — الدراسة لم تُحسب':'Partial response — feasibility not calculated')
+    :(confirmedSaved
+      ?(lang==='ar'?'الدراسة محفوظة في المشروع':'Study saved to project')
+      :(lang==='ar'?'نتائج التحليل — لم يتم تأكيد حفظها':'Analysis results — save not verified')))
+  :T.executed;
+ box.innerHTML='<h2>'+escapeHtml(title)+'</h2>'+ 
   (['feasibility_studies','risk_analysis'].includes(serviceCode)?'<button type="button" id="srDownloadExecution" class="sr-secondary">'+(lang==='ar'?'تنزيل نسخة النتائج (JSON)':'Download results copy (JSON)')+'</button>':'')+
   (financial||studies||(
    entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+formatFinancialValue(v)+'</li>').join('')+'</ul></div>':
@@ -2116,6 +2283,12 @@ async function submit(e){
   const sb=window.BondsAuth.getSupabase();const session=(await sb.auth.getSession()).data.session;
   if(!session?.access_token)throw new Error(T.login);
   const values=collectValues();
+  if(isStudiesWorkspaceService() && values.sector_code){
+   const supported=STUDIES_ENGINE_PROFILES.some(row=>row[0]===values.sector_code);
+   if(!supported && !STUDIES_ENGINE_PROFILES.some(row=>row[0]===values.sector_engine_profile)){
+    throw new Error(lang==='ar'?'اختر نموذج التحليل المناسب للقطاع قبل التشغيل.':'Choose the analysis model for this sector before running.');
+   }
+  }
   const runtime=studiesRuntimeFromValues(values);
   const context={
     country:runtime.geo.country||params.get('country')||null,
@@ -2221,12 +2394,20 @@ async function submit(e){
   const execution=await executionResponse.json().catch(()=>({}));
 
   if(executionResponse.ok&&execution.executed===true){
-    submitted=true;
+    if(serviceCode==='feasibility_studies'){
+      const intent=execution?.result?.intent?.intent||execution?.result?.intent;
+      if(intent && intent!=='feasibility'){
+        throw new Error(lang==='ar'?'أعاد المحرك نية مختلفة عن دراسة الجدوى. لم تُعتمد النتيجة.':'Engine returned an intent other than feasibility. Result rejected.');
+      }
+    }
     track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null});
     const artifactSaved=showExecutionPersistenceStatus(execution);
     renderExecutionResult(execution);
+    // An unverified or incomplete response is not a completed submission.
+    // Keep the user's draft editable so missing inputs can be corrected.
+    submitted=artifactSaved || !['feasibility_studies','risk_analysis'].includes(serviceCode);
     if(artifactSaved)clearWorkspaceDraft();
-    $('#srSubmit').disabled=true;
+    $('#srSubmit').disabled=submitted;
     return;
   }
 
