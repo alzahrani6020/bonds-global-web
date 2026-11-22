@@ -228,10 +228,16 @@ function syncStudiesAssistantContext(){
   :{version:1,source:'service_workspace',serviceCode,language:lang,executionInputs:values};
  try{sessionStorage.setItem('bonds_service_assistant_context_v1',JSON.stringify(payload))}catch(_){}
 }
+function studiesTaxonomySelection(value){
+ const code=String(value||'');
+ return code==='__add_custom_sector__'||code==='__add_custom_activity__'?'':code;
+}
 function studiesPrefill(key,intentKey){
  const intent=readServiceIntent()||{};
  const live=liveParams();
- return live.get(key)||intent[intentKey]||live.get(intentKey)||params.get(key)||'';
+ const raw=live.get(key)||intent[intentKey]||live.get(intentKey)||params.get(key)||'';
+ return ['sector','sector_code','activity','activity_code'].includes(key)
+  ?studiesTaxonomySelection(raw):raw;
 }
 function studiesSelectMarkup(id,name,placeholder,prefill){
  const seeded=prefill?'<option value="'+escapeHtml(prefill)+'" selected>'+escapeHtml(prefill)+'</option>':'';
@@ -498,7 +504,8 @@ function studiesWriteLocationToUrl(){
   ['activity',$('#studiesActivity')?.value]
  ];
  mapping.forEach(([key,value])=>{
-  if(value) url.searchParams.set(key,value);
+  const selected=(key==='sector'||key==='activity')?studiesTaxonomySelection(value):value;
+  if(selected) url.searchParams.set(key,selected);
   else url.searchParams.delete(key);
  });
  history.replaceState({},'',url);
@@ -817,14 +824,14 @@ function renderStudiesOperationalInputs(){
     '<option value="mega">'+(lang==='ar'?'عملاق / استراتيجي':'Mega / strategic')+'</option>'+ 
    '</select></div>'+ 
    locationFields+
-   '<div class="sr-field"><label>'+(lang==='ar'?'حجم الاستثمار المتوقع':'Expected investment')+opt+'</label><input type="number" name="investment_amount" min="0" step="any"></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'حجم الاستثمار المتوقع':'Expected investment')+req+'</label><input type="number" name="investment_amount" min="0" step="any"></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'عملة الدراسة':'Study currency')+req+'</label><select name="currency" required><option value="SAR" selected>SAR</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'أفق الدراسة بالسنوات':'Study horizon in years')+opt+'</label><input type="number" name="years" min="1" max="60" step="1" placeholder="5"></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'الإيرادات السنوية المتوقعة':'Expected annual revenue')+opt+'</label><input type="number" name="annual_revenue" min="0" step="any"></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'تكلفة المبيعات السنوية':'Annual cost of sales')+opt+'</label><input type="number" name="cogs" min="0" step="any"></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'المصروفات التشغيلية السنوية':'Annual operating expenses')+opt+'</label><input type="number" name="operating_expenses" min="0" step="any"></div>'+ 
-   '<div class="sr-field"><label>'+(lang==='ar'?'معدل الخصم %':'Discount rate %')+opt+'</label><input type="number" name="discount_rate_pct" min="0" max="100" step="any" placeholder="10"></div>'+ 
-   '<div class="sr-field full"><label>'+(lang==='ar'?'التدفقات النقدية السنوية (سطر لكل سنة أو فاصلة منقوطة، دون فواصل الآلاف)':'Annual cash flows (one per line or semicolon; no thousands separators)')+opt+'</label><textarea name="cash_flows_text" placeholder="'+(lang==='ar'?'مثال: 100000; 120000; 140000':'Example: 100000; 120000; 140000')+'"></textarea><small>'+(lang==='ar'?'أدخل صافي التدفق النقدي لكل سنة. تُعرض النتائج الحسابية على أنها أولية إلى حين التحقق من الأدلة.':'Enter one net cash flow per year. Calculations remain preliminary until evidence is verified.')+'</small></div>'+
+   '<div class="sr-field"><label>'+(lang==='ar'?'معدل الخصم %':'Discount rate %')+req+'</label><input type="number" name="discount_rate_pct" min="0" max="100" step="any" placeholder="10"></div>'+ 
+   '<div class="sr-field full"><label>'+(lang==='ar'?'التدفقات النقدية السنوية (سطر لكل سنة أو فاصلة منقوطة، دون فواصل الآلاف)':'Annual cash flows (one per line or semicolon; no thousands separators)')+req+'</label><textarea name="cash_flows_text" placeholder="'+(lang==='ar'?'مثال: 100000; 120000; 140000':'Example: 100000; 120000; 140000')+'"></textarea><small>'+(lang==='ar'?'أدخل صافي التدفق النقدي لكل سنة. تُعرض النتائج الحسابية على أنها أولية إلى حين التحقق من الأدلة.':'Enter one net cash flow per year. Calculations remain preliminary until evidence is verified.')+'</small></div>'+
    '<div class="sr-field full"><label>'+(lang==='ar'?'وصف المشروع':'Project brief')+req+'</label><textarea name="project_brief" required></textarea></div>';
  }
  else if(serviceCode==='risk_analysis'){
@@ -2090,13 +2097,83 @@ function renderFinancialExecution(result,metrics){
  }
  return '';
 }
+function feasibilityPreflight(values){
+ const required=[
+  ['investment_amount',lang==='ar'?'حجم الاستثمار المتوقع':'Initial investment'],
+  ['discount_rate_pct',lang==='ar'?'معدل الخصم':'Discount rate'],
+  ['cash_flows_text',lang==='ar'?'التدفقات النقدية السنوية':'Annual cash flows']
+ ];
+ const missing=required.filter(([key])=>values[key]===undefined||values[key]===null||String(values[key]).trim()==='');
+ if(missing.length)return {ok:false,missing};
+ if(!Number.isFinite(Number(values.investment_amount))||Number(values.investment_amount)<=0){
+  return {ok:false,missing:[],error:lang==='ar'?'يجب أن يكون الاستثمار الأولي أكبر من صفر.':'Initial investment must be greater than zero.',field:'investment_amount'};
+ }
+ if(!Array.isArray(values.cash_flows)||values.cash_flows.length<1){
+  return {ok:false,missing:[],error:lang==='ar'?'أدخل تدفقًا نقديًا صافيًا لكل سنة.':'Enter at least one annual net cash flow.',field:'cash_flows_text'};
+ }
+ if(values.years!==undefined&&values.years!==''&&values.cash_flows.length!==Number(values.years)){
+  return {ok:false,missing:[],error:lang==='ar'?'يجب أن يتطابق أفق الدراسة مع عدد التدفقات السنوية.':'Study horizon must match the annual cash flow count.',field:'cash_flows_text'};
+ }
+ return {ok:true,missing:[]};
+}
+function feasibilityMissingInputs(){
+ const form=$('#srRequestForm');
+ if(!form)return [];
+ const fields=[
+  {name:'investment_amount',label:lang==='ar'?'حجم الاستثمار المتوقع':'Initial investment'},
+  {name:'cash_flows_text',label:lang==='ar'?'التدفقات النقدية السنوية':'Annual cash flows'},
+  {name:'discount_rate_pct',label:lang==='ar'?'معدل الخصم':'Discount rate'}
+ ];
+ return fields.filter(item=>{
+  const input=form.querySelector('[name="'+item.name+'"]');
+  return !input||String(input.value||'').trim()==='';
+ });
+}
+function renderFeasibilityMissingInputs(){
+ const previous=$('#srFeasibilityMissingInputs');
+ if(previous)previous.remove();
+ const missing=feasibilityMissingInputs();
+ if(!missing.length)return;
+ const target=$('#srStatus');
+ if(!target)return;
+ const panel=document.createElement('div');
+ panel.id='srFeasibilityMissingInputs';
+ panel.className='sr-card';
+ panel.setAttribute('role','group');
+ const heading=document.createElement('strong');
+ heading.textContent=lang==='ar'?'بيانات مطلوبة لحساب المؤشرات:':'Required to calculate financial indicators:';
+ panel.appendChild(heading);
+ const actions=document.createElement('div');
+ actions.className='sr-actions feasibility-secondary-actions';
+ missing.forEach(item=>{
+  const button=document.createElement('button');
+  button.type='button';
+  button.className='sr-secondary';
+  button.textContent=item.label;
+  button.addEventListener('click',()=>{
+   const input=$('#srRequestForm')?.querySelector('[name="'+item.name+'"]');
+   if(!input)return;
+   input.scrollIntoView({block:'center',behavior:'smooth'});
+   input.focus({preventScroll:true});
+  });
+  actions.appendChild(button);
+ });
+ panel.appendChild(actions);
+ target.insertAdjacentElement('afterend',panel);
+}
 function showExecutionPersistenceStatus(execution){
  if(serviceCode==='feasibility_studies'){
   const feasibility=execution?.result?.engineResults?.feasibility;
   if(!feasibility || feasibility.executed!==true || (feasibility.metrics?.npv==null && feasibility.metrics?.irr==null && feasibility.npv==null && feasibility.irr==null)){
-   showStatus(lang==='ar'
-    ?'وصلت استجابة من محرك الدراسة، لكن مؤشرات الجدوى NPV وIRR لم تُحسب. أدخل الاستثمار والتدفقات النقدية ومعدل الخصم، أو اجلب بيانات السوق ثم وثّق افتراضات الإيرادات.'
-    :'The study engine responded, but NPV and IRR were not calculated. Provide investment, cash flows and discount rate, or research the market and document revenue assumptions.',false);
+   const missing=feasibilityMissingInputs();
+   showStatus(missing.length
+    ?(lang==='ar'
+      ?'وصلت استجابة جزئية: لم تُحسب NPV وIRR. استكمل المدخلات المالية الناقصة أدناه.'
+      :'Partial response: NPV and IRR were not calculated. Complete the missing financial fields below.')
+    :(lang==='ar'
+      ?'تعذر على محرك الجدوى حساب NPV وIRR رغم إرسال المدخلات المالية. لم تُحفظ دراسة مكتملة؛ تحقق من حالة المحرك ولا تعِد إدخال البيانات دون سبب.'
+      :'The feasibility engine did not calculate NPV or IRR despite submitted financial inputs. No complete study was archived; inspect the engine response before re-entering data.'),false);
+   renderFeasibilityMissingInputs();
    return false;
   }
  }
@@ -2125,6 +2202,7 @@ function showExecutionPersistenceStatus(execution){
  return false;
 }
 function renderExecutionResult(payload){
+ if(serviceCode==='feasibility_studies' && !feasibilityMissingInputs().length) $('#srFeasibilityMissingInputs')?.remove();
  let box=$('#srExecutionResult');
  if(!box){
   box=document.createElement('section');
@@ -2283,6 +2361,22 @@ async function submit(e){
   const sb=window.BondsAuth.getSupabase();const session=(await sb.auth.getSession()).data.session;
   if(!session?.access_token)throw new Error(T.login);
   const values=collectValues();
+  if(serviceCode==='feasibility_studies'){
+   const check=feasibilityPreflight(values);
+   if(!check.ok){
+    const field=check.missing[0]?.[0]||check.field;
+    showStatus(check.missing.length
+      ?(lang==='ar'?'لن يبدأ حساب الجدوى قبل إدخال: ':'Financial calculation requires: ')+check.missing.map(row=>row[1]).join('، ')
+      :check.error,false);
+    const input=field?$('#srRequestForm')?.querySelector('[name="'+field+'"]'):null;
+    input?.scrollIntoView({block:'center',behavior:'smooth'});
+    input?.focus({preventScroll:true});
+    return;
+   }
+  }
+  if(isStudiesWorkspaceService() && (values.sector_code==='__add_custom_sector__'||values.activity_code==='__add_custom_activity__')){
+   throw new Error(lang==='ar'?'أكمل إضافة القطاع أو النشاط قبل تشغيل الدراسة.':'Complete adding the sector or activity before running the study.');
+  }
   if(isStudiesWorkspaceService() && values.sector_code){
    const supported=STUDIES_ENGINE_PROFILES.some(row=>row[0]===values.sector_code);
    if(!supported && !STUDIES_ENGINE_PROFILES.some(row=>row[0]===values.sector_engine_profile)){
@@ -2295,8 +2389,8 @@ async function submit(e){
     region:params.get('region')||null,
     locality:params.get('locality')||null,
     locality_name:runtime.geo.city||params.get('locality_name')||null,
-    sector:runtime.geo.sector||params.get('sector')||null,
-    activity:runtime.geo.activity||params.get('activity')||null,
+    sector:studiesTaxonomySelection(runtime.geo.sector||params.get('sector'))||null,
+    activity:studiesTaxonomySelection(runtime.geo.activity||params.get('activity'))||null,
     studies_brief:runtime.input||null
   };
   syncStudiesAssistantContext();

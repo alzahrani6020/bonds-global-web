@@ -98,6 +98,29 @@ describe('studies execution preserves explicitly supplied input and research', (
     expect(request.values.sector_name).toBe('قطاع جديد');
   });
 
+  test('dropdown add-activity sentinel never reaches a feasibility execution or its values', () => {
+    const request = enrichStudiesExecutionRequest(
+      feasibility, {},
+      { activity: '__add_custom_activity__', context: { activity: '__add_custom_activity__' } },
+      { values: { sector_code: 'retail', activity_code: '__add_custom_activity__', project_name: 'Office goods' },
+        input: 'Office goods feasibility', activity: '__add_custom_activity__' }
+    );
+    expect(request.sector).toBe('retail');
+    expect(request.activity).toBeNull();
+    expect(request.values.activity_code).toBeUndefined();
+    expect(request.research.query).toContain('Office goods');
+  });
+
+  test('an old bookmarked add-sector sentinel cannot become a sector', () => {
+    const request = enrichStudiesExecutionRequest(
+      feasibility, {},
+      { sector: '__add_custom_sector__', context: { sector: '__add_custom_sector__' } },
+      { values: { sector_code: '__add_custom_sector__', project_name: 'Office goods' }, input: 'Office goods' }
+    );
+    expect(request.sector).not.toBe('__add_custom_sector__');
+    expect(request.values.sector_code).toBeUndefined();
+  });
+
   test('no explicit input falls back to generated research query', () => {
     const request = enrichStudiesExecutionRequest(
       feasibility, {}, {},
