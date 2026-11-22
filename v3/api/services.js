@@ -921,9 +921,23 @@ async function handleServiceExecute(req, res, supabase, user) {
   try {
     const result = await executeService({ req, user, supabase, serviceCode, body });
 
+    // A successful orchestration response is not a completed feasibility study.
+    // Do not create archived artifacts for missing/invalid financial calculations.
+    const feasibilityGate = serviceCode === 'feasibility_studies'
+      ? require('../../lib/finance/feasibility-artifact-gate').assessFeasibilityArtifact(result.body)
+      : null;
+    if (feasibilityGate && !feasibilityGate.complete) {
+      result.body = { ...result.body, artifact_persistence: {
+        status:'skipped',
+        code:'FEASIBILITY_NOT_CALCULATED',
+        required_inputs:feasibilityGate.required_inputs
+      }};
+    }
+
     // Execution success is not proof that its project artifact was saved.
     // Report persistence independently, preserving the execution response contract.
-    if (user && body.project_id && result.body?.executed === true && artifactType) {
+    if (user && body.project_id && result.body?.executed === true && artifactType &&
+        (!feasibilityGate || feasibilityGate.complete)) {
       let artifactPersistence = { status:'failed', code:'INVESTMENT_ARTIFACT_SAVE_FAILED' };
       try {
         const { assertContextOwnership } = require('./investment-context');
@@ -933,6 +947,8 @@ async function handleServiceExecute(req, res, supabase, user) {
           opportunity_id: body.opportunity_id || null
         });
         if (!owned.project) throw new Error('PROJECT_CONTEXT_NOT_FOUND');
+        const archivedInputs = body.inputs || body.values || {};
+        const archivedResults = result.body || {};
         const { data:artifact, error:insertError } = await supabase.from('bonds_investment_artifacts').insert({
           user_id:user.id,
           project_id:owned.project.id,
@@ -941,8 +957,8 @@ async function handleServiceExecute(req, res, supabase, user) {
           artifact_type:artifactType,
           title:serviceCode,
           source_url:body.source_url || null,
-          inputs:body.inputs || body.values || {},
-          results:result.body || {},
+          inputs:archivedInputs,
+          results:archivedResults,
           metadata:{ service_code:serviceCode, source:body.source || 'service_request_page' },
           status:'saved'
         }).select('id').single();
@@ -952,7 +968,7 @@ async function handleServiceExecute(req, res, supabase, user) {
         // On readback uncertainty, retain the ID to prevent blind retries.
         const { data:readback, error:readbackError } = await supabase
           .from('bonds_investment_artifacts')
-          .select('id,user_id,project_id,artifact_type,status')
+          .select('id,user_id,project_id,artifact_type,status,inputs,results')
           .eq('id',artifact.id)
           .eq('user_id',user.id)
           .maybeSingle();
@@ -960,7 +976,9 @@ async function handleServiceExecute(req, res, supabase, user) {
             readback.project_id !== owned.project.id ||
             readback.user_id !== user.id ||
             readback.artifact_type !== artifactType ||
-            readback.status !== 'saved') {
+            readback.status !== 'saved' ||
+            !require('node:util').isDeepStrictEqual(readback.inputs, JSON.parse(JSON.stringify(archivedInputs))) ||
+            !require('node:util').isDeepStrictEqual(readback.results, JSON.parse(JSON.stringify(archivedResults)))) {
           artifactPersistence = {
             status:'unverified',
             artifact_id:artifact.id,

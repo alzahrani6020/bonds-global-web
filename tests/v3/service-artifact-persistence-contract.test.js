@@ -14,7 +14,7 @@ describe('service execution and artifact persistence contract', () => {
   });
 
   test('reads back the exact user-owned project artifact before claiming saved', () => {
-    expect(api).toContain(".select('id,user_id,project_id,artifact_type,status')");
+    expect(api).toContain(".select('id,user_id,project_id,artifact_type,status,inputs,results')");
     expect(api).toContain(".eq('id',artifact.id)");
     expect(api).toContain(".eq('user_id',user.id)");
     expect(api).toContain("readback.project_id !== owned.project.id");
