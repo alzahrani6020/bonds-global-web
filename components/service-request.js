@@ -2352,8 +2352,8 @@ async function submit(e){
     region:params.get('region')||null,
     locality:params.get('locality')||null,
     locality_name:runtime.geo.city||params.get('locality_name')||null,
-    sector:runtime.geo.sector||params.get('sector')||null,
-    activity:runtime.geo.activity||params.get('activity')||null,
+    sector:studiesTaxonomySelection(runtime.geo.sector||params.get('sector'))||null,
+    activity:studiesTaxonomySelection(runtime.geo.activity||params.get('activity'))||null,
     studies_brief:runtime.input||null
   };
   syncStudiesAssistantContext();
