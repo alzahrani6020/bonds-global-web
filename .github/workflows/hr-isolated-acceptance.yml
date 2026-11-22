@@ -1,0 +1,73 @@
+name: HR Isolated Acceptance
+
+on:
+  pull_request:
+    branches:
+      - main
+      - feature/hr-workflow-actions-20261121
+    paths:
+      - 'my-bonds/crm/**'
+      - 'en/my-bonds/crm/**'
+      - 'supabase/migrations/20261121*'
+      - 'tests/hr/**'
+      - '.github/workflows/hr-isolated-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hr-isolated-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hr-database-and-ui-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: crm-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Verify CRM disposable PostgreSQL baseline
+        env:
+          CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
+        run: node tests/crm/isolated-postgres-acceptance.js
+      - name: Verify HR migration, tenant RLS and workflow decisions
+        env:
+          CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
+        run: node tests/hr/isolated-postgres-acceptance.js
+      - name: Verify HR UI contracts
+        run: npx jest --runInBand tests/hr/org-attendance-workflows.test.js tests/hr/workflow-decisions.test.js tests/hr/employee-directory-filters.test.js tests/hr/sidebar-accordion.test.js
+      - name: Check changed HR JavaScript syntax
+        run: node --check my-bonds/crm/company-hr.js
+      - name: Install Chromium for isolated browser acceptance
+        run: npx playwright install chromium
+      - name: Start local dev server
+        run: npm run dev:local &
+      - name: Wait for local dev server
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:3005 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Verify HR browser journeys (mocked auth and data)
+        run: node tests/hr/browser-acceptance.js
+
