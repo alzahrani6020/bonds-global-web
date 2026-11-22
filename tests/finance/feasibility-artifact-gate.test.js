@@ -59,5 +59,8 @@ describe('feasibility archive eligibility and independently calculated financial
     expect(save).toBeGreaterThan(assessed);
     expect(api).toContain('(!feasibilityGate || feasibilityGate.complete)');
     expect(api).toContain('FEASIBILITY_NOT_CALCULATED');
+    expect(api).toContain(".select('id,user_id,project_id,artifact_type,status,inputs,results')");
+    expect(api).toContain('isDeepStrictEqual(readback.inputs');
+    expect(api).toContain('isDeepStrictEqual(readback.results');
   });
 });
