@@ -2165,9 +2165,14 @@ function showExecutionPersistenceStatus(execution){
  if(serviceCode==='feasibility_studies'){
   const feasibility=execution?.result?.engineResults?.feasibility;
   if(!feasibility || feasibility.executed!==true || (feasibility.metrics?.npv==null && feasibility.metrics?.irr==null && feasibility.npv==null && feasibility.irr==null)){
-   showStatus(lang==='ar'
-    ?'وصلت استجابة من محرك الدراسة، لكن مؤشرات الجدوى NPV وIRR لم تُحسب. أكمل المدخلات المالية المحددة أدناه، أو اجلب بيانات السوق ثم وثّق الافتراضات قبل الحساب.'
-    :'The study engine responded, but NPV and IRR were not calculated. Complete the financial inputs below or research and document market assumptions before calculating.',false);
+   const missing=feasibilityMissingInputs();
+   showStatus(missing.length
+    ?(lang==='ar'
+      ?'وصلت استجابة جزئية: لم تُحسب NPV وIRR. استكمل المدخلات المالية الناقصة أدناه.'
+      :'Partial response: NPV and IRR were not calculated. Complete the missing financial fields below.')
+    :(lang==='ar'
+      ?'تعذر على محرك الجدوى حساب NPV وIRR رغم إرسال المدخلات المالية. لم تُحفظ دراسة مكتملة؛ تحقق من حالة المحرك ولا تعِد إدخال البيانات دون سبب.'
+      :'The feasibility engine did not calculate NPV or IRR despite submitted financial inputs. No complete study was archived; inspect the engine response before re-entering data.'),false);
    renderFeasibilityMissingInputs();
    return false;
   }
