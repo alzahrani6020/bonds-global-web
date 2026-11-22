@@ -824,7 +824,7 @@ function renderStudiesOperationalInputs(){
     '<option value="mega">'+(lang==='ar'?'عملاق / استراتيجي':'Mega / strategic')+'</option>'+ 
    '</select></div>'+ 
    locationFields+
-   '<div class="sr-field"><label>'+(lang==='ar'?'حجم الاستثمار المتوقع':'Expected investment')+opt+'</label><input type="number" name="investment_amount" min="0" step="any"></div>'+ 
+   '<div class="sr-field"><label>'+(lang==='ar'?'حجم الاستثمار المتوقع':'Expected investment')+req+'</label><input type="number" name="investment_amount" min="0" step="any"></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'عملة الدراسة':'Study currency')+req+'</label><select name="currency" required><option value="SAR" selected>SAR</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'أفق الدراسة بالسنوات':'Study horizon in years')+opt+'</label><input type="number" name="years" min="1" max="60" step="1" placeholder="5"></div>'+ 
    '<div class="sr-field"><label>'+(lang==='ar'?'الإيرادات السنوية المتوقعة':'Expected annual revenue')+opt+'</label><input type="number" name="annual_revenue" min="0" step="any"></div>'+ 
@@ -2097,6 +2097,25 @@ function renderFinancialExecution(result,metrics){
  }
  return '';
 }
+function feasibilityPreflight(values){
+ const required=[
+  ['investment_amount',lang==='ar'?'حجم الاستثمار المتوقع':'Initial investment'],
+  ['discount_rate_pct',lang==='ar'?'معدل الخصم':'Discount rate'],
+  ['cash_flows_text',lang==='ar'?'التدفقات النقدية السنوية':'Annual cash flows']
+ ];
+ const missing=required.filter(([key])=>values[key]===undefined||values[key]===null||String(values[key]).trim()==='');
+ if(missing.length)return {ok:false,missing};
+ if(!Number.isFinite(Number(values.investment_amount))||Number(values.investment_amount)<=0){
+  return {ok:false,missing:[],error:lang==='ar'?'يجب أن يكون الاستثمار الأولي أكبر من صفر.':'Initial investment must be greater than zero.',field:'investment_amount'};
+ }
+ if(!Array.isArray(values.cash_flows)||values.cash_flows.length<1){
+  return {ok:false,missing:[],error:lang==='ar'?'أدخل تدفقًا نقديًا صافيًا لكل سنة.':'Enter at least one annual net cash flow.',field:'cash_flows_text'};
+ }
+ if(values.years!==undefined&&values.years!==''&&values.cash_flows.length!==Number(values.years)){
+  return {ok:false,missing:[],error:lang==='ar'?'يجب أن يتطابق أفق الدراسة مع عدد التدفقات السنوية.':'Study horizon must match the annual cash flow count.',field:'cash_flows_text'};
+ }
+ return {ok:true,missing:[]};
+}
 function feasibilityMissingInputs(){
  const form=$('#srRequestForm');
  if(!form)return [];
@@ -2337,6 +2356,19 @@ async function submit(e){
   const sb=window.BondsAuth.getSupabase();const session=(await sb.auth.getSession()).data.session;
   if(!session?.access_token)throw new Error(T.login);
   const values=collectValues();
+  if(serviceCode==='feasibility_studies'){
+   const check=feasibilityPreflight(values);
+   if(!check.ok){
+    const field=check.missing[0]?.[0]||check.field;
+    showStatus(check.missing.length
+      ?(lang==='ar'?'لن يبدأ حساب الجدوى قبل إدخال: ':'Financial calculation requires: ')+check.missing.map(row=>row[1]).join('، ')
+      :check.error,false);
+    const input=field?$('#srRequestForm')?.querySelector('[name="'+field+'"]'):null;
+    input?.scrollIntoView({block:'center',behavior:'smooth'});
+    input?.focus({preventScroll:true});
+    return;
+   }
+  }
   if(isStudiesWorkspaceService() && (values.sector_code==='__add_custom_sector__'||values.activity_code==='__add_custom_activity__')){
    throw new Error(lang==='ar'?'أكمل إضافة القطاع أو النشاط قبل تشغيل الدراسة.':'Complete adding the sector or activity before running the study.');
   }
