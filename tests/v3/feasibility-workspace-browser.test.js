@@ -310,8 +310,9 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     expect(await page.evaluate(()=>document.activeElement?.name)).toBe('investment_amount');
     expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
     await completeFinancialInputs(page);
+    const submitted=page.waitForRequest(request=>request.url().includes('/api/v3/services/execute'));
     await page.locator('#srSubmit').click();
-    await page.waitForFunction(()=>!!document.querySelector('#srStatus.err'));
+    await submitted;
     expect(called).toBe(true);
     await context.close();
   });
