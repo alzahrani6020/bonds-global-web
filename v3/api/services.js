@@ -947,6 +947,8 @@ async function handleServiceExecute(req, res, supabase, user) {
           opportunity_id: body.opportunity_id || null
         });
         if (!owned.project) throw new Error('PROJECT_CONTEXT_NOT_FOUND');
+        const archivedInputs = body.inputs || body.values || {};
+        const archivedResults = result.body || {};
         const { data:artifact, error:insertError } = await supabase.from('bonds_investment_artifacts').insert({
           user_id:user.id,
           project_id:owned.project.id,
@@ -955,8 +957,8 @@ async function handleServiceExecute(req, res, supabase, user) {
           artifact_type:artifactType,
           title:serviceCode,
           source_url:body.source_url || null,
-          inputs:body.inputs || body.values || {},
-          results:result.body || {},
+          inputs:archivedInputs,
+          results:archivedResults,
           metadata:{ service_code:serviceCode, source:body.source || 'service_request_page' },
           status:'saved'
         }).select('id').single();
@@ -966,7 +968,7 @@ async function handleServiceExecute(req, res, supabase, user) {
         // On readback uncertainty, retain the ID to prevent blind retries.
         const { data:readback, error:readbackError } = await supabase
           .from('bonds_investment_artifacts')
-          .select('id,user_id,project_id,artifact_type,status')
+          .select('id,user_id,project_id,artifact_type,status,inputs,results')
           .eq('id',artifact.id)
           .eq('user_id',user.id)
           .maybeSingle();
@@ -974,7 +976,9 @@ async function handleServiceExecute(req, res, supabase, user) {
             readback.project_id !== owned.project.id ||
             readback.user_id !== user.id ||
             readback.artifact_type !== artifactType ||
-            readback.status !== 'saved') {
+            readback.status !== 'saved' ||
+            !require('node:util').isDeepStrictEqual(readback.inputs, JSON.parse(JSON.stringify(archivedInputs))) ||
+            !require('node:util').isDeepStrictEqual(readback.results, JSON.parse(JSON.stringify(archivedResults)))) {
           artifactPersistence = {
             status:'unverified',
             artifact_id:artifact.id,
