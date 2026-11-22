@@ -181,6 +181,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('input[name="project_name"]').fill('Office supply feasibility');
     await page.locator('select[name="project_size"]').selectOption('small');
     await page.locator('textarea[name="project_brief"]').fill('Coffee and office products to commercial companies');
+    await completeFinancialInputs(page);
     await page.locator('#srSubmit').scrollIntoViewIfNeeded();
     const start=await page.evaluate(()=>window.scrollY);
     expect(start).toBeGreaterThan(100);
@@ -244,6 +245,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('input[name="project_name"]').fill('Office-supply investment');
     await page.locator('select[name="project_size"]').selectOption('small');
     await page.locator('textarea[name="project_brief"]').fill('Coffee and office supplies for commercial offices');
+    await completeFinancialInputs(page);
     await page.locator('#srSubmit').click();
     await page.waitForFunction(()=>document.querySelector('#srSubmit')?.textContent?.includes('جارٍ تشغيل الدراسة'));
     expect(await page.locator('#srSubmit').isDisabled()).toBe(true);
@@ -287,6 +289,36 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await context.close();
   });
 
+  async function completeFinancialInputs(page){
+    await page.locator('input[name="investment_amount"]').fill('100000');
+    await page.locator('input[name="discount_rate_pct"]').fill('10');
+    await page.locator('textarea[name="cash_flows_text"]').fill('30000;30000;30000;30000;30000');
+    await page.locator('input[name="years"]').fill('5');
+  }
+
+  test('blocks empty financial input before any API call, and focuses the missing field', async()=>{
+    const {page,context}=await openFeasibility();
+    let called=false;
+    await page.route('**/api/v3/services/execute',route=>{
+      called=true;return route.fulfill({status:500,body:'{}'});
+    });
+    await page.locator('input[name="project_name"]').fill('Office products');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('textarea[name="project_brief"]').fill('Wholesale office goods');
+    await page.locator('#srSubmit').click();
+    await page.locator('#srStatus.err').waitFor({state:'visible'});
+    expect(called).toBe(false);
+    expect(await page.locator('#srStatus').innerText()).toContain('حجم الاستثمار المتوقع');
+    expect(await page.evaluate(()=>document.activeElement?.name)).toBe('investment_amount');
+    expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
+    await completeFinancialInputs(page);
+    const submitted=page.waitForRequest(request=>request.url().includes('/api/v3/services/execute'));
+    await page.locator('#srSubmit').click();
+    await submitted;
+    expect(called).toBe(true);
+    await context.close();
+  });
+
   test('does not claim feasibility success when orchestration returned no financial metrics', async () => {
     const {page,context}=await openFeasibility();
     await page.route('**/api/v3/services/execute',route=>route.fulfill({
@@ -298,9 +330,10 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('input[name="project_name"]').fill('Office supplies');
     await page.locator('select[name="project_size"]').selectOption('small');
     await page.locator('textarea[name="project_brief"]').fill('Office coffee supplies');
+    await completeFinancialInputs(page);
     await page.locator('#srSubmit').click();
     await page.locator('#srStatus.err').waitFor({state:'visible'});
-    expect(await page.locator('#srStatus').innerText()).toContain('NPV وIRR لم تُحسب');
+    expect(await page.locator('#srStatus').innerText()).toContain('رغم إرسال المدخلات المالية');
     expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
     expect(await page.locator('#srExecutionResult h2').innerText()).toContain('استجابة جزئية');
     await context.close();
@@ -384,14 +417,12 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('input[name="project_name"]').fill('Office supplies');
     await page.locator('select[name="project_size"]').selectOption('small');
     await page.locator('textarea[name="project_brief"]').fill('Wholesale distribution feasibility');
+    await completeFinancialInputs(page);
     await page.locator('#srSubmit').click();
-    await page.locator('#srFeasibilityMissingInputs').waitFor({ state: 'visible' });
-    const labels = await page.locator('#srFeasibilityMissingInputs button').allTextContents();
-    expect(labels).toContain('حجم الاستثمار المتوقع');
-    expect(labels).toContain('التدفقات النقدية السنوية');
-    expect(labels).toContain('معدل الخصم');
-    await page.locator('#srFeasibilityMissingInputs button').first().click();
-    expect(await page.evaluate(() => document.activeElement?.name)).toBe('investment_amount');
+    await page.locator('#srStatus.err').waitFor({state:'visible'});
+    expect(await page.locator('#srStatus').innerText()).toContain('رغم إرسال المدخلات المالية');
+    expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
+    expect(await page.locator('#srFeasibilityMissingInputs').count()).toBe(0);
     expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
     await context.close();
   });
@@ -471,8 +502,10 @@ describe('feasibility study browser acceptance — isolated service contracts', 
         ok:true,executed:true,result:{intent:{intent:'feasibility'},engineResults:{feasibility:{executed:false}}}
       })});
     });
+    await completeFinancialInputs(page);
     await page.locator('#srSubmit').click();
-    await page.waitForFunction(()=>!!document.querySelector('#srFeasibilityMissingInputs'));
+    await page.locator('#srExecutionResult').waitFor({state:'visible'});
+    expect(await page.locator('#srStatus').innerText()).toContain('رغم إرسال المدخلات المالية');
     expect(payload?.activity).not.toBe('__add_custom_activity__');
     expect(payload?.values?.activity_code).not.toBe('__add_custom_activity__');
     expect(new URL(page.url()).searchParams.get('activity')).not.toBe('__add_custom_activity__');
@@ -528,6 +561,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('input[name="project_name"]').fill('Office supplies');
     await page.locator('select[name="project_size"]').selectOption('small');
     await page.locator('textarea[name="project_brief"]').fill('بيع القهوة والمياه والمنظفات بالجملة للمكاتب');
+    await completeFinancialInputs(page);
     await page.locator('#srSubmit').click();
     await page.locator('#srStatus.err').waitFor({state:'visible'});
     expect(await page.locator('#srStatus').innerText()).toContain('أعاد المحرك نية مختلفة');
