@@ -19,12 +19,12 @@
  <meta name="theme-color" content="#0066cc">
  <link rel="manifest" href="/my-bonds/crm/crm-manifest.webmanifest">
  <link rel="icon" href="/assets/icons/icon-192.png" sizes="192x192">
- <link rel="stylesheet" href="/my-bonds/crm/crm-app.css?v=3">
+ <link rel="stylesheet" href="/my-bonds/crm/crm-app.css?v=4">
  <script src="/api/env" defer></script>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
  <script src="/bonds-auth-2026.js?v=3.1.4" defer></script>
  <script src="/my-bonds/crm/crm-app.js?v=3" defer></script>
- <script src="/my-bonds/crm/company-hr.js?v=12" defer></script>
+ <script src="/my-bonds/crm/company-hr.js?v=17" defer></script>
  <script src="/my-bonds/crm/company-hr-self-service.js?v=1" defer></script>
  <script src="/my-bonds/crm/company-hr-policies.js?v=1" defer></script>
  <script src="/my-bonds/crm/crm-internal.js?v=1" defer></script>
@@ -32,7 +32,7 @@
 <body>
 <div class="app">
  <aside class="sidebar" aria-label="أقسام CRM">
-  <a class="brand" href="/my-bonds/"><span class="brand-mark">B</span><span><b>BONDS CRM</b><small>برامج الشركات</small></span></a>
+  <a class="brand" href="/my-bonds/"><span class="brand-mark">B</span><span><b id="company-program-brand">BONDS CRM</b><small>برامج الشركات</small></span></a>
   <div class="workspace-name" id="workspace-name">مساحة العميل</div>
   <label id="workspace-switch-label" hidden>اختيار مساحة العمل<select id="workspace-select" aria-label="اختيار مساحة العمل"></select></label>
   <button type="button" id="workspace-create-open" class="secondary workspace-create-open" hidden>إنشاء مساحة عمل إضافية</button>
@@ -41,30 +41,62 @@
    <button id="hr-product-tab" type="button" class="secondary">نظام الموارد البشرية</button>
   </div>
   <nav class="sidebar-nav hr-nav" id="hr-nav" hidden aria-label="وحدات الموارد البشرية">
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=employees#hr-app" data-hr-category="employees" class="active">الملفات الوظيفية</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=departments#hr-app" data-hr-category="departments">الإدارات والهيكل</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=recruitment#hr-app" data-hr-category="recruitment">التوظيف</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=contracts#hr-app" data-hr-category="contracts">العقود</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=attendance#hr-app" data-hr-category="attendance">الحضور والانصراف</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=shifts#hr-app" data-hr-category="shifts">الورديات</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=leaves#hr-app" data-hr-category="leaves">الإجازات</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=leave_balances#hr-app" data-hr-category="leave_balances">أرصدة الإجازات</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=payroll#hr-app" data-hr-category="payroll">الرواتب</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=payroll_runs#hr-app" data-hr-category="payroll_runs">مسيرات الرواتب</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=benefits#hr-app" data-hr-category="benefits">التأمينات والمزايا</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=allowances#hr-app" data-hr-category="allowances">البدلات</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=deductions#hr-app" data-hr-category="deductions">الخصومات</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=claims#hr-app" data-hr-category="claims">حقوق ومستحقات الموظفين</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=loans#hr-app" data-hr-category="loans">السلف والقروض</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=settlements#hr-app" data-hr-category="settlements">نهاية الخدمة</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=performance#hr-app" data-hr-category="performance">تقييم الأداء</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=training#hr-app" data-hr-category="training">التدريب</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=documents#hr-app" data-hr-category="documents">المستندات</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=employee_requests#hr-app" data-hr-category="employee_requests">الطلبات</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=assets#hr-app" data-hr-category="assets">العهد</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=governance#hr-app" data-hr-category="governance">الامتثال</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=lifecycle#hr-app" data-hr-category="lifecycle">النقل والترقية</a>
-   <a href="/my-bonds/crm/?program=hr&amp;hr_module=audit#hr-app" data-hr-category="audit">سجل التدقيق</a>
+   <details class="hr-nav-group" data-hr-group="people" open>
+    <summary>الموظفون والهيكل التنظيمي</summary>
+    <div class="hr-nav-group-items">
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=employees#hr-app" data-hr-category="employees" class="active">الملفات الوظيفية</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=departments#hr-app" data-hr-category="departments">الإدارات والهيكل</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=positions#hr-app" data-hr-category="positions">الوظائف والمسميات</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=recruitment#hr-app" data-hr-category="recruitment">التوظيف</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=lifecycle#hr-app" data-hr-category="lifecycle">النقل والترقية</a>
+    </div>
+   </details>
+   <details class="hr-nav-group" data-hr-group="time">
+    <summary>الحضور والإجازات</summary>
+    <div class="hr-nav-group-items">
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=attendance#hr-app" data-hr-category="attendance">الحضور والانصراف</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=attendance_corrections#hr-app" data-hr-category="attendance_corrections">تصحيح الحضور</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=shifts#hr-app" data-hr-category="shifts">الورديات</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=leaves#hr-app" data-hr-category="leaves">الإجازات</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=leave_balances#hr-app" data-hr-category="leave_balances">أرصدة الإجازات</a>
+    </div>
+   </details>
+   <details class="hr-nav-group" data-hr-group="comp">
+    <summary>العقود والرواتب والمستحقات</summary>
+    <div class="hr-nav-group-items">
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=contracts#hr-app" data-hr-category="contracts">العقود</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=payroll#hr-app" data-hr-category="payroll">الرواتب</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=payroll_runs#hr-app" data-hr-category="payroll_runs">مسيرات الرواتب</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=benefits#hr-app" data-hr-category="benefits">التأمينات والمزايا</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=allowances#hr-app" data-hr-category="allowances">البدلات</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=deductions#hr-app" data-hr-category="deductions">الخصومات</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=claims#hr-app" data-hr-category="claims">حقوق ومستحقات الموظفين</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=loans#hr-app" data-hr-category="loans">السلف والقروض</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=settlements#hr-app" data-hr-category="settlements">نهاية الخدمة</a>
+    </div>
+   </details>
+   <details class="hr-nav-group" data-hr-group="talent">
+    <summary>الأداء والتطوير</summary>
+    <div class="hr-nav-group-items">
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=performance#hr-app" data-hr-category="performance">تقييم الأداء</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=training#hr-app" data-hr-category="training">التدريب</a>
+    </div>
+   </details>
+   <details class="hr-nav-group" data-hr-group="services">
+    <summary>الخدمات والمستندات</summary>
+    <div class="hr-nav-group-items">
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=documents#hr-app" data-hr-category="documents">المستندات</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=employee_requests#hr-app" data-hr-category="employee_requests">الطلبات</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=assets#hr-app" data-hr-category="assets">العهد</a>
+    </div>
+   </details>
+   <details class="hr-nav-group" data-hr-group="control">
+    <summary>الحوكمة والرقابة</summary>
+    <div class="hr-nav-group-items">
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=governance#hr-app" data-hr-category="governance">الامتثال</a>
+     <a href="/my-bonds/crm/?program=hr&amp;hr_module=audit#hr-app" data-hr-category="audit">سجل التدقيق</a>
+    </div>
+   </details>
   </nav>
   <nav class="sidebar-nav" id="crm-nav" aria-label="تنقل برنامج CRM">
    <button type="button" data-section="overview" class="active">نظرة عامة</button>
