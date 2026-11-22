@@ -921,9 +921,23 @@ async function handleServiceExecute(req, res, supabase, user) {
   try {
     const result = await executeService({ req, user, supabase, serviceCode, body });
 
+    // A successful orchestration response is not a completed feasibility study.
+    // Do not create archived artifacts for missing/invalid financial calculations.
+    const feasibilityGate = serviceCode === 'feasibility_studies'
+      ? require('../../lib/finance/feasibility-artifact-gate').assessFeasibilityArtifact(result.body)
+      : null;
+    if (feasibilityGate && !feasibilityGate.complete) {
+      result.body = { ...result.body, artifact_persistence: {
+        status:'skipped',
+        code:'FEASIBILITY_NOT_CALCULATED',
+        required_inputs:feasibilityGate.required_inputs
+      }};
+    }
+
     // Execution success is not proof that its project artifact was saved.
     // Report persistence independently, preserving the execution response contract.
-    if (user && body.project_id && result.body?.executed === true && artifactType) {
+    if (user && body.project_id && result.body?.executed === true && artifactType &&
+        (!feasibilityGate || feasibilityGate.complete)) {
       let artifactPersistence = { status:'failed', code:'INVESTMENT_ARTIFACT_SAVE_FAILED' };
       try {
         const { assertContextOwnership } = require('./investment-context');
