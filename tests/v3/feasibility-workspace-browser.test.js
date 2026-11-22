@@ -181,6 +181,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('input[name="project_name"]').fill('Office supply feasibility');
     await page.locator('select[name="project_size"]').selectOption('small');
     await page.locator('textarea[name="project_brief"]').fill('Coffee and office products to commercial companies');
+    await completeFinancialInputs(page);
     await page.locator('#srSubmit').scrollIntoViewIfNeeded();
     const start=await page.evaluate(()=>window.scrollY);
     expect(start).toBeGreaterThan(100);
@@ -302,6 +303,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
       called=true;return route.fulfill({status:500,body:'{}'});
     });
     await page.locator('input[name="project_name"]').fill('Office products');
+    await page.locator('select[name="project_size"]').selectOption('small');
     await page.locator('textarea[name="project_brief"]').fill('Wholesale office goods');
     await page.locator('#srSubmit').click();
     await page.locator('#srStatus.err').waitFor({state:'visible'});
@@ -502,7 +504,8 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     });
     await completeFinancialInputs(page);
     await page.locator('#srSubmit').click();
-    await page.waitForFunction(()=>!!document.querySelector('#srFeasibilityMissingInputs'));
+    await page.locator('#srExecutionResult').waitFor({state:'visible'});
+    expect(await page.locator('#srStatus').innerText()).toContain('رغم إرسال المدخلات المالية');
     expect(payload?.activity).not.toBe('__add_custom_activity__');
     expect(payload?.values?.activity_code).not.toBe('__add_custom_activity__');
     expect(new URL(page.url()).searchParams.get('activity')).not.toBe('__add_custom_activity__');
