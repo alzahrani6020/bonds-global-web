@@ -10,7 +10,8 @@ describe('HR employee directory server-side paging',()=>{
   expect(source).toContain(".ilike.");
   expect(source).toContain(".range(start,start+employeePageSize-1)");
   expect(source).toContain("employeePageSize=50");
-  expect(source).toContain("employeeTotal=response.count??0");
+  expect(source).toContain("fetchedEmployeeTotal=response.count??0");
+  expect(source).toContain("employeeTotal=fetchedEmployeeTotal");
   expect(source).toContain("order('employee_number',{ascending:true})");
   expect(source).toContain("order('id',{ascending:true})");
  });

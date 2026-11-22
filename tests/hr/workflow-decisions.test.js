@@ -39,9 +39,11 @@ describe('HR approval workflow exposure and DB constraints',()=>{
  });
  test('all decisions are workspace-scoped, optimistic and require confirmed readback',()=>{
   expect(controller).toContain("workflowActions(item).some(([next])=>next===target)");
-  expect(controller).toContain(".eq('workspace_id',workspace.id).eq('id',item.id).eq('status',item.status)");
-  expect(controller).toContain(".select('id,status').single()");
-  expect(controller).toContain("if(!result?.id||result.status!==target)");
+  expect(controller).toContain(".eq('workspace_id',workspace.id).eq('id',item.id)");
+  expect(controller).toContain("tableCategory==='attendance'?'review_status':'status'");
+  expect(controller).toContain("tableCategory==='attendance'?item.review_status:item.status");
+  expect(controller).toContain("tableCategory==='attendance'?'id,review_status':'id,status'");
+  expect(controller).toContain("if(!result?.id||(tableCategory==='attendance'?result.review_status:result.status)!==target)");
   expect(controller).not.toMatch(/service_role|\.from\('hr_saas_payroll_lines'\)\.delete\(/);
  });
 });
