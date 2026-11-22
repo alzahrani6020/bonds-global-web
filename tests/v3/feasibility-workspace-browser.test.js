@@ -330,7 +330,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await completeFinancialInputs(page);
     await page.locator('#srSubmit').click();
     await page.locator('#srStatus.err').waitFor({state:'visible'});
-    expect(await page.locator('#srStatus').innerText()).toContain('لم تُحسب NPV وIRR');
+    expect(await page.locator('#srStatus').innerText()).toContain('رغم إرسال المدخلات المالية');
     expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
     expect(await page.locator('#srExecutionResult h2').innerText()).toContain('استجابة جزئية');
     await context.close();
@@ -417,7 +417,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await completeFinancialInputs(page);
     await page.locator('#srSubmit').click();
     await page.locator('#srStatus.err').waitFor({state:'visible'});
-    expect(await page.locator('#srStatus').innerText()).toContain('لم تُحسب NPV وIRR');
+    expect(await page.locator('#srStatus').innerText()).toContain('رغم إرسال المدخلات المالية');
     expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
     expect(await page.locator('#srFeasibilityMissingInputs').count()).toBe(0);
     expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
