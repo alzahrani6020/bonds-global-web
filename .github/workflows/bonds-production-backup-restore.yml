@@ -77,4 +77,5 @@ jobs:
           retention-days: 1
           if-no-files-found: error
       - name: Report gate
-        run: echo "STATUS: PASS - production snapshot archived encrypted after isolated restore"
+        run: |
+          echo "STATUS: PASS - production snapshot archived encrypted after isolated restore"
