@@ -207,11 +207,12 @@ jobs:
                 cmp -s /tmp/bonds-base-ci-other-steps.yml /tmp/bonds-head-ci-other-steps.yml || exit 0
                 ;;
               sw.js)
-                # Only cache version and versioned asset references may differ.
-                git show "$BASE_SHA:sw.js" > /tmp/bonds-base-sw-original.js
-                sed -E -e "s/^(const CACHE_VERSION = )'v3[.]0[.][0-9]+';/\\1'NORMALIZED';/" -e "s@('/site-layout[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/bonds-auth-2026[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-request[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-workspace[.]css[?]v=)[^']+@\\1NORMALIZED@g" /tmp/bonds-base-sw-original.js > /tmp/bonds-base-sw-normalized.js
-                sed -E -e "s/^(const CACHE_VERSION = )'v3[.]0[.][0-9]+';/\\1'NORMALIZED';/" -e "s@('/site-layout[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/bonds-auth-2026[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-request[.]js[?]v=)[^']+@\\1NORMALIZED@g" -e "s@('/components/service-workspace[.]css[?]v=)[^']+@\\1NORMALIZED@g" sw.js > /tmp/bonds-head-sw-normalized.js
-                cmp -s /tmp/bonds-base-sw-normalized.js /tmp/bonds-head-sw-normalized.js || exit 0
+                # Allow only a version increment; all other SW bytes remain unchanged.
+                git show "$BASE_SHA:sw.js" > /tmp/bonds-base-sw.js
+                grep -Eq "^const CACHE_VERSION = 'v[0-9]+[.][0-9]+[.][0-9]+';" sw.js || exit 0
+                sed '/^const CACHE_VERSION = /d' /tmp/bonds-base-sw.js > /tmp/bonds-base-sw-stable.js
+                sed '/^const CACHE_VERSION = /d' sw.js > /tmp/bonds-head-sw-stable.js
+                cmp -s /tmp/bonds-base-sw-stable.js /tmp/bonds-head-sw-stable.js || exit 0
                 ;;
               *) exit 0 ;;
             esac
