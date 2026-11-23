@@ -37,6 +37,6 @@ describe('user-directed removal of unused service request atomic context additio
   }
   // Check the cache-version format without pinning an obsolete release number.
   // The dedicated cache-version CI gate verifies a bump when core assets change.
-  expect(read('sw.js')).toMatch(/const CACHE_VERSION = 'v\\d+\\.\\d+\\.\\d+';/);
+  expect(read('sw.js')).toMatch(/const CACHE_VERSION = 'v[0-9]+[.][0-9]+[.][0-9]+';/);
  });
 });
