@@ -339,6 +339,35 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await context.close();
   });
 
+  test('rejects partial NPV/IRR results even when server claims a saved artifact', async () => {
+    for (const metrics of [
+      {npv:13723.6},
+      {irr_pct:15.2382},
+      {npv:13723.6,irr_pct:null},
+      {npv:'NaN',irr_pct:15.2382}
+    ]) {
+      const {page,context}=await openFeasibility({projectId:'feasibility-acceptance-project'});
+      await page.route('**/api/v3/services/execute',route=>route.fulfill({
+        status:200,contentType:'application/json',
+        body:JSON.stringify({
+          executed:true,
+          artifact_persistence:{status:'saved',artifact_id:'partial-artifact'},
+          result:{engineResults:{feasibility:{executed:true,metrics}}}
+        })
+      }));
+      await page.locator('input[name="project_name"]').fill('Partial metric rejection');
+      await page.locator('select[name="project_size"]').selectOption('small');
+      await page.locator('textarea[name="project_brief"]').fill('Reject incomplete financial metric responses');
+      await completeFinancialInputs(page);
+      await page.locator('#srSubmit').click();
+      await page.locator('#srStatus.err').waitFor({state:'visible'});
+      expect(await page.locator('#srStatus').innerText()).toContain('رغم إرسال المدخلات المالية');
+      expect(await page.locator('#srExecutionResult h2').innerText()).toContain('استجابة جزئية');
+      expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
+      await context.close();
+    }
+  });
+
   test('market information action reports absence of evidence and leaves revenue blank', async () => {
     const { page, context } = await openFeasibility();
     await page.route('**/api/v3/services/execute', route => route.fulfill({

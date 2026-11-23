@@ -2161,10 +2161,19 @@ function renderFeasibilityMissingInputs(){
  panel.appendChild(actions);
  target.insertAdjacentElement('afterend',panel);
 }
+function feasibilityHasRequiredMetrics(feasibility){
+ if(!feasibility || feasibility.executed!==true)return false;
+ const metrics=feasibility.metrics;
+ if(!metrics || typeof metrics!=='object')return false;
+ return ['npv','irr_pct'].every(key=>{
+  const value=metrics[key];
+  return value!==null && value!==undefined && String(value).trim()!=='' && Number.isFinite(Number(value));
+ });
+}
 function showExecutionPersistenceStatus(execution){
  if(serviceCode==='feasibility_studies'){
   const feasibility=execution?.result?.engineResults?.feasibility;
-  if(!feasibility || feasibility.executed!==true || (feasibility.metrics?.npv==null && feasibility.metrics?.irr==null && feasibility.npv==null && feasibility.irr==null)){
+  if(!feasibilityHasRequiredMetrics(feasibility)){
    const missing=feasibilityMissingInputs();
    showStatus(missing.length
     ?(lang==='ar'
@@ -2215,8 +2224,9 @@ function renderExecutionResult(payload){
  const financial=renderFinancialExecution(result,metrics);
  const studies=renderStudiesExecution(result);
  const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined&&typeof v!=='object');
- const confirmedSaved=payload?.artifact_persistence?.status==='saved'&&!!payload?.artifact_persistence?.artifact_id;
- const calculated=serviceCode==='feasibility_studies'&&payload?.result?.engineResults?.feasibility?.executed===true;
+ const calculated=serviceCode==='feasibility_studies'&&feasibilityHasRequiredMetrics(payload?.result?.engineResults?.feasibility);
+ const confirmedSaved=payload?.artifact_persistence?.status==='saved'&&!!payload?.artifact_persistence?.artifact_id&&
+  (serviceCode!=='feasibility_studies'||calculated);
  const title=serviceCode==='feasibility_studies'
   ?(!calculated
     ?(lang==='ar'?'استجابة جزئية — الدراسة لم تُحسب':'Partial response — feasibility not calculated')
