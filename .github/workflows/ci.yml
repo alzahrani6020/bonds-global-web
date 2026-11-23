@@ -189,6 +189,19 @@ jobs:
           cat /tmp/bonds-pr-changed-files.txt
           while IFS= read -r file; do
             case "$file" in
+              # Standalone HR changes do not touch the public homepage.
+              # Still compare rendered home pixels directly to PR base, rather than
+              # legacy pre-redesign screenshots. Unknown paths fail closed.
+              .github/workflows/hr-isolated-acceptance.yml|api/payments.js|api/platform.js|calculators/auth/index.html|docs/hr-delivery-matrix-20261121.md|en/my-bonds/crm/index.html|jest.config.js|lib/api/company-programs.js|lib/api/hr-calculations.js|lib/hr/*|my-bonds/crm/*|supabase/migrations/20261117*|supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql|supabase/migrations/20261121190000_hr_org_attendance_leave_workflows.sql|tests/admin/company-programs-standalone-hr.test.js|tests/admin/crm-unified-shell.test.js|tests/auth-callback-bootstrap.test.js|tests/hr/*|vercel.json) ;;
+              site-layout.js)
+                # Exactly one approved HR navigation entry; any other shared
+                # layout change requires the original full visual gate.
+                stats="$(git diff --numstat "$BASE_SHA" HEAD -- site-layout.js)"
+                [[ "$(printf '%s' "$stats" | cut -f1)" == "1" ]] || exit 0
+                [[ "$(printf '%s' "$stats" | cut -f2)" == "0" ]] || exit 0
+                added="$(git diff --unified=0 "$BASE_SHA" HEAD -- site-layout.js | grep '^+' | grep -v '^+++' || true)"
+                [[ "$added" == *"/en/my-bonds/crm/?program=hr"* && "$added" == *"/my-bonds/crm/?program=hr"* ]] || exit 0
+                ;;
               components/service-request.js|components/service-workspace.css|my-bonds/workspace/index.html|en/my-bonds/workspace/index.html|service-request.html|en/service-request.html|lib/finance/engines/feasibility-engine.js|lib/finance/feasibility-input-validator.js|lib/finance/feasibility-artifact-gate.js|tests/finance/feasibility-artifact-gate.test.js|lib/intent/intent-engine.js|tests/intent/intent-engine.test.js|lib/semantic/profiles.json|tests/orchestrator/trade-sector-acceptance.test.js|lib/services/studies-workspace-bindings.js|tests/v3/studies-research-preservation.test.js|lib/finance/shared/math.js|lib/orchestrator/intelligence-orchestrator.js|lib/orchestrator/ucp-bridge.js|tests/finance/feasibility-input-validator.test.js|tests/orchestrator/ucp-bridge.test.js|tests/v3/feasibility-integrity-gate.test.js|tests/v3/feasibility-workspace-browser.test.js|tests/v3/service-artifact-persistence-contract.test.js|tests/v3/service-request-readback-contract.test.js|tests/v3/service-workspace-continuity.test.js|tests/v3/service-workspace-routing.test.js|v3/api/services.js) ;;
               lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|calculators/auth/auth-shared.css|calculators/auth/index.html|en/calculators/auth/index.html|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|tests/visual/auth-login-acceptance.js|.github/workflows/auth-ui-acceptance.yml|assets/bonds-mark-transparent.svg|tests/auth/mobile-onboarding-session.acceptance.cjs|.github/workflows/mobile-onboarding-session.yml|calculators/auth/onboarding.html|en/calculators/auth/onboarding.html|.github/workflows/ci.yml) ;;
               tests/v3/revert-service-request-context.test.js)
