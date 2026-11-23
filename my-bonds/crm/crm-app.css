@@ -89,3 +89,40 @@ td .secondary{padding:.35rem .6rem;min-height:30px;font-size:.78rem}
  .section-actions input,.section-actions button{width:100%}
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+.sidebar-nav a[data-hr-category]{display:block;text-align:right;padding:.75rem .85rem;border:1px solid transparent;background:transparent;color:#cbd5e1;border-radius:11px;font-weight:650;text-decoration:none;cursor:pointer}
+.sidebar-nav a[data-hr-category]:hover{background:rgba(51,65,85,.65);color:white}
+.sidebar-nav a[data-hr-category].active{background:rgba(0,102,204,.19);color:#93c5fd;border-color:rgba(51,133,214,.48)}
+/* Independent programs share the exact CRM company dashboard, not the same dataset. */
+.company-product-switch{display:grid;gap:.5rem;margin:.4rem 0;padding:.55rem;border:1px solid var(--stroke);border-radius:12px;background:rgba(30,41,59,.6)}
+.company-product-switch button{text-align:right;font-weight:700;min-width:0;overflow-wrap:anywhere}
+.company-product-switch button.active{background:#103b68;border-color:#3385d6;color:#fff}
+.hr-nav{padding-top:.4rem;border-top:1px solid var(--stroke);margin-top:.2rem}
+#hr-setup{display:grid;gap:.7rem}
+#hr-setup form{display:grid;gap:.4rem}
+#hr-setup label{display:grid;gap:.2rem}
+/* HR navigation: six disclosure groups instead of 26 ungrouped tall links.
+ * The sidebar is the only vertical scroll surface on desktop. */
+#hr-nav.hr-nav{display:flex;flex-direction:column;gap:.35rem;min-width:0;overflow:visible;max-height:none;flex-wrap:nowrap}
+#hr-nav.hr-nav[hidden]{display:none!important}
+.hr-nav-group{min-width:0;border:1px solid rgba(100,116,139,.28);border-radius:11px;background:rgba(30,41,59,.3);overflow:hidden}
+.hr-nav-group>summary{display:flex;align-items:center;justify-content:space-between;gap:.65rem;padding:.63rem .8rem;min-height:40px;cursor:pointer;list-style:none;color:#e2e8f0;font-weight:750;font-size:.9rem}
+.hr-nav-group>summary::-webkit-details-marker{display:none}
+.hr-nav-group>summary:after{content:"+";flex:0 0 auto;color:#93c5fd;font-size:1.1rem;line-height:1}
+.hr-nav-group[open]>summary:after{content:"−"}
+.hr-nav-group[open]>summary{background:rgba(51,65,85,.38);color:#fff;border-bottom:1px solid rgba(100,116,139,.28)}
+.hr-nav-group>summary:focus-visible{outline:2px solid #60a5fa;outline-offset:-2px}
+.hr-nav-group-items{display:grid;gap:2px;padding:.26rem}
+#hr-nav.hr-nav .hr-nav-group-items :is(a[data-hr-category],button[data-hr-category]){width:100%;display:block;min-height:36px;line-height:1.45;margin:0;padding:.46rem .7rem;font-size:.84rem;text-align:start;white-space:normal;overflow-wrap:anywhere;border-radius:8px}
+#hr-nav.hr-nav .hr-nav-group-items :is(a[data-hr-category],button[data-hr-category]).active{background:rgba(0,102,204,.28);border-color:#3385d6;color:#bfdbfe}
+body:has(#hr-section:not([hidden])) .sidebar{gap:.65rem}
+body:has(#hr-section:not([hidden])) .workspace-create-open{min-height:36px;padding:.45rem .7rem;font-size:.86rem}
+body:has(#hr-section:not([hidden])) .brand{padding-bottom:.55rem}
+@media(min-width:851px){
+ body:has(#hr-section:not([hidden])) .sidebar{height:100vh;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:#64748b transparent}
+}
+@media(max-width:850px){
+ #hr-nav.hr-nav{flex-direction:column;overflow:visible;max-height:none;gap:.35rem}
+ #hr-nav.hr-nav .hr-nav-group-items :is(a[data-hr-category],button[data-hr-category]){white-space:normal}
+ .company-product-switch{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
