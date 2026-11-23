@@ -192,7 +192,7 @@ jobs:
               # Standalone HR changes do not touch the public homepage.
               # Still compare rendered home pixels directly to PR base, rather than
               # legacy pre-redesign screenshots. Unknown paths fail closed.
-              .github/workflows/hr-isolated-acceptance.yml|api/payments.js|api/platform.js|calculators/auth/index.html|docs/hr-delivery-matrix-20261121.md|en/my-bonds/crm/index.html|jest.config.js|lib/api/company-programs.js|lib/api/hr-calculations.js|lib/hr/*|my-bonds/crm/*|supabase/migrations/20261117*|supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql|supabase/migrations/20261121190000_hr_org_attendance_leave_workflows.sql|tests/admin/company-programs-standalone-hr.test.js|tests/admin/crm-unified-shell.test.js|tests/auth-callback-bootstrap.test.js|tests/hr/*|vercel.json) ;;
+              .github/workflows/hr-isolated-acceptance.yml|.github/workflows/hr-production-connection-gate.yml|api/payments.js|api/platform.js|calculators/auth/index.html|docs/hr-delivery-matrix-20261121.md|en/my-bonds/crm/index.html|jest.config.js|lib/api/company-programs.js|lib/api/hr-calculations.js|lib/hr/*|my-bonds/crm/*|supabase/migrations/20261117*|supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql|supabase/migrations/20261121190000_hr_org_attendance_leave_workflows.sql|tests/admin/company-programs-standalone-hr.test.js|tests/admin/crm-unified-shell.test.js|tests/auth-callback-bootstrap.test.js|tests/hr/*|vercel.json) ;;
               site-layout.js)
                 # Exactly one approved HR navigation entry; any other shared
                 # layout change requires the original full visual gate.
