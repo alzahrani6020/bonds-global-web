@@ -1,0 +1,80 @@
+name: BONDS Production Encrypted Backup and Restore Gate
+on:
+  push:
+    branches: [integration/hr-current-main-20261121]
+    paths: ['.github/workflows/bonds-production-backup-restore.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backup-restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BONDS_PROD_DATABASE_URL: ${{ secrets.BONDS_PROD_DATABASE_URL }}
+      BONDS_BACKUP_AGE_RECIPIENT: ${{ secrets.BONDS_BACKUP_AGE_RECIPIENT }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - name: Validate scoped prerequisites without printing secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${SUPABASE_PROJECT_REF:-}" = "hutxsqzplyuqgnghsrcs" || { echo "BLOCKED: project identity missing or different"; exit 1; }
+          test -n "${BONDS_PROD_DATABASE_URL:-}" || { echo "BLOCKED: BONDS_PROD_DATABASE_URL missing"; exit 1; }
+          test -n "${BONDS_BACKUP_AGE_RECIPIENT:-}" || { echo "BLOCKED: BONDS_BACKUP_AGE_RECIPIENT missing"; exit 1; }
+          [[ "$BONDS_BACKUP_AGE_RECIPIENT" == age1* ]] || { echo "BLOCKED: age public recipient invalid"; exit 1; }
+          DB_HOST=$(python3 -c 'import os,urllib.parse; print(urllib.parse.urlparse(os.environ["BONDS_PROD_DATABASE_URL"]).hostname or "")')
+          case "$DB_HOST" in
+            db.hutxsqzplyuqgnghsrcs.supabase.co|aws-0-eu-central-1.pooler.supabase.com|aws-1-eu-central-1.pooler.supabase.com|aws-2-eu-central-1.pooler.supabase.com) ;;
+            *) echo "STOP: unexpected production database hostname"; exit 1 ;;
+          esac
+          echo "PASS: prerequisites and project host matched"
+      - name: Prepare temporary isolated runner
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age
+          mkdir -p "$RUNNER_TEMP/bonds-backup"
+          chmod 700 "$RUNNER_TEMP/bonds-backup"
+      - name: Dump production through read-only pg_dump session
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm -e DATABASE_URL="$BONDS_PROD_DATABASE_URL" -v "$RUNNER_TEMP/bonds-backup:/backup" postgres:17 sh -ec 'pg_dump --dbname="$DATABASE_URL" --format=custom --no-owner --no-acl --file=/backup/production.dump'
+          test -s "$RUNNER_TEMP/bonds-backup/production.dump" || { echo "FAIL: empty archive"; exit 1; }
+          docker run --rm -v "$RUNNER_TEMP/bonds-backup:/backup:ro" postgres:17 pg_restore --list /backup/production.dump > "$RUNNER_TEMP/bonds-backup/toc.txt"
+          echo "PASS: nonempty pg_dump custom archive and readable TOC"
+      - name: Verify complete restore in isolated Supabase PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name bonds-restore-gate --network none -e POSTGRES_HOST_AUTH_METHOD=trust supabase/postgres:17.12.0.002
+          for i in $(seq 1 45); do
+            if docker exec -u postgres bonds-restore-gate pg_isready -U supabase_admin -q; then break; fi
+            sleep 2
+          done
+          docker exec -u postgres bonds-restore-gate pg_isready -U supabase_admin
+          docker exec -u postgres bonds-restore-gate createdb -U supabase_admin -T template0 -E UTF8 bonds_restore_gate
+          docker cp "$RUNNER_TEMP/bonds-backup/production.dump" bonds-restore-gate:/tmp/production.dump
+          docker exec -u postgres bonds-restore-gate pg_restore -U supabase_admin -d bonds_restore_gate --no-owner --no-acl --exit-on-error /tmp/production.dump
+          docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -Atc "SELECT 'PUBLIC_TABLES',count(*) FROM pg_tables WHERE schemaname='public' UNION ALL SELECT 'AUTH_USERS',count(*) FROM auth.users UNION ALL SELECT 'STORAGE_OBJECTS',count(*) FROM storage.objects;"
+          echo "PASS: complete isolated pg_restore --exit-on-error"
+      - name: Encrypt and store only encrypted archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          age -r "$BONDS_BACKUP_AGE_RECIPIENT" -o "$RUNNER_TEMP/bonds-backup/production.dump.age" "$RUNNER_TEMP/bonds-backup/production.dump"
+          test -s "$RUNNER_TEMP/bonds-backup/production.dump.age"
+          sha256sum "$RUNNER_TEMP/bonds-backup/production.dump.age" | cut -d ' ' -f1
+          shred -u "$RUNNER_TEMP/bonds-backup/production.dump"
+          rm -f "$RUNNER_TEMP/bonds-backup/toc.txt"
+          echo "PASS: encrypted archive ready; plaintext removed from workspace"
+      - name: Upload encrypted recovery artifact only
+        uses: actions/upload-artifact@v4
+        with:
+          name: bonds-production-encrypted-backup-${{ github.run_id }}
+          path: ${{ runner.temp }}/bonds-backup/production.dump.age
+          retention-days: 1
+          if-no-files-found: error
+      - name: Report gate
+        run: echo "STATUS: PASS - production snapshot archived encrypted after isolated restore"
