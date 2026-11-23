@@ -6,7 +6,8 @@ param(
     [Parameter(Mandatory = $true)][string]$PayloadPath,
     [ValidateRange(1,100)][int]$Runs = 10,
     [ValidateRange(0,100)][int]$Warmups = 2,
-    [ValidateRange(30,3600)][int]$TimeoutSec = 600
+    [ValidateRange(30,3600)][int]$TimeoutSec = 600,
+    [ValidatePattern('^[A-Za-z0-9_-]+$')][string]$Label = 'baseline'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -31,7 +32,8 @@ if ($null -ne $payload.temperature -and [double]$payload.temperature -ne [double
 $uri = "http://127.0.0.1:$Port/v1/chat/completions"
 $logDir = Join-Path $Root 'logs'
 New-Item -ItemType Directory -Force $logDir | Out-Null
-$output = Join-Path $logDir 'benchmark.jsonl'
+$output = Join-Path $logDir ('benchmark-' + $Label + '.jsonl')
+if (Test-Path -LiteralPath $output) { throw "Results already exist: $output. Use a unique Label." }
 $body = $payload | ConvertTo-Json -Depth 100 -Compress
 
 for ($i = 0; $i -lt ($Warmups + $Runs); $i++) {
@@ -56,6 +58,7 @@ for ($i = 0; $i -lt ($Warmups + $Runs); $i++) {
     $row = [ordered]@{
         utc = [DateTime]::UtcNow.ToString('o')
         profile = $Profile
+        label = $Label
         port = $Port
         run = $i
         warmup = ($i -lt $Warmups)
@@ -71,3 +74,5 @@ for ($i = 0; $i -lt ($Warmups + $Runs); $i++) {
     ($row | ConvertTo-Json -Compress -Depth 5) | Add-Content -Path $output
     $row | ConvertTo-Json -Compress
 }
+
+Write-Output "BENCHMARK_RESULTS: $output"
