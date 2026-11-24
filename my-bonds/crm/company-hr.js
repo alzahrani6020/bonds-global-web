@@ -123,7 +123,14 @@
    '<option value="false"'+(value===false?' selected':'')+'>'+t('لا','No')+'</option></select></label>';
   if(type==='payroll-period')return '<label class="field">'+name+'<select name="'+key+'" required><option value="">'+t('اختر المسير','Select payroll period')+'</option>'+
    payrollPeriods.map(p=>'<option value="'+escape(p.id)+'"'+(p.id===value?' selected':'')+'>'+p.payroll_year+'/'+String(p.payroll_month).padStart(2,'0')+' — '+escape(p.status)+'</option>').join('')+'</select></label>';
-  if(type==='employee')return '<label class="field">'+name+'<select name="'+key+'"><option value="">'+t('اختر موظفًا','Select employee')+'</option>'+employees.map(e=>'<option value="'+escape(e.id)+'"'+(e.id===value?' selected':'')+'>'+escape(e.employee_number)+' — '+escape(e.full_name)+'</option>').join('')+'</select></label>';
+  if(type==='employee'){
+   const known=employees.some(e=>e.id===value);
+   const retained=value&&!known?'<option value="'+escape(value)+'" selected>'+t('الموظف المرتبط بالسجل','Employee linked to this record')+'</option>':'';
+   return '<label class="field">'+name+
+    '<input class="hr-employee-lookup" data-hr-employee-lookup type="search" autocomplete="off" placeholder="'+t('ابحث بالاسم أو الرقم الوظيفي','Find by name or employee number')+'">'+
+    '<select name="'+key+'"><option value="">'+t('اختر موظفًا','Select employee')+'</option>'+retained+
+    employees.map(e=>'<option value="'+escape(e.id)+'"'+(e.id===value?' selected':'')+'>'+escape(e.employee_number)+' — '+escape(e.full_name)+'</option>').join('')+'</select></label>';
+  }
   if(type.startsWith('enum:'))return '<label class="field">'+name+'<select name="'+key+'">'+type.slice(5).split('|').map(v=>'<option value="'+escape(v)+'"'+(v===value?' selected':'')+'>'+escape(v)+'</option>').join('')+'</select></label>';
   if(type==='json')return '<label class="field field-wide">'+name+'<textarea name="'+key+'">'+escape(JSON.stringify(record.details||{}))+'</textarea></label>';
   return '<label class="field">'+name+'<input name="'+key+'" type="'+(type==='signed-number'?'number':type)+'" value="'+escape(type==='datetime-local'?localDateTime(value):value)+'"'+(needed?' required':'')+(type==='number'?' min="0" step="0.01"':type==='signed-number'?' step="0.01"':'')+'></label>';
@@ -137,6 +144,41 @@
   $('hr-editor').hidden=false;
   const fields=row&&category==='attendance_corrections'?activeSpecs().filter(x=>x[0]!=='attendance_id'):row&&category==='leave_balances'?activeSpecs().filter(x=>!['employee_id','entry_reference'].includes(x[0])):row&&category==='claims'?activeSpecs().filter(x=>!['employee_id','claim_reference'].includes(x[0])):row&&category==='contracts'?activeSpecs().filter(x=>!['employee_id','contract_number'].includes(x[0])):row&&category==='payroll_runs'?activeSpecs().filter(x=>x[0]==='status'):row&&category==='payroll'?activeSpecs().filter(x=>x[0]!=='employee_id'&&x[0]!=='period_id'):activeSpecs();
   $('hr-fields').innerHTML=fields.map(x=>memberField(x,row||{})).join('');
+  const employeeLookup=$('hr-fields').querySelector('[data-hr-employee-lookup]');
+  if(employeeLookup){
+   const selector=employeeLookup.parentElement.querySelector('select[name="employee_id"]');
+   const lookupWorkspace=workspace?.id,lookupCategory=category;
+   let lookupRequest=0,lookupTimer=null;
+   employeeLookup.addEventListener('input',()=>{
+    if(lookupTimer)clearTimeout(lookupTimer);
+    const request=++lookupRequest;
+    const term=employeeLookup.value.replace(/[^\p{L}\p{N}\s-]/gu,'').trim().slice(0,80);
+    if(term.length<2)return;
+    lookupTimer=setTimeout(async()=>{
+     if(!db||!license||workspace?.id!==lookupWorkspace||category!==lookupCategory)return;
+     try{
+      const fields='id,employee_number,full_name',pattern='%'+term+'%';
+      const [byName,byNumber]=await Promise.all([
+       db.from('hr_saas_employees').select(fields).eq('workspace_id',lookupWorkspace).ilike('full_name',pattern).order('employee_number').limit(25),
+       db.from('hr_saas_employees').select(fields).eq('workspace_id',lookupWorkspace).ilike('employee_number',pattern).order('employee_number').limit(25)
+      ]);
+      const results=[...check(byName),...check(byNumber)];
+      if(request!==lookupRequest||workspace?.id!==lookupWorkspace||category!==lookupCategory||!employeeLookup.isConnected)return;
+      const choices=new Map(results.map(e=>[e.id,e]));
+      const prior=selector.value;
+      const priorText=Array.from(selector.options).find(o=>o.value===prior)?.textContent;
+      selector.replaceChildren(new Option(t('اختر موظفًا','Select employee'),''));
+      if(prior&&!choices.has(prior))selector.add(new Option(priorText||prior,prior));
+      for(const item of choices.values()){
+       selector.add(new Option(item.employee_number+' — '+item.full_name,item.id));
+       if(!employees.some(e=>e.id===item.id))employees.push(item);
+      }
+      selector.value=prior||'';
+     }catch(e){if(request===lookupRequest)status(t('تعذر البحث في الموظفين: ','Employee lookup failed: ')+(e.message||''),true);}
+    },250);
+   });
+  }
+
   if(category==='employees'){
    const dept=$('hr-fields').querySelector('[name="department_id"]');
    const position=$('hr-fields').querySelector('[name="position_id"]');
@@ -304,6 +346,19 @@
     .select('*').eq('workspace_id',owner).order('created_at',{ascending:false}).limit(250):
    db.from('hr_saas_records').select('*').eq('workspace_id',owner).eq('category',requestedCategory).order('created_at',{ascending:false}).limit(250);
   const fetchedRecords=q?requestedCategory==='payroll_runs'?fetchedPeriods:check(await q):[];
+  // Resolve linked employees that are outside the initial selector cap.
+  if(requestedCategory!=='employees'&&fetchedRecords.length){
+   const visible=new Set(fetchedEmployees.map(e=>e.id));
+   const missing=[...new Set(fetchedRecords.map(r=>r.employee_id).filter(Boolean))]
+    .filter(id=>!visible.has(id)).slice(0,250);
+   if(missing.length){
+    const linked=check(await db.from('hr_saas_employees')
+     .select('id,employee_number,full_name').eq('workspace_id',owner).in('id',missing));
+    if(!isCurrent())return;
+    fetchedEmployees=fetchedEmployees.concat(linked);
+   }
+  }
+
   if(!isCurrent())return;
   let balances=[];
   if(requestedCategory==='leave_balances'){
