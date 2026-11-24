@@ -927,6 +927,60 @@ function renderFeasibilityControls(){
   '<select id="srFeasibilityProjectSelect" class="sr-input"></select>'+
   '<button type="button" id="srFeasibilityLinkProject" class="sr-secondary">'+(lang==='ar'?'ربط المشروع المحدد':'Link selected project')+'</button></div>';
  buttons.insertAdjacentElement('beforebegin',projectChooser);
+ // Keep project creation in the feasibility workspace: saving a completed
+ // study requires a project, and leaving this screen loses execution context.
+ const createProjectOpen=document.createElement('button');
+ createProjectOpen.type='button';
+ createProjectOpen.id='srFeasibilityCreateProjectOpen';
+ createProjectOpen.className='sr-secondary';
+ createProjectOpen.textContent=lang==='ar'?'إنشاء مشروع وربط الدراسة':'Create project and link study';
+ projectChooser.querySelector('.sr-actions')?.appendChild(createProjectOpen);
+ const createProjectPanel=document.createElement('div');
+ createProjectPanel.id='srFeasibilityCreateProjectPanel';
+ createProjectPanel.hidden=true;
+ createProjectPanel.innerHTML='<label for="srFeasibilityNewProjectName">'+
+  (lang==='ar'?'اسم المشروع الجديد':'New project name')+'</label>'+
+  '<input id="srFeasibilityNewProjectName" class="sr-input" maxlength="180" autocomplete="off">'+
+  '<button type="button" id="srFeasibilityCreateProjectConfirm" class="sr-secondary">'+
+  (lang==='ar'?'إنشاء وربط':'Create and link')+'</button>';
+ projectChooser.appendChild(createProjectPanel);
+ createProjectOpen.addEventListener('click',()=>{
+  createProjectPanel.hidden=!createProjectPanel.hidden;
+  if(!createProjectPanel.hidden){
+   const input=$('#srFeasibilityNewProjectName');
+   input.value=input.value||form.querySelector('[name="project_name"]')?.value||'';
+   input.focus();
+  }
+ });
+ $('#srFeasibilityCreateProjectConfirm').addEventListener('click',async()=>{
+  const button=$('#srFeasibilityCreateProjectConfirm');
+  const name=String($('#srFeasibilityNewProjectName')?.value||'').trim();
+  const sector=studiesTaxonomySelection(form.querySelector('[name="sector_code"]')?.value||'')
+   ||studiesTaxonomySelection(form.querySelector('[name="sector_engine_profile"]')?.value||'');
+  if(!name){showStatus(lang==='ar'?'أدخل اسم المشروع':'Enter the project name',false);return}
+  if(!sector){showStatus(lang==='ar'?'اختر القطاع أولًا':'Select the sector first',false);return}
+  button.disabled=true;
+  try{
+   await window.BondsAuth.ensureEnv();
+   const session=(await window.BondsAuth.getSupabase().auth.getSession()).data?.session;
+   if(!session?.access_token)throw new Error(T.login);
+   const response=await fetch('/api/v3/projects',{
+    method:'POST',credentials:'same-origin',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+    body:JSON.stringify({name,sector,currency:form.querySelector('[name="currency"]')?.value||'SAR',language:lang})
+   });
+   const payload=await response.json().catch(()=>({}));
+   if(!response.ok||!payload.project?.id)throw new Error(payload?.error||('HTTP '+response.status));
+   const select=$('#srFeasibilityProjectSelect');
+   select.replaceChildren(new Option(name,payload.project.id,true,true));
+   $('#srFeasibilityProjectPicker').hidden=false;
+   // Reuse the existing draft-safe linking path, including its project scope.
+   $('#srFeasibilityLinkProject').click();
+  }catch(error){
+   showStatus(T.failed+': '+error.message,false);
+   button.disabled=false;
+  }
+ });
  if(linked){
   const historyButton=document.createElement('button');
   historyButton.type='button';

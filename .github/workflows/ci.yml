@@ -218,11 +218,14 @@ jobs:
                 cmp -s /tmp/bonds-base-ci-other-steps.yml /tmp/bonds-head-ci-other-steps.yml || exit 0
                 ;;
               sw.js)
-                # Allow only a version increment; all other SW bytes remain unchanged.
+                # The feasibility workspace can bump its service-request URL
+                # and the SW cache together without changing homepage assets.
+                # Compare all remaining bytes exactly: any other SW edit
+                # continues to require the full visual screenshot gate.
                 git show "$BASE_SHA:sw.js" > /tmp/bonds-base-sw.js
                 grep -Eq "^const CACHE_VERSION = 'v[0-9]+[.][0-9]+[.][0-9]+';" sw.js || exit 0
-                sed '/^const CACHE_VERSION = /d' /tmp/bonds-base-sw.js > /tmp/bonds-base-sw-stable.js
-                sed '/^const CACHE_VERSION = /d' sw.js > /tmp/bonds-head-sw-stable.js
+                sed -E -e '/^const CACHE_VERSION = /d' -e 's@/components/service-request[.]js[?]v=[0-9]+@/components/service-request.js?v=NORMALIZED@g' /tmp/bonds-base-sw.js > /tmp/bonds-base-sw-stable.js
+                sed -E -e '/^const CACHE_VERSION = /d' -e 's@/components/service-request[.]js[?]v=[0-9]+@/components/service-request.js?v=NORMALIZED@g' sw.js > /tmp/bonds-head-sw-stable.js
                 cmp -s /tmp/bonds-base-sw-stable.js /tmp/bonds-head-sw-stable.js || exit 0
                 ;;
               *) exit 0 ;;
