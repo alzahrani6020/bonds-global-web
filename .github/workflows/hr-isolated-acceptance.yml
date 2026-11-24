@@ -62,9 +62,11 @@ jobs:
           CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
         run: node tests/hr/isolated-postgres-acceptance.js
       - name: Verify HR UI contracts
-        run: npx jest --runInBand tests/hr/org-attendance-workflows.test.js tests/hr/workflow-decisions.test.js tests/hr/employee-directory-filters.test.js tests/hr/sidebar-accordion.test.js
+        run: npx jest --runInBand tests/hr/org-attendance-workflows.test.js tests/hr/workflow-decisions.test.js tests/hr/employee-directory-filters.test.js tests/hr/sidebar-accordion.test.js tests/hr/company-overview-contract.test.js
       - name: Check changed HR JavaScript syntax
-        run: node --check my-bonds/crm/company-hr.js
+        run: |
+          node --check my-bonds/crm/company-hr.js
+          node --check my-bonds/crm/company-hr-overview.js
       - name: Install Chromium for isolated browser acceptance
         run: npx playwright install chromium
       - name: Start local dev server
