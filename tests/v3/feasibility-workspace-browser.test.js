@@ -381,6 +381,31 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     }
   });
 
+  test('unsaved calculated feasibility prompts project linking without claiming archival', async () => {
+    const {page,context}=await openFeasibility();
+    await page.route('**/api/v3/services/execute',route=>route.fulfill({
+      status:200,contentType:'application/json',
+      body:JSON.stringify({executed:true,result:{intent:{intent:'feasibility'},
+        engineResults:{feasibility:{executed:true,metrics:{npv:13723.603,irr_pct:15.238237}}}}})
+    }));
+    await page.route('**/api/v3/projects',route=>route.fulfill({
+      status:200,contentType:'application/json',
+      body:JSON.stringify({projects:[{id:'owned-project',name:'Owned project'}]})
+    }));
+    await page.locator('input[name="project_name"]').fill('Office supplies project');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('textarea[name="project_brief"]').fill('Office goods distribution');
+    await completeFinancialInputs(page);
+    await page.locator('#srSubmit').click();
+    await page.locator('#srLinkProjectForFeasibility').waitFor({state:'visible'});
+    expect(await page.locator('#srExecutionResult h2').innerText()).toContain('لم يتم تأكيد حفظها');
+    expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
+    await page.locator('#srLinkProjectForFeasibility').click();
+    await page.locator('#srFeasibilityProjectSelect option[value="owned-project"]').waitFor({state:'attached'});
+    expect(await page.locator('input[name="project_name"]').inputValue()).toBe('Office supplies project');
+    await context.close();
+  });
+
   test('market information action reports absence of evidence and leaves revenue blank', async () => {
     const { page, context } = await openFeasibility();
     await page.route('**/api/v3/services/execute', route => route.fulfill({

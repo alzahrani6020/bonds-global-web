@@ -2306,6 +2306,26 @@ function renderExecutionResult(payload){
   successLink.textContent=lang==='ar'?'العودة إلى مساحة العمل':'Return to workspace';
   successLink.hidden=false;
  }
+ // An unsaved result cannot be archived retroactively by the API. Give the
+ // user a direct way to link a project while preserving their study inputs.
+ if(serviceCode==='feasibility_studies'&&calculated&&!params.get('project_id')){
+  const link=document.createElement('button');
+  link.type='button';
+  link.id='srLinkProjectForFeasibility';
+  link.className='sr-secondary';
+  link.textContent=lang==='ar'?'اختر مشروعًا ثم أعد التشغيل لحفظ الدراسة':'Select a project and rerun to save the study';
+  box.appendChild(link);
+  link.addEventListener('click',()=>{
+   saveWorkspaceDraft();
+   if(workspaceDirty){
+    showStatus(lang==='ar'?'تعذر حفظ المدخلات قبل ربط المشروع':'Could not save inputs before linking a project',false);
+    return;
+   }
+   const chooser=$('#srFeasibilityProjectChooser');
+   chooser?.scrollIntoView({block:'center',behavior:'smooth'});
+   $('#srFeasibilityListProjects')?.click();
+  });
+ }
  const download=$('#srDownloadExecution');
  if(download)download.addEventListener('click',()=>{
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
