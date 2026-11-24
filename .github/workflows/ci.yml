@@ -231,6 +231,12 @@ jobs:
                 sed '/^      - name: Determine visual regression scope from PR base$/,/^      - name: Prepare exact PR-base homepage visual reference$/c\VISUAL_SCOPE_CLASSIFIER' "$file" > /tmp/bonds-head-ci-other-steps.yml
                 cmp -s /tmp/bonds-base-ci-other-steps.yml /tmp/bonds-head-ci-other-steps.yml || exit 0
                 ;;
+              vercel.json)
+                # HR adds only these four API rewrites, before existing routes.
+                # Any unrelated change still invokes the full screenshot gate.
+                git show "$BASE_SHA:vercel.json" > /tmp/bonds-base-vercel.json
+                node -e 'const fs=require("fs");const base=JSON.parse(fs.readFileSync("/tmp/bonds-base-vercel.json","utf8"));const head=JSON.parse(fs.readFileSync("vercel.json","utf8"));const expected=[{source:"/api/company-programs",destination:"/api/payments"},{source:"/api/company-programs/",destination:"/api/payments"},{source:"/api/hr-calculations",destination:"/api/platform"},{source:"/api/hr-calculations/",destination:"/api/platform"}];if(JSON.stringify(head.rewrites?.slice(0,4))!==JSON.stringify(expected))process.exit(1);head.rewrites=head.rewrites.slice(4);if(JSON.stringify(head)!==JSON.stringify(base))process.exit(1)' || exit 0
+                ;;
               sw.js)
                 # The feasibility workspace can bump its service-request URL
                 # and the SW cache together without changing homepage assets.
