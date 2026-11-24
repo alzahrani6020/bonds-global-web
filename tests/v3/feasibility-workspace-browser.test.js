@@ -74,6 +74,17 @@ async function openFeasibility({ mobile = false, projectId = null } = {}) {
 }
 
 describe('feasibility study browser acceptance — isolated service contracts', () => {
+  test('deep-link shows linked-project actions near the top of the viewport',async()=>{
+    const {page,context}=await openFeasibility();
+    await page.waitForFunction(()=>window.scrollY>80);
+    const rect=await page.locator('#srFeasibilityProjectChooser').boundingBox();
+    expect(rect).not.toBeNull();
+    expect(rect.y).toBeGreaterThanOrEqual(0);
+    expect(rect.y).toBeLessThan(900);
+    expect(await page.locator('#srFeasibilityCreateProjectOpen').isVisible()).toBe(true);
+    await context.close();
+  });
+
   test('missing project id routes to the project portfolio rather than an error page', async () => {
     for (const [detailPath, portfolioPath] of [
       ['/v3/project/', '/v3/portfolio/'],
