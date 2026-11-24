@@ -401,7 +401,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     expect(await page.locator('#srExecutionResult h2').innerText()).toContain('لم يتم تأكيد حفظها');
     expect(await page.locator('#srSubmit').isEnabled()).toBe(true);
     await page.locator('#srLinkProjectForFeasibility').click();
-    await page.locator('#srFeasibilityProjectSelect option[value="owned-project"]').waitFor();
+    await page.locator('#srFeasibilityProjectSelect option[value="owned-project"]').waitFor({state:'attached'});
     expect(await page.locator('input[name="project_name"]').inputValue()).toBe('Office supplies project');
     await context.close();
   });
