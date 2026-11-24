@@ -367,7 +367,7 @@
     if(editing&&!data.has(name))continue;
     let v=String(data.get(name)??'').trim();
     if(type==='weekday-list')row[name]=data.getAll(name).map(String);
-    if(type==='boolean')row[name]=v==='true';
+    else if(type==='boolean')row[name]=v==='true';
     else if(type==='number'||type==='signed-number')row[name]=v===''?null:Number(v);
     else if(type==='datetime-local')row[name]=v?isoLocal(v):null;
     else if(type==='json'){
