@@ -56,3 +56,22 @@ describe('structured HR shift scheduling',()=>{
   expect(js).toContain("db.from(table()).insert(row)");
  });
 });
+
+
+describe('remote employee selector for large workspaces',()=>{
+ const js=read('my-bonds/crm/company-hr.js');
+ test('search is bounded, scoped to the active tenant and does not query salaries',()=>{
+  expect(js).toContain("data-hr-employee-lookup");
+  expect(js).toContain(".eq('workspace_id',lookupWorkspace).ilike('full_name',pattern)");
+  expect(js).toContain(".eq('workspace_id',lookupWorkspace).ilike('employee_number',pattern)");
+  expect(js).toContain(".limit(25)");
+  expect(js).toContain("const fields='id,employee_number,full_name'");
+  expect(js).toContain("lookupRequest");
+ });
+ test('old employee links survive pagination and reload without unscoped joins',()=>{
+  expect(js).toContain("const missing=[...new Set(fetchedRecords.map(r=>r.employee_id).filter(Boolean))]");
+  expect(js).toContain(".select('id,employee_number,full_name').eq('workspace_id',owner).in('id',missing)");
+  expect(js).toContain("if(!isCurrent())return");
+  expect(js).toContain("if(prior&&!choices.has(prior))selector.add(new Option");
+ });
+});
