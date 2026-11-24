@@ -926,7 +926,9 @@ function renderFeasibilityControls(){
   '<div id="srFeasibilityProjectPicker" hidden><label for="srFeasibilityProjectSelect">'+(lang==='ar'?'المشروعات المتاحة':'Available projects')+'</label>'+
   '<select id="srFeasibilityProjectSelect" class="sr-input"></select>'+
   '<button type="button" id="srFeasibilityLinkProject" class="sr-secondary">'+(lang==='ar'?'ربط المشروع المحدد':'Link selected project')+'</button></div>';
- buttons.insertAdjacentElement('beforebegin',projectChooser);
+ // Project association is required for institutional persistence, so expose
+ // it before the long dynamic feasibility form instead of below all inputs.
+ host.insertAdjacentElement('beforebegin',projectChooser);
  // Keep project creation in the feasibility workspace: saving a completed
  // study requires a project, and leaving this screen loses execution context.
  const createProjectOpen=document.createElement('button');
@@ -958,7 +960,11 @@ function renderFeasibilityControls(){
   const sector=studiesTaxonomySelection(form.querySelector('[name="sector_code"]')?.value||'')
    ||studiesTaxonomySelection(form.querySelector('[name="sector_engine_profile"]')?.value||'');
   if(!name){showStatus(lang==='ar'?'أدخل اسم المشروع':'Enter the project name',false);return}
-  if(!sector){showStatus(lang==='ar'?'اختر القطاع أولًا':'Select the sector first',false);return}
+  if(!sector){
+   showStatus(lang==='ar'?'لإنشاء المشروع وربطه، اختر القطاع من مدخلات الدراسة أولًا.':'To create and link a project, select the sector in the study inputs first.',false);
+   form.querySelector('[name="sector_code"]')?.focus();
+   return;
+  }
   button.disabled=true;
   try{
    await window.BondsAuth.ensureEnv();
