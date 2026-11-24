@@ -14,7 +14,10 @@ import urllib.parse
 import urllib.request
 
 PROJECT = "hutxsqzplyuqgnghsrcs"
-ROLE = "bonds_backup_service"
+RUN_ID = os.environ.get("GITHUB_RUN_ID", "")
+if not RUN_ID.isascii() or not RUN_ID.isdecimal() or not (1 <= len(RUN_ID) <= 15):
+    raise SystemExit("Invalid GitHub run identifier")
+ROLE = "bonds_backup_" + RUN_ID
 POOLER = "aws-1-eu-central-1.pooler.supabase.com"
 
 def execute_sql(query):
@@ -57,13 +60,14 @@ def provision():
     password = secrets.token_urlsafe(48)
     verifier = scram_verifier(password)
     expires = (datetime.now(timezone.utc) + timedelta(minutes=45)).strftime("%Y-%m-%d %H:%M:%S+00")
-    execute_sql("ALTER ROLE " + ROLE + " WITH LOGIN PASSWORD '" + verifier + "' VALID UNTIL '" + expires + "';")
+    execute_sql("CREATE ROLE " + ROLE + " WITH LOGIN BYPASSRLS PASSWORD '" + verifier + "' VALID UNTIL '" + expires + "'; GRANT pg_read_all_data TO " + ROLE + "; ALTER ROLE " + ROLE + " SET default_transaction_read_only = on;")
     print("::add-mask::" + password, flush=True)
     url = ("postgresql://" + ROLE + "." + PROJECT + ":"
            + urllib.parse.quote(password, safe="")
            + "@" + POOLER + ":5432/postgres?sslmode=require")
     base = Path(os.environ["RUNNER_TEMP"]) / "bonds-backup"
     base.mkdir(mode=0o700, parents=True, exist_ok=True)
+    (base / "role-name").write_text(ROLE)
     path = base / "connection-url"
     fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "w") as stream:
@@ -71,7 +75,7 @@ def provision():
     print("PASS: ephemeral dedicated backup login provisioned; secret not logged")
 
 def disable():
-    execute_sql("ALTER ROLE " + ROLE + " WITH NOLOGIN PASSWORD NULL;")
+    execute_sql("ALTER ROLE " + ROLE + " WITH NOLOGIN PASSWORD NULL; REVOKE pg_read_all_data FROM " + ROLE + "; DROP ROLE " + ROLE + ";")
     path = Path(os.environ["RUNNER_TEMP"]) / "bonds-backup" / "connection-url"
     if path.exists():
         path.unlink()
