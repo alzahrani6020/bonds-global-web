@@ -2675,6 +2675,7 @@ async function init(){
   if(isStudiesWorkspaceService()&&serviceCode==='feasibility_studies'&&!location.hash){
    const firstInputs=$('#srFeasibilityProjectChooser')||$('#srRequestForm');
    if(firstInputs && window.scrollY<80){
+    firstInputs.style.scrollMarginTop='110px';
     window.requestAnimationFrame(()=>{
      if(window.scrollY<80)firstInputs.scrollIntoView({block:'start',behavior:'instant'});
     });
