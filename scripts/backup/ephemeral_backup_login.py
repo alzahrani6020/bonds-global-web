@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import secrets
 import sys
+from datetime import datetime, timedelta, timezone
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -55,7 +56,8 @@ def scram_verifier(password):
 def provision():
     password = secrets.token_urlsafe(48)
     verifier = scram_verifier(password)
-    execute_sql("ALTER ROLE " + ROLE + " WITH LOGIN PASSWORD '" + verifier + "';")
+    expires = (datetime.now(timezone.utc) + timedelta(minutes=25)).strftime("%Y-%m-%d %H:%M:%S+00")
+    execute_sql("ALTER ROLE " + ROLE + " WITH LOGIN PASSWORD '" + verifier + "' VALID UNTIL '" + expires + "';")
     print("::add-mask::" + password, flush=True)
     url = ("postgresql://" + ROLE + "." + PROJECT + ":"
            + urllib.parse.quote(password, safe="")
