@@ -132,7 +132,7 @@ jobs:
             echo "PASS: applied isolated migration $name"
           done
           protected="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname LIKE 'hr_saas_%' AND c.relrowsecurity;")"
-          total="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name LIKE 'hr_saas_%';")"
+          total="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname LIKE 'hr_saas_%';")"
           entitlement="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='company_program_entitlements';")"
           echo "ISOLATED_HR_TABLE_COUNT=$total"
           echo "ISOLATED_HR_RLS_ENABLED_COUNT=$protected"
