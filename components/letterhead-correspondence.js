@@ -1974,6 +1974,20 @@
   }
 
   async function initialize() {
+    // Fail closed before rendering correspondence records, editing tools or
+    // download/print controls. The server verifies the immutable owner user ID.
+    try {
+      await api('list', { query: { page: 1, page_size: 1 } });
+    } catch (error) {
+      const screen = document.createElement('main');
+      screen.setAttribute('role', 'alert');
+      screen.style.cssText = 'min-height:100vh;display:grid;place-items:center;padding:32px;background:#f8fafc;color:#0f172a;font:600 18px sans-serif;text-align:center;';
+      screen.textContent = error.status === 403
+        ? (isEn ? 'Correspondence access requires explicit owner authorization.' : 'الوصول إلى المراسلات يتطلب تصريحًا صريحًا من المالك.')
+        : (isEn ? 'Correspondence access could not be verified. Please sign in or try again.' : 'تعذر التحقق من صلاحية الوصول إلى المراسلات. سجل الدخول أو حاول لاحقًا.');
+      document.body.replaceChildren(screen);
+      return;
+    }
     installGovernedMutationGuards();
     buildGovernanceBar();
     refreshCommandCenter().catch(() => {});
