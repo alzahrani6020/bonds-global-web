@@ -26,7 +26,7 @@ jobs:
           test -n "${SUPABASE_ACCESS_TOKEN:-}" || { echo "BLOCKED: SUPABASE_ACCESS_TOKEN missing"; exit 1; }
           test -n "${BONDS_BACKUP_AGE_RECIPIENT:-}" || { echo "BLOCKED: BONDS_BACKUP_AGE_RECIPIENT missing"; exit 1; }
           [[ "$BONDS_BACKUP_AGE_RECIPIENT" == age1* ]] || { echo "BLOCKED: age public recipient invalid"; exit 1; }
-          echo "PASS: prerequisites and project identity matched; safe diagnostics enabled"
+          echo "PASS: scoped project prerequisites matched; verify newly rotated management token through ephemeral role provisioning"
       - name: Prepare temporary isolated runner
         run: |
           set -euo pipefail
