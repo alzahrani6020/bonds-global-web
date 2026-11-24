@@ -39,7 +39,7 @@ def execute_sql(query):
     try:
         with urllib.request.urlopen(req, timeout=35) as response:
             if response.status not in (200, 201, 204):
-                raise RuntimeError("Management SQL returned non-201 status")
+                raise RuntimeError("Management SQL returned unexpected status")
             response.read()
     except urllib.error.HTTPError as exc:
         # Do not print response body, SQL query, authentication token, or verifier.
@@ -56,7 +56,7 @@ def scram_verifier(password):
 def provision():
     password = secrets.token_urlsafe(48)
     verifier = scram_verifier(password)
-    expires = (datetime.now(timezone.utc) + timedelta(minutes=25)).strftime("%Y-%m-%d %H:%M:%S+00")
+    expires = (datetime.now(timezone.utc) + timedelta(minutes=45)).strftime("%Y-%m-%d %H:%M:%S+00")
     execute_sql("ALTER ROLE " + ROLE + " WITH LOGIN PASSWORD '" + verifier + "' VALID UNTIL '" + expires + "';")
     print("::add-mask::" + password, flush=True)
     url = ("postgresql://" + ROLE + "." + PROJECT + ":"
