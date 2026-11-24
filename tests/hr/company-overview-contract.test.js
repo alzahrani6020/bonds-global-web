@@ -48,6 +48,7 @@ describe('structured HR shift scheduling',()=>{
   expect(js).toContain("if(category==='shifts')");
   expect(js).toContain("new Intl.DateTimeFormat('en',{timeZone:tz})");
   expect(js).toContain("new Set(days).size!==days.length");
+  expect(js).toContain("if(type==='weekday-list')row[name]=data.getAll(name).map(String);\n    else if(type==='boolean')");
   expect(js).toContain("row.details={...(editing?.details||{}),...(row.details||{})");
   expect(js).toContain("delete row[field]");
   expect(js).toContain("db.from(table()).insert(row)");
