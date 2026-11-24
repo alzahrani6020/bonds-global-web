@@ -24,7 +24,7 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
   function classifiedDoc(overrides={}){
     return {
       id:'doc-1',
-      owner_user_id:'owner-1',
+      owner_user_id:'50ca4eaa-8362-46eb-98b7-5fe5b3006f4e',
       created_by:'owner-1',
       title:'خطاب سري',
       subject:'موضوع سري',
@@ -212,7 +212,7 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
     expect(scenario.sb.storage.from).not.toHaveBeenCalled();
   });
 
-  test('official-preview of a confidential document without a session answers 404 without touching storage',async()=>{
+  test('official-preview without a session denies PDF access before touching storage',async()=>{
     const scenario=makeScenario();
     mockCurrentScenario=scenario;
     scenario.results={
@@ -221,15 +221,15 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
     };
     const res=mockRes();
     await runCorrespondence(mockReq({method:'GET',query:{action:'official-preview',token:TOKEN}}),res);
-    expect(res.statusCode).toBe(404);
-    expect(res._json.error).toContain('Verification issue not found');
-    // The session is probed for authorization, but no bytes are touched.
+    expect(res.statusCode).toBe(403);
+    expect(res._json.error).toContain('owner authorization');
+    // Missing session denies byte access before any database lookup.
     expect(scenario.sb.storage.from).not.toHaveBeenCalled();
   });
 
   test('official-preview of a confidential document serves the PDF to its owner session',async()=>{
     const scenario=makeScenario({
-      'owner-token':{data:{user:{id:'owner-1',email:'owner@example.com'}},error:null}
+      'owner-token':{data:{user:{id:'50ca4eaa-8362-46eb-98b7-5fe5b3006f4e',email:'owner@example.com'}},error:null}
     });
     mockCurrentScenario=scenario;
     scenario.results={
@@ -247,7 +247,7 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
     expect(res.headers['Content-Type']).toBe('application/pdf');
   });
 
-  test('official-preview of a confidential document serves the PDF to an admin_roles holder',async()=>{
+  test('official-preview rejects other admins even when admin_roles grants super_admin',async()=>{
     const scenario=makeScenario({
       'admin-token':{data:{user:{id:'admin-1',email:'admin@example.com'}},error:null}
     });
@@ -263,8 +263,8 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
       headers:{host:'localhost',authorization:'Bearer admin-token'},
       query:{action:'official-preview',token:TOKEN}
     }),res);
-    expect(res.statusCode).toBe(200);
-    expect(res._body).toEqual(pdfBytes);
+    expect(res.statusCode).toBe(403);
+    expect(scenario.sb.storage.from).not.toHaveBeenCalled();
   });
 
   test('official-preview of a confidential document answers 403 for an authenticated non-owner non-admin',async()=>{
@@ -284,11 +284,11 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
       query:{action:'official-preview',token:TOKEN}
     }),res);
     expect(res.statusCode).toBe(403);
-    expect(res._json.error).toMatch(/not authorized/i);
+    expect(res._json.error).toMatch(/owner authorization/i);
     expect(scenario.sb.storage.from).not.toHaveBeenCalled();
   });
 
-  test('official-preview of a public document without a session stays publicly downloadable',async()=>{
+  test('official-preview of public document also requires owner authorization',async()=>{
     const scenario=makeScenario();
     mockCurrentScenario=scenario;
     scenario.results={
@@ -297,7 +297,7 @@ describe('Correspondence classified PDF gating (PR-G)',()=>{
     };
     const res=mockRes();
     await runCorrespondence(mockReq({method:'GET',query:{action:'official-preview',token:TOKEN}}),res);
-    expect(res.statusCode).toBe(200);
-    expect(res._body).toEqual(pdfBytes);
+    expect(res.statusCode).toBe(403);
+    expect(scenario.sb.storage.from).not.toHaveBeenCalled();
   });
 });
