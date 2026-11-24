@@ -192,6 +192,8 @@
   }
 
   function can(permission) {
+    // Approval, signing, and stamping are exclusively granted by the server.
+    if (['approve', 'sign', 'stamp'].includes(permission)) return state.permissions.includes(permission);
     return isAdmin() || state.permissions.includes(permission);
   }
 
