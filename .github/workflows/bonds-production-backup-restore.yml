@@ -98,6 +98,49 @@ jobs:
           path: ${{ runner.temp }}/bonds-backup/production.dump.age
           retention-days: 1
           if-no-files-found: error
+      - name: Apply pinned HR migrations to isolated restored snapshot
+        shell: bash
+        env:
+          HR_MIGRATIONS_SHA: 6ff02d0aab8b6ca74d5eca31d3e26cd592bbab7a
+        run: |
+          set -euo pipefail
+          # This step acts ONLY on the disconnected Docker database restored above.
+          # The encrypted production archive has already been uploaded.
+          docker inspect bonds-restore-gate --format '{{.HostConfig.NetworkMode}}' | grep -Fx none
+          existing="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND (table_name='company_program_entitlements' OR table_name LIKE 'hr_saas_%');")"
+          test "$existing" -eq 0 || { echo "BLOCKED: HR schema already exists in restored snapshot"; exit 1; }
+          git fetch --no-tags --depth=1 origin "$HR_MIGRATIONS_SHA"
+          mkdir -p "$RUNNER_TEMP/hr-isolated-migrations"
+          chmod 700 "$RUNNER_TEMP/hr-isolated-migrations"
+          files=(
+            20261117040000_standalone_hr_saas_baseline.sql
+            20261117060000_hr_saas_attendance_leaves.sql
+            20261117070000_hr_saas_payroll_review.sql
+            20261117080000_hr_saas_employment_contracts.sql
+            20261117090000_hr_saas_entitlements.sql
+            20261117100000_hr_saas_leave_ledger.sql
+            20261117110000_hr_saas_roles_self_service.sql
+            20261118010000_hr_link_existing_company_workspaces.sql
+            20261121190000_hr_org_attendance_leave_workflows.sql
+          )
+          test "${#files[@]}" -eq 9
+          for name in "${files[@]}"; do
+            git show "$HR_MIGRATIONS_SHA:supabase/migrations/$name" > "$RUNNER_TEMP/hr-isolated-migrations/$name"
+            test -s "$RUNNER_TEMP/hr-isolated-migrations/$name"
+            docker cp "$RUNNER_TEMP/hr-isolated-migrations/$name" "bonds-restore-gate:/tmp/$name"
+            docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -v ON_ERROR_STOP=1 -f "/tmp/$name"
+            echo "PASS: applied isolated migration $name"
+          done
+          protected="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname LIKE 'hr_saas_%' AND c.relrowsecurity;")"
+          total="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name LIKE 'hr_saas_%';")"
+          entitlement="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='company_program_entitlements';")"
+          test "$total" -ge 18 && test "$protected" -eq "$total" && test "$entitlement" -eq 1 || { echo "FAIL: isolated HR table/RLS/entitlement postcondition"; exit 1; }
+          echo "PASS: restored production snapshot + nine additive HR migrations, RLS enabled on all HR tables"
+      - name: Remove isolated restored database
+        if: always()
+        shell: bash
+        run: |
+          docker rm -f bonds-restore-gate >/dev/null 2>&1 || true
       - name: Disable temporary database login and scrub temporary credentials
         if: always()
         shell: bash
