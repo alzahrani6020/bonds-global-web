@@ -210,7 +210,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
     };
     scenario.sb={
       auth:{getUser:jest.fn((token)=>token==='valid-token'
-        ?Promise.resolve({data:{user:{id:'admin-1',email:'admin@example.com'}},error:null})
+        ?Promise.resolve({data:{user:{id:'50ca4eaa-8362-46eb-98b7-5fe5b3006f4e',email:'owner@example.com'}},error:null})
         :Promise.resolve({data:{user:null},error:{message:'invalid token'}}))},
       from:jest.fn((table)=>makeChain(scenario,table)),
       rpc:jest.fn((name)=>Promise.resolve({data:name==='record_correspondence_verification'?4:'BDS-2026-000001',error:null})),
@@ -270,7 +270,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
       'correspondence_documents:maybeSingle':[{data:{id:'doc-1',owner_user_id:'owner-1',confidentiality:'public'},error:null}]
     };
     const res=mockRes();
-    await runCorrespondence(mockReq({method:'GET',query:{action:'official-preview',token:TOKEN}}),res);
+    await runCorrespondence(mockReq({method:'GET',headers:{host:'localhost',authorization:'Bearer valid-token'},query:{action:'official-preview',token:TOKEN}}),res);
     expect(res.statusCode).toBe(410);
     expect(res._json.error).toContain('revoked');
     expect(scenario.sb.storage.from).not.toHaveBeenCalled();
@@ -287,7 +287,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
       'correspondence_documents:maybeSingle':[{data:{id:'doc-new',owner_user_id:'owner-1',confidentiality:'public'},error:null}]
     };
     const res=mockRes();
-    await runCorrespondence(mockReq({method:'GET',query:{action:'official-preview',token:TOKEN}}),res);
+    await runCorrespondence(mockReq({method:'GET',headers:{host:'localhost',authorization:'Bearer valid-token'},query:{action:'official-preview',token:TOKEN}}),res);
     expect(res.statusCode).toBe(409);
     expect(res._json.error).toContain('awaiting final PDF');
     expect(scenario.sb.storage.from).not.toHaveBeenCalled();
@@ -312,7 +312,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
       },error:null}]
     };
     const res=mockRes();
-    await runCorrespondence(mockReq({method:'GET',query:{action:'official-preview',token:TOKEN}}),res);
+    await runCorrespondence(mockReq({method:'GET',headers:{host:'localhost',authorization:'Bearer valid-token'},query:{action:'official-preview',token:TOKEN}}),res);
     expect(res.statusCode).toBe(200);
     expect(res._body).toEqual(pdfBytes);
     expect(res.headers['Content-Type']).toBe('application/pdf');
