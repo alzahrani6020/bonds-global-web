@@ -272,7 +272,7 @@ describe('mandatory governance and trusted adapter context', () => {
 
   test('orchestrator adapter overwrites nested request identity and tier with server authority', async () => {
     const orchestrator = require('../../lib/orchestrator/intelligence-orchestrator');
-    const run = jest.spyOn(orchestrator, 'run').mockImplementation(async value => value);
+    const run = jest.spyOn(orchestrator, 'run').mockImplementation(async value => ({ result: value, trace: { name: 'intelligence-orchestrator' } }));
     try {
       const context = { ...trustedContext(), requestId: 'server-request' };
       const result = await RUNTIME_ADAPTERS.orchestrator_run({ request: {
