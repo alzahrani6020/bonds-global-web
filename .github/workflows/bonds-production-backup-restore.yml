@@ -59,7 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           DB_URL="$(cat "$RUNNER_TEMP/bonds-backup/connection-url")"
-          docker run --rm -e DATABASE_URL="$DB_URL" -v "$RUNNER_TEMP/bonds-backup:/backup" postgres:17 sh -ec 'pg_dump --dbname="$DATABASE_URL" --format=custom --no-owner --no-acl --file=/backup/production.dump'
+          docker run --rm --user "$(id -u):$(id -g)" -e DATABASE_URL="$DB_URL" -v "$RUNNER_TEMP/bonds-backup:/backup" postgres:17 sh -ec 'pg_dump --dbname="$DATABASE_URL" --format=custom --no-owner --no-acl --file=/backup/production.dump'
           unset DB_URL
           test -s "$RUNNER_TEMP/bonds-backup/production.dump" || { echo "FAIL: empty archive"; exit 1; }
           docker run --rm -v "$RUNNER_TEMP/bonds-backup:/backup:ro" postgres:17 pg_restore --list /backup/production.dump > "$RUNNER_TEMP/bonds-backup/toc.txt"
