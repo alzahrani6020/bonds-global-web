@@ -4,6 +4,9 @@ on:
     branches: [integration/hr-current-main-20261121]
     paths: ['.github/workflows/bonds-production-backup-restore.yml']
   workflow_dispatch:
+concurrency:
+  group: bonds-production-backup-exclusive
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
@@ -11,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      BONDS_PROD_DATABASE_URL: ${{ secrets.BONDS_PROD_DATABASE_URL }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       BONDS_BACKUP_AGE_RECIPIENT: ${{ secrets.BONDS_BACKUP_AGE_RECIPIENT }}
       SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
     steps:
@@ -20,15 +23,10 @@ jobs:
         run: |
           set -euo pipefail
           test "${SUPABASE_PROJECT_REF:-}" = "hutxsqzplyuqgnghsrcs" || { echo "BLOCKED: project identity missing or different"; exit 1; }
-          test -n "${BONDS_PROD_DATABASE_URL:-}" || { echo "BLOCKED: BONDS_PROD_DATABASE_URL missing"; exit 1; }
+          test -n "${SUPABASE_ACCESS_TOKEN:-}" || { echo "BLOCKED: SUPABASE_ACCESS_TOKEN missing"; exit 1; }
           test -n "${BONDS_BACKUP_AGE_RECIPIENT:-}" || { echo "BLOCKED: BONDS_BACKUP_AGE_RECIPIENT missing"; exit 1; }
           [[ "$BONDS_BACKUP_AGE_RECIPIENT" == age1* ]] || { echo "BLOCKED: age public recipient invalid"; exit 1; }
-          DB_HOST=$(python3 -c 'import os,urllib.parse; print(urllib.parse.urlparse(os.environ["BONDS_PROD_DATABASE_URL"]).hostname or "")')
-          case "$DB_HOST" in
-            db.hutxsqzplyuqgnghsrcs.supabase.co|aws-0-eu-central-1.pooler.supabase.com|aws-1-eu-central-1.pooler.supabase.com|aws-2-eu-central-1.pooler.supabase.com) ;;
-            *) echo "STOP: unexpected production database hostname"; exit 1 ;;
-          esac
-          echo "PASS: prerequisites and project host matched"
+          echo "PASS: prerequisites and project identity matched"
       - name: Prepare temporary isolated runner
         run: |
           set -euo pipefail
@@ -36,11 +34,31 @@ jobs:
           sudo apt-get install -y -qq age
           mkdir -p "$RUNNER_TEMP/bonds-backup"
           chmod 700 "$RUNNER_TEMP/bonds-backup"
+      - name: Checkout pinned backup helper
+        uses: actions/checkout@v4
+      - name: Provision temporary database login
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          python3 scripts/backup/ephemeral_backup_login.py provision
+      - name: Confirm temporary PostgreSQL login and read-only session
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_URL="$(cat "$RUNNER_TEMP/bonds-backup/connection-url")"
+          docker run --rm -e DATABASE_URL="$DB_URL" postgres:17 sh -ec '
+            psql "$DATABASE_URL" -X -At -v ON_ERROR_STOP=1 -c "SELECT current_user, current_setting('\''default_transaction_read_only'\'');" | grep -Fx "bonds_backup_service|on"
+          '
+          unset DB_URL
+          echo "PASS: dedicated backup role authenticated with read-only default"
       - name: Dump production through read-only pg_dump session
         shell: bash
         run: |
           set -euo pipefail
-          docker run --rm -e DATABASE_URL="$BONDS_PROD_DATABASE_URL" -v "$RUNNER_TEMP/bonds-backup:/backup" postgres:17 sh -ec 'pg_dump --dbname="$DATABASE_URL" --format=custom --no-owner --no-acl --file=/backup/production.dump'
+          DB_URL="$(cat "$RUNNER_TEMP/bonds-backup/connection-url")"
+          docker run --rm -e DATABASE_URL="$DB_URL" -v "$RUNNER_TEMP/bonds-backup:/backup" postgres:17 sh -ec 'pg_dump --dbname="$DATABASE_URL" --format=custom --no-owner --no-acl --file=/backup/production.dump'
+          unset DB_URL
           test -s "$RUNNER_TEMP/bonds-backup/production.dump" || { echo "FAIL: empty archive"; exit 1; }
           docker run --rm -v "$RUNNER_TEMP/bonds-backup:/backup:ro" postgres:17 pg_restore --list /backup/production.dump > "$RUNNER_TEMP/bonds-backup/toc.txt"
           echo "PASS: nonempty pg_dump custom archive and readable TOC"
@@ -76,6 +94,17 @@ jobs:
           path: ${{ runner.temp }}/bonds-backup/production.dump.age
           retention-days: 1
           if-no-files-found: error
+      - name: Disable temporary database login and scrub temporary credentials
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/backup/ephemeral_backup_login.py disable
+      - name: Destroy temporary runner plaintext on failure
+        if: failure()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/bonds-backup/production.dump" "$RUNNER_TEMP/bonds-backup/toc.txt" "$RUNNER_TEMP/bonds-backup/connection-url"
       - name: Report gate
         run: |
           echo "STATUS: PASS - production snapshot archived encrypted after isolated restore"
