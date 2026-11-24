@@ -1,7 +1,7 @@
 name: BONDS Production Encrypted Backup and Restore Gate
 on:
   push:
-    branches: [integration/hr-current-main-20261121]
+    branches: [integration/hr-current-main-20261121, fix/backup-ephemeral-auth-20261124]
     paths: ['.github/workflows/bonds-production-backup-restore.yml']
   workflow_dispatch:
 concurrency:
@@ -36,6 +36,8 @@ jobs:
           chmod 700 "$RUNNER_TEMP/bonds-backup"
       - name: Checkout pinned backup helper
         uses: actions/checkout@v4
+      - name: Validate backup helper Python syntax
+        run: python3 -m py_compile scripts/backup/ephemeral_backup_login.py
       - name: Provision temporary database login
         shell: bash
         run: |
