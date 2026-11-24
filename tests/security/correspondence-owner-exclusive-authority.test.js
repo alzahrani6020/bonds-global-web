@@ -44,6 +44,14 @@ const docUnderReview = () => ({
 const approvedDoc = () => ({ ...docUnderReview(), status: 'approved' });
 
 describe('correspondence exclusive approval, signing and stamping', () => {
+  test('idempotent approval cannot bypass the owner guard in the HTTP handler', () => {
+    const source = fs.readFileSync(path.join(__dirname, '../../lib/api/correspondence.js'), 'utf8');
+    const handler = source.slice(source.indexOf("  if (action === 'transition') {"));
+    const denial = handler.indexOf("if (target === 'approved' && !isExclusiveCorrespondenceActor(user.id))");
+    const idempotent = handler.indexOf('if (target === doc.status)');
+    expect(denial).toBeGreaterThanOrEqual(0);
+    expect(idempotent).toBeGreaterThan(denial);
+  });
   test.each(['admin', 'super_admin'])('non-owner %s cannot acquire restricted permissions', async role => {
     const db = permissionsDb();
     const result = await resolveCorrespondencePermissions(db, OTHER_ID, role);
