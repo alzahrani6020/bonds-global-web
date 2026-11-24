@@ -5,7 +5,7 @@ const word=(a,b)=>ar?a:b;
 const root=document.getElementById('hr-section');
 if(!root)return;
 const entity=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const route=(module)=>location.pathname+(location.search?'?'+new URLSearchParams({...Object.fromEntries(new URLSearchParams(location.search)),program:'hr',hr_module:module}):'?program=hr&hr_module='+encodeURIComponent(module))+'#hr-app';
+const route=(module)=>location.pathname+'?program=hr&hr_module='+encodeURIComponent(module)+'#hr-app';
 const groups=[
  [word('الأفراد والهيكل','People & structure'),[['employees',word('الملفات الوظيفية','Employees')],['departments',word('الإدارات','Departments')],['positions',word('الوظائف والدرجات','Positions & grades')],['recruitment',word('التوظيف','Recruitment')],['lifecycle',word('الترقيات والنقل','Employee lifecycle')]]],
  [word('الجداول والحضور والإجازات','Schedules, attendance & leave'),[['shifts',word('الورديات والجداول','Shifts & scheduling')],['attendance',word('الحضور والانصراف','Attendance')],['attendance_corrections',word('تصحيحات الحضور','Attendance corrections')],['leaves',word('طلبات الإجازة','Leave requests')],['leave_balances',word('أرصدة الإجازات','Leave balances')]]],
