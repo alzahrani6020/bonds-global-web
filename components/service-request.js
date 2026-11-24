@@ -2669,6 +2669,17 @@ async function init(){
     return;
   }
   $('#srLoading').hidden=true;$('#srContent').hidden=false;render();
+  // A feasibility deep link should land at the actual study/project inputs,
+  // not at the generic service picker and the studies navigation above them.
+  // Respect a supplied hash and native browser scroll restoration.
+  if(isStudiesWorkspaceService()&&serviceCode==='feasibility_studies'&&!location.hash){
+   const firstInputs=$('#srFeasibilityProjectChooser')||$('#srRequestForm');
+   if(firstInputs && window.scrollY<80){
+    window.requestAnimationFrame(()=>{
+     if(window.scrollY<80)firstInputs.scrollIntoView({block:'start',behavior:'instant'});
+    });
+   }
+  }
   await hydrateAccountingEntities();
   const requestForm=$('#srRequestForm');
   if(isStudiesWorkspaceService()) applyStudiesSubmitLabel();
