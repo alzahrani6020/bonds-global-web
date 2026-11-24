@@ -1,6 +1,14 @@
 name: HR Isolated Acceptance
 
 on:
+  push:
+    branches:
+      - integration/hr-rebased-main-20261124
+    paths:
+      - 'my-bonds/crm/**'
+      - 'en/my-bonds/crm/**'
+      - 'tests/hr/**'
+      - '.github/workflows/hr-isolated-acceptance.yml'
   pull_request:
     branches:
       - main
