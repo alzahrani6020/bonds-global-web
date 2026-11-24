@@ -49,6 +49,7 @@ jobs:
         run: |
           set -euo pipefail
           DB_URL="$(cat "$RUNNER_TEMP/bonds-backup/connection-url")"
+          sleep 60
           docker run --rm -e DATABASE_URL="$DB_URL" postgres:17 sh -ec '
             psql "$DATABASE_URL" -X -At -v ON_ERROR_STOP=1 -c "SELECT current_user, current_setting('\''default_transaction_read_only'\'');" | grep -Fx "bonds_backup_service|on"
           '
