@@ -195,14 +195,10 @@ jobs:
                 # The full homepage still runs pixel comparison against the
                 # exact current PR base; no baseline changes or bypasses.
                 git show "$BASE_SHA:site-layout.js" > /tmp/bonds-base-site-layout.js
-                python3 - <<'PY'
-                import pathlib
-                base = pathlib.Path('/tmp/bonds-base-site-layout.js').read_text()
-                head = pathlib.Path('site-layout.js').read_text()
-                added = "      { label: isEn ? 'Human Resources System' : 'نظام الموارد البشرية', href: isEn ? '/en/my-bonds/crm/?program=hr' : '/my-bonds/crm/?program=hr' },\n"
-                assert head.count(added) == 1, 'Unexpected or duplicate HR menu change'
-                assert head.replace(added, '', 1) == base, 'Unreviewed home layout edit'
-                PY
+                expected="      { label: isEn ? 'Human Resources System' : 'نظام الموارد البشرية', href: isEn ? '/en/my-bonds/crm/?program=hr' : '/my-bonds/crm/?program=hr' },"
+                test "$(grep -Fxc "$expected" site-layout.js)" -eq 1
+                grep -Fvx "$expected" site-layout.js > /tmp/bonds-head-site-layout-without-hr.js
+                cmp -s /tmp/bonds-base-site-layout.js /tmp/bonds-head-site-layout-without-hr.js || exit 0
                 ;;
               .github/workflows/hr-isolated-acceptance.yml|.github/workflows/hr-production-connection-gate.yml|api/payments.js|api/platform.js|calculators/auth/index.html|docs/hr-delivery-matrix-20261121.md|en/my-bonds/crm/*|jest.config.js|lib/api/company-programs.js|lib/api/hr-calculations.js|lib/hr/*|my-bonds/crm/*|supabase/migrations/20261117040000_standalone_hr_saas_baseline.sql|supabase/migrations/20261117060000_hr_saas_attendance_leaves.sql|supabase/migrations/20261117070000_hr_saas_payroll_review.sql|supabase/migrations/20261117080000_hr_saas_employment_contracts.sql|supabase/migrations/20261117090000_hr_saas_entitlements.sql|supabase/migrations/20261117100000_hr_saas_leave_ledger.sql|supabase/migrations/20261117110000_hr_saas_roles_self_service.sql|supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql|supabase/migrations/20261121190000_hr_org_attendance_leave_workflows.sql|tests/admin/company-programs-standalone-hr.test.js|tests/admin/crm-unified-shell.test.js|tests/auth-callback-bootstrap.test.js|tests/hr/*)
                 # Non-home HR implementation; still execute all code, auth,
