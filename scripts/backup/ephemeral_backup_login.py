@@ -88,5 +88,5 @@ if __name__ == "__main__":
     except Exception as exc:
         # Restrict exceptions to sanitized program-generated strings.
         print("FAIL: ephemeral backup role operation: " + type(exc).__name__
-              + (" (HTTP error)" if isinstance(exc, urllib.error.HTTPError) else ""), file=sys.stderr)
+              + (": " + str(exc) if str(exc).startswith(("Management SQL failed, HTTP ", "SUPABASE_ACCESS_TOKEN unavailable", "Production project ref mismatch", "Management SQL returned unexpected status")) else ""), file=sys.stderr)
         raise SystemExit(1)
