@@ -55,8 +55,16 @@ async function refresh(){
  if(bad)err.textContent=word('تعذر تحميل '+bad+' من المؤشرات؛ لم تُستبدل الأخطاء بأصفار.','Failed to load '+bad+' metric(s); failures are not displayed as zero.');
 }
 function enter(context){
- if(!context?.ownerLicense||!context?.ownerWorkspace||!context?.db||!context?.user){++revision;section.hidden=true;current=null;return;}
- current={...context};const name=context.ownerWorkspace.name;
+ if(!context?.ownerLicense||!context?.ownerWorkspace||!context?.db||!context?.user){
+  ++revision;current=null;section.hidden=false;
+  document.getElementById('hr-overview-company').textContent=word('فهرس الوحدات متاح للاطلاع؛ بيانات الشركات تتطلب تسجيل الدخول وترخيص الموارد البشرية.','Browse the module directory; company data requires sign-in and an HR entitlement.');
+  document.getElementById('hr-overview-stats').replaceChildren();
+  document.getElementById('hr-overview-refresh').disabled=true;
+  document.getElementById('hr-overview-error').textContent='';
+  renderGroups(document.getElementById('hr-overview-size').value);
+  return;
+ }
+ current={...context};document.getElementById('hr-overview-refresh').disabled=false;const name=context.ownerWorkspace.name;
  document.getElementById('hr-overview-company').textContent=name;
  let size='small';try{const saved=localStorage.getItem(storeKey(context));if(sizes.includes(saved))size=saved;}catch(_){}
  document.getElementById('hr-overview-size').value=size;renderGroups(size);
@@ -69,6 +77,6 @@ document.getElementById('hr-overview-size').addEventListener('change',event=>{
 });
 document.getElementById('hr-overview-refresh').addEventListener('click',()=>refresh());
 document.addEventListener('bonds-hr-owner-workspace',event=>enter({...window.BondsHRContext,ownerWorkspace:event.detail?.workspace}));
-document.addEventListener('bonds-hr-ready',()=>{if(window.BondsHRContext?.ownerWorkspace)enter(window.BondsHRContext);});
+document.addEventListener('bonds-hr-ready',()=>{enter(window.BondsHRContext||null);});
 if(window.BondsHRContext?.ownerWorkspace)enter(window.BondsHRContext);
 })();
