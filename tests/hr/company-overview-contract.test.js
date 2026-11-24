@@ -24,6 +24,8 @@ describe('HR company overview integration',()=>{
   expect(js).toContain(".eq('workspace_id',workspaceId)");
   expect(js).toContain("{count:'exact',head:true}");
   expect(js).toContain("if(!context?.ownerLicense||!context?.ownerWorkspace||!context?.db||!context?.user)");
+  expect(js).toContain("current=null;section.hidden=false");
+  expect(js).toContain("document.getElementById('hr-overview-refresh').disabled=true");
   expect(js).not.toMatch(/\.insert\(|\.update\(|\.delete\(|service_role/);
   expect(js).toContain("Promise.allSettled");
  });
