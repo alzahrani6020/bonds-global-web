@@ -926,7 +926,67 @@ function renderFeasibilityControls(){
   '<div id="srFeasibilityProjectPicker" hidden><label for="srFeasibilityProjectSelect">'+(lang==='ar'?'المشروعات المتاحة':'Available projects')+'</label>'+
   '<select id="srFeasibilityProjectSelect" class="sr-input"></select>'+
   '<button type="button" id="srFeasibilityLinkProject" class="sr-secondary">'+(lang==='ar'?'ربط المشروع المحدد':'Link selected project')+'</button></div>';
- buttons.insertAdjacentElement('beforebegin',projectChooser);
+ // Project association is required for institutional persistence, so expose
+ // it before the long dynamic feasibility form instead of below all inputs.
+ host.insertAdjacentElement('beforebegin',projectChooser);
+ // Keep project creation in the feasibility workspace: saving a completed
+ // study requires a project, and leaving this screen loses execution context.
+ const createProjectOpen=document.createElement('button');
+ createProjectOpen.type='button';
+ createProjectOpen.id='srFeasibilityCreateProjectOpen';
+ createProjectOpen.className='sr-secondary';
+ createProjectOpen.textContent=lang==='ar'?'إنشاء مشروع وربط الدراسة':'Create project and link study';
+ projectChooser.querySelector('.sr-actions')?.appendChild(createProjectOpen);
+ const createProjectPanel=document.createElement('div');
+ createProjectPanel.id='srFeasibilityCreateProjectPanel';
+ createProjectPanel.hidden=true;
+ createProjectPanel.innerHTML='<label for="srFeasibilityNewProjectName">'+
+  (lang==='ar'?'اسم المشروع الجديد':'New project name')+'</label>'+
+  '<input id="srFeasibilityNewProjectName" class="sr-input" maxlength="180" autocomplete="off">'+
+  '<button type="button" id="srFeasibilityCreateProjectConfirm" class="sr-secondary">'+
+  (lang==='ar'?'إنشاء وربط':'Create and link')+'</button>';
+ projectChooser.appendChild(createProjectPanel);
+ createProjectOpen.addEventListener('click',()=>{
+  createProjectPanel.hidden=!createProjectPanel.hidden;
+  if(!createProjectPanel.hidden){
+   const input=$('#srFeasibilityNewProjectName');
+   input.value=input.value||form.querySelector('[name="project_name"]')?.value||'';
+   input.focus();
+  }
+ });
+ $('#srFeasibilityCreateProjectConfirm').addEventListener('click',async()=>{
+  const button=$('#srFeasibilityCreateProjectConfirm');
+  const name=String($('#srFeasibilityNewProjectName')?.value||'').trim();
+  const sector=studiesTaxonomySelection(form.querySelector('[name="sector_code"]')?.value||'')
+   ||studiesTaxonomySelection(form.querySelector('[name="sector_engine_profile"]')?.value||'');
+  if(!name){showStatus(lang==='ar'?'أدخل اسم المشروع':'Enter the project name',false);return}
+  if(!sector){
+   showStatus(lang==='ar'?'لإنشاء المشروع وربطه، اختر القطاع من مدخلات الدراسة أولًا.':'To create and link a project, select the sector in the study inputs first.',false);
+   form.querySelector('[name="sector_code"]')?.focus();
+   return;
+  }
+  button.disabled=true;
+  try{
+   await window.BondsAuth.ensureEnv();
+   const session=(await window.BondsAuth.getSupabase().auth.getSession()).data?.session;
+   if(!session?.access_token)throw new Error(T.login);
+   const response=await fetch('/api/v3/projects',{
+    method:'POST',credentials:'same-origin',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+    body:JSON.stringify({name,sector,currency:form.querySelector('[name="currency"]')?.value||'SAR',language:lang})
+   });
+   const payload=await response.json().catch(()=>({}));
+   if(!response.ok||!payload.project?.id)throw new Error(payload?.error||('HTTP '+response.status));
+   const select=$('#srFeasibilityProjectSelect');
+   select.replaceChildren(new Option(name,payload.project.id,true,true));
+   $('#srFeasibilityProjectPicker').hidden=false;
+   // Reuse the existing draft-safe linking path, including its project scope.
+   $('#srFeasibilityLinkProject').click();
+  }catch(error){
+   showStatus(T.failed+': '+error.message,false);
+   button.disabled=false;
+  }
+ });
  if(linked){
   const historyButton=document.createElement('button');
   historyButton.type='button';
@@ -2246,6 +2306,26 @@ function renderExecutionResult(payload){
   successLink.textContent=lang==='ar'?'العودة إلى مساحة العمل':'Return to workspace';
   successLink.hidden=false;
  }
+ // An unsaved result cannot be archived retroactively by the API. Give the
+ // user a direct way to link a project while preserving their study inputs.
+ if(serviceCode==='feasibility_studies'&&calculated&&!params.get('project_id')){
+  const link=document.createElement('button');
+  link.type='button';
+  link.id='srLinkProjectForFeasibility';
+  link.className='sr-secondary';
+  link.textContent=lang==='ar'?'اختر مشروعًا ثم أعد التشغيل لحفظ الدراسة':'Select a project and rerun to save the study';
+  box.appendChild(link);
+  link.addEventListener('click',()=>{
+   saveWorkspaceDraft();
+   if(workspaceDirty){
+    showStatus(lang==='ar'?'تعذر حفظ المدخلات قبل ربط المشروع':'Could not save inputs before linking a project',false);
+    return;
+   }
+   const chooser=$('#srFeasibilityProjectChooser');
+   chooser?.scrollIntoView({block:'center',behavior:'smooth'});
+   $('#srFeasibilityListProjects')?.click();
+  });
+ }
  const download=$('#srDownloadExecution');
  if(download)download.addEventListener('click',()=>{
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
@@ -2609,6 +2689,24 @@ async function init(){
     return;
   }
   $('#srLoading').hidden=true;$('#srContent').hidden=false;render();
+  // A feasibility deep link should land at the actual study/project inputs,
+  // not at the generic service picker and the studies navigation above them.
+  // Respect a supplied hash and native browser scroll restoration.
+  if(isStudiesWorkspaceService()&&serviceCode==='feasibility_studies'&&!location.hash){
+   const firstInputs=$('#srFeasibilityProjectChooser')||$('#srRequestForm');
+   if(firstInputs && window.scrollY<80){
+    window.requestAnimationFrame(()=>{
+     if(window.scrollY>=80)return;
+     // The site header is sticky and may be offset below the browser top.
+     // Use its actual visible lower edge, not a fixed 110px assumption.
+     const header=document.querySelector('#site-header');
+     const headerBottom=header?header.getBoundingClientRect().bottom:0;
+     const clearance=Math.max(110,Math.ceil(headerBottom)+20);
+     firstInputs.style.scrollMarginTop=clearance+'px';
+     firstInputs.scrollIntoView({block:'start',behavior:'instant'});
+    });
+   }
+  }
   await hydrateAccountingEntities();
   const requestForm=$('#srRequestForm');
   if(isStudiesWorkspaceService()) applyStudiesSubmitLabel();
