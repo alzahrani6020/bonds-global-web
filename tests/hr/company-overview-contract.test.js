@@ -19,6 +19,8 @@ describe('HR company overview integration',()=>{
    expect(js).toContain("'"+module+"'");
   }
   expect(js).not.toContain('window.location.assign');
+  expect(js).toContain("const route=(module)=>location.pathname+'?program=hr&hr_module='+encodeURIComponent(module)+'#hr-app'");
+  expect(js).not.toContain("Object.fromEntries(new URLSearchParams");
  });
  test('overview statistics never issue unscoped or write queries',()=>{
   expect(js).toContain(".eq('workspace_id',workspaceId)");
