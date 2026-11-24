@@ -35,3 +35,21 @@ describe('HR company overview integration',()=>{
   expect(css).toContain('@media(max-width:600px)');
  });
 });
+describe('structured HR shift scheduling',()=>{
+ const js=read('my-bonds/crm/company-hr.js');
+ const css=read('my-bonds/crm/crm-app.css');
+ test('shift schedule input includes the full seven-day week',()=>{
+  expect(js).toContain("shifts:[['employee_id'");
+  expect(js).toContain("type==='weekday-list'");
+  expect(js).toContain("['7',t('الأحد','Sun')]");
+  expect(css).toContain('.hr-weekday-choices');
+ });
+ test('shift save validates timezone and days and persists metadata, not invented SQL columns',()=>{
+  expect(js).toContain("if(category==='shifts')");
+  expect(js).toContain("new Intl.DateTimeFormat('en',{timeZone:tz})");
+  expect(js).toContain("new Set(days).size!==days.length");
+  expect(js).toContain("row.details={...(editing?.details||{}),...(row.details||{})");
+  expect(js).toContain("delete row[field]");
+  expect(js).toContain("db.from(table()).insert(row)");
+ });
+});
