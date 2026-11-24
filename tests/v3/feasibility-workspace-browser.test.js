@@ -81,6 +81,8 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     expect(rect).not.toBeNull();
     expect(rect.y).toBeGreaterThanOrEqual(0);
     expect(rect.y).toBeLessThan(900);
+    const headerBottom=await page.locator('#site-header').evaluate(el=>el.getBoundingClientRect().bottom);
+    expect(rect.y).toBeGreaterThanOrEqual(Math.max(0,headerBottom)-2);
     expect(await page.locator('#srFeasibilityCreateProjectOpen').isVisible()).toBe(true);
     await context.close();
   });

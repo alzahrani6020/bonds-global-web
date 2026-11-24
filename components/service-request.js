@@ -2675,9 +2675,15 @@ async function init(){
   if(isStudiesWorkspaceService()&&serviceCode==='feasibility_studies'&&!location.hash){
    const firstInputs=$('#srFeasibilityProjectChooser')||$('#srRequestForm');
    if(firstInputs && window.scrollY<80){
-    firstInputs.style.scrollMarginTop='110px';
     window.requestAnimationFrame(()=>{
-     if(window.scrollY<80)firstInputs.scrollIntoView({block:'start',behavior:'instant'});
+     if(window.scrollY>=80)return;
+     // The site header is sticky and may be offset below the browser top.
+     // Use its actual visible lower edge, not a fixed 110px assumption.
+     const header=document.querySelector('#site-header');
+     const headerBottom=header?header.getBoundingClientRect().bottom:0;
+     const clearance=Math.max(110,Math.ceil(headerBottom)+20);
+     firstInputs.style.scrollMarginTop=clearance+'px';
+     firstInputs.scrollIntoView({block:'start',behavior:'instant'});
     });
    }
   }
