@@ -37,7 +37,7 @@ def execute_sql(query):
     )
     try:
         with urllib.request.urlopen(req, timeout=35) as response:
-            if response.status != 201:
+            if response.status not in (200, 201, 204):
                 raise RuntimeError("Management SQL returned non-201 status")
             response.read()
     except urllib.error.HTTPError as exc:
