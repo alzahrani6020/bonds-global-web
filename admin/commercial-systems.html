@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مراقبة HR وCRM | إدارة BONDS</title>
+<link rel="stylesheet" href="/admin/admin-shared-ux.css?v=3.0.0">
+<style>
+:root{color-scheme:light}body{margin:0;background:#f5f0e8;color:#1f2937;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.7}main{max-width:1240px;margin:auto;padding:1.5rem}.top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1rem}.card{background:white;padding:1.25rem;border:1px solid #ddd6c9;border-radius:14px;min-width:0}.card h2{margin:0 0 .5rem}.muted{color:#555}.status{background:#f8f6f1;border-radius:8px;padding:.7rem;margin:.65rem 0;overflow-wrap:anywhere}.metric{display:flex;justify-content:space-between;gap:1rem;border-bottom:1px solid #eee;padding:.45rem 0}.metric strong{font-variant-numeric:tabular-nums}.actions{display:flex;gap:.5rem;flex-wrap:wrap}.action{display:inline-block;text-decoration:none;border:1px solid #8a7340;color:#443517;border-radius:9px;padding:.5rem .8rem;background:#fff;font:inherit;cursor:pointer}.action:focus-visible{outline:3px solid #2563eb}#loading{margin-top:1rem}ul{padding-inline-start:1.4rem}@media(max-width:720px){main{padding:1rem}.grid{grid-template-columns:1fr}}
+</style>
+<script src="/api/env"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+<script>BondsAuth.initAdminGuard();</script>
+<script src="/admin/admin-common.js?v=5"></script>
+</head>
+<body>
+<main>
+<div class="top"><div><h1>مراقبة الموارد البشرية وعلاقات العملاء</h1><p class="muted">مركز إداري للقراءة فقط — لا ينشئ شركات أو موظفين أو عضويات</p></div><div class="actions"><button class="action" id="refresh" type="button">تحديث المؤشرات</button><a class="action" href="/admin/dashboard">لوحة المالك</a></div></div>
+<p id="loading" role="status" aria-live="polite">بانتظار التحقق من صلاحية المدير…</p>
+<div class="grid">
+<section class="card" aria-labelledby="hr-title"><h2 id="hr-title">BONDS HR</h2><p class="muted">مراقبة الشركة والموظفين والتهيئة</p><div class="status" id="hr-state">لا تتوفر حاليًا واجهة إدارية موثقة لمؤشرات HR في هذا الإصدار. الحالة غير معروفة وليست صفرًا.</div><ul><li>اكتمال الملف المؤسسي: غير متاح</li><li>أعداد الموظفين والعضويات: غير متاح</li><li>سلامة الحفظ والاسترجاع: غير مثبتة من هذه الشاشة</li></ul><div class="actions"><a class="action" href="/my-bonds/crm/?program=hr">فتح HR التشغيلي</a><a class="action" href="/admin/subscriptions.html">الاشتراكات</a></div></section>
+<section class="card" aria-labelledby="crm-title"><h2 id="crm-title">BONDS CRM</h2><p class="muted">مؤشرات إجمالية من واجهة الإدارة الحالية، دون عرض سجلات العملاء</p><div class="status" id="crm-state">بانتظار الاتصال…</div><div id="crm-metrics" aria-live="polite"></div><div class="actions"><a class="action" href="/my-bonds/crm/">فتح CRM التشغيلي</a><a class="action" href="/admin/subscriptions.html">الاشتراكات</a></div></section>
+</div>
+<section class="card" style="margin-top:1rem"><h2>الهوية والصلاحيات والتشغيل</h2><p>الشركات والاشتراكات والصلاحيات تدار من صفحات الإدارة الحالية. هذه الصفحة لا تمنح وصولًا لبيانات شركات أخرى ولا تنفذ عمليات كتابة.</p><div class="actions"><a class="action" href="/admin/users.html">المستخدمون</a><a class="action" href="/admin/roles.html">الأدوار</a><a class="action" href="/admin/audit-log.html">سجل المراجعة</a><a class="action" href="/admin/platform-center.html">صحة المنصة</a></div></section>
+</main>
+<script>
+(function(){
+'use strict';
+const state=document.getElementById('crm-state'),metrics=document.getElementById('crm-metrics'),loading=document.getElementById('loading');
+const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function aggregateRows(value,prefix='',depth=0){
+if(!value||typeof value!=='object'||depth>2)return [];
+const out=[];
+for(const [k,v] of Object.entries(value)){
+if(['success','requestId'].includes(k))continue;
+const key=prefix?prefix+'.'+k:k;
+if(typeof v==='number'&&Number.isFinite(v)&&/(count|total|active|pending|closed|open|amount|value|revenue|renewal|pipeline|leads|deals|organizations|customers|clients|tickets|opportunities|requests|rate)/i.test(key))out.push([key,v]);
+else if(v&&typeof v==='object'&&!Array.isArray(v))out.push(...aggregateRows(v,key,depth+1));
+if(out.length>=12)break;
+}
+return out.slice(0,12);
+}
+let busy=false;
+async function load(){
+if(busy)return;busy=true;document.getElementById('refresh').disabled=true;loading.textContent='جاري جلب مؤشرات CRM المصرح بها…';state.textContent='جاري التحميل…';metrics.replaceChildren();
+try{
+const result=await BondsAdminCommon.requestJson('/api/admin?action=crm-overview',{returnTo:location.pathname+location.search});
+if(result?.success===false)throw new Error('API_NOT_SUCCESS');
+const rows=aggregateRows(result);
+if(rows.length){metrics.innerHTML=rows.map(([k,v])=>'<div class="metric"><span>'+esc(k)+'</span><strong>'+esc(v.toLocaleString('ar-SA'))+'</strong></div>').join('');state.textContent='تم استرداد مؤشرات إجمالية من CRM. لا يثبت ذلك سلامة جميع وظائف CRM.';}
+else state.textContent='استجابت واجهة CRM، ولكن لم ترجع مؤشرات عددية معروفة للعرض؛ لا يمكن اعتبارها صفرًا.';
+loading.textContent='HR: مصدر المؤشرات الإدارية غير متصل. CRM: اكتمل طلب القراءة.';
+}catch(e){state.textContent='تعذر التحقق من مؤشرات CRM في هذه الجلسة (صلاحية أو اتصال أو استجابة).';loading.textContent='STATUS: PARTIAL — لم يكتمل تحميل مؤشرات CRM.';}
+finally{busy=false;document.getElementById('refresh').disabled=false;}
+}
+document.getElementById('refresh').addEventListener('click',load);
+if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
+})();
+</script>
+<script src="/admin/admin-embed.js?v=4"></script>
+</body></html>
