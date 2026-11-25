@@ -191,8 +191,9 @@
    const actions=canDecide?
     '<button class="secondary" type="button" data-hr-decision="approved" data-hr-request="'+esc(req.id)+'">'+t('اعتماد','Approve')+'</button> '+
     '<button class="secondary" type="button" data-hr-decision="rejected" data-hr-request="'+esc(req.id)+'">'+t('رفض','Reject')+'</button>':'—';
-   return '<tr><td>'+esc(requestTypeLabel(req.request_type))+'</td><td>'+esc(req.subject)+'</td><td>'+esc(stateLabel(req.status))+
-    '</td><td>'+esc(req.created_at?.slice(0,10))+'</td><td>'+actions+'</td></tr>';
+   return '<tr><td>'+esc(requestTypeLabel(req.request_type))+'</td><td><details><summary>'+esc(req.subject)+'</summary>'+
+    '<p>'+esc(req.description||'')+'</p></details></td><td>'+esc(stateLabel(req.status))+
+    '</td><td>'+esc(localDate(req.created_at))+'</td><td>'+actions+'</td></tr>';
   }).join('')||'<tr><td colspan="5">'+t('لا توجد طلبات','No requests')+'</td></tr>';
  }
  async function loadRequests(){
@@ -217,6 +218,7 @@
   const formElement=event.currentTarget;
   if(!selectedMembership)return;
   const button=formElement.querySelector('[type="submit"]');button.disabled=true;
+  let savedId=null;
   try{
    const data=new FormData(formElement);
    const payload={
@@ -234,8 +236,23 @@
     throw Error(t('تاريخ النهاية يسبق البداية','End date before start'));
    const result=requireOk(await db.from('hr_saas_employee_requests').insert(payload).select('id').single());
    if(!result?.id)throw Error(t('لم يتم تأكيد تسجيل الطلب','Request not confirmed'));
-   formElement.reset();await loadRequests();notify(t('سُجل الطلب للمراجعة','Request submitted'));
-  }catch(error){notify(error.message,true);}finally{button.disabled=false;}
+   savedId=result.id;
+   // Verify persistence under the employee's own RLS identity before clearing the form.
+   const verified=requireOk(await db.from('hr_saas_employee_requests')
+    .select('id,workspace_id,employee_id,requested_by,request_type,subject,description,status')
+    .eq('id',savedId).eq('workspace_id',payload.workspace_id)
+    .eq('requested_by',user.id).limit(1));
+   if(verified.length!==1||verified[0].employee_id!==payload.employee_id||
+    verified[0].status!=='pending'||verified[0].subject!==payload.subject||
+    verified[0].description!==payload.description){
+    throw Error(t('لم يتأكد استرجاع الطلب المحفوظ','Could not verify the saved request'));
+   }
+   await loadRequests();
+   if(!requests.some(record=>record.id===savedId))throw Error(t('الطلب محفوظ لكن لم يظهر في القائمة بعد التحديث','Request saved but not visible after refresh'));
+   formElement.reset();notify(t('تم حفظ الطلب والتحقق من استرجاعه','Request saved and successfully retrieved'));
+  }catch(error){
+   notify(savedId?t('حُفظ الطلب ولكن تعذر التحقق من استرجاعه. حدّث القائمة قبل محاولة إعادة الإرسال: ','Request saved, but retrieval could not be verified. Refresh before resubmitting: ')+error.message:error.message,true);
+  }finally{button.disabled=false;}
  }
  async function decideRequest(event){
   const button=event.target.closest('[data-hr-decision]');
@@ -281,6 +298,9 @@
     .eq('user_id',user.id).eq('status','active').limit(100));
    memberships=memberships.filter(activeMembership);
    $('hr-self-section').hidden=!memberships.length;
+   if(!memberships.length&&!ownerLicense){
+    notify(t('لم تُعثر على عضوية موظف نشطة لهذا الحساب. لا يمكن فتح الخدمة الذاتية دون عضوية مسجلة في الشركة.','No active employee membership was found for this account. Self-service requires a registered company membership.'),true);
+   }
    $('hr-self-workspace').innerHTML=memberships.map(m=>
     '<option value="'+esc(m.id)+'">'+esc(m.workspace_id.slice(0,8))+
     ' — '+esc(roleLabel(m.role))+'</option>').join('');
