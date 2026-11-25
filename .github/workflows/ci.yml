@@ -204,21 +204,7 @@ jobs:
                 # classifier. Verify the full workflow is otherwise unchanged
                 # before selecting the existing scoped visual gate.
                 git show "$BASE_SHA:.github/workflows/ci.yml" > /tmp/bonds-base-ci.yml
-                python3 - <<'PY'
-from pathlib import Path
-base=Path('/tmp/bonds-base-ci.yml').read_text()
-current=Path('.github/workflows/ci.yml').read_text()
-insertion='components/financial-analysis-report.js|lib/finance/financial-data-intake.js|lib/finance/engines/financial-analysis-engine.js|tests/finance/financial-analysis-end-to-end.test.js|tests/finance/financial-engine-registry.test.js|'
-self_case_start='              .github/workflows/ci.yml)\n'
-self_case_end='              site-layout.js)\n'
-if current.count(insertion)!=1 or current.count(self_case_start)!=1:
-  raise SystemExit('Unexpected CI scope changes')
-before,tail=current.split(self_case_start,1)
-if self_case_end not in tail: raise SystemExit('Missing scope boundary')
-_,after=tail.split(self_case_end,1)
-normalized=(before+self_case_end+after).replace(insertion,'')
-if normalized!=base: raise SystemExit('CI modifications exceed the reviewed financial scope')
-PY
+                python3 -c 'from pathlib import Path; base=Path("/tmp/bonds-base-ci.yml").read_text(); current=Path(".github/workflows/ci.yml").read_text(); insertion="components/financial-analysis-report.js|lib/finance/financial-data-intake.js|lib/finance/engines/financial-analysis-engine.js|tests/finance/financial-analysis-end-to-end.test.js|tests/finance/financial-engine-registry.test.js|"; start="              .github/workflows/ci.yml)\n"; end="              site-layout.js)\n"; assert current.count(insertion)==1 and current.count(start)==1 and end in current; normalized=(current.split(start,1)[0]+end+current.split(end,1)[1]).replace(insertion,""); assert normalized==base, "CI changes outside reviewed financial scope"'
                 ;;
               site-layout.js)
                 # Permit ONLY the reviewed collapsed company-menu HR link.
