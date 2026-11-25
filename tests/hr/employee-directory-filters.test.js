@@ -29,6 +29,20 @@ describe('HR employee directory server-side paging',()=>{
   expect(source).toContain("employeePage=0");
   expect(source).toContain("employeeSearch='';employeeStatusFilter='all';employeePage=0;employeeTotal=0;");
  });
+ test('employee writes must be re-read from the same tenant and values matched before success',()=>{
+  expect(source).toContain("const persisted=check(await db.from('hr_saas_employees')");
+  expect(source).toContain(".eq('workspace_id',workspace.id).eq('id',result.id).single()");
+  expect(source).toContain("persisted.workspace_id!==workspace.id");
+  expect(source).toContain("persisted.employee_number!==row.employee_number");
+  expect(source).toContain("persisted.full_name!==row.full_name");
+  expect(source).toContain("لا تعِد الإضافة قبل مراجعة السجل");
+ });
+ test('missing HR authorization identifies the signed-in account and offers account switching',()=>{
+  expect(source).toContain("hr-license-current-account");
+  expect(source).toContain("user.email");
+  expect(source).toContain("hr-switch-account");
+  expect(source).toContain("encodeURIComponent(location.pathname+location.search)");
+ });
  test('non-directory employee selectors remain bounded and existing writes stay intact',()=>{
   expect(source).toContain(".limit(250)");
   expect(source).toContain("const result=check(await q.select('id').single())");
