@@ -224,6 +224,11 @@ async function main(){
    assert.equal(await page.locator('a.back[lang="en"]').isVisible(),true,'English locale switch hidden at '+width);
   }
 
+  // Wait for the deferred CRM workspace initialization after locale reload.
+  // A DOMContentLoaded response is not sufficient for clickable CRM modules.
+  await page.waitForFunction(()=>document.querySelector('#workspace-content')?.hidden===false && Boolean(document.querySelector('#workspace-select')?.value),null,{timeout:15000});
+  await page.locator('#crm-product-tab').click();
+  await page.waitForFunction(()=>!document.querySelector('#crm-nav')?.hidden && !document.querySelector('#workspace-content')?.hidden,null,{timeout:8000});
   // Exhaustive read-only CRM UI audit on the in-memory tenant only.
   // Do not submit records, perform payments or change production.
   await page.setViewportSize({width:1280,height:800});
