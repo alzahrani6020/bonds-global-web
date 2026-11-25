@@ -21,7 +21,7 @@ describe('BONDS HR accordion sidebar',()=>{
    expect(found).toHaveLength(26);
    expect(new Set(found).size).toBe(26);
    expect([...found].sort()).toEqual([...modules].sort());
-   expect(html).toContain('company-hr.js?v=17');
+   expect(html).toContain('company-hr.js?v=19');
    expect(html).toContain('crm-app.css?v=4');
    expect(html).toContain('id="company-program-brand"');
   });
