@@ -32,6 +32,7 @@
  <script src="/my-bonds/crm/company-hr-policies.js?v=1" defer></script>
  <script src="/my-bonds/crm/crm-internal.js?v=1" defer></script>
  <style>html[lang="en"]{direction:ltr}html[lang="en"] body{text-align:left}html[lang="en"] .sidebar{border-left:0;border-right:1px solid var(--stroke)}html[lang="en"] .sidebar-nav button,html[lang="en"] th,html[lang="en"] td{text-align:left}</style>
+ <script src="/my-bonds/crm/company-hr-company-profile.js?v=1" defer></script>
 </head>
 <body>
 <div class="app">
@@ -204,6 +205,44 @@
     <a href="/contact.html">Subscription assistance</a>
    </section>
    <section id="hr-auth" class="panel" hidden>Sign in to use company programs. <a id="hr-sign-in" href="/en/calculators/auth/index.html">Sign in</a></section>
+   <section id="hr-company-profile" class="panel" hidden>
+<h2>Company institutional profile</h2>
+<p>Data for this company only. Changes do not affect company ownership or employee memberships.</p>
+<p id="hr-company-profile-status" role="status" aria-live="polite"></p>
+<form id="hr-company-profile-form">
+<div class="editor-fields">
+<label>Legal name<input name="legal_name" type="text" maxlength="240" autocomplete="off"></label>
+<label>Trading name<input name="trading_name" type="text" maxlength="240" autocomplete="off"></label>
+<label>Legal entity type<input name="legal_entity_type" type="text" maxlength="240" autocomplete="off"></label>
+<label>Commercial registration<input name="commercial_registration" type="text" maxlength="240" autocomplete="off"></label>
+<label>CR issue date<input name="commercial_registration_issued_at" type="date" maxlength="240" autocomplete="off"></label>
+<label>CR expiry date<input name="commercial_registration_expires_at" type="date" maxlength="240" autocomplete="off"></label>
+<label>Establishment unified number<input name="unified_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>National establishment number<input name="national_establishment_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>VAT number<input name="vat_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>VAT registration status<input name="vat_registration_status" type="text" maxlength="240" autocomplete="off"></label>
+<label>Social insurance registration<input name="gosi_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>Municipal license number<input name="municipal_license_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>Municipal license expiry<input name="municipal_license_expires_at" type="date" maxlength="240" autocomplete="off"></label>
+<label>Primary business activity<input name="business_activity" type="text" maxlength="240" autocomplete="off"></label>
+<label>Secondary activities<input name="secondary_activities" type="text" maxlength="240" autocomplete="off"></label>
+<label>City<input name="city" type="text" maxlength="240" autocomplete="off"></label>
+<label>District<input name="district" type="text" maxlength="240" autocomplete="off"></label>
+<label>Street<input name="street" type="text" maxlength="240" autocomplete="off"></label>
+<label>Building number<input name="building_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>Postal code<input name="postal_code" type="text" maxlength="240" autocomplete="off"></label>
+<label>Additional number<input name="additional_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>Company phone<input name="phone" type="text" maxlength="240" autocomplete="off"></label>
+<label>Official email<input name="email" type="email" maxlength="240" autocomplete="off"></label>
+<label>Website<input name="website" type="url" maxlength="240" autocomplete="off"></label>
+<label>Legal representative<input name="representative_name" type="text" maxlength="240" autocomplete="off"></label>
+<label>HR contact<input name="hr_contact_name" type="text" maxlength="240" autocomplete="off"></label>
+</div>
+<label>Company logo (PNG / JPG / WEBP, up to 2 MB)<input type="file" id="hr-company-logo-file" accept="image/png,image/jpeg,image/webp"></label>
+<img id="hr-company-logo-preview" hidden alt="Company logo" style="max-width:160px;max-height:110px;object-fit:contain;">
+<button type="submit" class="primary">Save company information</button>
+</form>
+</section>
    <section id="hr-setup" class="panel" hidden>
     <h2>Shared company workspaces</h2>
     <label>Choose workspace<select id="hr-workspace"></select></label>
