@@ -276,13 +276,7 @@
    <section id="hr-membership-admin" class="panel" hidden>
     <div class="section-actions"><h2>صلاحيات الموظفين وإدارة الوصول</h2>
      <button type="button" class="secondary" id="hr-member-refresh">تحديث</button></div>
-    <p class="muted">مالك الشركة وحده يمنح الصلاحيات ويوقفها. يتطلب الربط معرّف UUID لحساب مسجل بالفعل. يراجع مسؤول الموارد البشرية الطلبات دون الاطلاع على سجلات الرواتب أو إدارة العضويات.</p>
-    <form id="hr-member-form" class="editor-fields">
-     <label>معرّف حساب المستخدم UUID<input name="user_id" required maxlength="36" autocomplete="off"></label>
-     <label>ملف الموظف<select id="hr-member-employee" name="employee_id" required><option value="">اختر الموظف</option></select></label>
-     <label>صلاحية الوصول<select name="role" required><option value="employee">موظف</option><option value="hr_manager">مسؤول الموارد البشرية</option></select></label>
-     <button type="submit" class="primary">منح العضوية</button>
-    </form>
+    <p class="muted">مالك الشركة وحده يدير العضويات. ادعُ الموظف الجديد ببريده الإلكتروني أولًا؛ يُربط الحساب بملفه بعد دخول الموظف الموثق وقبول الدعوة.</p>
     <h3>دعوة الموظفين بالبريد الإلكتروني الموثّق</h3>
     <p class="muted">تُنشأ دعوة محددة بالموظف والبريد والصلاحية. لا تُفعّل العضوية إلا بعد دخول المدعو بحساب ذي بريد مؤكد مطابق.</p>
     <form id="hr-invite-form" class="editor-fields">
@@ -290,6 +284,14 @@
      <label>ملف الموظف<select id="hr-invite-employee" name="employee_id" required><option value="">اختر الموظف</option></select></label>
      <label>الصلاحية<select name="role" required><option value="employee">موظف</option><option value="hr_manager">مسؤول الموارد البشرية</option></select></label>
      <button type="submit" class="primary">إنشاء الدعوة وإرسال البريد</button>
+    </form>
+    <h3>الربط المباشر بمعرّف UUID — خيار إداري متقدم</h3>
+    <p class="muted">للموظفين الجدد استخدم الدعوة بالبريد أعلاه. لا تُعد إنشاء عضوية نشطة ولا تدخل UUID إلا للحساب المسجل والموثق.</p>
+    <form id="hr-member-form" class="editor-fields">
+     <label>معرّف حساب المستخدم UUID<input name="user_id" required maxlength="36" autocomplete="off"></label>
+     <label>ملف الموظف<select id="hr-member-employee" name="employee_id" required><option value="">اختر الموظف</option></select></label>
+     <label>صلاحية الوصول<select name="role" required><option value="employee">موظف</option><option value="hr_manager">مسؤول الموارد البشرية</option></select></label>
+     <button type="submit" class="primary">منح العضوية</button>
     </form>
     <div class="overflow"><table><thead><tr><th>الموظف</th><th>البريد</th><th>الصلاحية</th><th>الغرض</th><th>الحالة</th><th>تاريخ الدعوة</th><th>تاريخ الانتهاء</th><th>الإجراء</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
     <div class="overflow"><table><thead><tr><th>الموظف</th><th>الحساب</th><th>الدور</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="hr-members-table"></tbody></table></div>
