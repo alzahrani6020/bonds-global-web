@@ -69,6 +69,26 @@
     const missing = t('غير متوفر ضمن مخرجات الدراسة الحالية؛ لا تُنشأ أرقام أو قوائم مالية افتراضية.',
       'Not supplied in this execution; no invented financial statement or scenario figures.');
     const optional = [];
+    // Reuse only other executed, successful governed engine results. Do not
+    // substitute made-up financial ratios, debt metrics or forecasts.
+    const otherEngines = Object.entries(result.engineResults || {})
+      .filter(function(entry) {
+        const output=entry[1];
+        return entry[0] !== 'feasibility' && output && output.executed === true &&
+          output.ok === true && output.metrics && typeof output.metrics === 'object';
+      });
+    if (otherEngines.length) {
+      const details = otherEngines.map(function(entry) {
+        const computed=entry[1].metrics;
+        const rows=Object.entries(computed)
+          .filter(function(metric) { return finite(metric[1]); })
+          .map(function(metric) { return row(metric[0].replace(/_/g, ' '), number(metric[1])); })
+          .join('');
+        return rows ? '<h3>' + escape(entry[0]) + '</h3><table>' + rows + '</table>' : '';
+      }).join('');
+      if (details) optional.push(section(
+        t('مؤشرات إضافية محسوبة بواسطة محركات BONDS','Additional BONDS engine-computed indicators'), details));
+    }
     if (result.financial_statements && typeof result.financial_statements === 'object') {
       optional.push(section(t('القوائم المالية المتاحة','Available financial statements'),
         '<pre>' + escape(JSON.stringify(result.financial_statements, null, 2)) + '</pre>'));
