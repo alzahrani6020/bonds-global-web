@@ -22,7 +22,8 @@
   try{sessionStorage.setItem(inviteStorageKey,inviteFromFragment);}catch(_){}
  }
  const roleLabel=role=>({employee:t('موظف','Employee'),hr_manager:t('مسؤول الموارد البشرية','HR manager')}[role]||role);
- const stateLabel=state=>({pending:t('بانتظار القبول','Pending acceptance'),accepted:t('مقبولة','Accepted'),revoked:t('ملغاة','Revoked'),active:t('نشطة','Active')}[state]||state);
+ const stateLabel=state=>({pending:t('بانتظار القبول','Pending acceptance'),accepted:t('مقبولة','Accepted'),approved:t('معتمدة','Approved'),rejected:t('مرفوضة','Rejected'),revoked:t('ملغاة','Revoked'),active:t('نشطة','Active')}[state]||state);
+ const requestTypeLabel=type=>({leave:t('إجازة','Leave'),attendance_correction:t('تصحيح حضور','Attendance correction'),certificate:t('شهادة وظيفية','Employment certificate'),training:t('تدريب','Training'),other:t('أخرى','Other')}[type]||type);
  const localDate=value=>value?new Intl.DateTimeFormat(english?'en-GB':'ar-SA-u-ca-gregory',{timeZone:'Asia/Riyadh',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(value)):'—';
  function offerAccountSwitch(){
   const target=$('hr-invite-switch');if(target)target.hidden=false;
@@ -190,7 +191,7 @@
    const actions=canDecide?
     '<button class="secondary" type="button" data-hr-decision="approved" data-hr-request="'+esc(req.id)+'">'+t('اعتماد','Approve')+'</button> '+
     '<button class="secondary" type="button" data-hr-decision="rejected" data-hr-request="'+esc(req.id)+'">'+t('رفض','Reject')+'</button>':'—';
-   return '<tr><td>'+esc(req.request_type)+'</td><td>'+esc(req.subject)+'</td><td>'+esc(req.status)+
+   return '<tr><td>'+esc(requestTypeLabel(req.request_type))+'</td><td>'+esc(req.subject)+'</td><td>'+esc(stateLabel(req.status))+
     '</td><td>'+esc(req.created_at?.slice(0,10))+'</td><td>'+actions+'</td></tr>';
   }).join('')||'<tr><td colspan="5">'+t('لا توجد طلبات','No requests')+'</td></tr>';
  }
@@ -281,7 +282,7 @@
    $('hr-self-section').hidden=!memberships.length;
    $('hr-self-workspace').innerHTML=memberships.map(m=>
     '<option value="'+esc(m.id)+'">'+esc(m.workspace_id.slice(0,8))+
-    ' — '+esc(m.role)+'</option>').join('');
+    ' — '+esc(roleLabel(m.role))+'</option>').join('');
    if(memberships.length){
     if(!ownerLicense)$('hr-license').hidden=true;
     $('hr-self-workspace').value=memberships[0].id;
