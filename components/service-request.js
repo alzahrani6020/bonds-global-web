@@ -2451,6 +2451,44 @@ async function submit(e){
   const sb=window.BondsAuth.getSupabase();const session=(await sb.auth.getSession()).data.session;
   if(!session?.access_token)throw new Error(T.login);
   const values=collectValues();
+  // Public service-request pages collect the request first. Paid execution is a
+  // separate, explicit workspace action; never require payment to submit intake.
+  if(!isServiceWorkspace){
+   const files=[...document.querySelectorAll('#srRequestForm input[type="file"]')]
+    .filter(input=>input.files?.length);
+   if(files.length){
+    showStatus(lang==='ar'
+     ?'لا تُرفع المرفقات ضمن هذا الطلب الأولي. أزل الملفات ثم أرسل الطلب، وأرفقها لاحقًا عبر مساحة العمل.'
+     :'Attachments are not uploaded in this initial request. Remove files, submit the request, and attach them later through your workspace.',false);
+    return;
+   }
+   const headers={'Content-Type':'application/json','Authorization':'Bearer '+session.access_token};
+   const requestBody={
+    service_code:serviceCode,
+    country_code:params.get('country')||null,
+    region_code:params.get('region')||null,
+    region_name:params.get('region_name')||null,
+    locality_code:params.get('locality')||null,
+    locality_name:params.get('locality_name')||null,
+    sector_code:params.get('sector')||null,
+    activity_code:params.get('activity')||null,
+    values,
+    form_version:detail?.form?.version||null,
+    lang,
+    url:location.href,
+    source:'service_request_page',
+    metadata:{
+     project_id:params.get('project_id')||null,
+     deal_id:params.get('deal_id')||null,
+     opportunity_id:params.get('opportunity_id')||null
+    }
+   };
+   const d=await json('/api/v3/services/requests',{
+    method:'POST',headers,body:JSON.stringify(requestBody)
+   });
+   await finalizeServiceRequestCreation(d,values,headers);
+   return;
+  }
   if(serviceCode==='feasibility_studies'){
    const check=feasibilityPreflight(values);
    if(!check.ok){
