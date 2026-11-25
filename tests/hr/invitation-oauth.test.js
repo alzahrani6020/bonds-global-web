@@ -12,13 +12,15 @@ describe('HR staff invitation survives OAuth return',()=>{
   expect(source).toContain("sessionStorage.getItem(inviteStorageKey)");
   expect(source).toContain("db.rpc('hr_saas_accept_invitation',{invite_token:inviteToken})");
   const persisted=source.indexOf("sessionStorage.removeItem(inviteStorageKey)");
-  const accepted=source.indexOf("const accepted=requireOk(await db.rpc(");
+  const accepted=source.indexOf("const acceptResult=await db.rpc(");
+  expect(source).toContain("if(acceptResult.error.code==='42501')");
+  expect(source).toContain("const accepted=acceptResult.data;");
   expect(persisted).toBeGreaterThan(accepted);
   expect(source).toContain("clean.hash='';history.replaceState");
  });
  test('both locale entrypoints use new callback script',()=>{
   for(const html of [ar,en]){
-   expect(html).toContain('company-hr-self-service.js?v=4');
+   expect(html).toContain('company-hr-self-service.js?v=5');
    expect(html).toContain('company-hr.js?v=19');
   }
  });

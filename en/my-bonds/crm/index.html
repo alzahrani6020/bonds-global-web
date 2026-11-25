@@ -28,7 +28,7 @@
  <script src="/my-bonds/crm/crm-app.js?v=3" defer></script>
  <script src="/my-bonds/crm/company-hr.js?v=19" defer></script>
  <script src="/my-bonds/crm/company-hr-overview.js?v=1" defer></script>
- <script src="/my-bonds/crm/company-hr-self-service.js?v=4" defer></script>
+ <script src="/my-bonds/crm/company-hr-self-service.js?v=5" defer></script>
  <script src="/my-bonds/crm/company-hr-policies.js?v=1" defer></script>
  <script src="/my-bonds/crm/crm-internal.js?v=1" defer></script>
  <style>html[lang="en"]{direction:ltr}html[lang="en"] body{text-align:left}html[lang="en"] .sidebar{border-left:0;border-right:1px solid var(--stroke)}html[lang="en"] .sidebar-nav button,html[lang="en"] th,html[lang="en"] td{text-align:left}</style>
@@ -215,6 +215,8 @@
     </details>
    </section>
    <p id="hr-status" class="notice" role="status" aria-live="polite" hidden></p>
+   <p id="hr-self-status" class="notice" role="status" aria-live="polite" hidden></p>
+    <button type="button" class="secondary" id="hr-invite-switch" hidden>Switch account to accept invitation</button>
    <section id="hr-membership-admin" class="panel" hidden>
     <div class="section-actions"><h2>Employee access and roles</h2>
      <button type="button" class="secondary" id="hr-member-refresh">Refresh</button></div>
@@ -233,7 +235,7 @@
      <label>Access role<select name="role" required><option value="employee">Employee</option><option value="hr_manager">HR manager</option></select></label>
      <button type="submit" class="primary">Create and email invitation</button>
     </form>
-    <div class="overflow"><table><thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Email / Link</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
+    <div class="overflow"><table><thead><tr><th>Employee</th><th>Email</th><th>Role</th><th>Purpose</th><th>Status</th><th>Invited at</th><th>Expires at</th><th>Action</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
     <div class="overflow"><table><thead><tr><th>Employee</th><th>Account</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody id="hr-members-table"></tbody></table></div>
    </section>
    <section id="hr-self-section" class="panel" hidden>
@@ -257,7 +259,7 @@
      <div class="overflow"><table><thead><tr><th>Type</th><th>Subject</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody id="hr-request-rows"></tbody></table></div>
     </div>
    </section>
-   <p id="hr-self-status" class="notice" role="status" aria-live="polite" hidden></p>
+   
    <section id="hr-policy-panel" class="panel" hidden>
     <h2>Reviewed entitlement policies and draft calculations</h2>
     <p class="muted">Company-approved country rules must be legally reviewed before approval. No statutory rates are assumed. Results are review-only drafts, not payable balances.</p>
