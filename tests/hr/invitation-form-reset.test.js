@@ -19,7 +19,7 @@ describe('HR invitation form async lifecycle',()=>{
   });
  }
  test('Arabic and English pages load corrected script',()=>{
-  expect(htmlAr).toContain('company-hr-self-service.js?v=6');
-  expect(htmlEn).toContain('company-hr-self-service.js?v=6');
+  expect(htmlAr).toContain('company-hr-self-service.js?v=7');
+  expect(htmlEn).toContain('company-hr-self-service.js?v=7');
  });
 });
