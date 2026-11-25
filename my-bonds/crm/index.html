@@ -19,14 +19,14 @@
  <meta name="theme-color" content="#0066cc">
  <link rel="manifest" href="/my-bonds/crm/crm-manifest.webmanifest">
  <link rel="icon" href="/assets/icons/icon-192.png" sizes="192x192">
- <link rel="stylesheet" href="/my-bonds/crm/crm-app.css?v=4">
+ <link rel="stylesheet" href="/my-bonds/crm/crm-app.css?v=5">
  <script src="/api/env" defer></script>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
  <script src="/bonds-auth-2026.js?v=3.1.4" defer></script>
  <script src="/my-bonds/crm/crm-app.js?v=3" defer></script>
  <script src="/my-bonds/crm/company-hr.js?v=19" defer></script>
  <script src="/my-bonds/crm/company-hr-overview.js?v=1" defer></script>
- <script src="/my-bonds/crm/company-hr-self-service.js?v=4" defer></script>
+ <script src="/my-bonds/crm/company-hr-self-service.js?v=5" defer></script>
  <script src="/my-bonds/crm/company-hr-policies.js?v=1" defer></script>
  <script src="/my-bonds/crm/crm-internal.js?v=1" defer></script>
 </head>
@@ -213,6 +213,8 @@
     </details>
    </section>
    <p id="hr-status" class="notice" role="status" aria-live="polite" hidden></p>
+   <p id="hr-self-status" class="notice" role="status" aria-live="polite" hidden></p>
+    <button type="button" class="secondary" id="hr-invite-switch" hidden>تبديل الحساب لقبول الدعوة</button>
    <section id="hr-app" hidden>
     <div class="section-actions"><h2 id="hr-heading">الملفات الوظيفية</h2>
      <button id="hr-refresh" type="button" class="secondary">تحديث</button>
@@ -249,7 +251,7 @@
      <label>الصلاحية<select name="role" required><option value="employee">موظف</option><option value="hr_manager">مسؤول الموارد البشرية</option></select></label>
      <button type="submit" class="primary">إنشاء الدعوة وإرسال البريد</button>
     </form>
-    <div class="overflow"><table><thead><tr><th>البريد</th><th>الصلاحية</th><th>الحالة</th><th>إرسال الدعوة / الرابط</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
+    <div class="overflow"><table><thead><tr><th>الموظف</th><th>البريد</th><th>الصلاحية</th><th>الغرض</th><th>الحالة</th><th>تاريخ الدعوة</th><th>تاريخ الانتهاء</th><th>الإجراء</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
     <div class="overflow"><table><thead><tr><th>الموظف</th><th>الحساب</th><th>الدور</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="hr-members-table"></tbody></table></div>
    </section>
    <section id="hr-self-section" class="panel" hidden>
@@ -273,7 +275,7 @@
      <div class="overflow"><table><thead><tr><th>النوع</th><th>الموضوع</th><th>الحالة</th><th>التاريخ</th><th>الإجراء</th></tr></thead><tbody id="hr-request-rows"></tbody></table></div>
     </div>
    </section>
-   <p id="hr-self-status" class="notice" role="status" aria-live="polite" hidden></p>
+   
    <section id="hr-policy-panel" class="panel" hidden>
     <h2>سياسات الاستحقاقات والحسابات المبدئية</h2>
     <p class="muted">تُدخل الشركة قواعدها المعتمدة وفق الدولة وتاريخ النفاذ بعد المراجعة القانونية. لا توجد نسب قانونية مفترضة. جميع النتائج مسودات للمراجعة وليست مستحقات مصروفة.</p>

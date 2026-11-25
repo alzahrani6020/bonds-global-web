@@ -62,6 +62,7 @@ async function run(){
      let kind='read',value=null,filters=[],limit=1000,offset=0,rangeEnd=null;
      const q={
       select(){return q;},eq(k,v){filters.push(r=>r[k]===v);return q;},
+      gt(k,v){filters.push(r=>r[k]>v);return q;},
       in(k,vals){filters.push(r=>vals.includes(r[k]));return q;},
       or(expr){
        const clauses=expr.split(',').map(c=>c.split('.ilike.'));
@@ -513,6 +514,93 @@ async function run(){
     await page.locator('#hr-member-form button[type="submit"]').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_memberships.length===1);
     assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_memberships[0])).role,'hr_manager');
+    // Independent UI-only coverage audit on synthetic owner data.
+    // No production mutations: all requests are intercepted by this test's mock.
+    const hrAuditModules=[
+     'employees','departments','positions','recruitment','lifecycle','attendance',
+     'attendance_corrections','shifts','leaves','leave_balances','contracts','payroll',
+     'payroll_runs','benefits','allowances','deductions','claims','loans','settlements',
+     'performance','training','documents','employee_requests','assets','governance','audit'
+    ];
+    const hrUiIssues=[];
+    const membershipSnapshot=await page.evaluate(()=>JSON.stringify(window.__hrTest.tables.hr_saas_memberships));
+    const writeCountBeforeAudit=await page.evaluate(()=>window.__hrTest.writes.length);
+    const fs=require('node:fs');
+    const outDir=process.env.UI_AUDIT_SCREENSHOTS;
+    if(outDir)fs.mkdirSync(outDir,{recursive:true});
+    for(const width of [1440,390]){
+     await page.setViewportSize({width,height:900});
+     for(const id of hrAuditModules){
+      try{
+       await chooseHrModule(page,id);
+       await page.waitForFunction(expected=>{
+        const notice=document.querySelector('#hr-status')?.textContent||'';
+        return new URL(location.href).searchParams.get('hr_module')===expected
+         && !notice.includes('جارٍ تحميل الوحدة') && !notice.includes('Loading module');
+       },id,{timeout:10000});
+       const audit=await page.evaluate(expected=>{
+        const nav=document.querySelector('#hr-nav [data-hr-category="'+expected+'"]');
+        const editor=document.querySelector('#hr-editor');
+        const add=document.querySelector('#hr-add');
+        return {
+         active:nav?.getAttribute('aria-current')==='page',
+         visible:!!document.querySelector('#hr-app')&&!document.querySelector('#hr-app').hidden,
+         heading:document.querySelector('#hr-heading')?.textContent||'',
+         horizontalOverflow:Math.max(0,document.documentElement.scrollWidth-window.innerWidth),
+         error:(document.querySelector('#hr-status')?.classList.contains('error')?
+          document.querySelector('#hr-status').textContent:''),
+         addVisible:!!add&&!add.hidden,
+         title:document.title
+        };
+       },id);
+       if(width===390&&id==='employees'){
+        const offenders=await page.evaluate(()=>{
+         const w=innerWidth;
+         return Array.from(document.body.querySelectorAll('*')).filter(el=>{
+          const r=el.getBoundingClientRect(),style=getComputedStyle(el);
+          return r.width>0&&r.height>0&&style.display!=='none'&&
+           (r.left< -2||r.right>w+2||r.width>w+2);
+         }).map(el=>{const r=el.getBoundingClientRect();return {
+          tag:el.tagName,id:el.id||'',className:String(el.className||'').slice(0,85),
+          left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),
+          scrollWidth:el.scrollWidth,clientWidth:el.clientWidth
+         }}).sort((a,b)=>b.width-a.width).slice(0,22);
+        });
+        console.log('UI_AUDIT_HR_OVERFLOW_DIAG '+JSON.stringify(offenders));
+        const chain=await page.evaluate(()=>{
+         const selectors=['html','body','.app','.content','#hr-section','#hr-setup','#hr-app','#hr-membership-admin','#hr-self-section','#hr-policy-panel','#hr-policy-form','#hr-calculation-form','#hr-calculation-result','.panel','.overflow'];
+         return selectors.map(selector=>{
+          const e=document.querySelector(selector);if(!e)return {selector,missing:true};
+          const r=e.getBoundingClientRect(),style=getComputedStyle(e);
+          return {selector,left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),
+           scrollWidth:e.scrollWidth,clientWidth:e.clientWidth,minWidth:style.minWidth,
+           gridTemplateColumns:style.gridTemplateColumns,overflowX:style.overflowX};
+         });
+        });
+        console.log('UI_AUDIT_HR_OVERFLOW_CHAIN '+JSON.stringify(chain));
+       }
+       if(!audit.title.includes('BONDS HR'))hrUiIssues.push({width,id,issue:'wrong HR browser tab title',title:audit.title});
+       if(!audit.active||!audit.visible||audit.error||audit.horizontalOverflow>2)
+        hrUiIssues.push({width,id,issue:'render, navigation, overflow or runtime',audit});
+       if(audit.addVisible){
+        await page.locator('#hr-add').click();
+        const fields=await page.locator('#hr-fields input, #hr-fields select, #hr-fields textarea').count();
+        if(!(await page.locator('#hr-editor').isVisible())||fields<1)
+         hrUiIssues.push({width,id,issue:'Add editor missing usable fields',fields});
+        await page.locator('#hr-close').click();
+       }
+       if(outDir)await page.screenshot({path:outDir+'/hr-'+width+'-'+id+'.png',fullPage:true,animations:'disabled'});
+       console.log('UI_AUDIT_HR '+JSON.stringify({width,id,...audit}));
+      }catch(error){
+       hrUiIssues.push({width,id,issue:String(error.message||error)});
+       console.log('UI_AUDIT_HR_ERROR '+JSON.stringify({width,id,message:String(error.message||error)}));
+      }
+     }
+    }
+    assert.equal(await page.evaluate(()=>JSON.stringify(window.__hrTest.tables.hr_saas_memberships)),membershipSnapshot,'Browsing HR UI must never create or modify HR memberships');
+    assert.equal(await page.evaluate(()=>window.__hrTest.writes.length),writeCountBeforeAudit,'Navigating and opening/closing HR UI must not write to the database');
+    console.log('UI_AUDIT_HR_SUMMARY '+JSON.stringify({tested:hrAuditModules.length*2,issues:hrUiIssues}));
+    assert.deepEqual(hrUiIssues,[],'HR UI audit defects, see UI_AUDIT_HR_SUMMARY');
    }
    assert.deepEqual(errors,[],'Client runtime error: '+errors.join('; '));
    await page.close();
