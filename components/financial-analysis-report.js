@@ -124,6 +124,19 @@
   if(present('dscr')&&metrics.dscr<1)risks.push(tr('تغطية خدمة الدين أقل من مرة','DSCR below 1'));
   if(present('current_ratio')&&metrics.current_ratio<1)risks.push(tr('التزامات متداولة أعلى من الأصول المتداولة','Current liabilities exceed current assets'));
   if(present('operating_cash_flow')&&metrics.operating_cash_flow<0)risks.push(tr('تدفق نقدي تشغيلي سالب','Negative operating cash flow'));
+  const recommendations=[];
+  if(present('dscr')&&metrics.dscr<1)recommendations.push(tr(
+    'مراجعة جدول خدمة الدين وتوقيتاته مقابل النقد المتاح، مع توثيق استحقاقات الأصل والفوائد.',
+    'Review debt-service timing against evidenced cash available and document principal/interest maturities.'));
+  if(present('current_ratio')&&metrics.current_ratio<1)recommendations.push(tr(
+    'إعداد خطة لرأس المال العامل ومراجعة مواعيد الاستحقاقات قصيرة الأجل.',
+    'Prepare a working-capital plan and review short-term liabilities.'));
+  if(present('operating_cash_flow')&&metrics.operating_cash_flow<0)recommendations.push(tr(
+    'تحديد أسباب التدفق التشغيلي السالب، بما يشمل التحصيل والمخزون والدائنين.',
+    'Investigate negative operating cash flow, including collections, stock and payables.'));
+  if(!recommendations.length)recommendations.push(tr(
+    'استكمال البيانات والمستندات وتفسير الاتجاهات قبل إصدار استنتاج مهني نهائي.',
+    'Complete source evidence and comparative trends before a final professional conclusion.'));
   const riskText=risks.length?risks.join('؛ '):tr('لا تنبيهات وفق القواعد المحدودة؛ لا يمثل ذلك اعتمادًا ائتمانيًا.',
    'No triggers under limited rules; not credit approval.');
   const groupRequirements={
@@ -171,6 +184,7 @@
       '<p>'+escape(tr('تتطلب تغطية الدين CFADS والاستحقاق الفعلي. أيام رأس المال العامل تعتمد على الأرصدة الختامية، لا المتوسطات.',
         'DSCR requires reported CFADS and scheduled service; working-capital days use closing balances, not averages.'))+'</p>')+
     section(tr('إشارات المخاطر','Risk indicators'),'<p>'+escape(riskText)+'</p>')+
+    section(tr('إجراءات المراجعة المقترحة آليًا','Automated review actions'),'<p>'+escape(recommendations.join('؛ '))+'</p>')+
     section(tr('المؤشرات المحسوبة','Computed indicators'),'<table>'+tableRows(values)+'</table>')+
     section(tr('المدخلات المستخدمة','Execution inputs'),inputsTable.length?'<table>'+tableRows(inputsTable)+'</table>':'<p>—</p>')+
     section(tr('مصادر بنود القوائم','Field provenance'),provenanceHtml)+
