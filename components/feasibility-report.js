@@ -23,7 +23,13 @@
     const result = payload.result || {};
     const study = result.engineResults && result.engineResults.feasibility;
     const m = study && study.metrics;
-    if (!study || study.executed !== true || !study.ok || !m || !finite(m.npv) || !finite(m.irr_pct)) {
+    if (!study || study.executed !== true || study.ok !== true || !m ||
+        !finite(m.npv) || !finite(m.irr) || !finite(m.irr_pct) ||
+        !finite(m.initial_investment) || m.initial_investment <= 0 ||
+        !finite(m.discount_rate) || m.discount_rate < 0 || m.discount_rate > 1 ||
+        !Array.isArray(m.cash_flows) || !m.cash_flows.length || m.cash_flows.length > 60 ||
+        !m.cash_flows.every(finite) ||
+        (Array.isArray(study.required_inputs) && study.required_inputs.length !== 0)) {
       throw new Error('FEASIBILITY_REPORT_REQUIRES_CALCULATED_METRICS');
     }
     const values = input.inputs || {};
