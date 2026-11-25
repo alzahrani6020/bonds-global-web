@@ -223,6 +223,48 @@ async function main(){
    assert.equal(await page.locator('a.back[href="/my-bonds/"]').isVisible(),true,'Arabic workspace return hidden at '+width);
    assert.equal(await page.locator('a.back[lang="en"]').isVisible(),true,'English locale switch hidden at '+width);
   }
+
+  // Exhaustive read-only CRM UI audit on the in-memory tenant only.
+  // Do not submit records, perform payments or change production.
+  await page.setViewportSize({width:1280,height:800});
+  const sections=await page.locator('#crm-nav [data-section]').evaluateAll(nodes=>nodes.map(n=>n.dataset.section));
+  assert.equal(sections.length,11,'CRM navigation must include all 11 sections');
+  const audit=[];
+  for(const section of sections){
+   const item={section};
+   const before=errors.length;
+   try{
+    await page.locator('#crm-nav [data-section="'+section+'"]').click();
+    await page.waitForTimeout(80);
+    item.selected=await page.locator('#crm-nav [data-section="'+section+'"]').evaluate(el=>el.classList.contains('active'));
+    item.heading=(await page.locator('#section-heading').textContent()||'').trim();
+    item.contentVisible=await (section==='overview'?page.locator('#overview'):section==='members'?page.locator('#membership-section'):section==='audit'?page.locator('#audit-section'):page.locator('#records-section')).isVisible();
+    const add=page.locator('#new-record');
+    item.addVisible=await add.isVisible();
+    if(item.addVisible){
+     await add.click();
+     item.editorVisible=await page.locator('#editor').isVisible();
+     item.fields=await page.locator('#editor-fields [name]').count();
+     await page.locator('#editor-close').click();
+     item.editorClosed=!(await page.locator('#editor').isVisible());
+    }
+    item.newPageErrors=errors.slice(before);
+   }catch(error){item.auditError=String(error.message||error).slice(0,250);}
+   audit.push(item);
+   console.log('UI_AUDIT_CRM_SECTION '+JSON.stringify(item));
+  }
+  assert.equal(audit.length,11,'CRM UI audit must cover all sections');
+  for(const width of [1440,768,390,320]){
+   await page.setViewportSize({width,height:800});
+   const measure=await page.evaluate(()=>({
+    viewport:innerWidth,
+    rootScroll:document.documentElement.scrollWidth,
+    rootClient:document.documentElement.clientWidth,
+    crmNav:!!document.querySelector('#crm-nav')&&!document.querySelector('#crm-nav').hidden
+   }));
+   console.log('UI_AUDIT_CRM_VIEWPORT '+JSON.stringify(measure));
+  }
+  console.log('UI_AUDIT_CRM_SUMMARY '+JSON.stringify({sections:audit.length,failed:audit.filter(x=>x.auditError||!x.selected||!x.contentVisible||x.newPageErrors?.length).map(x=>x.section)}));
   console.log('CRM MOBILE NAVIGATION: PASS — Arabic/English at 320/375/390/430/768');
   console.log('CRM BROWSER ACCEPTANCE: PASS — onboarding, companies, pipelines, stages, deals, CSV, English UI');
  }finally{await browser.close();}
