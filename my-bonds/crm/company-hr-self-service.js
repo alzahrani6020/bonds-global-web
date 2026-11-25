@@ -21,6 +21,24 @@
  if(inviteFromFragment){
   try{sessionStorage.setItem(inviteStorageKey,inviteFromFragment);}catch(_){}
  }
+ const roleLabel=role=>({employee:t('موظف','Employee'),hr_manager:t('مسؤول الموارد البشرية','HR manager')}[role]||role);
+ const stateLabel=state=>({pending:t('بانتظار القبول','Pending acceptance'),accepted:t('مقبولة','Accepted'),revoked:t('ملغاة','Revoked'),active:t('نشطة','Active')}[state]||state);
+ const localDate=value=>value?new Intl.DateTimeFormat(english?'en-GB':'ar-SA-u-ca-gregory',{timeZone:'Asia/Riyadh',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(value)):'—';
+ function offerAccountSwitch(){
+  const target=$('hr-invite-switch');if(target)target.hidden=false;
+ }
+ async function switchInviteAccount(){
+  const button=$('hr-invite-switch');if(button)button.disabled=true;
+  try{
+   // Never change authorization or mark a token accepted on behalf of another user.
+   // Preserve the token in this tab and let the invited user authenticate normally.
+   const inviteToken=inviteFromFragment||sessionStorage.getItem(inviteStorageKey);
+   if(inviteToken)sessionStorage.setItem(inviteStorageKey,inviteToken);
+   requireOk(await db.auth.signOut());
+   const destination=location.origin+'/my-bonds/crm/?program=hr';
+   location.assign('/calculators/auth/index.html?redirect='+encodeURIComponent(destination));
+  }catch(error){notify(t('تعذر تبديل الحساب: ','Unable to switch account: ')+error.message,true);if(button)button.disabled=false;}
+ }
  const activeMembership=record=>record&&record.status==='active';
  function ownerWorkspaceSelected(workspace){
   ownerWorkspace=workspace;
@@ -33,21 +51,27 @@
   const [memberResponse,employeeResponse,inviteResponse]=await Promise.all([
    db.from('hr_saas_memberships').select('id,employee_id,user_id,role,status,created_at').eq('workspace_id',wid).order('created_at',{ascending:false}).limit(250),
    db.from('hr_saas_employees').select('id,full_name,employee_number').eq('workspace_id',wid).order('created_at',{ascending:false}).limit(250),
-   db.from('hr_saas_invitations').select('id,invited_email,role,status,token,expires_at').eq('workspace_id',wid).order('created_at',{ascending:false}).limit(250)
+   db.from('hr_saas_invitations').select('id,employee_id,invited_email,role,status,token,created_at,expires_at').eq('workspace_id',wid).order('created_at',{ascending:false}).limit(250)
   ]);
   const members=requireOk(memberResponse),staff=requireOk(employeeResponse),invites=requireOk(inviteResponse);
   if(ownerWorkspace?.id!==wid)return;
   $('hr-member-employee').innerHTML='<option value="">'+t('اختر الموظف','Select employee')+'</option>'+
    staff.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.employee_number)+' — '+esc(x.full_name)+'</option>').join('');
   $('hr-invite-employee').innerHTML=$('hr-member-employee').innerHTML;
-  $('hr-invites-table').innerHTML=invites.map(inv=>'<tr><td>'+esc(inv.invited_email)+'</td><td>'+esc(inv.role)+'</td><td>'+esc(inv.status)+'</td><td>'+
-   (inv.status==='pending'&&new Date(inv.expires_at)>new Date()?'<button type="button" class="secondary" data-hr-invite-link="'+esc(inv.token)+'">'+t('نسخ الرابط','Copy link')+'</button> '+
-   '<button type="button" class="secondary" data-hr-invite-send="'+esc(inv.id)+'">'+t('إرسال البريد','Send email')+'</button>':'—')+'</td></tr>').join('')||
-   '<tr><td colspan="4">'+t('لا توجد دعوات','No invitations')+'</td></tr>';
+  $('hr-invites-table').innerHTML=invites.map(inv=>{
+   const name=staff.find(e=>e.id===inv.employee_id)?.full_name||'—';
+   const pending=inv.status==='pending'&&new Date(inv.expires_at)>new Date();
+   const state=inv.status==='pending'&&!pending?t('منتهية الصلاحية','Expired'):stateLabel(inv.status);
+   return '<tr><td>'+esc(name)+'</td><td>'+esc(inv.invited_email)+'</td><td>'+esc(roleLabel(inv.role))+'</td><td>'+
+    esc(t('الانضمام إلى نظام الموارد البشرية','Join the HR system'))+'</td><td>'+esc(state)+'</td><td>'+
+    esc(localDate(inv.created_at))+'</td><td>'+esc(localDate(inv.expires_at))+'</td><td>'+
+    (pending?'<button type="button" class="secondary" data-hr-invite-link="'+esc(inv.token)+'">'+t('نسخ الرابط','Copy link')+'</button> '+
+    '<button type="button" class="secondary" data-hr-invite-send="'+esc(inv.id)+'">'+t('إرسال البريد','Send email')+'</button>':'—')+'</td></tr>';
+  }).join('')||'<tr><td colspan="8">'+t('لا توجد دعوات','No invitations')+'</td></tr>';
   $('hr-members-table').innerHTML=members.map(m=>{
    const name=staff.find(e=>e.id===m.employee_id)?.full_name||m.employee_id;
-   return '<tr><td>'+esc(name)+'</td><td>'+esc(m.user_id)+'</td><td>'+esc(m.role)+
-    '</td><td>'+esc(m.status)+'</td><td>'+(m.status==='active'?
+   return '<tr><td>'+esc(name)+'</td><td>'+esc(m.user_id)+'</td><td>'+esc(roleLabel(m.role))+
+    '</td><td>'+esc(stateLabel(m.status))+'</td><td>'+(m.status==='active'?
     '<button class="secondary" type="button" data-revoke-membership="'+esc(m.id)+'">'+
     t('إيقاف العضوية','Revoke')+'</button>':'—')+'</td></tr>';
   }).join('')||'<tr><td colspan="5">'+t('لا توجد عضويات','No memberships')+'</td></tr>';
@@ -92,6 +116,17 @@
     throw Error(t('البريد الإلكتروني غير صحيح','Invalid recipient email'));
    if(!employeeId||!['employee','hr_manager'].includes(role))
     throw Error(t('بيانات الدعوة غير مكتملة','Incomplete invitation'));
+   // Reuse an existing unexpired invitation; do not generate multiple active tokens.
+   const existing=requireOk(await db.from('hr_saas_invitations').select('id,expires_at')
+    .eq('workspace_id',ownerWorkspace.id).eq('employee_id',employeeId)
+    .eq('invited_email',email).eq('role',role).eq('status','pending')
+    .gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(1));
+   if(existing.length){
+    await sendInvitationEmail(existing[0].id);
+    await loadOwnerMembers();
+    notify(t('أُعيد إرسال الدعوة القائمة دون إنشاء دعوة مكررة.','Existing invitation resent without creating a duplicate.'));
+    return;
+   }
    const result=requireOk(await db.from('hr_saas_invitations').insert({
     workspace_id:ownerWorkspace.id,employee_id:employeeId,invited_email:email,role,created_by:user.id
    }).select('id,token').single());
@@ -222,9 +257,18 @@
    // Fragment avoids sending invitation bearer tokens in HTTP requests/referrer logs.
    const inviteToken=inviteFromFragment||(()=>{try{return sessionStorage.getItem(inviteStorageKey);}catch(_){return null;}})();
    if(inviteToken){
+    const button=$('hr-invite-switch');if(button)button.hidden=true;
     if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(inviteToken))
      throw Error(t('رابط الدعوة غير صحيح','Invalid invitation link'));
-    const accepted=requireOk(await db.rpc('hr_saas_accept_invitation',{invite_token:inviteToken}));
+    const acceptResult=await db.rpc('hr_saas_accept_invitation',{invite_token:inviteToken});
+    if(acceptResult.error){
+     if(acceptResult.error.code==='42501'){
+      offerAccountSwitch();
+      throw Error(t('تعذر قبول الدعوة بهذه الجلسة. استخدم زر تبديل الحساب لتسجيل الدخول بالبريد المدعو، أو تحقق من صلاحية الدعوة.','This session cannot accept the invitation. Switch to the invited account or check the invitation validity.'));
+     }
+     throw acceptResult.error;
+    }
+    const accepted=acceptResult.data;
     if(!accepted)throw Error(t('تعذر تأكيد العضوية','Membership not confirmed'));
     try{sessionStorage.removeItem(inviteStorageKey);}catch(_){}
     const clean=new URL(location.href);clean.hash='';history.replaceState(null,'',clean.pathname+clean.search);
@@ -256,6 +300,7 @@
  document.addEventListener('bonds-hr-employee-updated',event=>{
   if(ownerWorkspace?.id===event.detail?.workspace?.id)loadOwnerMembers().catch(e=>notify(e.message,true));
  });
+ $('hr-invite-switch').addEventListener('click',switchInviteAccount);
  $('hr-invite-form').addEventListener('submit',createInvitation);
  $('hr-invites-table').addEventListener('click',copyInvitation);
  $('hr-invites-table').addEventListener('click',sendExistingInvitation);
