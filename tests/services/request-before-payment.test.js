@@ -12,7 +12,7 @@ describe('service request intake before paid execution',()=>{
   expect(requestBranch).toBeGreaterThan(-1);
   expect(execution).toBeGreaterThan(requestBranch);
   expect(submit).toContain("json('/api/v3/services/requests',{");
-  expect(submit).toContain("await finalizeServiceRequestCreation(d,values,headers)");
+  expect(submit).toContain("await finalizeServiceRequestCreation(d,values,headers,{},");
   expect(submit).toContain("const files=[...document.querySelectorAll('#srRequestForm input[type=\"file\"]')]");
  });
  test('service page still exposes the form rather than a checkout button',()=>{
