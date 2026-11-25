@@ -1966,7 +1966,7 @@ function renderFinancialIntake(){
   const controls=manualFields.filter(([key])=>!host.querySelector('[name="'+key+'"]'))
    .map(([key,ar,enLabel])=>'<label class="sr-field"><span>'+escapeHtml(lang==='ar'?ar:enLabel)+'</span>'+
      '<input type="number" step="any" name="'+key+'" autocomplete="off"'+
-     (['revenue','current_assets','current_liabilities'].includes(key)?' required':'')+'></label>').join('');
+     (['revenue','current_assets','current_liabilities'].includes(key)?' data-financial-core="true"':'')+'></label>').join('');
   panel.innerHTML+='<div id="srFinancialManualFields" hidden><p class="sr-muted">'+
     (lang==='ar'?'أدخل بيانات الفترة المالية بوحدات العملة نفسها. لا تُستكمل القيم الناقصة بافتراضات.':'Enter period financial amounts in consistent currency units. Missing figures are not assumed.')+
     '</p><div class="sr-intake-table">'+controls+'</div></div>';
@@ -1976,7 +1976,7 @@ function renderFinancialIntake(){
    intakeMode=radio.value;
    $('#srIntakeFileWrap').hidden=intakeMode!=='file';
    if($('#srFinancialManualFields'))$('#srFinancialManualFields').hidden=intakeMode!=='manual';
-   $('#srFinancialManualFields')?.querySelectorAll('[required]').forEach(input=>{input.required=intakeMode==='manual';});
+   $('#srFinancialManualFields')?.querySelectorAll('[data-financial-core]').forEach(input=>{input.required=intakeMode==='manual';});
  }));
 }
 function inferFinancialMime(file){
