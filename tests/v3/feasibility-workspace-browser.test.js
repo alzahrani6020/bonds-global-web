@@ -352,8 +352,12 @@ describe('feasibility study browser acceptance — isolated service contracts', 
   test('blocks empty financial input before any API call, and focuses the missing field', async()=>{
     const {page,context}=await openFeasibility();
     let called=false;
+    let resolveIntercept;
+    const intercepted=new Promise(resolve=>{resolveIntercept=resolve;});
     await page.route('**/api/v3/services/execute',route=>{
-      called=true;return route.fulfill({status:500,body:'{}'});
+      called=true;
+      resolveIntercept();
+      return route.fulfill({status:500,body:'{}'});
     });
     await page.locator('input[name="project_name"]').fill('Office products');
     await page.locator('select[name="project_size"]').selectOption('small');
@@ -368,6 +372,7 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     const submitted=page.waitForRequest(request=>request.url().includes('/api/v3/services/execute'));
     await page.locator('#srSubmit').click();
     await submitted;
+    await intercepted;
     expect(called).toBe(true);
     await context.close();
   });
