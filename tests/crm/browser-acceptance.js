@@ -223,6 +223,57 @@ async function main(){
    assert.equal(await page.locator('a.back[href="/my-bonds/"]').isVisible(),true,'Arabic workspace return hidden at '+width);
    assert.equal(await page.locator('a.back[lang="en"]').isVisible(),true,'English locale switch hidden at '+width);
   }
+  // Exercise every CRM tab in both locales at desktop and mobile sizes
+  // using the isolated in-memory account. No write or payment action.
+  const uiSections=['overview','companies','contacts','deals','pipeline','stages','activities','renewals','success','members','audit'];
+  const crmUiIssues=[];
+  const fs=require('node:fs');
+  const output=process.env.UI_AUDIT_SCREENSHOTS;
+  if(output)fs.mkdirSync(output,{recursive:true});
+  for(const locale of ['ar','en']){
+   await page.goto(base+(locale==='ar'?'/my-bonds/crm/':'/en/my-bonds/crm/'),{waitUntil:'domcontentloaded'});
+   for(const width of [1440,390]){
+    await page.setViewportSize({width,height:900});
+    for(const section of uiSections){
+     try{
+      await page.locator('#crm-nav [data-section="'+section+'"]').click();
+      await page.waitForTimeout(150);
+      const audit=await page.evaluate(section=>{
+       const tab=document.querySelector('#crm-nav [data-section="'+section+'"]');
+       const contentVisible={
+        overview:!document.querySelector('#overview')?.hidden,
+        members:!document.querySelector('#membership-section')?.hidden,
+        audit:!document.querySelector('#audit-section')?.hidden
+       };
+       return {
+        active:tab?.classList.contains('active'),
+        visible:contentVisible[section]??!document.querySelector('#records-section')?.hidden,
+        heading:document.querySelector('#section-heading')?.textContent||'',
+        overflow:Math.max(0,document.documentElement.scrollWidth-window.innerWidth),
+        notice:document.querySelector('#status')?.textContent||'',
+        addVisible:!!document.querySelector('#new-record')&&!document.querySelector('#new-record').hidden
+       };
+      },section);
+      if(!audit.active||!audit.visible||audit.overflow>2)
+       crmUiIssues.push({locale,width,section,issue:'section not active/visible or horizontal overflow',audit});
+      if(audit.addVisible){
+       await page.locator('#new-record').click();
+       let fields=await page.locator('#editor-fields input, #editor-fields select, #editor-fields textarea').count();
+       if(!(await page.locator('#editor').isVisible())||fields<1)
+        crmUiIssues.push({locale,width,section,issue:'missing editor fields',fields});
+       await page.locator('#editor-close').click();
+      }
+      if(output)await page.screenshot({path:output+'/crm-'+locale+'-'+width+'-'+section+'.png',fullPage:true,animations:'disabled'});
+      console.log('UI_AUDIT_CRM '+JSON.stringify({locale,width,section,...audit}));
+     }catch(error){
+      crmUiIssues.push({locale,width,section,issue:String(error.message||error)});
+      console.log('UI_AUDIT_CRM_ERROR '+JSON.stringify({locale,width,section,message:String(error.message||error)}));
+     }
+    }
+   }
+  }
+  console.log('UI_AUDIT_CRM_SUMMARY '+JSON.stringify({tested:uiSections.length*4,issues:crmUiIssues}));
+  assert.deepEqual(crmUiIssues,[],'CRM UI audit defects, see UI_AUDIT_CRM_SUMMARY');
   console.log('CRM MOBILE NAVIGATION: PASS — Arabic/English at 320/375/390/430/768');
   console.log('CRM BROWSER ACCEPTANCE: PASS — onboarding, companies, pipelines, stages, deals, CSV, English UI');
  }finally{await browser.close();}
