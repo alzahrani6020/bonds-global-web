@@ -194,41 +194,6 @@ async function main(){
   await page.locator('#search').fill('');
   await page.waitForFunction(()=>document.querySelector('#page-info')?.textContent.includes('/ 1500'));
   assert.deepEqual(errors,[],'CRM browser errors');
-  await page.goto(base+'/en/my-bonds/crm/',{waitUntil:'domcontentloaded'});
-  assert.equal(await page.locator('html').getAttribute('lang'),'en');
-  assert.equal(await page.locator('#crm-nav [data-section="companies"]').innerText(),'Companies');
-  const manifest=await page.locator('link[rel="manifest"]').getAttribute('href');
-  assert.equal(manifest,'/en/my-bonds/crm/crm-manifest.webmanifest');
-  // The invitation token is consumed by the authenticated RPC then removed
-  // immediately from location/history so it cannot leak through referrers.
-  const token='test-opaque-invitation-token-01234567890123456789';
-  await page.goto(base+'/en/my-bonds/crm/?invite='+token,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.__crmTestState.accepted.length===1);
-  assert.equal(new URL(page.url()).search,'');
-  const claim=await page.evaluate(()=>window.__crmTestState.accepted[0]);
-  assert.equal(claim.name,'crm_app_accept_invite');
-  assert.equal(claim.args.invite_token,token);
-  // Regression: links back to My Bonds and locale switch must remain usable on mobile.
-  // Check the actual rendered CSS in Chromium, not merely stylesheet text.
-  for(const width of [320,375,390,430,768]){
-   await page.setViewportSize({width,height:800});
-   assert.equal(await page.locator('html').evaluate(el=>getComputedStyle(el).direction),'ltr','English direction at '+width);
-   assert.equal(await page.locator('a.back[href="/my-bonds/"]').isVisible(),true,'English workspace return hidden at '+width);
-   assert.equal(await page.locator('a.back[lang="ar"]').isVisible(),true,'Arabic locale switch hidden at '+width);
-  }
-  await page.goto(base+'/my-bonds/crm/',{waitUntil:'domcontentloaded'});
-  for(const width of [320,375,390,430,768]){
-   await page.setViewportSize({width,height:800});
-   assert.equal(await page.locator('html').evaluate(el=>getComputedStyle(el).direction),'rtl','Arabic direction at '+width);
-   assert.equal(await page.locator('a.back[href="/my-bonds/"]').isVisible(),true,'Arabic workspace return hidden at '+width);
-   assert.equal(await page.locator('a.back[lang="en"]').isVisible(),true,'English locale switch hidden at '+width);
-  }
-
-  // Wait for the deferred CRM workspace initialization after locale reload.
-  // A DOMContentLoaded response is not sufficient for clickable CRM modules.
-  await page.waitForFunction(()=>document.querySelector('#workspace-content')?.hidden===false && Boolean(document.querySelector('#workspace-select')?.value),null,{timeout:15000});
-  await page.locator('#crm-product-tab').click();
-  await page.waitForFunction(()=>!document.querySelector('#crm-nav')?.hidden && !document.querySelector('#workspace-content')?.hidden,null,{timeout:8000});
   // Exhaustive read-only CRM UI audit on the in-memory tenant only.
   // Do not submit records, perform payments or change production.
   await page.setViewportSize({width:1280,height:800});
@@ -270,6 +235,37 @@ async function main(){
    console.log('UI_AUDIT_CRM_VIEWPORT '+JSON.stringify(measure));
   }
   console.log('UI_AUDIT_CRM_SUMMARY '+JSON.stringify({sections:audit.length,failed:audit.filter(x=>x.auditError||!x.selected||!x.contentVisible||x.newPageErrors?.length).map(x=>x.section)}));
+  await page.setViewportSize({width:1280,height:800});
+  await page.goto(base+'/en/my-bonds/crm/',{waitUntil:'domcontentloaded'});
+  assert.equal(await page.locator('html').getAttribute('lang'),'en');
+  assert.equal(await page.locator('#crm-nav [data-section="companies"]').innerText(),'Companies');
+  const manifest=await page.locator('link[rel="manifest"]').getAttribute('href');
+  assert.equal(manifest,'/en/my-bonds/crm/crm-manifest.webmanifest');
+  // The invitation token is consumed by the authenticated RPC then removed
+  // immediately from location/history so it cannot leak through referrers.
+  const token='test-opaque-invitation-token-01234567890123456789';
+  await page.goto(base+'/en/my-bonds/crm/?invite='+token,{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__crmTestState.accepted.length===1);
+  assert.equal(new URL(page.url()).search,'');
+  const claim=await page.evaluate(()=>window.__crmTestState.accepted[0]);
+  assert.equal(claim.name,'crm_app_accept_invite');
+  assert.equal(claim.args.invite_token,token);
+  // Regression: links back to My Bonds and locale switch must remain usable on mobile.
+  // Check the actual rendered CSS in Chromium, not merely stylesheet text.
+  for(const width of [320,375,390,430,768]){
+   await page.setViewportSize({width,height:800});
+   assert.equal(await page.locator('html').evaluate(el=>getComputedStyle(el).direction),'ltr','English direction at '+width);
+   assert.equal(await page.locator('a.back[href="/my-bonds/"]').isVisible(),true,'English workspace return hidden at '+width);
+   assert.equal(await page.locator('a.back[lang="ar"]').isVisible(),true,'Arabic locale switch hidden at '+width);
+  }
+  await page.goto(base+'/my-bonds/crm/',{waitUntil:'domcontentloaded'});
+  for(const width of [320,375,390,430,768]){
+   await page.setViewportSize({width,height:800});
+   assert.equal(await page.locator('html').evaluate(el=>getComputedStyle(el).direction),'rtl','Arabic direction at '+width);
+   assert.equal(await page.locator('a.back[href="/my-bonds/"]').isVisible(),true,'Arabic workspace return hidden at '+width);
+   assert.equal(await page.locator('a.back[lang="en"]').isVisible(),true,'English locale switch hidden at '+width);
+  }
+
   console.log('CRM MOBILE NAVIGATION: PASS — Arabic/English at 320/375/390/430/768');
   console.log('CRM BROWSER ACCEPTANCE: PASS — onboarding, companies, pipelines, stages, deals, CSV, English UI');
  }finally{await browser.close();}
