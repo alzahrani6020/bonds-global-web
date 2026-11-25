@@ -260,13 +260,7 @@
    <section id="hr-membership-admin" class="panel" hidden>
     <div class="section-actions"><h2>Employee access and roles</h2>
      <button type="button" class="secondary" id="hr-member-refresh">Refresh</button></div>
-    <p class="muted">Only the company owner can grant or revoke roles. Enter an existing authenticated user UUID. HR managers can review requests, but cannot read salary records or manage memberships.</p>
-    <form id="hr-member-form" class="editor-fields">
-     <label>Registered user UUID<input name="user_id" required maxlength="36" autocomplete="off"></label>
-     <label>Employee record<select id="hr-member-employee" name="employee_id" required><option value="">Select employee</option></select></label>
-     <label>Access role<select name="role" required><option value="employee">Employee</option><option value="hr_manager">HR manager</option></select></label>
-     <button type="submit" class="primary">Grant access</button>
-    </form>
+    <p class="muted">Only the company owner manages memberships. Invite new employees by email; their accounts are linked to their employee records after verified sign-in and invitation acceptance.</p>
     <h3>Invite staff using verified email</h3>
     <p class="muted">Invitations are bound to employee, email and role. Access begins only after the recipient signs in with the matching verified email.</p>
     <form id="hr-invite-form" class="editor-fields">
@@ -274,6 +268,14 @@
      <label>Employee record<select id="hr-invite-employee" name="employee_id" required><option value="">Select employee</option></select></label>
      <label>Access role<select name="role" required><option value="employee">Employee</option><option value="hr_manager">HR manager</option></select></label>
      <button type="submit" class="primary">Create and email invitation</button>
+    </form>
+    <h3>Direct UUID linking — advanced administrative option</h3>
+    <p class="muted">Use email invitations above for new employees. Do not duplicate active memberships or enter UUID unless the account is already verified.</p>
+    <form id="hr-member-form" class="editor-fields">
+     <label>Registered user UUID<input name="user_id" required maxlength="36" autocomplete="off"></label>
+     <label>Employee record<select id="hr-member-employee" name="employee_id" required><option value="">Select employee</option></select></label>
+     <label>Access role<select name="role" required><option value="employee">Employee</option><option value="hr_manager">HR manager</option></select></label>
+     <button type="submit" class="primary">Grant access</button>
     </form>
     <div class="overflow"><table><thead><tr><th>Employee</th><th>Email</th><th>Role</th><th>Purpose</th><th>Status</th><th>Invited at</th><th>Expires at</th><th>Action</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
     <div class="overflow"><table><thead><tr><th>Employee</th><th>Account</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody id="hr-members-table"></tbody></table></div>
