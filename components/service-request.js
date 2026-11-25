@@ -2216,6 +2216,17 @@ function renderFinancialObject(title,obj){
   '</div></section>';
 }
 function renderFinancialExecution(result,metrics){
+ if(serviceCode==='financial_analysis'){
+  const analysis=result?.engineResults?.financial_analysis;
+  const calculated=analysis?.metrics||metrics;
+  const numeric=Object.fromEntries(Object.entries(calculated||{}).filter(([,v])=>typeof v==='number'&&Number.isFinite(v)));
+  if(Object.keys(numeric).length){
+   return '<div class="financial-result-stack">'+renderFinancialObject(
+    lang==='ar'?'المؤشرات المالية المحسوبة':'Calculated financial indicators',numeric)+
+    '<p class="sr-muted">'+(lang==='ar'?'لا تعرض المؤشرات غير القابلة للحساب؛ راجع التقرير لمعرفة البيانات الناقصة ومصادر الأرقام.':'Unavailable ratios are excluded; open the report for missing data and source evidence.')+'</p></div>';
+  }
+ }
+
  if(result?.financial_statements){
   const fs=result.financial_statements;
   return '<div class="financial-result-stack">'+
