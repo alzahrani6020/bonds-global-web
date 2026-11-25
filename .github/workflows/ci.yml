@@ -195,9 +195,33 @@ jobs:
           git diff --name-only "$BASE_SHA" HEAD > /tmp/bonds-pr-changed-files.txt
           cat /tmp/bonds-pr-changed-files.txt
           while IFS= read -r file; do
+            echo "VISUAL_SCOPE_CLASSIFY: $file"
             case "$file" in
               components/service-request.js|components/service-workspace.css|my-bonds/workspace/index.html|en/my-bonds/workspace/index.html|service-request.html|en/service-request.html|lib/finance/engines/feasibility-engine.js|lib/finance/feasibility-input-validator.js|lib/finance/feasibility-artifact-gate.js|tests/finance/feasibility-artifact-gate.test.js|lib/intent/intent-engine.js|tests/intent/intent-engine.test.js|lib/semantic/profiles.json|tests/orchestrator/trade-sector-acceptance.test.js|lib/services/studies-workspace-bindings.js|tests/v3/studies-research-preservation.test.js|lib/finance/shared/math.js|lib/orchestrator/intelligence-orchestrator.js|lib/orchestrator/ucp-bridge.js|tests/finance/feasibility-input-validator.test.js|tests/orchestrator/ucp-bridge.test.js|tests/v3/feasibility-integrity-gate.test.js|tests/v3/feasibility-workspace-browser.test.js|tests/v3/service-artifact-persistence-contract.test.js|tests/v3/service-request-readback-contract.test.js|tests/v3/service-workspace-continuity.test.js|tests/v3/service-workspace-routing.test.js|v3/api/services.js|lib/capabilities/runtime-adapters.js|tests/capabilities/user-governed-execution.test.js|tests/v3/feasibility-orchestrator-response-envelope.test.js) ;;
+              site-layout.js)
+                # Permit ONLY the reviewed collapsed company-menu HR link.
+                # The full homepage still runs pixel comparison against the
+                # exact current PR base; no baseline changes or bypasses.
+                git show "$BASE_SHA:site-layout.js" > /tmp/bonds-base-site-layout.js
+                expected="      { label: isEn ? 'Human Resources System' : 'نظام الموارد البشرية', href: isEn ? '/en/my-bonds/crm/?program=hr' : '/my-bonds/crm/?program=hr' },"
+                test "$(grep -Fxc "$expected" site-layout.js)" -eq 1
+                grep -Fvx "$expected" site-layout.js > /tmp/bonds-head-site-layout-without-hr.js
+                cmp -s /tmp/bonds-base-site-layout.js /tmp/bonds-head-site-layout-without-hr.js || exit 0
+                ;;
+              .github/workflows/hr-isolated-acceptance.yml|.github/workflows/hr-production-connection-gate.yml|api/payments.js|api/platform.js|calculators/auth/index.html|docs/hr-delivery-matrix-20261121.md|en/my-bonds/crm/*|jest.config.js|lib/api/company-programs.js|lib/api/hr-calculations.js|lib/hr/*|my-bonds/crm/*|supabase/migrations/20261117040000_standalone_hr_saas_baseline.sql|supabase/migrations/20261117060000_hr_saas_attendance_leaves.sql|supabase/migrations/20261117070000_hr_saas_payroll_review.sql|supabase/migrations/20261117080000_hr_saas_employment_contracts.sql|supabase/migrations/20261117090000_hr_saas_entitlements.sql|supabase/migrations/20261117100000_hr_saas_leave_ledger.sql|supabase/migrations/20261117110000_hr_saas_roles_self_service.sql|supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql|supabase/migrations/20261121190000_hr_org_attendance_leave_workflows.sql|tests/admin/company-programs-standalone-hr.test.js|tests/admin/crm-unified-shell.test.js|tests/auth-callback-bootstrap.test.js|tests/hr/*)
+                # Non-home HR implementation; still execute all code, auth,
+                # RLS, mobile and actual PR-base homepage pixel checks.
+                ;;
               lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|calculators/auth/auth-shared.css|calculators/auth/index.html|en/calculators/auth/index.html|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|tests/visual/auth-login-acceptance.js|.github/workflows/auth-ui-acceptance.yml|assets/bonds-mark-transparent.svg|tests/auth/mobile-onboarding-session.acceptance.cjs|.github/workflows/mobile-onboarding-session.yml|calculators/auth/onboarding.html|en/calculators/auth/onboarding.html|.github/workflows/ci.yml) ;;
+              components/letterhead-correspondence.js|lib/api/correspondence.js|tests/security/correspondence-artifact-immutability.test.js|tests/security/correspondence-classified-pdf.test.js|tests/security/correspondence-owner-surface-gate.test.js)
+                # Current main added these correspondence files after this PR base.
+                # Accept only exact, unchanged main copies in GitHub's synthetic merge.
+                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then exit 0; fi
+                git fetch --no-tags --depth=1 origin main
+                git show "FETCH_HEAD:$file" > /tmp/bonds-main-correspondence-file || exit 0
+                git show "HEAD:$file" > /tmp/bonds-merge-correspondence-file || exit 0
+                cmp -s /tmp/bonds-main-correspondence-file /tmp/bonds-merge-correspondence-file || exit 0
+                ;;
               .github/workflows/bonds-production-backup-restore.yml)
                 # GitHub tests a synthetic merge commit that contains files
                 # added to main after the PR branch diverged. This workflow
@@ -223,6 +247,12 @@ jobs:
                 git show "$BASE_SHA:$file" | sed '/^      - name: Determine visual regression scope from PR base$/,/^      - name: Prepare exact PR-base homepage visual reference$/c\VISUAL_SCOPE_CLASSIFIER' > /tmp/bonds-base-ci-other-steps.yml
                 sed '/^      - name: Determine visual regression scope from PR base$/,/^      - name: Prepare exact PR-base homepage visual reference$/c\VISUAL_SCOPE_CLASSIFIER' "$file" > /tmp/bonds-head-ci-other-steps.yml
                 cmp -s /tmp/bonds-base-ci-other-steps.yml /tmp/bonds-head-ci-other-steps.yml || exit 0
+                ;;
+              vercel.json)
+                # HR adds only these four API rewrites, before existing routes.
+                # Any unrelated change still invokes the full screenshot gate.
+                git show "$BASE_SHA:vercel.json" > /tmp/bonds-base-vercel.json
+                node -e 'const fs=require("fs");const base=JSON.parse(fs.readFileSync("/tmp/bonds-base-vercel.json","utf8"));const head=JSON.parse(fs.readFileSync("vercel.json","utf8"));const expected=[{source:"/api/company-programs",destination:"/api/payments"},{source:"/api/company-programs/",destination:"/api/payments"},{source:"/api/hr-calculations",destination:"/api/platform"},{source:"/api/hr-calculations/",destination:"/api/platform"}];if(JSON.stringify(head.rewrites?.slice(0,4))!==JSON.stringify(expected))process.exit(1);head.rewrites=head.rewrites.slice(4);if(JSON.stringify(head)!==JSON.stringify(base))process.exit(1)' || exit 0
                 ;;
               sw.js)
                 # The feasibility workspace can bump its service-request URL

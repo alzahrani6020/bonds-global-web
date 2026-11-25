@@ -2313,6 +2313,9 @@ module.exports = async function handler(req, res) {
 
   try {
     // Advisors
+    if (pathname === '/api/hr-calculations' || pathname === '/api/hr-calculations/') {
+      return require('../lib/api/hr-calculations')(req, res);
+    }
     if (pathname === '/api/advisors' || pathname === '/api/advisors/') {
       req.query = req.query || {}; req.query.action = req.query.action || 'list';
       if (await checkRateLimit('public', req, res)) return;

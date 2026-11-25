@@ -1,0 +1,58 @@
+name: HR Production Connection Gate
+
+on:
+  push:
+    branches:
+      - integration/hr-current-main-20261121
+    paths:
+      - '.github/workflows/hr-production-connection-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  read-only-supabase-access-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - name: Check token and exact production project without revealing secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SUPABASE_ACCESS_TOKEN:-}" || { echo "FAIL: SUPABASE_ACCESS_TOKEN secret absent"; exit 1; }
+          test -n "${SUPABASE_PROJECT_REF:-}" || { echo "FAIL: SUPABASE_PROJECT_REF secret absent"; exit 1; }
+          test "$SUPABASE_PROJECT_REF" = "hutxsqzplyuqgnghsrcs" || { echo "STOP: repository project ref differs from verified production"; exit 1; }
+          project_status=$(curl -sS --max-time 20 -o "$RUNNER_TEMP/project.json" -w '%{http_code}' \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF")
+          if [ "$project_status" != 200 ]; then
+            echo "FAIL: management API project access (HTTP $project_status)"
+            exit 1
+          fi
+          jq -e --arg ref "$SUPABASE_PROJECT_REF" '.id == $ref or .ref == $ref' "$RUNNER_TEMP/project.json" >/dev/null || {
+            echo "STOP: management API returned a different project"; exit 1;
+          }
+          echo "PASS: scoped Supabase management access to expected production project"
+      - name: Read existing temporary PostgreSQL access setting only
+        shell: bash
+        run: |
+          set -euo pipefail
+          status=$(curl -sS --max-time 20 -o "$RUNNER_TEMP/jit.json" -w '%{http_code}' \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/jit-access")
+          if [ "$status" != 200 ]; then
+            echo "UNKNOWN: temporary PostgreSQL access status unavailable (HTTP $status)"
+            exit 1
+          fi
+          setting=$(jq -r '.state // "UNKNOWN"' "$RUNNER_TEMP/jit.json")
+          case "$setting" in
+            enabled) echo "PASS: existing token-based PostgreSQL access is enabled" ;;
+            disabled) echo "BLOCKED: token-based PostgreSQL access is disabled; no configuration changed" ;;
+            *) echo "UNKNOWN: unexpected temporary-access status" ; exit 1 ;;
+          esac
+          echo "NOTE: a management API token is not itself evidence of PostgreSQL dump or restore capability."
+          echo "NOTE: no database contents, connection passwords, or backups were exported."
