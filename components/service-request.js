@@ -2317,7 +2317,35 @@ function showExecutionPersistenceStatus(execution){
  showStatus(T.executed+' — '+(lang==='ar'?'تعذّر تأكيد حفظ المخرج في المشروع. احتفظ بنسخة من النتائج.':'Project artifact persistence was not confirmed. Keep a copy of the results.'),false);
  return false;
 }
-function renderExecutionResult(payload){
+function printFeasibilityReport(payload, executedInputs){
+ const popup=window.open('', '_blank');
+ if(!popup){
+  showStatus(lang==='ar'?'اسمح بفتح نافذة التقرير من المتصفح.':'Allow the report pop-up in your browser.',false);
+  return;
+ }
+ const display=()=>{
+  try{
+   const html=window.BondsFeasibilityReport.render({
+    payload, inputs:executedInputs, lang, projectId:params.get('project_id')
+   });
+   popup.document.open();popup.document.write(html);popup.document.close();
+   popup.focus();popup.print();
+  }catch(_){
+   popup.close();
+   showStatus(lang==='ar'?'تعذر إنشاء التقرير من النتائج المحسوبة.':'Unable to create the report from calculated results.',false);
+  }
+ };
+ if(window.BondsFeasibilityReport){display();return;}
+ const script=document.createElement('script');
+ script.src='/components/feasibility-report.js?v=1';
+ script.onload=display;
+ script.onerror=()=>{
+  popup.close();
+  showStatus(lang==='ar'?'تعذر تحميل قالب التقرير.':'Report template could not be loaded.',false);
+ };
+ document.head.appendChild(script);
+}
+function renderExecutionResult(payload, executedInputs={}){
  if(serviceCode==='feasibility_studies' && !feasibilityMissingInputs().length) $('#srFeasibilityMissingInputs')?.remove();
  let box=$('#srExecutionResult');
  if(!box){
@@ -2343,6 +2371,7 @@ function renderExecutionResult(payload){
   :T.executed;
  box.innerHTML='<h2>'+escapeHtml(title)+'</h2>'+ 
   (['feasibility_studies','risk_analysis'].includes(serviceCode)?'<button type="button" id="srDownloadExecution" class="sr-secondary">'+(lang==='ar'?'تنزيل نسخة النتائج (JSON)':'Download results copy (JSON)')+'</button>':'')+
+  (calculated?'<button type="button" id="srPrintFeasibilityReport" class="sr-secondary">'+(lang==='ar'?'طباعة التقرير المالي / حفظ PDF':'Print financial report / Save PDF')+'</button>':'')+
   (financial||studies||(
    entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+formatFinancialValue(v)+'</li>').join('')+'</ul></div>':
    '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>'
@@ -2373,6 +2402,8 @@ function renderExecutionResult(payload){
    $('#srFeasibilityListProjects')?.click();
   });
  }
+ const report=$('#srPrintFeasibilityReport');
+ if(report)report.addEventListener('click',()=>printFeasibilityReport(payload,executedInputs));
  const download=$('#srDownloadExecution');
  if(download)download.addEventListener('click',()=>{
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
@@ -2683,7 +2714,7 @@ async function submit(e){
     }
     track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null});
     const artifactSaved=showExecutionPersistenceStatus(execution);
-    renderExecutionResult(execution);
+    renderExecutionResult(execution, values);
     // An unverified or incomplete response is not a completed submission.
     // Keep the user's draft editable so missing inputs can be corrected.
     submitted=artifactSaved || !['feasibility_studies','risk_analysis'].includes(serviceCode);
