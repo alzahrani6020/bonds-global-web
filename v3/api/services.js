@@ -1038,12 +1038,12 @@ async function handleServiceExecute(req, res, supabase, user) {
         result_summary:{
           executed:successful,
           http_status:result.httpStatus,
-          metrics:result.body?.metrics || result.body?.result?.metrics || {},
+          metrics:result.body?.result?.engineResults?.[targetProfile?.requirements?.engine_code]?.metrics || result.body?.metrics || result.body?.result?.metrics || {},
           error:result.body?.error || null
         }
       };
       const history=[...oldHistory,historyEntry].slice(-100);
-      const metrics=result.body?.metrics || result.body?.result?.metrics || {};
+      const metrics=result.body?.result?.engineResults?.[targetProfile?.requirements?.engine_code]?.metrics || result.body?.metrics || result.body?.result?.metrics || {};
       const decisionRecord={
         service_code:serviceCode,
         dataset_id:dataset.id,
@@ -1060,25 +1060,52 @@ async function handleServiceExecute(req, res, supabase, user) {
         recorded_at:now
       };
 
-      await supabase
-        .from('financial_datasets')
-        .update({
-          status: successful ? 'executed' : 'validated',
-          execution_result: result.body || {},
-          execution_history:history,
-          input_snapshot:inputSnapshot,
-          derived_metrics:metrics,
-          dependency_graph:evidence.dependency_graph,
-          evidence_pack:evidence,
-          decision_record:decisionRecord,
-          engine_version:result.body?.engine_version || result.body?.result?.engine_version || null,
-          is_stale:false,
-          stale_reason:null,
-          last_executed_at:now,
-          updated_at:now
-        })
-        .eq('id', dataset.id)
-        .eq('user_id', user.id);
+      // Do not report a completed financial-analysis archive until the exact
+      // dataset is updated AND read back. A computation can succeed when its
+      // persistence fails; preserve the input snapshot for operator recovery.
+      let datasetPersistence={status:'unverified',dataset_id:dataset.id,code:'FINANCIAL_DATASET_SAVE_UNCONFIRMED'};
+      try {
+        const {data:updated,error:updateError}=await supabase
+          .from('financial_datasets')
+          .update({
+            status: successful ? 'executed' : 'validated',
+            execution_result: result.body || {},
+            execution_history:history,
+            input_snapshot:inputSnapshot,
+            derived_metrics:metrics,
+            dependency_graph:evidence.dependency_graph,
+            evidence_pack:evidence,
+            decision_record:decisionRecord,
+            engine_version:result.body?.engine_version || result.body?.result?.engine_version || null,
+            is_stale:false,
+            stale_reason:null,
+            last_executed_at:now,
+            updated_at:now
+          })
+          .eq('id',dataset.id)
+          .eq('user_id',user.id)
+          .select('id,status,input_hash,derived_metrics')
+          .maybeSingle();
+        if(updateError || !updated || updated.id!==dataset.id){
+          throw updateError || new Error('FINANCIAL_DATASET_UPDATE_NOT_CONFIRMED');
+        }
+        const {data:readback,error:readbackError}=await supabase
+          .from('financial_datasets')
+          .select('id,user_id,status,input_hash,derived_metrics')
+          .eq('id',dataset.id)
+          .eq('user_id',user.id)
+          .maybeSingle();
+        if(readbackError || !readback || readback.user_id!==user.id ||
+           readback.status!==(successful?'executed':'validated') ||
+           readback.input_hash!==inputHash ||
+           !require('node:util').isDeepStrictEqual(readback.derived_metrics,JSON.parse(JSON.stringify(metrics)))){
+          throw readbackError || new Error('FINANCIAL_DATASET_READBACK_MISMATCH');
+        }
+        datasetPersistence={status:'saved',dataset_id:dataset.id,verified:true};
+      }catch(persistenceError){
+        console.warn('[services/execute] financial dataset persistence unverified:',persistenceError.message);
+      }
+      result.body={...result.body,dataset_persistence:datasetPersistence};
     }
 
     return sendJson(res, result.httpStatus, result.body);

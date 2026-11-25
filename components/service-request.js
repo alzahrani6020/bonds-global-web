@@ -1938,10 +1938,45 @@ function renderFinancialIntake(){
    '</div>'+
    '<div id="srIntakeFileWrap"><input id="srIntakeFile" type="file" accept=".pdf,.xlsx,.xls,.csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"><div class="sr-muted">'+escapeHtml(T.chooseFile)+'</div></div>'+
    '<div id="srIntakeReview"></div>';
+ if(serviceCode==='financial_analysis'){
+  const manualFields=[
+   ['revenue','الإيرادات','Revenue'],
+   ['current_assets','الأصول المتداولة','Current assets'],
+   ['current_liabilities','الالتزامات المتداولة','Current liabilities'],
+   ['cogs','تكلفة المبيعات','Cost of sales'],
+   ['operating_expenses','المصروفات التشغيلية','Operating expenses'],
+   ['total_expenses','إجمالي المصروفات','Total expenses'],
+   ['operating_income','الدخل التشغيلي (EBIT)','Operating income (EBIT)'],
+   ['ebitda','EBITDA','EBITDA'],
+   ['net_income','صافي الربح','Net income'],
+   ['cash','النقد وما في حكمه','Cash and equivalents'],
+   ['inventory','المخزون','Inventory'],
+   ['receivables','الذمم المدينة','Receivables'],
+   ['total_assets','إجمالي الأصول','Total assets'],
+   ['total_liabilities','إجمالي الالتزامات','Total liabilities'],
+   ['equity','حقوق الملكية','Equity'],
+   ['total_debt','إجمالي الدين','Total debt'],
+   ['interest_expense','مصروف الفوائد','Interest expense'],
+   ['prior_revenue','إيرادات المقارنة','Prior revenue'],
+   ['prior_net_income','صافي ربح المقارنة','Prior net income'],
+   ['cost_of_equity_pct','تكلفة حقوق الملكية %','Cost of equity %'],
+   ['cost_of_debt_pct','تكلفة الدين %','Cost of debt %'],
+   ['tax_rate_pct','معدل الضريبة %','Tax rate %']
+  ];
+  const controls=manualFields.filter(([key])=>!host.querySelector('[name="'+key+'"]'))
+   .map(([key,ar,enLabel])=>'<label class="sr-field"><span>'+escapeHtml(lang==='ar'?ar:enLabel)+'</span>'+
+     '<input type="number" step="any" name="'+key+'" autocomplete="off"'+
+     (['revenue','current_assets','current_liabilities'].includes(key)?' data-financial-core="true"':'')+'></label>').join('');
+  panel.innerHTML+='<div id="srFinancialManualFields" hidden><p class="sr-muted">'+
+    (lang==='ar'?'أدخل بيانات الفترة المالية بوحدات العملة نفسها. لا تُستكمل القيم الناقصة بافتراضات.':'Enter period financial amounts in consistent currency units. Missing figures are not assumed.')+
+    '</p><div class="sr-intake-table">'+controls+'</div></div>';
+ }
  host.prepend(panel);
  panel.querySelectorAll('input[name="__intake_mode"]').forEach(radio=>radio.addEventListener('change',()=>{
    intakeMode=radio.value;
    $('#srIntakeFileWrap').hidden=intakeMode!=='file';
+   if($('#srFinancialManualFields'))$('#srFinancialManualFields').hidden=intakeMode!=='manual';
+   $('#srFinancialManualFields')?.querySelectorAll('[data-financial-core]').forEach(input=>{input.required=intakeMode==='manual';});
  }));
 }
 function inferFinancialMime(file){
@@ -2181,6 +2216,17 @@ function renderFinancialObject(title,obj){
   '</div></section>';
 }
 function renderFinancialExecution(result,metrics){
+ if(serviceCode==='financial_analysis'){
+  const analysis=result?.engineResults?.financial_analysis;
+  const calculated=analysis?.metrics||metrics;
+  const numeric=Object.fromEntries(Object.entries(calculated||{}).filter(([,v])=>typeof v==='number'&&Number.isFinite(v)));
+  if(Object.keys(numeric).length){
+   return '<div class="financial-result-stack">'+renderFinancialObject(
+    lang==='ar'?'المؤشرات المالية المحسوبة':'Calculated financial indicators',numeric)+
+    '<p class="sr-muted">'+(lang==='ar'?'لا تعرض المؤشرات غير القابلة للحساب؛ راجع التقرير لمعرفة البيانات الناقصة ومصادر الأرقام.':'Unavailable ratios are excluded; open the report for missing data and source evidence.')+'</p></div>';
+  }
+ }
+
  if(result?.financial_statements){
   const fs=result.financial_statements;
   return '<div class="financial-result-stack">'+
@@ -2278,6 +2324,14 @@ function feasibilityHasRequiredMetrics(feasibility){
  });
 }
 function showExecutionPersistenceStatus(execution){
+ if(serviceCode==='financial_analysis'){
+  const saved=execution?.dataset_persistence?.status==='saved'&&execution?.dataset_persistence?.verified===true;
+  showStatus(saved
+   ?(lang==='ar'?'اكتمل التحليل وتأكد حفظه واسترجاعه.':'Analysis saved and read back successfully.')
+   :(lang==='ar'?'اكتمل الحساب لكن حفظه لم يتأكد؛ احتفظ بنسخة التقرير ولا تكرر التنفيذ قبل مراجعة الأرشيف.':'Calculation completed, but persistence is unverified. Retain a copy; check the archive before rerunning.'),saved);
+  return saved;
+ }
+
  if(serviceCode==='feasibility_studies'){
   const feasibility=execution?.result?.engineResults?.feasibility;
   if(!feasibilityHasRequiredMetrics(feasibility)){
@@ -2345,6 +2399,32 @@ function printFeasibilityReport(payload, executedInputs){
  };
  document.head.appendChild(script);
 }
+function printGovernedFinancialReport(payload){
+ const popup=window.open('','_blank');
+ if(!popup){
+  showStatus(lang==='ar'?'اسمح بفتح نافذة التقرير.':'Allow the report pop-up.',false);
+  return;
+ }
+ const display=()=>{
+  try{
+   const html=window.BondsFinancialAnalysisReport.render(payload,lang);
+   popup.document.open();popup.document.write(html);popup.document.close();
+   popup.focus();popup.print();
+  }catch(error){
+   popup.close();
+   showStatus(lang==='ar'?'لا يمكن إصدار التقرير قبل اكتمال الحسابات.':'Report requires a completed calculation.',false);
+  }
+ };
+ if(window.BondsFinancialAnalysisReport){display();return;}
+ const script=document.createElement('script');
+ script.src='/components/financial-analysis-report.js?v=1';
+ script.onload=display;
+ script.onerror=()=>{
+  popup.close();
+  showStatus(lang==='ar'?'تعذر تحميل قالب التحليل المالي.':'Unable to load financial report template.',false);
+ };
+ document.head.appendChild(script);
+}
 function renderExecutionResult(payload, executedInputs={}){
  if(serviceCode==='feasibility_studies' && !feasibilityMissingInputs().length) $('#srFeasibilityMissingInputs')?.remove();
  let box=$('#srExecutionResult');
@@ -2360,6 +2440,8 @@ function renderExecutionResult(payload, executedInputs={}){
  const studies=renderStudiesExecution(result);
  const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined&&typeof v!=='object');
  const calculated=serviceCode==='feasibility_studies'&&feasibilityHasRequiredMetrics(payload?.result?.engineResults?.feasibility);
+ const analysisMetrics=result?.engineResults?.financial_analysis?.metrics||result.metrics||payload?.metrics||{};
+ const financialCalculated=serviceCode==='financial_analysis'&&payload?.executed===true&&Object.values(analysisMetrics).some(v=>typeof v==='number'&&Number.isFinite(v));
  const confirmedSaved=payload?.artifact_persistence?.status==='saved'&&!!payload?.artifact_persistence?.artifact_id&&
   (serviceCode!=='feasibility_studies'||calculated);
  const title=serviceCode==='feasibility_studies'
@@ -2372,6 +2454,7 @@ function renderExecutionResult(payload, executedInputs={}){
  box.innerHTML='<h2>'+escapeHtml(title)+'</h2>'+ 
   (['feasibility_studies','risk_analysis'].includes(serviceCode)?'<button type="button" id="srDownloadExecution" class="sr-secondary">'+(lang==='ar'?'تنزيل نسخة النتائج (JSON)':'Download results copy (JSON)')+'</button>':'')+
   (calculated?'<button type="button" id="srPrintFeasibilityReport" class="sr-secondary">'+(lang==='ar'?'طباعة التقرير المالي / حفظ PDF':'Print financial report / Save PDF')+'</button>':'')+
+  (financialCalculated?'<button type="button" id="srPrintFinancialAnalysis" class="sr-secondary">'+(lang==='ar'?'عرض التقرير المالي / حفظ PDF':'Financial report / Save PDF')+'</button>':'')+
   (financial||studies||(
    entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+formatFinancialValue(v)+'</li>').join('')+'</ul></div>':
    '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>'
@@ -2402,6 +2485,8 @@ function renderExecutionResult(payload, executedInputs={}){
    $('#srFeasibilityListProjects')?.click();
   });
  }
+ const financialReport=$('#srPrintFinancialAnalysis');
+ if(financialReport)financialReport.addEventListener('click',()=>printGovernedFinancialReport(payload));
  const report=$('#srPrintFeasibilityReport');
  if(report)report.addEventListener('click',()=>printFeasibilityReport(payload,executedInputs));
  const download=$('#srDownloadExecution');
