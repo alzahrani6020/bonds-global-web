@@ -560,6 +560,13 @@ async function run(){
      }));
      viewportReports.push(layout);
      console.log('UI_AUDIT_HR_VIEWPORT '+JSON.stringify(layout));
+     if(width<=390&&layout.rootScroll>layout.rootClient){
+      const offenders=await page.evaluate(()=>Array.from(document.querySelectorAll('body *'))
+       .filter(el=>{const r=el.getBoundingClientRect(),st=getComputedStyle(el);return r.width>0&&r.right>innerWidth+3&&st.visibility!=='hidden'&&st.display!=='none'&&el.getClientRects().length;})
+       .map(el=>({tag:el.tagName.toLowerCase(),id:el.id||'',cls:String(el.className||'').slice(0,110),right:Math.round(el.getBoundingClientRect().right),width:Math.round(el.getBoundingClientRect().width),scroll:el.scrollWidth}))
+       .sort((a,b)=>b.right-a.right).slice(0,15));
+      console.log('UI_AUDIT_HR_OVERFLOW '+JSON.stringify({width,offenders}));
+     }
     }
     console.log('UI_AUDIT_HR_SUMMARY '+JSON.stringify({modules:reports.length,failed:reports.filter(x=>x.auditError||x.selected!=='page'||!x.workspaceVisible||x.newPageErrors?.length).map(x=>x.module),viewports:viewportReports}));
     await page.setViewportSize({width:1050,height:800});
