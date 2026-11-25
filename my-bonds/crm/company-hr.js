@@ -525,10 +525,21 @@
     db.from(table()).insert(row);
    const result=check(await q.select('id').single());
    if(!result?.id)throw Error('Save not confirmed');
+   // A returned ID alone does not prove the employee was saved correctly.
+   // Re-read the exact employee under the same tenant and compare user inputs.
+   if(isEmployee){
+    const persisted=check(await db.from('hr_saas_employees')
+     .select('id,workspace_id,employee_number,full_name')
+     .eq('workspace_id',workspace.id).eq('id',result.id).single());
+    if(!persisted||persisted.workspace_id!==workspace.id||
+       (Object.hasOwn(row,'employee_number')&&persisted.employee_number!==row.employee_number)||
+       (Object.hasOwn(row,'full_name')&&persisted.full_name!==row.full_name))
+     throw Error(t('لم تتطابق بيانات الموظف بعد الحفظ؛ لا تعِد الإضافة قبل مراجعة السجل','Employee data did not match after saving; check the record before retrying'));
+   }
    editing=null;$('hr-editor').hidden=true;
    await load();
    if(isEmployee)document.dispatchEvent(new CustomEvent('bonds-hr-employee-updated',{detail:{workspace}}));
-   status(t('حُفظ السجل بنجاح','Record saved'));
+   status(t('حُفظ السجل وتأكدت مطابقته','Record saved and verified'));
   }catch(e){status(e.message,true);}finally{btn.disabled=false;}
  }
  async function initialize(){
@@ -560,6 +571,24 @@
    const valid=check(await db.from('company_program_entitlements').select('product_code,status,starts_at,ends_at').in('product_code',['hr','suite']).eq('owner_user_id',user.id));
    license=valid.some(x=>['active','trial'].includes(x.status)&&new Date(x.starts_at)<=new Date()&&(!x.ends_at||new Date(x.ends_at)>new Date()));
    $('hr-license').hidden=license;
+   if(!license){
+    // Make identity mismatch actionable instead of implying every user must pay.
+    const panel=$('hr-license');
+    let account=panel.querySelector('#hr-license-current-account');
+    if(!account){
+     account=document.createElement('p');account.id='hr-license-current-account';
+     panel.insertBefore(account,panel.querySelector('#hr-purchase-product')?.closest('label')||panel.firstChild);
+    }
+    account.textContent=t('الحساب المسجّل حاليًا: ','Currently signed in as: ')+(user.email||t('غير معروف','Unknown'));
+    let switchLink=panel.querySelector('#hr-switch-account');
+    if(!switchLink){
+     switchLink=document.createElement('a');switchLink.id='hr-switch-account';
+     panel.insertBefore(switchLink,account.nextSibling);
+    }
+    switchLink.href=(en?'/en':'')+'/calculators/auth/index.html?redirect='+
+     encodeURIComponent(location.pathname+location.search);
+    switchLink.textContent=t('الدخول بالحساب الذي يملك صلاحية الموارد البشرية','Sign in with the HR-authorized account');
+   }
    // Replayable context handles deferred scripts that register after auth resolves.
    window.BondsHRContext={db,user,ownerLicense:license};
    document.dispatchEvent(new CustomEvent('bonds-hr-ready',{detail:window.BondsHRContext}));
