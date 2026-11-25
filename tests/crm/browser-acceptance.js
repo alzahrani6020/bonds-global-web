@@ -232,6 +232,9 @@ async function main(){
   if(output)fs.mkdirSync(output,{recursive:true});
   for(const locale of ['ar','en']){
    await page.goto(base+(locale==='ar'?'/my-bonds/crm/':'/en/my-bonds/crm/'),{waitUntil:'domcontentloaded'});
+   await page.locator('#workspace-form input[name="name"]').fill('UI Audit Company '+locale);
+   await page.locator('#workspace-form button[type="submit"]').click();
+   await page.waitForFunction(()=>document.querySelector('#workspace-content')?.hidden===false);
    for(const width of [1440,390]){
     await page.setViewportSize({width,height:900});
     for(const section of uiSections){
@@ -251,7 +254,7 @@ async function main(){
         heading:document.querySelector('#section-heading')?.textContent||'',
         overflow:Math.max(0,document.documentElement.scrollWidth-window.innerWidth),
         notice:document.querySelector('#status')?.textContent||'',
-        addVisible:!!document.querySelector('#new-record')&&!document.querySelector('#new-record').hidden
+        addVisible:!['overview','members','audit'].includes(section)&&!!document.querySelector('#new-record')&&!document.querySelector('#new-record').hidden
        };
       },section);
       if(!audit.active||!audit.visible||audit.overflow>2)
