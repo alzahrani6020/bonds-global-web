@@ -35,6 +35,7 @@ describe('BONDS deterministic financial engine registry', () => {
       revenue: 1000,
       cogs: 400,
       operating_expenses: 300,
+      operating_income: 300,
       net_income: 180,
       current_assets: 500,
       current_liabilities: 250,
@@ -54,6 +55,7 @@ describe('BONDS deterministic financial engine registry', () => {
     expect(result.metrics.current_ratio).toBe(2);
     expect(result.metrics.quick_ratio).toBe(1.6);
     expect(result.metrics.interest_coverage).toBe(6);
+    expect(result.metrics.ebitda_interest_coverage).toBe(6);
     expect(result.metrics.working_capital).toBe(250);
     expect(result.metrics.asset_turnover).toBeCloseTo(1000 / 1200, 8);
     expect(result.metrics.net_debt).toBe(250);
