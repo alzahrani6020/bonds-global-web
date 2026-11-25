@@ -42,9 +42,9 @@ async function reconcile(files, { token, ref, request = fetch, readFile } = {}) 
   const quote = x => "'" + x.replace(/'/g, "''") + "'";
   const sql = 'select version,name,statements from supabase_migrations.schema_migrations ' +
     'where name in (' + names.map(quote).join(',') + ') or version in (' + ids.map(quote).join(',') + ')';
-  const response = await request('https://api.supabase.com/v1/projects/' + ref + '/database/query', {
+  const response = await request('https://api.supabase.com/v1/projects/' + ref + '/database/query/read-only', {
     method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: sql, read_only: true }), signal: AbortSignal.timeout(30000)
+    body: JSON.stringify({ query: sql }), signal: AbortSignal.timeout(30000)
   });
   if (response.status !== 201) throw new Error('Read-only migration history lookup failed: HTTP ' + response.status);
   const remote = await response.json();
