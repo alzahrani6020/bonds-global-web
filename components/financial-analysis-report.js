@@ -87,6 +87,47 @@
     '<table><thead><tr><th>'+tr('الحقل','Field')+'</th><th>'+tr('حالة المصدر','Source status')+'</th><th>'+tr('موضع المصدر','Source reference')+'</th></tr></thead><tbody>'+
     sourceRows.map(r=>'<tr>'+r.map(v=>'<td>'+escape(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>':
     '<p>'+tr('لا تتوفر مراجع مصدر تفصيلية.','No detailed field provenance available.')+'</p>';
+  // Comparative years are rendered only when supplied by explicitly dated
+  // statement columns with unambiguous, source-proven amounts.
+  const datedFields=fieldSources.filter(f=>f&&f.status==='extracted_multi_period'&&
+    f.period_values&&typeof f.period_values==='object');
+  const datedYears=[...new Set(datedFields.flatMap(f=>Object.keys(f.period_values)
+    .filter(year=>/^20\d{2}$/.test(year))))].sort((a,b)=>Number(b)-Number(a));
+  const yearHeaders=datedYears.length>1?'<table><thead><tr><th>'+
+    escape(tr('البند المالي','Statement line'))+'</th>'+
+    datedYears.map(year=>'<th>'+escape(year)+'</th>').join('')+
+    '</tr></thead><tbody>':'';
+  const datedRows=datedFields.map(f=>{
+    const line=[ar?(metricNames[f.field]||f.field.replace(/_/g,' ')):f.field.replace(/_/g,' '),
+      ...datedYears.map(year=>numeric(f.period_values[year])?fmt(f.period_values[year]):'—')];
+    return '<tr>'+line.map(v=>'<td>'+escape(v)+'</td>').join('')+'</tr>';
+  });
+  const yearTable=datedYears.length>1&&datedRows.length?
+    yearHeaders+datedRows.join('')+'</tbody></table>'+
+    '<p>'+escape(tr('كل قيمة مرتبطة بعمود سنة صريح في المستند. الخانات غير المستخرجة تبقى فارغة.',
+      'Figures are sourced from explicitly dated statement columns; missing values stay blank.'))+'</p>':
+    '<p>'+escape(tr('لم يُثبت وجود سنتين ماليتين أو أكثر بعناوين واضحة في ملف المصدر.',
+    'No two or more clearly dated source columns were verified.'))+'</p>';
+  const revenueDated=datedFields.find(f=>f.field==='revenue');
+  const netDated=datedFields.find(f=>f.field==='net_income');
+  const growthRows=[];
+  for(let i=0;i<datedYears.length-1;i++){
+    const newer=datedYears[i],older=datedYears[i+1];
+    for(const [field,item] of [['revenue',revenueDated],['net_income',netDated]]){
+      const a=item?.period_values?.[newer],b=item?.period_values?.[older];
+      if(numeric(a)&&numeric(b)&&b!==0){
+        growthRows.push([ar?(metricNames[field]||field):field,
+          older+' → '+newer,fmt((a-b)/Math.abs(b)*100)+'%']);
+      }
+    }
+  }
+  const growthTable=growthRows.length?
+    '<table><thead><tr><th>'+escape(tr('البند','Line item'))+'</th><th>'+
+    escape(tr('الفترة','Period'))+'</th><th>'+escape(tr('التغير %','Change %'))+
+    '</th></tr></thead><tbody>'+growthRows.map(row=>'<tr>'+row.map(v=>
+      '<td>'+escape(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>':
+    '<p>'+escape(tr('لم تتوفر بيانات إيرادات أو أرباح قابلة للمقارنة على فترات مثبتة.',
+    'No comparable revenue or earnings figures were found in explicitly dated periods.'))+'</p>';
   const gaps=missing.length?tr('مؤشرات غير قابلة للحساب بالمدخلات المتاحة: ','Metrics unavailable from current inputs: ')+
     missing.map(k=>ar?metricNames[k]:k).join('، '):
     tr('لا توجد فجوات في قائمة المؤشرات المعرفة بالقالب.','No missing values in the report template.');
@@ -172,6 +213,8 @@
     section(tr('مطابقة القوائم','Statement reconciliation'),'<table>'+tableRows(reconciliation)+'</table>')+
     section(tr('التحليل الرأسي','Common-size analysis'),
       metricTable(['gross_margin_pct','operating_margin_pct','net_margin_pct','cost_of_sales_pct','operating_expenses_pct']))+
+    section(tr('مقارنة بنود القوائم عبر السنوات الموثقة','Source-dated multi-year statement comparisons'),yearTable)+
+    section(tr('النمو بين السنوات الموثقة','Verified inter-year growth'),growthTable)+
     section(tr('المقارنة بالفترة السابقة','Prior-period comparison'),
       prior.length?'<table>'+tableRows(prior)+'</table>':'<p>'+tr('بيانات المقارنة غير متاحة','Comparison inputs unavailable')+'</p>')+
     section(tr('تحليل التدفقات النقدية','Cash-flow analysis'),
