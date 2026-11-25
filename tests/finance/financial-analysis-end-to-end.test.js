@@ -99,5 +99,6 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
   expect(api).toContain("FINANCIAL_DATASET_SAVE_UNCONFIRMED");
   expect(api).toContain("FINANCIAL_DATASET_READBACK_MISMATCH");
   expect(api).toContain("readback.input_hash!==inputHash");
+  expect(api).toContain('result.body?.result?.engineResults?.[targetProfile?.requirements?.engine_code]?.metrics');
  });
 });
