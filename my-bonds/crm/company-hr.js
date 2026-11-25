@@ -529,17 +529,22 @@
    // Re-read the exact employee under the same tenant and compare user inputs.
    if(isEmployee){
     const persisted=check(await db.from('hr_saas_employees')
-     .select('id,workspace_id,employee_number,full_name')
-     .eq('workspace_id',workspace.id).eq('id',result.id).single());
-    if(!persisted||persisted.workspace_id!==workspace.id||
-       (Object.hasOwn(row,'employee_number')&&persisted.employee_number!==row.employee_number)||
-       (Object.hasOwn(row,'full_name')&&persisted.full_name!==row.full_name))
+     .select('*').eq('workspace_id',workspace.id).eq('id',result.id).single());
+    const verifyFields=['employee_number','full_name','department_id','position_id','email','phone',
+     'hire_date','termination_date','employment_status','basic_salary','salary_currency'];
+    const matches=(name)=>{
+     if(!Object.hasOwn(row,name))return true;
+     if(name==='basic_salary')return row[name]===null?persisted[name]===null:
+      Number.isFinite(Number(persisted[name]))&&Number(persisted[name])===row[name];
+     return (persisted[name]??null)===(row[name]??null);
+    };
+    if(!persisted||persisted.workspace_id!==workspace.id||verifyFields.some(name=>!matches(name)))
      throw Error(t('لم تتطابق بيانات الموظف بعد الحفظ؛ لا تعِد الإضافة قبل مراجعة السجل','Employee data did not match after saving; check the record before retrying'));
    }
    editing=null;$('hr-editor').hidden=true;
    await load();
    if(isEmployee)document.dispatchEvent(new CustomEvent('bonds-hr-employee-updated',{detail:{workspace}}));
-   status(t('حُفظ السجل وتأكدت مطابقته','Record saved and verified'));
+   status(isEmployee?t('حُفظ الموظف وتأكدت مطابقة بياناته','Employee saved and verified'):t('حُفظ السجل بنجاح','Record saved'));
   }catch(e){status(e.message,true);}finally{btn.disabled=false;}
  }
  async function initialize(){
