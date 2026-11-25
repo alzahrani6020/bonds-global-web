@@ -17,7 +17,7 @@
  // Preserve the fragment-only invitation token across the OAuth login round trip.
  // sessionStorage is scoped to this browser tab; never put bearer tokens in query strings.
  const inviteStorageKey='bonds_hr_pending_invite_v1';
- const inviteFromFragment=new URLSearchParams(location.hash.slice(1)).get('invite');
+ let inviteFromFragment=new URLSearchParams(location.hash.slice(1)).get('invite');
  if(inviteFromFragment){
   try{sessionStorage.setItem(inviteStorageKey,inviteFromFragment);}catch(_){}
  }
@@ -272,6 +272,7 @@
     const accepted=acceptResult.data;
     if(!accepted)throw Error(t('تعذر تأكيد العضوية','Membership not confirmed'));
     try{sessionStorage.removeItem(inviteStorageKey);}catch(_){}
+    inviteFromFragment=null; // Avoid replaying an already accepted token on later HR ready events.
     const clean=new URL(location.href);clean.hash='';history.replaceState(null,'',clean.pathname+clean.search);
     notify(t('تم قبول الدعوة وتفعيل عضوية الموظف','Invitation accepted and staff access activated'));
    }
