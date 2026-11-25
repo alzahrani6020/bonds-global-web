@@ -7,6 +7,7 @@ const { parseDocument, DocumentParserError } = require('../../lib/api/document-p
 const {
   parseNumeric,
   ALL_FIELDS,
+  deriveFinancialInputs,
   requirementsFor,
   extractFinancialFields,
   validateDataset,
@@ -523,6 +524,13 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
     });
   }
 
+  if(serviceCode==='financial_analysis'){
+    const inferred=deriveFinancialInputs(extracted.values||{},extracted.fields||[]);
+    extracted.values=inferred.values;
+    extracted.fields=inferred.fields;
+    extracted.derivations=inferred.derived;
+    extracted.validation=validateDataset({primaryAction,serviceCode,values:inferred.values,fields:inferred.fields});
+  }
   const inputHash = stableInputHash(extracted.values || {});
   const confidence = fieldConfidenceMap(extracted.fields || []);
   const qStatus = qualityStatus({ validation: extracted.validation, fields: extracted.fields, reviewed: false });
@@ -740,6 +748,12 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
     }
   }
 
+  if(dataset.service_code==='financial_analysis'){
+    const inferred=deriveFinancialInputs(reviewed,fields);
+    Object.keys(reviewed).forEach(key=>delete reviewed[key]);
+    Object.assign(reviewed,inferred.values);
+    fields.splice(0,fields.length,...inferred.fields);
+  }
   const validation = validateDataset({
     primaryAction: profileState.resolved.profile.primary_action,
     serviceCode: dataset.service_code,
