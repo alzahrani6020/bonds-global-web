@@ -98,54 +98,35 @@ jobs:
           path: ${{ runner.temp }}/bonds-backup/production.dump.age
           retention-days: 1
           if-no-files-found: error
-      - name: Apply pinned HR migrations to isolated restored snapshot
+      - name: Verify existing HR production schema and apply profile migration only to isolated restored snapshot
         shell: bash
         env:
-          HR_MIGRATIONS_SHA: 6ff02d0aab8b6ca74d5eca31d3e26cd592bbab7a
+          HR_PROFILE_SHA: 6c4d1699fb9c9a65a141baa26da2fc69b66f4caf
         run: |
           set -euo pipefail
-          # This step acts ONLY on the disconnected Docker database restored above.
-          # The encrypted production archive has already been uploaded.
-          docker inspect bonds-restore-gate --format '{{.HostConfig.NetworkMode}}' | grep -Fx none
-          existing="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND (table_name='company_program_entitlements' OR table_name LIKE 'hr_saas_%');")"
-          test "$existing" -eq 0 || { echo "BLOCKED: HR schema already exists in restored snapshot"; exit 1; }
-          git fetch --no-tags --depth=1 origin "$HR_MIGRATIONS_SHA"
-          mkdir -p "$RUNNER_TEMP/hr-isolated-migrations"
-          chmod 700 "$RUNNER_TEMP/hr-isolated-migrations"
-          files=(
-            20261117040000_standalone_hr_saas_baseline.sql
-            20261117060000_hr_saas_attendance_leaves.sql
-            20261117070000_hr_saas_payroll_review.sql
-            20261117080000_hr_saas_employment_contracts.sql
-            20261117090000_hr_saas_entitlements.sql
-            20261117100000_hr_saas_leave_ledger.sql
-            20261117110000_hr_saas_roles_self_service.sql
-            20261118010000_hr_link_existing_company_workspaces.sql
-            20261121190000_hr_org_attendance_leave_workflows.sql
-          )
-          test "${#files[@]}" -eq 9
-          for name in "${files[@]}"; do
-            git show "$HR_MIGRATIONS_SHA:supabase/migrations/$name" > "$RUNNER_TEMP/hr-isolated-migrations/$name"
-            test -s "$RUNNER_TEMP/hr-isolated-migrations/$name"
-            docker cp "$RUNNER_TEMP/hr-isolated-migrations/$name" "bonds-restore-gate:/tmp/$name"
-            docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -v ON_ERROR_STOP=1 -f "/tmp/$name"
-            echo "PASS: applied isolated migration $name"
-          done
-          protected="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname LIKE 'hr_saas_%' AND c.relrowsecurity;")"
-          total="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname LIKE 'hr_saas_%';")"
-          entitlement="$(docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='company_program_entitlements';")"
-          echo "ISOLATED_HR_TABLE_COUNT=$total"
-          echo "ISOLATED_HR_RLS_ENABLED_COUNT=$protected"
-          echo "ISOLATED_HR_ENTITLEMENT_COUNT=$entitlement"
-          if ! [[ "$total" =~ ^[0-9]+$ && "$protected" =~ ^[0-9]+$ && "$entitlement" =~ ^[0-9]+$ ]]; then
-            echo "FAIL: unable to parse isolated schema counts"; exit 1
-          fi
-          if [[ "$total" -ne 19 || "$protected" -ne 19 || "$entitlement" -ne 1 ]]; then
-            echo "FAIL: isolated HR table/RLS/entitlement postcondition"
-            docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -P pager=off -c "SELECT c.relname, c.relrowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname LIKE 'hr_saas_%' ORDER BY c.relname;"
-            exit 1
-          fi
-          echo "PASS: restored production snapshot + nine additive HR migrations, RLS enabled on all HR tables"
+          # Verify actual production clone, no writes to production: container has no network.
+          test "$(docker inspect bonds-restore-gate --format '{{.HostConfig.NetworkMode}}')" = none
+          query() {
+            docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "$1"
+          }
+          hr_count="$(query "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname LIKE 'hr_saas_%';")"
+          hr_protected="$(query "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname LIKE 'hr_saas_%' AND c.relrowsecurity;")"
+          employees_before="$(query 'SELECT count(*) FROM public.hr_saas_employees;')"
+          members_before="$(query 'SELECT count(*) FROM public.hr_saas_memberships;')"
+          test "$hr_count" -eq 19 && test "$hr_protected" -eq 19 || { echo "BLOCKED: restored HR schema does not match verified 19 RLS-enabled tables"; exit 1; }
+          test "$employees_before" -ge 1 && test "$members_before" -ge 1 || { echo "BLOCKED: restored production HR employee/membership evidence missing"; exit 1; }
+          test "$(query "SELECT count(*) FROM pg_class WHERE oid=to_regclass('public.hr_company_profiles');")" -eq 0 || { echo "BLOCKED: profile table already exists; review migrations"; exit 1; }
+          git fetch --no-tags --depth=1 origin "$HR_PROFILE_SHA"
+          git show "$HR_PROFILE_SHA:supabase/migrations/20261125190000_hr_company_profiles.sql" > "$RUNNER_TEMP/hr_company_profiles.sql"
+          test -s "$RUNNER_TEMP/hr_company_profiles.sql"
+          docker cp "$RUNNER_TEMP/hr_company_profiles.sql" bonds-restore-gate:/tmp/hr_company_profiles.sql
+          docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -v ON_ERROR_STOP=1 -f /tmp/hr_company_profiles.sql
+          test "$(query "SELECT relrowsecurity::int FROM pg_class WHERE oid='public.hr_company_profiles'::regclass;")" -eq 1
+          test "$(query "SELECT count(*) FROM pg_policies WHERE schemaname='public' AND tablename='hr_company_profiles';")" -eq 3
+          test "$(query "SELECT count(*) FROM storage.buckets WHERE id='hr-company-branding' AND public=false;")" -eq 1
+          test "$(query 'SELECT count(*) FROM public.hr_saas_employees;')" = "$employees_before"
+          test "$(query 'SELECT count(*) FROM public.hr_saas_memberships;')" = "$members_before"
+          echo "PASS: offline restored production snapshot preserved employees/memberships; additive company profile and RLS valid"
       - name: Remove isolated restored database
         if: always()
         shell: bash
