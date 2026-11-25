@@ -191,6 +191,14 @@ async function run(){
      const entry=await page.evaluate(()=>window.__hrTest.tables.hr_saas_employee_requests[0]);
      assert.equal(entry.status,'pending');
      assert.equal(entry.requested_by,'10000000-0000-4000-8000-000000000001');
+     await page.waitForFunction(()=>document.querySelector('#hr-self-status')?.textContent.includes('تم حفظ الطلب والتحقق من استرجاعه'));
+     assert.equal(await page.locator('#hr-request-form input[name="subject"]').inputValue(),'');
+     assert.equal(await page.locator('#hr-request-rows details').count(),1);
+     await page.locator('#hr-request-rows summary').click();
+     assert.equal((await page.locator('#hr-request-rows details p').textContent()).trim(),'Please issue a certificate');
+     await page.locator('#hr-requests-refresh').click();
+     await page.waitForFunction(()=>document.querySelector('#hr-request-rows')?.textContent.includes('Certificate'));
+     assert.equal(await page.locator('#hr-request-rows tr').count(),1,'Request disappeared after reload from mock database');
     }else{
      await page.locator('[data-hr-decision="approved"]').click();
      await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_employee_requests[0].status==='approved');
