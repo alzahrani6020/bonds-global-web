@@ -109,8 +109,16 @@
    tr('نمو الإيرادات','Revenue growth'),metricText('revenue_growth_pct')]);
   if(numeric(inputs.prior_net_income)&&numeric(inputs.net_income))prior.push([
    tr('نمو صافي الربح','Net income growth'),metricText('earnings_growth_pct')]);
-  const {auditEquityRollForward}=require('../lib/finance/three-statement-consistency');
-  const equityMovement=auditEquityRollForward(inputs);
+  const equityFields=['opening_equity','net_income','owner_contributions','owner_distributions','other_equity_movements','equity'];
+  const equityMissing=equityFields.filter(key=>!numeric(inputs[key]));
+  const equityExpected=equityMissing.length?null:inputs.opening_equity+inputs.net_income+
+    inputs.owner_contributions-inputs.owner_distributions+inputs.other_equity_movements;
+  const equityDifference=equityExpected===null?null:inputs.equity-equityExpected;
+  const equityTolerance=equityExpected===null?null:Math.max(1,Math.max(Math.abs(equityExpected),Math.abs(inputs.equity))*0.005);
+  const equityMovement={
+    status:equityMissing.length?'UNVERIFIED':Math.abs(equityDifference)<=equityTolerance?'PASS':'FAIL',
+    difference:equityDifference,missing:equityMissing
+  };
   const reconciliation=[
    [tr('فرق توازن المركز المالي','Balance sheet difference'),
     ['total_assets','total_liabilities','equity'].every(k=>numeric(inputs[k]))?
