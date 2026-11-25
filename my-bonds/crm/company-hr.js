@@ -672,6 +672,7 @@
  function updateProgramHeading(name){
   const heading=$('company-program-brand');
   if(heading)heading.textContent=name==='hr'?'BONDS HR':'BONDS CRM';
+  document.title=name==='hr'?t('BONDS HR — الموارد البشرية','BONDS HR — Human Resources'):t('بوندز CRM للشركات | مساحة عمل العميل','BONDS CRM for Business | Client Workspace');
  }
  function toggleProduct(name){
   updateProgramHeading(name);
