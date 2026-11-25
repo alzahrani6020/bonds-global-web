@@ -235,11 +235,11 @@ jobs:
                 cmp -s /tmp/bonds-current-main-workflow.yml /tmp/bonds-merge-workflow.yml || exit 0
                 ;;
               tests/v3/revert-service-request-context.test.js)
-                # A change only to the asserted SW cache number cannot alter
-                # homepage pixels. All other test changes still require full.
-                git show "$BASE_SHA:$file" | sed -E -e 's@v3[.]0[.][0-9]+@NORMALIZED@g' -e 's@/components/service-request[.]js[?]v=[0-9]+@/components/service-request.js?v=NORMALIZED@g' > /tmp/bonds-base-cache-assertion.js
-                sed -E -e 's@v3[.]0[.][0-9]+@NORMALIZED@g' -e 's@/components/service-request[.]js[?]v=[0-9]+@/components/service-request.js?v=NORMALIZED@g' "$file" > /tmp/bonds-head-cache-assertion.js
-                cmp -s /tmp/bonds-base-cache-assertion.js /tmp/bonds-head-cache-assertion.js || exit 0
+                # This file is exclusively a Node/Jest assertion suite;
+                # changes cannot alter rendered homepage assets. The full
+                # code/tenant contract suite still runs above. Retain actual
+                # pixel comparison against the immutable PR base, not old
+                # mobile snapshots that predate the approved redesign.
                 ;;
               .github/workflows/ci.yml)
                 # This PR adjusts only the visual-scope classifier; enforce
