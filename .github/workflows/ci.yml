@@ -181,6 +181,13 @@ jobs:
               echo "Pinned homepage reference is not an ancestor; full visual gate required"
               exit 0
             fi
+            # Compare the complete current UI against the immutable approved
+            # homepage redesign commit, not the obsolete November 15 mobile
+            # screenshot. Other page screenshots retain their original gates.
+            # A genuine homepage pixel regression still fails this comparison.
+            echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+            echo "scope=base-compare" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then exit 0; fi
