@@ -47,6 +47,20 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
   expect(required.requirement_fields).toContain('inventory');
   expect(required.requirement_fields).not.toContain('zakat_base');
  });
+ test('year preceding a value must not replace the amount',()=>{
+  const x=extractFinancialFields({parsed:{text:'Revenue 2026 1000000\nCurrent Assets 300000\nCurrent Liabilities 150000'},
+    primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(x.values.revenue).toBe(1000000);
+  const ambiguous=extractFinancialFields({parsed:{text:'Revenue 2026 1000000 2025 900000\nCurrent Assets 300000\nCurrent Liabilities 150000'},
+    primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(ambiguous.values.revenue).toBeUndefined();
+  expect(ambiguous.validation.valid).toBe(false);
+ });
+ test('traditional interest coverage requires EBIT, not only EBITDA',()=>{
+  const report=financialAnalysis({ebitda:250000,interest_expense:50000},{serviceCode:'interest_coverage_analysis'});
+  expect(report.executed).toBe(false);
+  expect(report.required_inputs).toContain('operating_income');
+ });
  test('missing core inputs remain fail closed',()=>{
   const validation=validateDataset({primaryAction:'financial_analysis_run',
     serviceCode:'financial_analysis',values:{net_income:120000},fields:[]});
