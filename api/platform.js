@@ -5,6 +5,7 @@
 
 const getSupabase = require('../lib/api/supabase');
 const crmInviteHandler = require('../lib/api/crm-invite');
+const hrInviteHandler = require('../lib/api/hr-invite');
 const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
 const { sendEmail } = require('../lib/api/email');
@@ -2367,6 +2368,12 @@ module.exports = async function handler(req, res) {
     if (pathname === '/api/crm-invite' || pathname === '/api/crm-invite/') {
       if (await checkRateLimit('auth', req, res)) return;
       return crmInviteHandler(req, res);
+    }
+
+    // Owner-only HR invitation delivery; existing API router and mail service.
+    if (pathname === '/api/hr-invite' || pathname === '/api/hr-invite/') {
+      if (await checkRateLimit('auth', req, res)) return;
+      return hrInviteHandler(req, res);
     }
 
     // Site

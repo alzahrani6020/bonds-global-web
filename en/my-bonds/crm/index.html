@@ -28,7 +28,7 @@
  <script src="/my-bonds/crm/crm-app.js?v=3" defer></script>
  <script src="/my-bonds/crm/company-hr.js?v=19" defer></script>
  <script src="/my-bonds/crm/company-hr-overview.js?v=1" defer></script>
- <script src="/my-bonds/crm/company-hr-self-service.js?v=3" defer></script>
+ <script src="/my-bonds/crm/company-hr-self-service.js?v=4" defer></script>
  <script src="/my-bonds/crm/company-hr-policies.js?v=1" defer></script>
  <script src="/my-bonds/crm/crm-internal.js?v=1" defer></script>
  <style>html[lang="en"]{direction:ltr}html[lang="en"] body{text-align:left}html[lang="en"] .sidebar{border-left:0;border-right:1px solid var(--stroke)}html[lang="en"] .sidebar-nav button,html[lang="en"] th,html[lang="en"] td{text-align:left}</style>
@@ -231,9 +231,9 @@
      <label>Recipient email<input name="email" type="email" required maxlength="320" autocomplete="off"></label>
      <label>Employee record<select id="hr-invite-employee" name="employee_id" required><option value="">Select employee</option></select></label>
      <label>Access role<select name="role" required><option value="employee">Employee</option><option value="hr_manager">HR manager</option></select></label>
-     <button type="submit" class="primary">Create secure invitation</button>
+     <button type="submit" class="primary">Create and email invitation</button>
     </form>
-    <div class="overflow"><table><thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Link</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
+    <div class="overflow"><table><thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Email / Link</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
     <div class="overflow"><table><thead><tr><th>Employee</th><th>Account</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody id="hr-members-table"></tbody></table></div>
    </section>
    <section id="hr-self-section" class="panel" hidden>

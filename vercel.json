@@ -319,6 +319,14 @@
       "destination": "/api/platform"
     },
     {
+      "source": "/api/hr-invite",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/hr-invite/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/contact",
       "destination": "/api/platform"
     },

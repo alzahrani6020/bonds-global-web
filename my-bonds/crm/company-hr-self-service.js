@@ -41,7 +41,8 @@
    staff.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.employee_number)+' — '+esc(x.full_name)+'</option>').join('');
   $('hr-invite-employee').innerHTML=$('hr-member-employee').innerHTML;
   $('hr-invites-table').innerHTML=invites.map(inv=>'<tr><td>'+esc(inv.invited_email)+'</td><td>'+esc(inv.role)+'</td><td>'+esc(inv.status)+'</td><td>'+
-   (inv.status==='pending'&&new Date(inv.expires_at)>new Date()?'<button type="button" class="secondary" data-hr-invite-link="'+esc(inv.token)+'">'+t('نسخ الرابط','Copy link')+'</button>':'—')+'</td></tr>').join('')||
+   (inv.status==='pending'&&new Date(inv.expires_at)>new Date()?'<button type="button" class="secondary" data-hr-invite-link="'+esc(inv.token)+'">'+t('نسخ الرابط','Copy link')+'</button> '+
+   '<button type="button" class="secondary" data-hr-invite-send="'+esc(inv.id)+'">'+t('إرسال البريد','Send email')+'</button>':'—')+'</td></tr>').join('')||
    '<tr><td colspan="4">'+t('لا توجد دعوات','No invitations')+'</td></tr>';
   $('hr-members-table').innerHTML=members.map(m=>{
    const name=staff.find(e=>e.id===m.employee_id)?.full_name||m.employee_id;
@@ -50,6 +51,32 @@
     '<button class="secondary" type="button" data-revoke-membership="'+esc(m.id)+'">'+
     t('إيقاف العضوية','Revoke')+'</button>':'—')+'</td></tr>';
   }).join('')||'<tr><td colspan="5">'+t('لا توجد عضويات','No memberships')+'</td></tr>';
+ }
+ async function sendInvitationEmail(invitationId){
+  if(!ownerLicense||!ownerWorkspace)throw Error(t('غير مصرح بإرسال الدعوات','Not authorized to send invitations'));
+  const session=requireOk(await db.auth.getSession())?.session;
+  if(!session?.access_token)throw Error(t('انتهت الجلسة. سجّل الدخول مجددًا','Session expired. Sign in again'));
+  const response=await fetch('/api/hr-invite',{
+   method:'POST',
+   headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+   body:JSON.stringify({invitation_id:invitationId})
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok||payload.success!==true){
+   if(payload.error==='HR_EMAIL_UNAVAILABLE'||payload.error==='HR_EMAIL_NOT_SENT')
+    throw Error(t('لم تُرسل الرسالة. خدمة البريد غير مهيأة أو رفضت الإرسال؛ استخدم نسخ الرابط إلى أن تُفعّل الخدمة.','Invitation email was not sent. Email service is unavailable; use Copy link until delivery is configured.'));
+   throw Error(t('تعذّر إرسال دعوة الموظف: ','Unable to send employee invitation: ')+(payload.error||response.status));
+  }
+  return payload;
+ }
+ async function sendExistingInvitation(event){
+  const button=event.target.closest('[data-hr-invite-send]');
+  if(!button||!ownerLicense)return;
+  button.disabled=true;
+  try{
+   await sendInvitationEmail(button.dataset.hrInviteSend);
+   notify(t('قبل مزوّد البريد رسالة الدعوة للإرسال. لم يُثبت وصولها إلى صندوق الوارد بعد.','The email provider accepted the invitation for sending. Inbox delivery is not yet confirmed.'));
+  }catch(error){notify(error.message,true);}finally{button.disabled=false;}
  }
  async function createInvitation(event){
   event.preventDefault();
@@ -70,7 +97,12 @@
    }).select('id,token').single());
    if(!result?.id||!result.token)throw Error(t('لم يتم تأكيد إنشاء الدعوة','Invitation not confirmed'));
    formElement.reset();await loadOwnerMembers();
-   notify(t('أُنشئت الدعوة. انسخ رابطها وشاركه مع المدعو عبر قناة آمنة.','Invitation created. Copy and share its link securely.'));
+   try{
+    await sendInvitationEmail(result.id);
+    notify(t('أُنشئت الدعوة وقبل مزوّد البريد إرسالها. وصول الرسالة إلى صندوق الوارد لم يُثبت بعد.','Invitation created and email accepted by the provider. Inbox delivery is not yet confirmed.'));
+   }catch(mailError){
+    notify(t('حُفظت الدعوة ولكن البريد لم يُرسل: ','Invitation saved, but email was not sent: ')+mailError.message,true);
+   }
   }catch(error){notify(error.message,true);}finally{button.disabled=false;}
  }
  async function copyInvitation(event){
@@ -226,6 +258,7 @@
  });
  $('hr-invite-form').addEventListener('submit',createInvitation);
  $('hr-invites-table').addEventListener('click',copyInvitation);
+ $('hr-invites-table').addEventListener('click',sendExistingInvitation);
  $('hr-member-form').addEventListener('submit',addMember);
  $('hr-members-table').addEventListener('click',revokeMember);
  $('hr-member-refresh').addEventListener('click',()=>loadOwnerMembers().catch(e=>notify(e.message,true)));

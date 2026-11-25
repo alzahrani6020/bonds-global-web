@@ -18,7 +18,7 @@ describe('HR staff invitation survives OAuth return',()=>{
  });
  test('both locale entrypoints use new callback script',()=>{
   for(const html of [ar,en]){
-   expect(html).toContain('company-hr-self-service.js?v=2');
+   expect(html).toContain('company-hr-self-service.js?v=4');
    expect(html).toContain('company-hr.js?v=19');
   }
  });
