@@ -45,6 +45,15 @@ describe('HR employee directory server-side paging',()=>{
   expect(source).toContain("hr-switch-account");
   expect(source).toContain("encodeURIComponent(location.pathname+location.search)");
  });
+ test('verified super admin can enter HR without checkout while ordinary entitlement checks remain',()=>{
+  expect(source).toContain("const ownerRole=await db.rpc('is_super_admin')");
+  expect(source).toContain("const verifiedOwner=!ownerRole.error&&ownerRole.data===true");
+  expect(source).toContain("if(verifiedOwner){");
+  expect(source).toContain("license=true;");
+  expect(source).toContain("db.from('company_program_entitlements')");
+  expect(source).toContain("if(!license)return;");
+  expect(source).not.toMatch(/user_metadata.*super_admin/);
+ });
  test('non-directory employee selectors remain bounded and existing writes stay intact',()=>{
   expect(source).toContain(".limit(250)");
   expect(source).toContain("const result=check(await q.select('id').single())");
