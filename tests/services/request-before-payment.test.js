@@ -28,6 +28,14 @@ describe('service request intake before paid execution',()=>{
   }
   expect(source).toContain("form.addEventListener('input',saveWorkspaceDraft)");
  });
+ test('intake chooses workspace, binds its ID, and checks persisted workspace on readback',()=>{
+  expect(source).toContain('async function renderRequestWorkspaceSelector()');
+  expect(source).toContain("sb.from('crm_app_workspaces')");
+  expect(source).toContain("company_id:requestedWorkspace==='personal'?null:requestedWorkspace");
+  expect(source).toContain('workspace_scope!==workspaceBinding.scope');
+  expect(source).toContain("only.crm_workspace_id||null");
+  expect(source).toContain('requestWorkspaceReady');
+ });
  test('workspace execution remains separate from request submission',()=>{
   expect(source).toContain("if(!isServiceWorkspace){");
   expect(source).toContain("fetch('/api/v3/services/execute'");
