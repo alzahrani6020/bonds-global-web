@@ -1938,10 +1938,45 @@ function renderFinancialIntake(){
    '</div>'+
    '<div id="srIntakeFileWrap"><input id="srIntakeFile" type="file" accept=".pdf,.xlsx,.xls,.csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"><div class="sr-muted">'+escapeHtml(T.chooseFile)+'</div></div>'+
    '<div id="srIntakeReview"></div>';
+ if(serviceCode==='financial_analysis'){
+  const manualFields=[
+   ['revenue','الإيرادات','Revenue'],
+   ['current_assets','الأصول المتداولة','Current assets'],
+   ['current_liabilities','الالتزامات المتداولة','Current liabilities'],
+   ['cogs','تكلفة المبيعات','Cost of sales'],
+   ['operating_expenses','المصروفات التشغيلية','Operating expenses'],
+   ['total_expenses','إجمالي المصروفات','Total expenses'],
+   ['operating_income','الدخل التشغيلي (EBIT)','Operating income (EBIT)'],
+   ['ebitda','EBITDA','EBITDA'],
+   ['net_income','صافي الربح','Net income'],
+   ['cash','النقد وما في حكمه','Cash and equivalents'],
+   ['inventory','المخزون','Inventory'],
+   ['receivables','الذمم المدينة','Receivables'],
+   ['total_assets','إجمالي الأصول','Total assets'],
+   ['total_liabilities','إجمالي الالتزامات','Total liabilities'],
+   ['equity','حقوق الملكية','Equity'],
+   ['total_debt','إجمالي الدين','Total debt'],
+   ['interest_expense','مصروف الفوائد','Interest expense'],
+   ['prior_revenue','إيرادات المقارنة','Prior revenue'],
+   ['prior_net_income','صافي ربح المقارنة','Prior net income'],
+   ['cost_of_equity_pct','تكلفة حقوق الملكية %','Cost of equity %'],
+   ['cost_of_debt_pct','تكلفة الدين %','Cost of debt %'],
+   ['tax_rate_pct','معدل الضريبة %','Tax rate %']
+  ];
+  const controls=manualFields.filter(([key])=>!host.querySelector('[name="'+key+'"]'))
+   .map(([key,ar,enLabel])=>'<label class="sr-field"><span>'+escapeHtml(lang==='ar'?ar:enLabel)+'</span>'+
+     '<input type="number" step="any" name="'+key+'" autocomplete="off"'+
+     (['revenue','current_assets','current_liabilities'].includes(key)?' required':'')+'></label>').join('');
+  panel.innerHTML+='<div id="srFinancialManualFields" hidden><p class="sr-muted">'+
+    (lang==='ar'?'أدخل بيانات الفترة المالية بوحدات العملة نفسها. لا تُستكمل القيم الناقصة بافتراضات.':'Enter period financial amounts in consistent currency units. Missing figures are not assumed.')+
+    '</p><div class="sr-intake-table">'+controls+'</div></div>';
+ }
  host.prepend(panel);
  panel.querySelectorAll('input[name="__intake_mode"]').forEach(radio=>radio.addEventListener('change',()=>{
    intakeMode=radio.value;
    $('#srIntakeFileWrap').hidden=intakeMode!=='file';
+   if($('#srFinancialManualFields'))$('#srFinancialManualFields').hidden=intakeMode!=='manual';
+   $('#srFinancialManualFields')?.querySelectorAll('[required]').forEach(input=>{input.required=intakeMode==='manual';});
  }));
 }
 function inferFinancialMime(file){
