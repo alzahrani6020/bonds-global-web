@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('fs'),path=require('path');
 const {financialAnalysis}=require('../../lib/finance/engines/financial-analysis-engine');
-const {deriveFinancialInputs,validateDataset,requirementsFor}=require('../../lib/finance/financial-data-intake');
+const {deriveFinancialInputs,validateDataset,requirementsFor,qualityStatus,financialStatementCoverage}=require('../../lib/finance/financial-data-intake');
 const {render}=require('../../components/financial-analysis-report');
 const values={
  revenue:2000000,cogs:1200000,operating_expenses:400000,
@@ -64,6 +64,17 @@ describe('governed financial analysis: cash flow, D&A and evidence gate',()=>{
    'CROSS_STATEMENT_NET_INCOME_MISMATCH',
    'EBITDA_RECONCILIATION_MISMATCH'
   ]));
+ });
+ test('verified status requires all three financial statements, not just three ratio inputs',()=>{
+  const partial={revenue:2000000,current_assets:400000,current_liabilities:200000};
+  const valid=validateDataset({primaryAction:'financial_analysis_run',serviceCode:'financial_analysis',values:partial,fields:[]});
+  expect(valid.valid).toBe(true);
+  expect(qualityStatus({validation:valid,fields:[],reviewed:true,serviceCode:'financial_analysis',values:partial})).toBe('partial');
+  expect(financialStatementCoverage(partial).overall_complete).toBe(false);
+  const full=deriveFinancialInputs(values);
+  expect(financialStatementCoverage(full.values).overall_complete).toBe(true);
+  expect(qualityStatus({validation:evaluate(full),fields:full.fields,reviewed:true,
+   serviceCode:'financial_analysis',values:full.values})).toBe('verified');
  });
  test('financial intake and manual panel expose all real statement inputs',()=>{
   const fields=requirementsFor({primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'})
