@@ -16,13 +16,13 @@ describe('service request rollback history and transactional tenant-isolation re
   expect(api).toContain('resolveServiceRequestWorkspace(supabase,user,companyId)');
   expect(api).toContain('REQUEST_COMMIT_UNVERIFIED');
   expect(api).not.toContain(".from('service_request_values').insert(valueRows)");
-  expect(atomic).toMatch(/insert into public\\.service_requests\\(/i);
-  expect(atomic).toMatch(/insert into public\\.service_request_values\\(/i);
+  expect(atomic).toMatch(/insert into public\.service_requests\(/i);
+  expect(atomic).toMatch(/insert into public\.service_request_values\(/i);
   expect(atomic).toContain("'WORKSPACE_ACCESS_DENIED'");
   expect(atomic).toContain("'PROJECT_ACCESS_DENIED'");
   expect(atomic).toContain('revoke all on function public.create_service_request_atomic');
   expect(atomic).toContain('grant execute on function public.create_service_request_atomic');
-  expect(atomic).not.toMatch(/security\\s+definer/i);
+  expect(atomic).not.toMatch(/security\s+definer/i);
   expect(guard).toContain('service_request_links_guard');
   expect(guard).toContain("'WORKSPACE_ACCESS_DENIED'");
   expect(guard).toContain("'PROJECT_ACCESS_DENIED'");
