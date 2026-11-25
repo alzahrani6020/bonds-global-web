@@ -144,6 +144,10 @@ body:has(#hr-section:not([hidden])) .brand{padding-bottom:.55rem}
 .hr-overview-links a:hover,.hr-overview-links a:focus-visible{border-color:#3385d6;outline-offset:2px}
 @media(max-width:600px){.hr-overview-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.hr-overview-size{display:grid}.hr-overview-size select{width:100%}}
 
+/* Keep calculated HR JSON visible and readable without expanding mobile viewport.
+ * <pre> uses white-space:pre by default; long JSON values escaped the policy panel. */
+#hr-calculation-result{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
+
 /* Accessible bilingual seven-day shift schedule selector. */
 .hr-weekday-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:.45rem;margin-top:.5rem}
 .hr-weekday-choices label{display:flex;align-items:center;gap:.4rem;padding:.48rem;border-radius:8px;border:1px solid rgba(100,116,139,.35);font-size:.88rem}
