@@ -6,14 +6,18 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'scripts/reconcile-production-migrations.js'
+      - 'scripts/apply-production-migration-api.js'
       - 'tests/db/production-migration-reconciliation.test.cjs'
+      - 'tests/db/production-migration-api-runner.test.cjs'
       - '.github/workflows/apply-migrations.yml'
   pull_request:
     branches: [main]
     paths:
       - 'supabase/migrations/**'
       - 'scripts/reconcile-production-migrations.js'
+      - 'scripts/apply-production-migration-api.js'
       - 'tests/db/production-migration-reconciliation.test.cjs'
+      - 'tests/db/production-migration-api-runner.test.cjs'
       - '.github/workflows/apply-migrations.yml'
   workflow_dispatch:
     inputs:
