@@ -62,6 +62,7 @@ async function run(){
      let kind='read',value=null,filters=[],limit=1000,offset=0,rangeEnd=null;
      const q={
       select(){return q;},eq(k,v){filters.push(r=>r[k]===v);return q;},
+      gt(k,v){filters.push(r=>r[k]>v);return q;},
       in(k,vals){filters.push(r=>vals.includes(r[k]));return q;},
       or(expr){
        const clauses=expr.split(',').map(c=>c.split('.ilike.'));
