@@ -1711,7 +1711,7 @@ const workspaceDraftKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+work
 const workspaceDraftStorage=(workspaceDraftScope==='unassigned'||isStudiesWorkspaceService())?sessionStorage:localStorage;
 let workspaceDirty=false;
 function saveWorkspaceDraft(){
- if(!isServiceWorkspace)return;
+ // Requests also keep the intake draft in this browser tab through sign-in.
  const form=$('#srRequestForm');if(!form)return;
  const values={};
  form.querySelectorAll('[name]').forEach(el=>{
@@ -1728,7 +1728,7 @@ function saveWorkspaceDraft(){
  syncStudiesAssistantContext();
 }
 function restoreWorkspaceDraft(){
- if(!isServiceWorkspace)return;
+ // Requests also keep the intake draft in this browser tab through sign-in.
  let saved=null;
  try{saved=JSON.parse(workspaceDraftStorage.getItem(workspaceDraftKey)||'null')}catch(_){}
  if(!saved?.values||saved.service_code!==serviceCode)return;
@@ -1746,13 +1746,13 @@ function restoreWorkspaceDraft(){
  workspaceDirty=false;
 }
 function bindWorkspaceDraft(){
- if(!isServiceWorkspace)return;
+ // Requests also keep the intake draft in this browser tab through sign-in.
  const form=$('#srRequestForm');if(!form)return;
  form.addEventListener('input',saveWorkspaceDraft);
  form.addEventListener('change',saveWorkspaceDraft);
 }
 function clearWorkspaceDraft(){
- if(!isServiceWorkspace)return;
+ // Requests also keep the intake draft in this browser tab through sign-in.
  try{workspaceDraftStorage.removeItem(workspaceDraftKey);workspaceDirty=false}
  catch(_){workspaceDirty=true}
 }
