@@ -61,8 +61,10 @@
   $('hr-invite-employee').innerHTML=$('hr-member-employee').innerHTML;
   $('hr-invites-table').innerHTML=invites.map(inv=>{
    const name=staff.find(e=>e.id===inv.employee_id)?.full_name||'—';
-   const pending=inv.status==='pending'&&new Date(inv.expires_at)>new Date();
-   const state=inv.status==='pending'&&!pending?t('منتهية الصلاحية','Expired'):stateLabel(inv.status);
+   const alreadyActive=members.some(m=>m.status==='active'&&m.employee_id===inv.employee_id&&m.role===inv.role);
+   const pending=!alreadyActive&&inv.status==='pending'&&new Date(inv.expires_at)>new Date();
+   const state=alreadyActive?t('عضوية نشطة — الدعوة السابقة غير مطلوبة','Membership active — prior invite not needed'):
+    inv.status==='pending'&&!pending?t('منتهية الصلاحية','Expired'):stateLabel(inv.status);
    return '<tr><td>'+esc(name)+'</td><td>'+esc(inv.invited_email)+'</td><td>'+esc(roleLabel(inv.role))+'</td><td>'+
     esc(t('الانضمام إلى نظام الموارد البشرية','Join the HR system'))+'</td><td>'+esc(state)+'</td><td>'+
     esc(localDate(inv.created_at))+'</td><td>'+esc(localDate(inv.expires_at))+'</td><td>'+
@@ -117,6 +119,11 @@
     throw Error(t('البريد الإلكتروني غير صحيح','Invalid recipient email'));
    if(!employeeId||!['employee','hr_manager'].includes(role))
     throw Error(t('بيانات الدعوة غير مكتملة','Incomplete invitation'));
+   // Never create or resend an invitation for an already active employee record.
+   const active=requireOk(await db.from('hr_saas_memberships').select('id')
+    .eq('workspace_id',ownerWorkspace.id).eq('employee_id',employeeId)
+    .eq('status','active').limit(1));
+   if(active.length)throw Error(t('عضوية هذا الموظف نشطة بالفعل؛ لا حاجة لإعادة الدعوة','Employee already has active access; no invitation needed'));
    // Reuse an existing unexpired invitation; do not generate multiple active tokens.
    const existing=requireOk(await db.from('hr_saas_invitations').select('id,expires_at')
     .eq('workspace_id',ownerWorkspace.id).eq('employee_id',employeeId)
@@ -164,6 +171,11 @@
    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId))
     throw Error(t('معرّف الحساب UUID غير صحيح','Invalid user UUID'));
    if(!employeeId||!['employee','hr_manager'].includes(role))throw Error(t('بيانات العضوية غير مكتملة','Incomplete membership'));
+   const existing=requireOk(await db.from('hr_saas_memberships').select('id,user_id,employee_id')
+    .eq('workspace_id',ownerWorkspace.id).eq('status','active')
+    .or('user_id.eq.'+userId+',employee_id.eq.'+employeeId).limit(2));
+   if(existing.some(m=>m.user_id===userId||m.employee_id===employeeId))
+    throw Error(t('توجد عضوية نشطة للحساب أو للموظف. لا تُنشئ عضوية مكررة','Account or employee already has active membership'));
    const result=requireOk(await db.from('hr_saas_memberships').insert({
     workspace_id:ownerWorkspace.id,user_id:userId,employee_id:employeeId,role,status:'active'
    }).select('id').single());

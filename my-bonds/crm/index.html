@@ -26,9 +26,10 @@
  <script src="/my-bonds/crm/crm-app.js?v=3" defer></script>
  <script src="/my-bonds/crm/company-hr.js?v=19" defer></script>
  <script src="/my-bonds/crm/company-hr-overview.js?v=1" defer></script>
- <script src="/my-bonds/crm/company-hr-self-service.js?v=6" defer></script>
+ <script src="/my-bonds/crm/company-hr-self-service.js?v=7" defer></script>
  <script src="/my-bonds/crm/company-hr-policies.js?v=1" defer></script>
  <script src="/my-bonds/crm/crm-internal.js?v=1" defer></script>
+ <script src="/my-bonds/crm/company-hr-company-profile.js?v=1" defer></script>
 </head>
 <body>
 <div class="app">
@@ -201,6 +202,44 @@
     <a href="/contact.html">طلب مساعدة في الاشتراك</a>
    </section>
    <section id="hr-auth" class="panel" hidden>سجّل الدخول للوصول إلى برامج الشركات. <a id="hr-sign-in" href="/calculators/auth/index.html">تسجيل الدخول</a></section>
+   <section id="hr-company-profile" class="panel" hidden>
+<h2>ملف المنشأة والهوية المؤسسية</h2>
+<p>بيانات هذه الشركة فقط. لا يؤثر التعديل في ملكية الشركة أو عضوية الموظفين.</p>
+<p id="hr-company-profile-status" role="status" aria-live="polite"></p>
+<form id="hr-company-profile-form">
+<div class="editor-fields">
+<label>الاسم النظامي<input name="legal_name" type="text" maxlength="240" autocomplete="off"></label>
+<label>الاسم التجاري<input name="trading_name" type="text" maxlength="240" autocomplete="off"></label>
+<label>نوع الكيان القانوني<input name="legal_entity_type" type="text" maxlength="240" autocomplete="off"></label>
+<label>رقم السجل التجاري<input name="commercial_registration" type="text" maxlength="240" autocomplete="off"></label>
+<label>تاريخ إصدار السجل<input name="commercial_registration_issued_at" type="date" maxlength="240" autocomplete="off"></label>
+<label>تاريخ انتهاء السجل<input name="commercial_registration_expires_at" type="date" maxlength="240" autocomplete="off"></label>
+<label>الرقم الموحد للمنشأة<input name="unified_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>الرقم الوطني للمنشأة<input name="national_establishment_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>الرقم الضريبي<input name="vat_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>حالة التسجيل الضريبي<input name="vat_registration_status" type="text" maxlength="240" autocomplete="off"></label>
+<label>رقم اشتراك التأمينات الاجتماعية<input name="gosi_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>رقم الرخصة البلدية<input name="municipal_license_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>انتهاء الرخصة البلدية<input name="municipal_license_expires_at" type="date" maxlength="240" autocomplete="off"></label>
+<label>النشاط التجاري الرئيسي<input name="business_activity" type="text" maxlength="240" autocomplete="off"></label>
+<label>الأنشطة الفرعية<input name="secondary_activities" type="text" maxlength="240" autocomplete="off"></label>
+<label>المدينة<input name="city" type="text" maxlength="240" autocomplete="off"></label>
+<label>الحي<input name="district" type="text" maxlength="240" autocomplete="off"></label>
+<label>الشارع<input name="street" type="text" maxlength="240" autocomplete="off"></label>
+<label>رقم المبنى<input name="building_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>الرمز البريدي<input name="postal_code" type="text" maxlength="240" autocomplete="off"></label>
+<label>الرقم الإضافي<input name="additional_number" type="text" maxlength="240" autocomplete="off"></label>
+<label>هاتف الشركة<input name="phone" type="text" maxlength="240" autocomplete="off"></label>
+<label>البريد الرسمي<input name="email" type="email" maxlength="240" autocomplete="off"></label>
+<label>الموقع الإلكتروني<input name="website" type="url" maxlength="240" autocomplete="off"></label>
+<label>الممثل النظامي<input name="representative_name" type="text" maxlength="240" autocomplete="off"></label>
+<label>مسؤول الموارد البشرية<input name="hr_contact_name" type="text" maxlength="240" autocomplete="off"></label>
+</div>
+<label>شعار الشركة (PNG / JPG / WEBP، حتى 2 ميجابايت)<input type="file" id="hr-company-logo-file" accept="image/png,image/jpeg,image/webp"></label>
+<img id="hr-company-logo-preview" hidden alt="شعار الشركة" style="max-width:160px;max-height:110px;object-fit:contain;">
+<button type="submit" class="primary">حفظ بيانات المنشأة</button>
+</form>
+</section>
    <section id="hr-setup" class="panel" hidden>
     <h2>مساحات عمل الشركات المشتركة</h2>
     <label>اختر مساحة العمل<select id="hr-workspace"></select></label>
@@ -237,13 +276,7 @@
    <section id="hr-membership-admin" class="panel" hidden>
     <div class="section-actions"><h2>صلاحيات الموظفين وإدارة الوصول</h2>
      <button type="button" class="secondary" id="hr-member-refresh">تحديث</button></div>
-    <p class="muted">مالك الشركة وحده يمنح الصلاحيات ويوقفها. يتطلب الربط معرّف UUID لحساب مسجل بالفعل. يراجع مسؤول الموارد البشرية الطلبات دون الاطلاع على سجلات الرواتب أو إدارة العضويات.</p>
-    <form id="hr-member-form" class="editor-fields">
-     <label>معرّف حساب المستخدم UUID<input name="user_id" required maxlength="36" autocomplete="off"></label>
-     <label>ملف الموظف<select id="hr-member-employee" name="employee_id" required><option value="">اختر الموظف</option></select></label>
-     <label>صلاحية الوصول<select name="role" required><option value="employee">موظف</option><option value="hr_manager">مسؤول الموارد البشرية</option></select></label>
-     <button type="submit" class="primary">منح العضوية</button>
-    </form>
+    <p class="muted">مالك الشركة وحده يدير العضويات. ادعُ الموظف الجديد ببريده الإلكتروني أولًا؛ يُربط الحساب بملفه بعد دخول الموظف الموثق وقبول الدعوة.</p>
     <h3>دعوة الموظفين بالبريد الإلكتروني الموثّق</h3>
     <p class="muted">تُنشأ دعوة محددة بالموظف والبريد والصلاحية. لا تُفعّل العضوية إلا بعد دخول المدعو بحساب ذي بريد مؤكد مطابق.</p>
     <form id="hr-invite-form" class="editor-fields">
@@ -251,6 +284,14 @@
      <label>ملف الموظف<select id="hr-invite-employee" name="employee_id" required><option value="">اختر الموظف</option></select></label>
      <label>الصلاحية<select name="role" required><option value="employee">موظف</option><option value="hr_manager">مسؤول الموارد البشرية</option></select></label>
      <button type="submit" class="primary">إنشاء الدعوة وإرسال البريد</button>
+    </form>
+    <h3>الربط المباشر بمعرّف UUID — خيار إداري متقدم</h3>
+    <p class="muted">للموظفين الجدد استخدم الدعوة بالبريد أعلاه. لا تُعد إنشاء عضوية نشطة ولا تدخل UUID إلا للحساب المسجل والموثق.</p>
+    <form id="hr-member-form" class="editor-fields">
+     <label>معرّف حساب المستخدم UUID<input name="user_id" required maxlength="36" autocomplete="off"></label>
+     <label>ملف الموظف<select id="hr-member-employee" name="employee_id" required><option value="">اختر الموظف</option></select></label>
+     <label>صلاحية الوصول<select name="role" required><option value="employee">موظف</option><option value="hr_manager">مسؤول الموارد البشرية</option></select></label>
+     <button type="submit" class="primary">منح العضوية</button>
     </form>
     <div class="overflow"><table><thead><tr><th>الموظف</th><th>البريد</th><th>الصلاحية</th><th>الغرض</th><th>الحالة</th><th>تاريخ الدعوة</th><th>تاريخ الانتهاء</th><th>الإجراء</th></tr></thead><tbody id="hr-invites-table"></tbody></table></div>
     <div class="overflow"><table><thead><tr><th>الموظف</th><th>الحساب</th><th>الدور</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="hr-members-table"></tbody></table></div>
