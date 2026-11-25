@@ -32,7 +32,7 @@ describe('HR invitation acceptance compatibility and localized admin UI',()=>{
  });
  test('Arabic and English pages expose all invitation columns and safe switch',()=>{
   for(const html of [ar,en]){
-   expect(html).toContain('company-hr-self-service.js?v=6');
+   expect(html).toContain('company-hr-self-service.js?v=7');
    expect(html).toContain('id="hr-invite-switch" hidden');
    expect(html).toContain('<th>');
   }
