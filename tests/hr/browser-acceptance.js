@@ -170,6 +170,7 @@ async function run(){
    }else if(scenario==='unlicensed'){
     await page.waitForFunction(()=>!document.querySelector('#hr-license').hidden);
     assert.equal(await page.locator('#hr-setup').isVisible(),false,'Unlicensed user accessed HR records');
+    assert.equal(await page.locator('#hr-staff-access-guidance').isVisible(),true,'Non-owner employees need access guidance instead of an unexplained checkout');
     await chooseHrModule(page,'departments');
     assert.equal(await page.locator('#hr-license').isVisible(),true,'Blocked HR navigation must show entitlement');
     assert.match(await page.locator('#hr-status').textContent(),/اشتراك HR|subscription/,'Blocked HR navigation must explain the missing entitlement');
