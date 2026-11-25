@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'supabase/migrations/**'
+      - 'scripts/reconcile-production-migrations.js'
+      - 'tests/db/production-migration-reconciliation.test.cjs'
+      - '.github/workflows/apply-migrations.yml'
   pull_request:
     branches: [main]
     paths:
@@ -33,6 +36,39 @@ jobs:
           persist-credentials: false
       - name: Validate reconciliation contracts
         run: node --test tests/db/production-migration-reconciliation.test.cjs
+
+  verify-existing-hr-history:
+    name: Verify existing HR migration history (production read-only)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify-reconciliation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout reviewed main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Verify nine recorded HR migration SQL texts without modifying database
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: hutxsqzplyuqgnghsrcs
+          MIGRATIONS_INPUT: /tmp/hr-migrations.txt
+          MIGRATIONS_PENDING: /tmp/hr-migrations-pending.txt
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s\\n' \\
+            supabase/migrations/20261117040000_standalone_hr_saas_baseline.sql \\
+            supabase/migrations/20261117060000_hr_saas_attendance_leaves.sql \\
+            supabase/migrations/20261117070000_hr_saas_payroll_review.sql \\
+            supabase/migrations/20261117080000_hr_saas_employment_contracts.sql \\
+            supabase/migrations/20261117090000_hr_saas_entitlements.sql \\
+            supabase/migrations/20261117100000_hr_saas_leave_ledger.sql \\
+            supabase/migrations/20261117110000_hr_saas_roles_self_service.sql \\
+            supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql \\
+            supabase/migrations/20261121190000_hr_org_attendance_leave_workflows.sql > "$MIGRATIONS_INPUT"
+          node scripts/reconcile-production-migrations.js
+          test ! -s "$MIGRATIONS_PENDING"
+          echo "PASS: all nine recorded HR migrations have identical SQL; zero writes"
 
   migrate:
     name: Apply Supabase Migrations
