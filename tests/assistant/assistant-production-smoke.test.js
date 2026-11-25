@@ -32,7 +32,7 @@ describe('Assistant production acceptance', () => {
     mockDb.rpc.mockReset();
     mockDb.from.mockReset();
     mockDb.from.mockImplementation(table => {
-      if (!['profiles', 'subscriptions'].includes(table)) {
+      if (!['profiles', 'subscriptions', 'admin_roles'].includes(table)) {
         throw new Error(`Unexpected table access: ${table}`);
       }
       const query = {
