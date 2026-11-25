@@ -53,10 +53,11 @@
  }
  async function createInvitation(event){
   event.preventDefault();
+  const formElement=event.currentTarget;
   if(!ownerLicense||!ownerWorkspace)return;
-  const button=event.currentTarget.querySelector('[type="submit"]');button.disabled=true;
+  const button=formElement.querySelector('[type="submit"]');button.disabled=true;
   try{
-   const form=new FormData(event.currentTarget);
+   const form=new FormData(formElement);
    const email=String(form.get('email')||'').trim().toLowerCase();
    const employeeId=String(form.get('employee_id')||'');
    const role=String(form.get('role')||'');
@@ -68,7 +69,7 @@
     workspace_id:ownerWorkspace.id,employee_id:employeeId,invited_email:email,role,created_by:user.id
    }).select('id,token').single());
    if(!result?.id||!result.token)throw Error(t('لم يتم تأكيد إنشاء الدعوة','Invitation not confirmed'));
-   event.currentTarget.reset();await loadOwnerMembers();
+   formElement.reset();await loadOwnerMembers();
    notify(t('أُنشئت الدعوة. انسخ رابطها وشاركه مع المدعو عبر قناة آمنة.','Invitation created. Copy and share its link securely.'));
   }catch(error){notify(error.message,true);}finally{button.disabled=false;}
  }
@@ -84,10 +85,11 @@
  }
  async function addMember(event){
   event.preventDefault();
+  const formElement=event.currentTarget;
   if(!ownerLicense||!ownerWorkspace)return;
-  const button=event.currentTarget.querySelector('[type="submit"]');button.disabled=true;
+  const button=formElement.querySelector('[type="submit"]');button.disabled=true;
   try{
-   const f=new FormData(event.currentTarget);
+   const f=new FormData(formElement);
    const userId=String(f.get('user_id')||'').trim().toLowerCase();
    const employeeId=String(f.get('employee_id')||'').trim();
    const role=String(f.get('role')||'');
@@ -98,7 +100,7 @@
     workspace_id:ownerWorkspace.id,user_id:userId,employee_id:employeeId,role,status:'active'
    }).select('id').single());
    if(!result?.id)throw Error(t('تعذّر إثبات العضوية','Membership not confirmed'));
-   event.currentTarget.reset();
+   formElement.reset();
    await loadOwnerMembers();notify(t('تمت إضافة العضوية','Membership created'));
   }catch(error){notify(error.message,true);}finally{button.disabled=false;}
  }
@@ -144,10 +146,11 @@
  }
  async function submitRequest(event){
   event.preventDefault();
+  const formElement=event.currentTarget;
   if(!selectedMembership)return;
-  const button=event.currentTarget.querySelector('[type="submit"]');button.disabled=true;
+  const button=formElement.querySelector('[type="submit"]');button.disabled=true;
   try{
-   const data=new FormData(event.currentTarget);
+   const data=new FormData(formElement);
    const payload={
     workspace_id:selectedMembership.workspace_id,
     employee_id:selectedMembership.employee_id,requested_by:user.id,
@@ -163,7 +166,7 @@
     throw Error(t('تاريخ النهاية يسبق البداية','End date before start'));
    const result=requireOk(await db.from('hr_saas_employee_requests').insert(payload).select('id').single());
    if(!result?.id)throw Error(t('لم يتم تأكيد تسجيل الطلب','Request not confirmed'));
-   event.currentTarget.reset();await loadRequests();notify(t('سُجل الطلب للمراجعة','Request submitted'));
+   formElement.reset();await loadRequests();notify(t('سُجل الطلب للمراجعة','Request submitted'));
   }catch(error){notify(error.message,true);}finally{button.disabled=false;}
  }
  async function decideRequest(event){
