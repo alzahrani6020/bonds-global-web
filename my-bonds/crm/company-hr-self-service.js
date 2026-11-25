@@ -172,7 +172,8 @@
     throw Error(t('معرّف الحساب UUID غير صحيح','Invalid user UUID'));
    if(!employeeId||!['employee','hr_manager'].includes(role))throw Error(t('بيانات العضوية غير مكتملة','Incomplete membership'));
    const existing=requireOk(await db.from('hr_saas_memberships').select('id,user_id,employee_id')
-    .eq('workspace_id',ownerWorkspace.id).eq('status','active').limit(250));
+    .eq('workspace_id',ownerWorkspace.id).eq('status','active')
+    .or('user_id.eq.'+userId+',employee_id.eq.'+employeeId).limit(2));
    if(existing.some(m=>m.user_id===userId||m.employee_id===employeeId))
     throw Error(t('توجد عضوية نشطة للحساب أو للموظف. لا تُنشئ عضوية مكررة','Account or employee already has active membership'));
    const result=requireOk(await db.from('hr_saas_memberships').insert({
