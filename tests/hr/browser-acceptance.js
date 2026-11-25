@@ -522,6 +522,8 @@ async function run(){
      'performance','training','documents','employee_requests','assets','governance','audit'
     ];
     const hrUiIssues=[];
+    const membershipSnapshot=await page.evaluate(()=>JSON.stringify(window.__hrTest.tables.hr_saas_memberships));
+    const writeCountBeforeAudit=await page.evaluate(()=>window.__hrTest.writes.length);
     const fs=require('node:fs');
     const outDir=process.env.UI_AUDIT_SCREENSHOTS;
     if(outDir)fs.mkdirSync(outDir,{recursive:true});
@@ -546,7 +548,8 @@ async function run(){
          horizontalOverflow:Math.max(0,document.documentElement.scrollWidth-window.innerWidth),
          error:(document.querySelector('#hr-status')?.classList.contains('error')?
           document.querySelector('#hr-status').textContent:''),
-         addVisible:!!add&&!add.hidden
+         addVisible:!!add&&!add.hidden,
+         title:document.title
         };
        },id);
        if(width===390&&id==='employees'){
@@ -575,6 +578,7 @@ async function run(){
         });
         console.log('UI_AUDIT_HR_OVERFLOW_CHAIN '+JSON.stringify(chain));
        }
+       if(!audit.title.includes('BONDS HR'))hrUiIssues.push({width,id,issue:'wrong HR browser tab title',title:audit.title});
        if(!audit.active||!audit.visible||audit.error||audit.horizontalOverflow>2)
         hrUiIssues.push({width,id,issue:'render, navigation, overflow or runtime',audit});
        if(audit.addVisible){
@@ -592,6 +596,8 @@ async function run(){
       }
      }
     }
+    assert.equal(await page.evaluate(()=>JSON.stringify(window.__hrTest.tables.hr_saas_memberships)),membershipSnapshot,'Browsing HR UI must never create or modify HR memberships');
+    assert.equal(await page.evaluate(()=>window.__hrTest.writes.length),writeCountBeforeAudit,'Navigating and opening/closing HR UI must not write to the database');
     console.log('UI_AUDIT_HR_SUMMARY '+JSON.stringify({tested:hrAuditModules.length*2,issues:hrUiIssues}));
     assert.deepEqual(hrUiIssues,[],'HR UI audit defects, see UI_AUDIT_HR_SUMMARY');
    }
