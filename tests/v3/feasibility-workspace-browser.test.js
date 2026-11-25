@@ -309,6 +309,46 @@ describe('feasibility study browser acceptance — isolated service contracts', 
     await page.locator('input[name="years"]').fill('5');
   }
 
+  test('prints only calculated feasibility results from the submitted snapshot',async()=>{
+    const {page,context}=await openFeasibility({projectId:'fixture-report-project'});
+    await page.route('**/api/v3/services/execute',route=>route.fulfill({
+      status:200,contentType:'application/json',
+      body:JSON.stringify({
+        executed:true,artifact_persistence:{status:'saved',artifact_id:'fixture-artifact'},
+        result:{intent:{intent:'feasibility'},engineResults:{feasibility:{
+          executed:true,ok:true,required_inputs:[],metrics:{
+            initial_investment:100000,discount_rate:0.1,cash_flows:[30000,30000,30000,30000,30000],
+            npv:13723.6030822535,irr:0.1523823711663,irr_pct:15.23823711663,
+            payback_periods:3.333333,profitability_index:1.137236,
+            net_cash_flows:150000
+          }
+        }}}
+      })
+    }));
+    await page.locator('input[name="project_name"]').fill('Report acceptance project');
+    await page.locator('select[name="project_size"]').selectOption('small');
+    await page.locator('textarea[name="project_brief"]').fill('Five-year financial study');
+    await completeFinancialInputs(page);
+    await page.evaluate(()=>{
+      window.__printedReport='';
+      window.open=()=>({
+        document:{open(){},write(html){window.__printedReport=html},close(){}},
+        focus(){},print(){window.__didPrint=true},close(){}
+      });
+    });
+    await page.locator('#srSubmit').click();
+    await page.locator('#srPrintFeasibilityReport').waitFor({state:'visible'});
+    expect(await page.locator('#srDownloadExecution').isVisible()).toBe(true);
+    await page.locator('#srPrintFeasibilityReport').click();
+    await page.waitForFunction(()=>window.__didPrint===true);
+    const report=await page.evaluate(()=>window.__printedReport);
+    expect(report).toContain('Report acceptance project');
+    expect(report).toContain('13,723.6031');
+    expect(report).toContain('fixture-artifact');
+    expect(report).toContain('15.2382');
+    await context.close();
+  });
+
   test('blocks empty financial input before any API call, and focuses the missing field', async()=>{
     const {page,context}=await openFeasibility();
     let called=false;
