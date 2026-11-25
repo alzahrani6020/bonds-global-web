@@ -1813,6 +1813,7 @@ function renderField(field){
  const key=escapeHtml(field.field_key),label=escapeHtml(text(field,'label_ar','label_en')),req=field.is_required?' required':'',reqLabel=field.is_required?T.required:T.optional;
  if(field.field_type==='section')return '<div class="sr-field full"><h3>'+label+'</h3></div>';
  if(field.field_type==='instruction')return '<div class="sr-field full sr-field-info">'+label+'</div>';
+ if(field.field_type==='file'&&!isServiceWorkspace)return '<div class="sr-field full"><label>'+label+'</label><div class="sr-muted">'+(lang==='ar'?'تُطلب المرفقات بعد تقديم الطلب ومراجعته؛ لا يلزم رفعها قبل إرسال البيانات.':'Attachments are requested after the initial intake is reviewed; no upload is required before submitting the form.')+'</div></div>';
  if(field.field_type==='file')return '<div class="sr-field full"><label>'+label+' <small>('+reqLabel+')</small></label><input type="file" data-file-field="'+key+'"'+req+'><div class="sr-muted">'+T.files+'</div></div>';
  if(field.field_type==='textarea')return '<div class="sr-field full"><label>'+label+' <small>('+reqLabel+')</small></label><textarea name="'+key+'"'+req+' placeholder="'+escapeHtml(lang==='ar'?field.placeholder_ar:field.placeholder_en)+'"></textarea></div>';
  if(field.field_type==='select'||field.field_type==='multiselect'){
