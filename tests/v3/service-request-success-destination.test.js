@@ -24,7 +24,7 @@ describe('service request success destination', () => {
 
   test('request page keeps the created request reference visible in place', () => {
     expect(ui).toContain("showStatus(T.sent+' — '+reference,true)");
-    expect(ui).toContain("const verified=await confirmServiceRequestReadback(reference,expected,headers)");
+    expect(ui).toContain("const verified=await confirmServiceRequestReadback(reference,expected,headers,workspaceBinding)");
     expect(ui).toContain("if(verified){");
   });
 });
