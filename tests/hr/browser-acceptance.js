@@ -513,6 +513,61 @@ async function run(){
     await page.locator('#hr-member-form button[type="submit"]').click();
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_memberships.length===1);
     assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_memberships[0])).role,'hr_manager');
+    // Independent UI-only coverage audit on synthetic owner data.
+    // No production mutations: all requests are intercepted by this test's mock.
+    const hrAuditModules=[
+     'employees','departments','positions','recruitment','lifecycle','attendance',
+     'attendance_corrections','shifts','leaves','leave_balances','contracts','payroll',
+     'payroll_runs','benefits','allowances','deductions','claims','loans','settlements',
+     'performance','training','documents','employee_requests','assets','governance','audit'
+    ];
+    const hrUiIssues=[];
+    const fs=require('node:fs');
+    const outDir=process.env.UI_AUDIT_SCREENSHOTS;
+    if(outDir)fs.mkdirSync(outDir,{recursive:true});
+    for(const width of [1440,390]){
+     await page.setViewportSize({width,height:900});
+     for(const id of hrAuditModules){
+      try{
+       await chooseHrModule(page,id);
+       await page.waitForFunction(expected=>{
+        const notice=document.querySelector('#hr-status')?.textContent||'';
+        return new URL(location.href).searchParams.get('hr_module')===expected
+         && !notice.includes('جارٍ تحميل الوحدة') && !notice.includes('Loading module');
+       },id,{timeout:10000});
+       const audit=await page.evaluate(expected=>{
+        const nav=document.querySelector('#hr-nav [data-hr-category="'+expected+'"]');
+        const editor=document.querySelector('#hr-editor');
+        const add=document.querySelector('#hr-add');
+        return {
+         active:nav?.getAttribute('aria-current')==='page',
+         visible:!!document.querySelector('#hr-app')&&!document.querySelector('#hr-app').hidden,
+         heading:document.querySelector('#hr-heading')?.textContent||'',
+         horizontalOverflow:Math.max(0,document.documentElement.scrollWidth-window.innerWidth),
+         error:(document.querySelector('#hr-status')?.classList.contains('error')?
+          document.querySelector('#hr-status').textContent:''),
+         addVisible:!!add&&!add.hidden
+        };
+       },id);
+       if(!audit.active||!audit.visible||audit.error||audit.horizontalOverflow>2)
+        hrUiIssues.push({width,id,issue:'render, navigation, overflow or runtime',audit});
+       if(audit.addVisible){
+        await page.locator('#hr-add').click();
+        const fields=await page.locator('#hr-fields input, #hr-fields select, #hr-fields textarea').count();
+        if(!(await page.locator('#hr-editor').isVisible())||fields<1)
+         hrUiIssues.push({width,id,issue:'Add editor missing usable fields',fields});
+        await page.locator('#hr-close').click();
+       }
+       if(outDir)await page.screenshot({path:outDir+'/hr-'+width+'-'+id+'.png',fullPage:true,animations:'disabled'});
+       console.log('UI_AUDIT_HR '+JSON.stringify({width,id,...audit}));
+      }catch(error){
+       hrUiIssues.push({width,id,issue:String(error.message||error)});
+       console.log('UI_AUDIT_HR_ERROR '+JSON.stringify({width,id,message:String(error.message||error)}));
+      }
+     }
+    }
+    console.log('UI_AUDIT_HR_SUMMARY '+JSON.stringify({tested:hrAuditModules.length*2,issues:hrUiIssues}));
+    assert.deepEqual(hrUiIssues,[],'HR UI audit defects, see UI_AUDIT_HR_SUMMARY');
    }
    assert.deepEqual(errors,[],'Client runtime error: '+errors.join('; '));
    await page.close();
