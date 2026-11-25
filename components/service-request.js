@@ -1708,7 +1708,7 @@ const workspaceDraftScope=['company_id','project_id','deal_id','opportunity_id']
  .map(key=>{const id=params.get(key);return id?key+':'+id:null})
  .filter(Boolean).join('|')||'unassigned';
 const workspaceDraftKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+workspaceDraftScope;
-const workspaceDraftStorage=(workspaceDraftScope==='unassigned'||isStudiesWorkspaceService())?sessionStorage:localStorage;
+const workspaceDraftStorage=(!isServiceWorkspace||workspaceDraftScope==='unassigned'||isStudiesWorkspaceService())?sessionStorage:localStorage;
 let workspaceDirty=false;
 function saveWorkspaceDraft(){
  // Requests also keep the intake draft in this browser tab through sign-in.
