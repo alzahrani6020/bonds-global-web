@@ -146,7 +146,7 @@ jobs:
 
       - name: Verify migration reconciler contracts
         if: steps.migrations.outputs.count != '0'
-        run: node --test tests/db/production-migration-reconciliation.test.cjs
+        run: node --test tests/db/production-migration-reconciliation.test.cjs tests/db/production-migration-api-runner.test.cjs
 
       - name: Reconcile production migration SQL before any writes
         if: steps.migrations.outputs.count != '0'
