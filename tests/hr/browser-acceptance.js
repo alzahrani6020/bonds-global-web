@@ -514,6 +514,56 @@ async function run(){
     await page.waitForFunction(()=>window.__hrTest.tables.hr_saas_memberships.length===1);
     assert.equal((await page.evaluate(()=>window.__hrTest.tables.hr_saas_memberships[0])).role,'hr_manager');
    }
+
+   if(scenario==='owner'){
+    // Exhaustive READ-ONLY UI inspection on disposable mocked auth/data.
+    // It never submits a form, mutates production, or changes snapshots.
+    const moduleIds=await page.locator('#hr-nav [data-hr-category]').evaluateAll(nodes=>nodes.map(el=>el.dataset.hrCategory));
+    assert.equal(moduleIds.length,26,'HR module links must cover all 26 categories');
+    const reports=[];
+    await page.locator('#hr-product-tab').click();
+    for(const module of moduleIds){
+     const beforeErrors=errors.length;
+     const item={module};
+     try{
+      await chooseHrModule(page,module);
+      await page.waitForTimeout(80);
+      item.selected=await page.locator('#hr-nav [data-hr-category="'+module+'"]').getAttribute('aria-current');
+      item.heading=(await page.locator('#hr-heading').textContent()||'').trim();
+      item.workspaceVisible=await page.locator('#hr-app').isVisible();
+      item.status=(await page.locator('#hr-status').textContent()||'').trim().slice(0,150);
+      item.fields=0;
+      const add=page.locator('#hr-add');
+      if(await add.isVisible()){
+       await add.click();
+       item.editorVisible=await page.locator('#hr-editor').isVisible();
+       item.fields=await page.locator('#hr-fields [name]').count();
+       await page.locator('#hr-close').click();
+       item.editorClosed=!(await page.locator('#hr-editor').isVisible());
+      }else item.editorVisible=false;
+      item.newPageErrors=errors.slice(beforeErrors);
+     }catch(err){item.auditError=String(err.message||err).slice(0,250);}
+     reports.push(item);
+     console.log('UI_AUDIT_HR_MODULE '+JSON.stringify(item));
+    }
+    assert.equal(reports.length,26,'HR audit must visit all modules');
+    const viewportReports=[];
+    for(const width of [1440,768,390,320]){
+     await page.setViewportSize({width,height:800});
+     await page.waitForTimeout(60);
+     const layout=await page.evaluate(()=>({
+      viewport:innerWidth,
+      rootScroll:document.documentElement.scrollWidth,
+      rootClient:document.documentElement.clientWidth,
+      sidebar:!!document.querySelector('#hr-nav')&&!document.querySelector('#hr-nav').hidden,
+      hrVisible:!!document.querySelector('#hr-section')&&!document.querySelector('#hr-section').hidden
+     }));
+     viewportReports.push(layout);
+     console.log('UI_AUDIT_HR_VIEWPORT '+JSON.stringify(layout));
+    }
+    console.log('UI_AUDIT_HR_SUMMARY '+JSON.stringify({modules:reports.length,failed:reports.filter(x=>x.auditError||x.selected!=='page'||!x.workspaceVisible||x.newPageErrors?.length).map(x=>x.module),viewports:viewportReports}));
+    await page.setViewportSize({width:1050,height:800});
+   }
    assert.deepEqual(errors,[],'Client runtime error: '+errors.join('; '));
    await page.close();
   }
