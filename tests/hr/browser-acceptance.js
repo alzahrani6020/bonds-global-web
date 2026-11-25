@@ -106,6 +106,9 @@ async function run(){
     }
     const supabase={auth:{getUser:async()=>scenario==='signedout'?Promise.reject(Error('getUser must not run without a session')):({data:{user},error:null}),getSession:async()=>scenario==='auth-error'?Promise.reject(Error('Simulated auth connection failure')):scenario==='signedout'?({data:{session:null},error:{name:'AuthSessionMissingError',message:'Auth session missing!'}}):({data:{session:{user,access_token:'test-mock-access-token'}},error:null})},from,
      rpc:async(name,args)=>{
+      // No synthetic test account is a verified platform super-admin.
+      // Keep the ordinary subscription and HR membership gates under test.
+      if(name==='is_super_admin')return {data:false,error:null};
       if(name!=='hr_saas_accept_invitation')throw Error('Unexpected RPC '+name);
       const invite=tables.hr_saas_invitations.find(x=>x.token===args.invite_token&&x.status==='pending');
       if(!invite)return {data:null,error:{message:'Invalid invitation'}};

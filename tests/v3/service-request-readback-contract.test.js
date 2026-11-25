@@ -21,7 +21,7 @@ describe('service request persistence and readback contracts', () => {
   });
 
   test('client does not report success until server-side readback matches sent inputs', () => {
-    expect(client).toContain('async function confirmServiceRequestReadback(reference,expected,headers)');
+    expect(client).toContain('async function confirmServiceRequestReadback(reference,expected,headers,workspaceBinding=null)');
     expect(client).toContain("result.requests[0].request_reference!==reference");
     expect(client).toContain('Object.prototype.hasOwnProperty.call(saved,key)');
     expect(client).toContain('JSON.stringify(saved[key])===JSON.stringify(expected[key])');
@@ -42,8 +42,8 @@ describe('service request persistence and readback contracts', () => {
 
   test('both language and workspace routes use the same cache-busted client', () => {
     for (const route of ['service-request.html','en/service-request.html','my-bonds/workspace/index.html','en/my-bonds/workspace/index.html']) {
-      expect(read(route)).toContain('/components/service-request.js?v=37');
+      expect(read(route)).toContain('/components/service-request.js?v=40');
     }
-    expect(read('sw.js')).toContain("'/components/service-request.js?v=37'");
+    expect(read('sw.js')).toContain("'/components/service-request.js?v=40'");
   });
 });
