@@ -1895,6 +1895,19 @@ async function handleAccountingBudgetReference(req, res, supabase, user) {
 }
 
 async function servicesRouter(req, res, path, supabase, user) {
+  // Fixed synthetic fixtures only. This route never reads/writes Supabase,
+  // handles uploaded customer files, or calls paid/production execution.
+  if(path==='/services/financial-analysis/demo'){
+    if(req.method!=='GET')return sendJson(res,405,{ok:false,error:{code:'METHOD_NOT_ALLOWED'}});
+    const scenario=getQuery(req).searchParams.get('scenario')||'healthy';
+    try{
+      const {scenarioResult}=require('../../lib/finance/financial-analysis-lab');
+      res.setHeader('Cache-Control','no-store, private');
+      return sendJson(res,200,scenarioResult(scenario));
+    }catch(error){
+      return sendJson(res,400,{ok:false,error:{code:error.code==='UNKNOWN_FINANCIAL_LAB_SCENARIO'?error.code:'DEMO_COMPUTATION_FAILED'}});
+    }
+  }
   if (path === '/services' || path === '/services/catalog') return handleServiceCatalog(req, res, supabase);
   if (path === '/services/goals') return handleServiceGoals(req, res, supabase);
   if (path === '/services/packages') return handleServicePackages(req, res, supabase);

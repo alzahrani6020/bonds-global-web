@@ -1972,6 +1972,20 @@ function renderFinancialIntake(){
     '</p><div class="sr-intake-table">'+controls+'</div></div>';
  }
  host.prepend(panel);
+ if(serviceCode==='financial_analysis'){
+  const lab=document.createElement('div');
+  lab.id='srFinancialAnalysisLab';
+  panel.appendChild(lab);
+  const attach=()=>window.BondsFinancialAnalysisLab?.mount(lab,lang);
+  if(window.BondsFinancialAnalysisLab){attach();}
+  else{
+   const script=document.createElement('script');
+   script.src='/components/financial-analysis-lab.js?v=1';
+   script.onload=attach;
+   script.onerror=()=>{lab.textContent=lang==='ar'?'تعذر تحميل مختبر التحليل المالي.':'Financial lab failed to load.';};
+   document.head.appendChild(script);
+  }
+ }
  panel.querySelectorAll('input[name="__intake_mode"]').forEach(radio=>radio.addEventListener('change',()=>{
    intakeMode=radio.value;
    $('#srIntakeFileWrap').hidden=intakeMode!=='file';
