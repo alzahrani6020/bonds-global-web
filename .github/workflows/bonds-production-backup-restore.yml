@@ -81,6 +81,30 @@ jobs:
           docker exec -u postgres bonds-restore-gate pg_restore -U supabase_admin -d bonds_restore_gate --no-owner --no-acl --exit-on-error /tmp/production.dump
           docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -Atc "SELECT 'PUBLIC_TABLES',count(*) FROM pg_tables WHERE schemaname='public' UNION ALL SELECT 'AUTH_USERS',count(*) FROM auth.users UNION ALL SELECT 'STORAGE_OBJECTS',count(*) FROM storage.objects;"
           echo "PASS: complete isolated pg_restore --exit-on-error"
+      - name: Validate institutional HR migration on offline production restore
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(docker inspect bonds-restore-gate --format '{{.HostConfig.NetworkMode}}')" = none
+          offline_sql() {
+            docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "$1"
+          }
+          hr_before="$(offline_sql "SELECT count(*) FROM public.hr_saas_employees;")"
+          memberships_before="$(offline_sql "SELECT count(*) FROM public.hr_saas_memberships;")"
+          test "$hr_before" -ge 1 && test "$memberships_before" -ge 1
+          test "$(offline_sql "SELECT count(*) FROM pg_class WHERE oid=to_regclass('public.hr_company_profiles');")" -eq 0
+          git fetch --no-tags --depth=1 origin d444e3a248f4c63ca65abaa34b5bcfb5b0986853
+          git show d444e3a248f4c63ca65abaa34b5bcfb5b0986853:supabase/migrations/20261125190000_hr_company_profiles.sql > "$RUNNER_TEMP/hr_company_profiles.sql"
+          test -s "$RUNNER_TEMP/hr_company_profiles.sql"
+          docker cp "$RUNNER_TEMP/hr_company_profiles.sql" bonds-restore-gate:/tmp/hr_company_profiles.sql
+          docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -v ON_ERROR_STOP=1 -f /tmp/hr_company_profiles.sql
+          test "$(offline_sql "SELECT relrowsecurity::int FROM pg_class WHERE oid='public.hr_company_profiles'::regclass;")" -eq 1
+          test "$(offline_sql "SELECT count(*) FROM pg_policies WHERE schemaname='public' AND tablename='hr_company_profiles';")" -eq 3
+          test "$(offline_sql "SELECT count(*) FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname IN ('hr_branding_owner_select','hr_branding_owner_insert','hr_branding_owner_update');")" -eq 3
+          test "$(offline_sql "SELECT count(*) FROM storage.buckets WHERE id='hr-company-branding' AND public=false;")" -eq 1
+          test "$(offline_sql "SELECT count(*) FROM public.hr_saas_employees;")" = "$hr_before"
+          test "$(offline_sql "SELECT count(*) FROM public.hr_saas_memberships;")" = "$memberships_before"
+          echo "PASS: additive profile migration, RLS and private branding on offline production restore; HR employee and membership counts unchanged"
       - name: Encrypt and store only encrypted archive
         shell: bash
         run: |
