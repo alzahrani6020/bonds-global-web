@@ -57,7 +57,7 @@ describe('financial-analysis isolated demo browser acceptance',()=>{
   await page.locator('#srFinanceLabRun').click();
   await page.locator('#srFinanceLabResults input[readonly]').first().waitFor({state:'visible'});
   expect(await page.locator('#srFinanceLabResults input[readonly]').count()).toBeGreaterThan(10);
-  expect(await page.locator('#srFinanceLabResults').innerText()).toContain('2,545');
+  expect(await page.locator('#srFinanceLabResults input[readonly]').first().inputValue()).toBe('1,900,000');
   expect(await page.locator('#srFinanceLabPrint').isVisible()).toBe(true);
   expect(writes).toHaveLength(0);
   await page.locator('#srFinanceLabClear').click();
