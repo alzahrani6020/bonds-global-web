@@ -2406,7 +2406,7 @@ function collectValues(){
  if(serviceCode==='planning_budgeting_forecasting'&&isFinancialWorkspaceService())return collectPlanningBudgetValues();
  const values={};const form=$('#srRequestForm');
  form.querySelectorAll('[name]').forEach(el=>{
-   if(el.type==='file')return;
+   if(el.type==='file'||el.name==='__request_workspace')return;
    if(el.type==='radio'){if(el.checked)values[el.name]=el.value;return;}
    if(el.type==='checkbox')values[el.name]=el.checked;
    else if(el.multiple)values[el.name]=Array.from(el.selectedOptions).map(o=>o.value);
@@ -2438,13 +2438,18 @@ function collectValues(){
  return values;
 }
 // Never claim a saved request until its owner can read back the persisted fields.
-async function confirmServiceRequestReadback(reference,expected,headers){
+async function confirmServiceRequestReadback(reference,expected,headers,workspaceBinding=null){
  if(!reference)return false;
  try{
   const result=await json('/api/v3/services/requests?reference='+encodeURIComponent(reference),{headers,credentials:'same-origin',cache:'no-store'});
   if(!Array.isArray(result.requests)||result.requests.length!==1||
      result.requests[0].request_reference!==reference||!result.values||
      typeof result.values!=='object'||Array.isArray(result.values))return false;
+  if(workspaceBinding){
+   const only=result.requests[0];
+   if(only.workspace_scope!==workspaceBinding.scope ||
+      (only.crm_workspace_id||null)!==(workspaceBinding.crm_workspace_id||null))return false;
+  }
   const saved=result.values;
   const keys=Object.keys(expected);
   return Object.keys(saved).length===keys.length&&
@@ -2452,7 +2457,7 @@ async function confirmServiceRequestReadback(reference,expected,headers){
     JSON.stringify(saved[key])===JSON.stringify(expected[key]));
  }catch(_){return false}
 }
-async function finalizeServiceRequestCreation(response,expected,headers,extra={}){
+async function finalizeServiceRequestCreation(response,expected,headers,extra={},workspaceBinding=null){
  const reference=response?.request?.request_reference;
  // POST may have already inserted a record; a failed readback must not create a duplicate.
  submitted=true;
@@ -2460,7 +2465,7 @@ async function finalizeServiceRequestCreation(response,expected,headers,extra={}
   showStatus(lang==='ar'?'تعذر تأكيد رقم الطلب؛ تحقق من طلباتك قبل إعادة الإرسال.':'Request reference was not confirmed; check your requests before resubmitting.',false);
   return;
  }
- const verified=await confirmServiceRequestReadback(reference,expected,headers);
+ const verified=await confirmServiceRequestReadback(reference,expected,headers,workspaceBinding);
  track('service_converted',{request_reference:reference,...extra,readback_verified:verified});
  if(verified){
   clearWorkspaceDraft();
@@ -2537,7 +2542,10 @@ async function submit(e){
    const d=await json('/api/v3/services/requests',{
     method:'POST',headers,body:JSON.stringify(requestBody)
    });
-   await finalizeServiceRequestCreation(d,values,headers);
+   await finalizeServiceRequestCreation(d,values,headers,{},{
+    scope:requestedWorkspace==='personal'?'personal':'company',
+    crm_workspace_id:requestedWorkspace==='personal'?null:requestedWorkspace
+   });
    return;
   }
   if(serviceCode==='feasibility_studies'){
