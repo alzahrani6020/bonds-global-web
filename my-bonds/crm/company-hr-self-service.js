@@ -14,6 +14,13 @@
   const n=$('hr-self-status');n.textContent=message||'';n.hidden=!message;n.style.display=message?'block':'none';
   n.classList.toggle('error',fail);
  };
+ // Preserve the fragment-only invitation token across the OAuth login round trip.
+ // sessionStorage is scoped to this browser tab; never put bearer tokens in query strings.
+ const inviteStorageKey='bonds_hr_pending_invite_v1';
+ const inviteFromFragment=new URLSearchParams(location.hash.slice(1)).get('invite');
+ if(inviteFromFragment){
+  try{sessionStorage.setItem(inviteStorageKey,inviteFromFragment);}catch(_){}
+ }
  const activeMembership=record=>record&&record.status==='active';
  function ownerWorkspaceSelected(workspace){
   ownerWorkspace=workspace;
@@ -178,12 +185,13 @@
   if(!db||!user)return;
   try{
    // Fragment avoids sending invitation bearer tokens in HTTP requests/referrer logs.
-   const inviteToken=new URLSearchParams(location.hash.slice(1)).get('invite');
+   const inviteToken=inviteFromFragment||(()=>{try{return sessionStorage.getItem(inviteStorageKey);}catch(_){return null;}})();
    if(inviteToken){
     if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(inviteToken))
      throw Error(t('رابط الدعوة غير صحيح','Invalid invitation link'));
     const accepted=requireOk(await db.rpc('hr_saas_accept_invitation',{invite_token:inviteToken}));
     if(!accepted)throw Error(t('تعذر تأكيد العضوية','Membership not confirmed'));
+    try{sessionStorage.removeItem(inviteStorageKey);}catch(_){}
     const clean=new URL(location.href);clean.hash='';history.replaceState(null,'',clean.pathname+clean.search);
     notify(t('تم قبول الدعوة وتفعيل عضوية الموظف','Invitation accepted and staff access activated'));
    }
