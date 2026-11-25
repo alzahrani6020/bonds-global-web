@@ -2278,6 +2278,14 @@ function feasibilityHasRequiredMetrics(feasibility){
  });
 }
 function showExecutionPersistenceStatus(execution){
+ if(serviceCode==='financial_analysis'){
+  const saved=execution?.dataset_persistence?.status==='saved'&&execution?.dataset_persistence?.verified===true;
+  showStatus(saved
+   ?(lang==='ar'?'اكتمل التحليل وتأكد حفظه واسترجاعه.':'Analysis saved and read back successfully.')
+   :(lang==='ar'?'اكتمل الحساب لكن حفظه لم يتأكد؛ احتفظ بنسخة التقرير ولا تكرر التنفيذ قبل مراجعة الأرشيف.':'Calculation completed, but persistence is unverified. Retain a copy; check the archive before rerunning.'),saved);
+  return saved;
+ }
+
  if(serviceCode==='feasibility_studies'){
   const feasibility=execution?.result?.engineResults?.feasibility;
   if(!feasibilityHasRequiredMetrics(feasibility)){
@@ -2345,6 +2353,32 @@ function printFeasibilityReport(payload, executedInputs){
  };
  document.head.appendChild(script);
 }
+function printGovernedFinancialReport(payload){
+ const popup=window.open('','_blank');
+ if(!popup){
+  showStatus(lang==='ar'?'اسمح بفتح نافذة التقرير.':'Allow the report pop-up.',false);
+  return;
+ }
+ const display=()=>{
+  try{
+   const html=window.BondsFinancialAnalysisReport.render(payload,lang);
+   popup.document.open();popup.document.write(html);popup.document.close();
+   popup.focus();popup.print();
+  }catch(error){
+   popup.close();
+   showStatus(lang==='ar'?'لا يمكن إصدار التقرير قبل اكتمال الحسابات.':'Report requires a completed calculation.',false);
+  }
+ };
+ if(window.BondsFinancialAnalysisReport){display();return;}
+ const script=document.createElement('script');
+ script.src='/components/financial-analysis-report.js?v=1';
+ script.onload=display;
+ script.onerror=()=>{
+  popup.close();
+  showStatus(lang==='ar'?'تعذر تحميل قالب التحليل المالي.':'Unable to load financial report template.',false);
+ };
+ document.head.appendChild(script);
+}
 function renderExecutionResult(payload, executedInputs={}){
  if(serviceCode==='feasibility_studies' && !feasibilityMissingInputs().length) $('#srFeasibilityMissingInputs')?.remove();
  let box=$('#srExecutionResult');
@@ -2360,6 +2394,8 @@ function renderExecutionResult(payload, executedInputs={}){
  const studies=renderStudiesExecution(result);
  const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined&&typeof v!=='object');
  const calculated=serviceCode==='feasibility_studies'&&feasibilityHasRequiredMetrics(payload?.result?.engineResults?.feasibility);
+ const analysisMetrics=result?.engineResults?.financial_analysis?.metrics||result.metrics||payload?.metrics||{};
+ const financialCalculated=serviceCode==='financial_analysis'&&payload?.executed===true&&Object.values(analysisMetrics).some(v=>typeof v==='number'&&Number.isFinite(v));
  const confirmedSaved=payload?.artifact_persistence?.status==='saved'&&!!payload?.artifact_persistence?.artifact_id&&
   (serviceCode!=='feasibility_studies'||calculated);
  const title=serviceCode==='feasibility_studies'
@@ -2372,6 +2408,7 @@ function renderExecutionResult(payload, executedInputs={}){
  box.innerHTML='<h2>'+escapeHtml(title)+'</h2>'+ 
   (['feasibility_studies','risk_analysis'].includes(serviceCode)?'<button type="button" id="srDownloadExecution" class="sr-secondary">'+(lang==='ar'?'تنزيل نسخة النتائج (JSON)':'Download results copy (JSON)')+'</button>':'')+
   (calculated?'<button type="button" id="srPrintFeasibilityReport" class="sr-secondary">'+(lang==='ar'?'طباعة التقرير المالي / حفظ PDF':'Print financial report / Save PDF')+'</button>':'')+
+  (financialCalculated?'<button type="button" id="srPrintFinancialAnalysis" class="sr-secondary">'+(lang==='ar'?'عرض التقرير المالي / حفظ PDF':'Financial report / Save PDF')+'</button>':'')+
   (financial||studies||(
    entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+formatFinancialValue(v)+'</li>').join('')+'</ul></div>':
    '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>'
@@ -2402,6 +2439,8 @@ function renderExecutionResult(payload, executedInputs={}){
    $('#srFeasibilityListProjects')?.click();
   });
  }
+ const financialReport=$('#srPrintFinancialAnalysis');
+ if(financialReport)financialReport.addEventListener('click',()=>printGovernedFinancialReport(payload));
  const report=$('#srPrintFeasibilityReport');
  if(report)report.addEventListener('click',()=>printFeasibilityReport(payload,executedInputs));
  const download=$('#srDownloadExecution');
