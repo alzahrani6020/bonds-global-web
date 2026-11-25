@@ -126,7 +126,24 @@
   if(present('operating_cash_flow')&&metrics.operating_cash_flow<0)risks.push(tr('تدفق نقدي تشغيلي سالب','Negative operating cash flow'));
   const riskText=risks.length?risks.join('؛ '):tr('لا تنبيهات وفق القواعد المحدودة؛ لا يمثل ذلك اعتمادًا ائتمانيًا.',
    'No triggers under limited rules; not credit approval.');
+  const groupRequirements={
+   income_statement:['revenue','cogs','operating_expenses','net_income'],
+   financial_position:['total_assets','total_liabilities','equity','current_assets','current_liabilities'],
+   cash_flow:['opening_balance','operating_cash_flow','investing_cash_flow','financing_cash_flow','ending_cash','cash']
+  };
+  const groupNames={
+   income_statement:tr('قائمة الدخل','Income statement'),
+   financial_position:tr('قائمة المركز المالي','Financial position'),
+   cash_flow:tr('قائمة التدفقات النقدية','Cash-flow statement')
+  };
+  const statementCoverage=Object.entries(groupRequirements).map(([group,keys])=>{
+   const missingFields=keys.filter(key=>!numeric(inputs[key]));
+   return [groupNames[group],missingFields.length?
+    tr('جزئي — بنود ناقصة: ','Partial — missing: ')+missingFields.join(', '):
+    tr('مكتمل حسابيًا','Numerically complete')];
+  });
   const coverage=[
+    ...statementCoverage,
     [tr('عدد المؤشرات المحسوبة','Computed metrics'),String(existing.length)],
     [tr('عدد المؤشرات غير المتاحة','Unavailable metrics'),String(missing.length)],
     [tr('فحص مصدر البيانات المستقل','Independent source assurance'),tr('غير مثبت','Unverified')],
