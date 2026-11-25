@@ -29,7 +29,7 @@ create table if not exists public.hr_company_profiles (
  hr_contact_name text,
  logo_path text,
  updated_at timestamptz not null default now(),
- constraint hr_company_profile_logo_scope check (logo_path is null or logo_path ~ ('^' || crm_workspace_id::text || '/logo\\.(png|jpg|webp)$')),
+ constraint hr_company_profile_logo_scope check (logo_path is null or logo_path ~ ('^' || crm_workspace_id::text || '/logo[.](png|jpg|webp)$')),
  constraint hr_company_profile_vat_length check (vat_number is null or length(vat_number)<=30)
 );
 alter table public.hr_company_profiles enable row level security;
@@ -52,7 +52,7 @@ values ('hr-company-branding','hr-company-branding',false,2097152,array['image/p
 on conflict (id) do nothing;
 drop policy if exists hr_branding_owner_select on storage.objects;
 create policy hr_branding_owner_select on storage.objects for select to authenticated using (
- bucket_id='hr-company-branding' and exists (
+ bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
  select 1 from public.crm_app_workspaces c
  where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
 );
@@ -64,7 +64,145 @@ create policy hr_branding_owner_insert on storage.objects for insert to authenti
 );
 drop policy if exists hr_branding_owner_update on storage.objects;
 create policy hr_branding_owner_update on storage.objects for update to authenticated
+ using (bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_insert on storage.objects;
+create policy hr_branding_owner_insert on storage.objects for insert to authenticated with check (
+ bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_update on storage.objects;
+create policy hr_branding_owner_update on storage.objects for update to authenticated
  using (bucket_id='hr-company-branding' and exists (
  select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
  with check (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_update on storage.objects;
+create policy hr_branding_owner_update on storage.objects for update to authenticated
+ using (bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_insert on storage.objects;
+create policy hr_branding_owner_insert on storage.objects for insert to authenticated with check (
+ bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_update on storage.objects;
+create policy hr_branding_owner_update on storage.objects for update to authenticated
+ using (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_update on storage.objects;
+create policy hr_branding_owner_update on storage.objects for update to authenticated
+ using (bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_insert on storage.objects;
+create policy hr_branding_owner_insert on storage.objects for insert to authenticated with check (
+ bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_update on storage.objects;
+create policy hr_branding_owner_update on storage.objects for update to authenticated
+ using (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_update on storage.objects;
+create policy hr_branding_owner_update on storage.objects for update to authenticated
+ using (bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_insert on storage.objects;
+create policy hr_branding_owner_insert on storage.objects for insert to authenticated with check (
+ bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_update on storage.objects;
+create policy hr_branding_owner_update on storage.objects for update to authenticated
+ using (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c
+ where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid()))
+);
+drop policy if exists hr_branding_owner_update on storage.objects;
+create policy hr_branding_owner_update on storage.objects for update to authenticated
+ using (bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())))
+ with check (bucket_id='hr-company-branding' and name ~ '^[0-9a-f-]{36}/logo[.](png|jpg|webp)
+ select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
+ and exists (
  select 1 from public.crm_app_workspaces c where c.id::text=(storage.foldername(name))[1] and c.owner_user_id=(select auth.uid())));
