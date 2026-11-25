@@ -5,6 +5,13 @@ on:
     branches: [main]
     paths:
       - 'supabase/migrations/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'scripts/reconcile-production-migrations.js'
+      - 'tests/db/production-migration-reconciliation.test.cjs'
+      - '.github/workflows/apply-migrations.yml'
   workflow_dispatch:
     inputs:
       migration_file:
@@ -16,8 +23,21 @@ permissions:
   contents: read
 
 jobs:
+  verify-reconciliation:
+    name: Verify migration safety gate (no production access)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate reconciliation contracts
+        run: node --test tests/db/production-migration-reconciliation.test.cjs
+
   migrate:
     name: Apply Supabase Migrations
+    if: github.event_name != 'pull_request'
+    needs: verify-reconciliation
     runs-on: ubuntu-latest
 
     steps:
