@@ -27,6 +27,7 @@ describe('institutional feasibility report and financial boundaries', () => {
     for(const input of [
       base,
       {...base,discount_rate:null},
+      {...base,discount_rate:-0.01},
       {...base,discount_rate:1.01},
       {...base,discount_rate:0.1,initial_investment:0},
       {...base,discount_rate:0.1,years:3}
