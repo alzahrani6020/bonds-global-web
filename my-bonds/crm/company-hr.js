@@ -535,6 +535,7 @@
     const matches=(name)=>{
      if(!Object.hasOwn(row,name))return true;
      if(name==='basic_salary')return row[name]===null?persisted[name]===null:
+      persisted[name]!==null&&persisted[name]!==undefined&&
       Number.isFinite(Number(persisted[name]))&&Number(persisted[name])===row[name];
      return (persisted[name]??null)===(row[name]??null);
     };
