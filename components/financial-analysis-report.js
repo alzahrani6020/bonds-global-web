@@ -48,9 +48,11 @@
   const source=evidence.source||{};
   const persistence=payload.dataset_persistence||{};
   const stored=persistence.status==='saved'&&persistence.verified===true;
-  const existing=Object.entries(metrics).filter(row=>numeric(row[1]));
-  const missing=Object.keys(metricNames).filter(key=>!numeric(metrics[key]));
   const inputs=evidence.inputs_used&&typeof evidence.inputs_used==='object'?evidence.inputs_used:{};
+  const existing=Object.entries(metrics).filter(row=>numeric(row[1]));
+  // Revenue is a reported source input, not a computed output; do not
+  // mislabel an available input as an unavailable ratio in the PDF.
+  const missing=Object.keys(metricNames).filter(key=>!numeric(metrics[key])&&!numeric(inputs[key]));
   const fieldSources=Array.isArray(evidence.field_provenance)?evidence.field_provenance:[];
   const heading=tr('BONDS Global — تقرير التحليل المالي','BONDS Global — Financial Analysis Report');
   const state=stored?tr('تم التحقق من حفظ النتائج واسترجاعها','Persistence verified by readback'):
