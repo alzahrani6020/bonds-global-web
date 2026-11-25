@@ -20,6 +20,14 @@ describe('service request intake before paid execution',()=>{
   expect(intake).toContain('id="srSubmit"');
   expect(intake).not.toContain('id="hr-checkout-start"');
  });
+ test('intake inputs persist through login in a tab-scoped draft',()=>{
+  expect(source).toContain("const workspaceDraftStorage=(!isServiceWorkspace");
+  for(const action of ['saveWorkspaceDraft','restoreWorkspaceDraft','bindWorkspaceDraft','clearWorkspaceDraft']){
+   const text=source.slice(source.indexOf('function '+action+'(){'));
+   expect(text.slice(0,180)).not.toContain('if(!isServiceWorkspace)return;');
+  }
+  expect(source).toContain("form.addEventListener('input',saveWorkspaceDraft)");
+ });
  test('workspace execution remains separate from request submission',()=>{
   expect(source).toContain("if(!isServiceWorkspace){");
   expect(source).toContain("fetch('/api/v3/services/execute'");
