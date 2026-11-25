@@ -576,6 +576,12 @@
    }
    const valid=check(await db.from('company_program_entitlements').select('product_code,status,starts_at,ends_at').in('product_code',['hr','suite']).eq('owner_user_id',user.id));
    license=valid.some(x=>['active','trial'].includes(x.status)&&new Date(x.starts_at)<=new Date()&&(!x.ends_at||new Date(x.ends_at)>new Date()));
+   // Owner entitlement is verified server-side; never trust editable user metadata.
+   // The existing HR row policies still enforce tenant ownership and access.
+   if(!license){
+    const ownerRole=await db.rpc('is_super_admin');
+    if(!ownerRole.error&&ownerRole.data===true)license=true;
+   }
    $('hr-license').hidden=license;
    if(!license){
     // Make identity mismatch actionable instead of implying every user must pay.
