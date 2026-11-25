@@ -10,6 +10,7 @@ const T=lang==='ar'?{
 const params=new URLSearchParams(location.search);
 const serviceCode=params.get('service')||'';
 let detail=null;
+let requestWorkspaceReady=false;
 let formTouched=false;
 let submitted=false;
 let submitting=false;
@@ -1791,6 +1792,51 @@ function renderRequestProfileField(field){
  if(field.field_type==='textarea')return '<div class="sr-field full"><label>'+label+' <small>('+reqLabel+')</small></label><textarea name="'+key+'"'+req+' placeholder="'+placeholder+'"></textarea></div>';
  return '<div class="sr-field"><label>'+label+' <small>('+reqLabel+')</small></label><input type="text" name="'+key+'"'+req+' placeholder="'+placeholder+'"></div>';
 }
+async function renderRequestWorkspaceSelector(){
+ if(isServiceWorkspace)return;
+ const form=$('#srRequestForm');
+ if(!form)return;
+ let host=$('#srRequestWorkspace');
+ if(!host){
+  host=document.createElement('div');
+  host.id='srRequestWorkspace';
+  host.className='sr-field full';
+  host.innerHTML='<label for="srCompanyWorkspace">'+
+   (lang==='ar'?'مساحة العمل المرتبطة بالطلب':'Workspace for this request')+
+   '</label><select id="srCompanyWorkspace" name="__request_workspace" required></select>'+
+   '<div class="sr-muted">'+(lang==='ar'
+    ?'تُحفظ جميع حقول الطلب في سجل واحد داخل مساحة العمل المحددة، ولا يسمح بربط الطلب بمساحة شركة أخرى.'
+    :'All request fields are saved under one verified workspace; other companies are not accessible.')+'</div>';
+  form.insertBefore(host,form.firstChild);
+ }
+ const select=$('#srCompanyWorkspace');
+ select.innerHTML='<option value="personal">'+(lang==='ar'?'مساحتي الشخصية':'My personal workspace')+'</option>';
+ requestWorkspaceReady=false;
+ try{
+  await window.BondsAuth.ensureEnv();
+  const sb=window.BondsAuth.getSupabase();
+  const auth=await sb.auth.getUser();
+  if(!auth.data?.user){ requestWorkspaceReady=true;return; }
+  const {data:companies,error}=await sb.from('crm_app_workspaces')
+   .select('id,name').order('created_at',{ascending:true}).limit(100);
+  if(error)throw error;
+  for(const company of companies||[]){
+   const option=document.createElement('option');
+   option.value=company.id;
+   option.textContent=company.name;
+   select.appendChild(option);
+  }
+  const requested=params.get('company_id')||params.get('crm_workspace_id');
+  const restored=(()=>{try{return JSON.parse(workspaceDraftStorage.getItem(workspaceDraftKey)||'null')?.values?.__request_workspace||null}catch(_){return null}})();
+  const preferred=requested||restored||((companies||[]).length===1?companies[0].id:'personal');
+  if(Array.from(select.options).some(o=>o.value===preferred))select.value=preferred;
+  select.addEventListener('change',saveWorkspaceDraft);
+  requestWorkspaceReady=true;
+ }catch(error){
+  select.disabled=true;
+  showStatus((lang==='ar'?'تعذر التحقق من مساحات العمل: ':'Cannot verify workspaces: ')+error.message,false);
+ }
+}
 function renderRequestProfile(){
  const profile=detail?.request_profile;
  if(!profile)return false;
@@ -2455,6 +2501,9 @@ async function submit(e){
   // Public service-request pages collect the request first. Paid execution is a
   // separate, explicit workspace action; never require payment to submit intake.
   if(!isServiceWorkspace){
+   if(!requestWorkspaceReady)throw new Error(lang==='ar'?'تعذر التحقق من مساحة العمل':'Workspace verification failed');
+   const requestedWorkspace=$('#srCompanyWorkspace')?.value;
+   if(!requestedWorkspace)throw new Error(lang==='ar'?'اختر مساحة العمل':'Choose a workspace');
    const files=[...document.querySelectorAll('#srRequestForm input[type="file"]')]
     .filter(input=>input.files?.length);
    if(files.length){
@@ -2465,6 +2514,7 @@ async function submit(e){
    }
    const headers={'Content-Type':'application/json','Authorization':'Bearer '+session.access_token};
    const requestBody={
+    company_id:requestedWorkspace==='personal'?null:requestedWorkspace,
     service_code:serviceCode,
     country_code:params.get('country')||null,
     region_code:params.get('region')||null,
@@ -2746,6 +2796,7 @@ async function init(){
     });
    }
   }
+  await renderRequestWorkspaceSelector();
   await hydrateAccountingEntities();
   const requestForm=$('#srRequestForm');
   if(isStudiesWorkspaceService()) applyStudiesSubmitLabel();
