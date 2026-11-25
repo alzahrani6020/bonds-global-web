@@ -563,6 +563,17 @@ async function run(){
          }}).sort((a,b)=>b.width-a.width).slice(0,22);
         });
         console.log('UI_AUDIT_HR_OVERFLOW_DIAG '+JSON.stringify(offenders));
+        const chain=await page.evaluate(()=>{
+         const selectors=['html','body','.app','.content','#hr-section','#hr-setup','#hr-app','#hr-membership-admin','#hr-self-section','#hr-policy-section','.panel','.overflow'];
+         return selectors.map(selector=>{
+          const e=document.querySelector(selector);if(!e)return {selector,missing:true};
+          const r=e.getBoundingClientRect(),style=getComputedStyle(e);
+          return {selector,left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),
+           scrollWidth:e.scrollWidth,clientWidth:e.clientWidth,minWidth:style.minWidth,
+           gridTemplateColumns:style.gridTemplateColumns,overflowX:style.overflowX};
+         });
+        });
+        console.log('UI_AUDIT_HR_OVERFLOW_CHAIN '+JSON.stringify(chain));
        }
        if(!audit.active||!audit.visible||audit.error||audit.horizontalOverflow>2)
         hrUiIssues.push({width,id,issue:'render, navigation, overflow or runtime',audit});
