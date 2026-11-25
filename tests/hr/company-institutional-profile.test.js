@@ -24,6 +24,15 @@ describe('HR institutional company profile',()=>{
    expect(html).toContain('name="business_activity"');
   }
  });
+ test('email invitation remains primary and duplicate active access is blocked',()=>{
+  const self=file('my-bonds/crm/company-hr-self-service.js');
+  const ar=file('my-bonds/crm/index.html'),english=file('en/my-bonds/crm/index.html');
+  expect(ar.indexOf('id="hr-invite-form"')).toBeLessThan(ar.indexOf('id="hr-member-form"'));
+  expect(english.indexOf('id="hr-invite-form"')).toBeLessThan(english.indexOf('id="hr-member-form"'));
+  expect(self).toContain('Employee already has active access; no invitation needed');
+  expect(self).toContain('Membership active — prior invite not needed');
+  expect(self).toContain("or('user_id.eq.'+userId+',employee_id.eq.'+employeeId)");
+ });
  test('client verifies readback, logo type and organization before saving',()=>{
   expect(js).toContain(".eq('crm_workspace_id',wid).single()");
   expect(js).toContain("workspace.owner_user_id!==user.id");
