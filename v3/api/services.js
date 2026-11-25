@@ -1253,6 +1253,24 @@ async function handleServiceExecutionProfile(req, res, supabase, user, code) {
   }
 }
 
+async function resolveServiceRequestWorkspace(supabase, user, companyId) {
+  // Personal workspace is always scoped to the authenticated account.
+  // Company access is verified on the server; never trust URL or form identity claims.
+  if (!companyId) return { scope:'personal', owner_user_id:user.id, crm_workspace_id:null };
+  if (typeof companyId !== 'string' ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(companyId)) return null;
+  const { data: company, error } = await supabase.from('crm_app_workspaces')
+    .select('id,owner_user_id').eq('id', companyId).maybeSingle();
+  if (error || !company) return null;
+  if (company.owner_user_id !== user.id) {
+    const { data: member, error: memberError } = await supabase.from('crm_app_members')
+      .select('id').eq('workspace_id', company.id)
+      .eq('member_user_id', user.id).eq('active', true).limit(1).maybeSingle();
+    if (memberError || !member) return null;
+  }
+  return { scope:'company', owner_user_id:user.id, crm_workspace_id:company.id };
+}
+
 async function handleServiceRequests(req, res, supabase, user) {
   if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
 
@@ -1262,7 +1280,7 @@ async function handleServiceRequests(req, res, supabase, user) {
 
     let query = supabase
       .from('service_requests')
-      .select('id,request_reference,service_id,status,country_code,region_name,locality_name,submitted_at,completed_at,created_at,updated_at')
+      .select('id,request_reference,service_id,status,country_code,region_name,locality_name,submitted_at,completed_at,created_at,updated_at,metadata')
       .eq('user_id', user.id)
       .order('created_at', { ascending:false })
       .limit(100);
@@ -1307,6 +1325,8 @@ async function handleServiceRequests(req, res, supabase, user) {
       completed_at: row.completed_at,
       created_at: row.created_at,
       updated_at: row.updated_at,
+      workspace_scope: row.metadata?.workspace_scope || 'legacy_unassigned',
+      crm_workspace_id: row.metadata?.crm_workspace_id || null,
       service: serviceMap.get(row.service_id) || null
     }));
 
@@ -1350,6 +1370,11 @@ async function handleServiceRequests(req, res, supabase, user) {
     canonicalActivityId = activity?.id || null;
   }
 
+  // Reject another company's workspace instead of silently storing a forged ID.
+  const companyId=body.company_id ?? body.crm_workspace_id ?? null;
+  const workspaceBinding=await resolveServiceRequestWorkspace(supabase,user,companyId);
+  if(!workspaceBinding) return sendJson(res,403,{error:'WORKSPACE_ACCESS_DENIED'});
+
   const { data: client } = await supabase
     .from('advisory_clients')
     .select('id,organization_id')
@@ -1386,7 +1411,11 @@ async function handleServiceRequests(req, res, supabase, user) {
     canonical_activity_id: canonicalActivityId,
     status: 'submitted',
     submitted_at: new Date().toISOString(),
-    metadata: { source: body.source || 'service_discovery', ...(body.metadata || {}) }
+    metadata: { ...(body.metadata && typeof body.metadata==='object' && !Array.isArray(body.metadata) ? body.metadata : {}),
+      source: body.source || 'service_discovery',
+      workspace_scope: workspaceBinding.scope,
+      workspace_owner_user_id: workspaceBinding.owner_user_id,
+      crm_workspace_id: workspaceBinding.crm_workspace_id }
   };
 
   const { data: requestRowOut, error: requestError } = await supabase
