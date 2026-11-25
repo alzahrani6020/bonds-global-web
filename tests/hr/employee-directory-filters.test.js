@@ -31,10 +31,12 @@ describe('HR employee directory server-side paging',()=>{
  });
  test('employee writes must be re-read from the same tenant and values matched before success',()=>{
   expect(source).toContain("const persisted=check(await db.from('hr_saas_employees')");
-  expect(source).toContain(".eq('workspace_id',workspace.id).eq('id',result.id).single()");
+  expect(source).toContain(".select('*').eq('workspace_id',workspace.id).eq('id',result.id).single()");
   expect(source).toContain("persisted.workspace_id!==workspace.id");
-  expect(source).toContain("persisted.employee_number!==row.employee_number");
-  expect(source).toContain("persisted.full_name!==row.full_name");
+  expect(source).toContain("const verifyFields=['employee_number','full_name'");
+  expect(source).toContain("'department_id','position_id','email','phone'");
+  expect(source).toContain("'hire_date','termination_date','employment_status','basic_salary','salary_currency'");
+  expect(source).toContain("verifyFields.some(name=>!matches(name))");
   expect(source).toContain("لا تعِد الإضافة قبل مراجعة السجل");
  });
  test('missing HR authorization identifies the signed-in account and offers account switching',()=>{
