@@ -2014,7 +2014,19 @@ function renderIntakeReview(payload){
  const host=$('#srIntakeReview');
  if(!host)return;
  const fields=Array.isArray(payload?.fields)?payload.fields:[];
+ const financialIssues=Array.isArray(payload?.validation?.errors)?payload.validation.errors:
+   Array.isArray(payload?.errors)?payload.errors:[];
+ const issueNames={
+  ACCOUNTING_EQUATION_MISMATCH:lang==='ar'?'عدم توازن المركز المالي':'Balance sheet mismatch',
+  DEBT_EXCEEDS_TOTAL_LIABILITIES:lang==='ar'?'الدين أكبر من الالتزامات':'Debt exceeds liabilities',
+  EBIT_EXCEEDS_EBITDA:lang==='ar'?'الربح التشغيلي أكبر من EBITDA':'EBIT exceeds EBITDA',
+  OPERATING_PROFIT_RECONCILIATION_MISMATCH:lang==='ar'?'عدم تطابق الربح التشغيلي مع الإيرادات والتكاليف':'Operating income reconciliation mismatch'
+ };
+ const issueText=financialIssues.length?'<div class="sr-intake-warning" role="alert">'+
+   financialIssues.map(issue=>escapeHtml(issueNames[issue.code]||issue.code)).join(' ؛ ')+'</div>':'';
+
  host.innerHTML='<div class="sr-intake-review-title">'+escapeHtml(T.review)+'</div>'+
+   issueText+
    '<div class="sr-intake-table">'+fields.map(field=>{
      const derived=field.status==='derived';
     const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
