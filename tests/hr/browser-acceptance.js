@@ -549,6 +549,21 @@ async function run(){
          addVisible:!!add&&!add.hidden
         };
        },id);
+       if(width===390&&id==='employees'){
+        const offenders=await page.evaluate(()=>{
+         const w=innerWidth;
+         return Array.from(document.body.querySelectorAll('*')).filter(el=>{
+          const r=el.getBoundingClientRect(),style=getComputedStyle(el);
+          return r.width>0&&r.height>0&&style.display!=='none'&&
+           (r.left< -2||r.right>w+2||r.width>w+2);
+         }).map(el=>{const r=el.getBoundingClientRect();return {
+          tag:el.tagName,id:el.id||'',className:String(el.className||'').slice(0,85),
+          left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),
+          scrollWidth:el.scrollWidth,clientWidth:el.clientWidth
+         }}).sort((a,b)=>b.width-a.width).slice(0,22);
+        });
+        console.log('UI_AUDIT_HR_OVERFLOW_DIAG '+JSON.stringify(offenders));
+       }
        if(!audit.active||!audit.visible||audit.error||audit.horizontalOverflow>2)
         hrUiIssues.push({width,id,issue:'render, navigation, overflow or runtime',audit});
        if(audit.addVisible){
