@@ -12,7 +12,9 @@ describe('HR staff invitation survives OAuth return',()=>{
   expect(source).toContain("sessionStorage.getItem(inviteStorageKey)");
   expect(source).toContain("db.rpc('hr_saas_accept_invitation',{invite_token:inviteToken})");
   const persisted=source.indexOf("sessionStorage.removeItem(inviteStorageKey)");
-  const accepted=source.indexOf("const accepted=requireOk(await db.rpc(");
+  const accepted=source.indexOf("const acceptResult=await db.rpc(");
+  expect(source).toContain("if(acceptResult.error.code==='42501')");
+  expect(source).toContain("const accepted=acceptResult.data;");
   expect(persisted).toBeGreaterThan(accepted);
   expect(source).toContain("clean.hash='';history.replaceState");
  });
