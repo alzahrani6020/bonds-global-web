@@ -73,6 +73,13 @@ describe('institutional feasibility report and financial boundaries', () => {
     expect(()=>render({payload,inputs:{}})).toThrow('FEASIBILITY_REPORT_REQUIRES_CALCULATED_METRICS');
   });
 
+  test('does not print a finite-NPV response with missing financial source fields', () => {
+    const result=run();
+    delete result.metrics.cash_flows;
+    const payload=wrap(result);
+    expect(()=>render({payload,inputs:{}})).toThrow('FEASIBILITY_REPORT_REQUIRES_CALCULATED_METRICS');
+  });
+
   test('UI prints the exact submitted snapshot and preserves JSON download', () => {
     const fs=require('fs'),path=require('path');
     const client=fs.readFileSync(path.join(__dirname,'../../components/service-request.js'),'utf8');
