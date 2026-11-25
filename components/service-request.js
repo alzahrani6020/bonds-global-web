@@ -2016,12 +2016,14 @@ function renderIntakeReview(payload){
  const fields=Array.isArray(payload?.fields)?payload.fields:[];
  host.innerHTML='<div class="sr-intake-review-title">'+escapeHtml(T.review)+'</div>'+
    '<div class="sr-intake-table">'+fields.map(field=>{
-     const status=field.status==='missing'?T.missing:(field.status==='conflict'?T.conflict:field.status||'');
+     const derived=field.status==='derived';
+    const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
+      field.status==='missing'?T.missing:(field.status==='conflict'?T.conflict:field.status||'');
      const current=field.value??'';
      const candidates=Array.isArray(field.candidates)&&field.candidates.length?' ['+field.candidates.join(' / ')+']':'';
      return '<div class="sr-intake-row">'+
        '<div><strong>'+escapeHtml(humanizeKey(field.field))+'</strong><small>'+escapeHtml(status)+escapeHtml(candidates)+'</small></div>'+
-       '<div><label>'+escapeHtml(T.correction)+'</label><input type="number" step="any" data-intake-field="'+escapeHtml(field.field)+'" value="'+escapeHtml(current)+'"></div>'+
+       '<div><label>'+escapeHtml(derived?(lang==='ar'?'قيمة مستنتجة':'Derived value'):T.correction)+'</label><input type="number" step="any" data-intake-field="'+escapeHtml(field.field)+'" value="'+escapeHtml(current)+'"'+(derived?' data-derived="true" readonly':'')+'></div>'+
        '<div><label>'+escapeHtml(T.currency)+'</label><span>'+escapeHtml(field.currency||'—')+'</span></div>'+
        '<div><label>'+escapeHtml(T.period)+'</label><span>'+escapeHtml(field.period||'—')+'</span></div>'+
        '<div class="sr-intake-source"><label>'+escapeHtml(T.source)+'</label><span>'+escapeHtml(intakeSourceLabel(field))+'</span></div>'+
@@ -2032,6 +2034,7 @@ function renderIntakeReview(payload){
 function collectIntakeCorrections(){
  const out={};
  document.querySelectorAll('[data-intake-field]').forEach(input=>{
+   if(input.dataset.derived==='true')return;
    if(input.value!=='')out[input.dataset.intakeField]=input.value;
  });
  return out;
@@ -2089,7 +2092,15 @@ async function approveFinancialIntake(headers){
  if(!response.ok){
    if(payload?.fields)renderIntakeReview(payload);
    const missing=payload?.missing_fields||[];
-   throw new Error(missing.length?T.moreInputs+': '+missing.map(humanizeKey).join(', '):(payload?.error?.code||'HTTP '+response.status));
+   const issues=Array.isArray(payload?.errors)?payload.errors:[];
+   const explanations={
+    ACCOUNTING_EQUATION_MISMATCH:lang==='ar'?'الأصول لا تساوي الالتزامات وحقوق الملكية':'Assets do not balance with liabilities plus equity',
+    DEBT_EXCEEDS_TOTAL_LIABILITIES:lang==='ar'?'إجمالي الدين أكبر من إجمالي الالتزامات':'Debt exceeds total liabilities',
+    EBIT_EXCEEDS_EBITDA:lang==='ar'?'الربح التشغيلي أكبر من EBITDA؛ راجع الإهلاك والإطفاء':'EBIT exceeds EBITDA; check depreciation and amortization',
+    OPERATING_PROFIT_RECONCILIATION_MISMATCH:lang==='ar'?'الربح التشغيلي لا يتطابق مع الإيرادات والتكاليف':'Operating income conflicts with revenue and costs'
+   };
+   const issuesText=issues.map(issue=>explanations[issue.code]||issue.code).join('؛ ');
+   throw new Error(issuesText||(missing.length?T.moreInputs+': '+missing.map(humanizeKey).join(', '):(payload?.error?.code||'HTTP '+response.status)));
  }
  intakeReview=payload;
  return payload;
