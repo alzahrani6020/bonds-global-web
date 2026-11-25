@@ -574,13 +574,17 @@
     if(new URLSearchParams(location.search).get('program')==='hr')toggleProduct('hr');
     return;
    }
-   const valid=check(await db.from('company_program_entitlements').select('product_code,status,starts_at,ends_at').in('product_code',['hr','suite']).eq('owner_user_id',user.id));
-   license=valid.some(x=>['active','trial'].includes(x.status)&&new Date(x.starts_at)<=new Date()&&(!x.ends_at||new Date(x.ends_at)>new Date()));
-   // Owner entitlement is verified server-side; never trust editable user metadata.
-   // The existing HR row policies still enforce tenant ownership and access.
-   if(!license){
-    const ownerRole=await db.rpc('is_super_admin');
-    if(!ownerRole.error&&ownerRole.data===true)license=true;
+   // Check the privileged account using a server-verified identity, not browser claims.
+   // Check this first: an unrelated entitlement read failure must not send the owner to checkout.
+   const ownerRole=await db.rpc('is_super_admin');
+   const verifiedOwner=!ownerRole.error&&ownerRole.data===true;
+   if(verifiedOwner){
+    license=true;
+   }else{
+    const valid=check(await db.from('company_program_entitlements')
+     .select('product_code,status,starts_at,ends_at')
+     .in('product_code',['hr','suite']).eq('owner_user_id',user.id));
+    license=valid.some(x=>['active','trial'].includes(x.status)&&new Date(x.starts_at)<=new Date()&&(!x.ends_at||new Date(x.ends_at)>new Date()));
    }
    $('hr-license').hidden=license;
    if(!license){
