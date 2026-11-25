@@ -1419,24 +1419,26 @@ async function handleServiceRequests(req, res, supabase, user) {
       crm_workspace_id: workspaceBinding.crm_workspace_id }
   };
 
+  // One database transaction owns both the request and every submitted field.
+  // This RPC also validates the authenticated user, company and project links.
+  const atomicPayload={
+    ...requestRow,
+    crm_workspace_id:workspaceBinding.crm_workspace_id
+  };
   const { data: requestRowOut, error: requestError } = await supabase
-    .from('service_requests')
-    .insert(requestRow)
-    .select('id,request_reference,status,geo_place_id,geo_snapshot,created_at')
-    .single();
-  if (requestError) return sendJson(res, 400, { error: requestError.message });
-
-  if (body.values && typeof body.values === 'object' && !Array.isArray(body.values)) {
-    const valueRows = Object.entries(body.values).map(([field_key,value]) => ({
-      service_request_id: requestRowOut.id,
-      field_key,
-      value,
-      form_version: body.form_version || null
-    }));
-    if (valueRows.length) {
-      const { error: valuesError } = await supabase.from('service_request_values').insert(valueRows);
-      if (valuesError) return sendJson(res, 400, { error: valuesError.message, request: requestRowOut });
-    }
+    .rpc('create_service_request_atomic',{
+      p_user_id:user.id,
+      p_request:atomicPayload,
+      p_values:body.values && typeof body.values==='object' && !Array.isArray(body.values) ? body.values : {},
+      p_form_version:Number.isInteger(body.form_version)?body.form_version:null
+    });
+  if(requestError){
+    const msg=String(requestError.message||'');
+    const forbidden=/WORKSPACE_ACCESS_DENIED|PROJECT_ACCESS_DENIED/.test(msg);
+    return sendJson(res,forbidden?403:400,{error:forbidden?'REQUEST_WORKSPACE_OR_PROJECT_DENIED':'REQUEST_SAVE_FAILED'});
+  }
+  if(!requestRowOut?.id || !requestRowOut?.request_reference){
+    return sendJson(res,500,{error:'REQUEST_COMMIT_UNVERIFIED'});
   }
 
   await supabase.from('calculator_events').insert({
