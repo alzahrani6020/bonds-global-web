@@ -45,6 +45,12 @@ describe('three-statement equity roll-forward',()=>{
   delete sample.dataset.inputs_used.owner_distributions;
   expect(render(sample,'en')).toContain('Unverified — missing equity movements');
  });
+ test('manual intake makes all equity movements available without requiring invented zeros',()=>{
+  const source=fs.readFileSync(path.join(__dirname,'../../components/service-request.js'),'utf8');
+  for(const key of ['opening_equity','owner_contributions','owner_distributions','other_equity_movements']){
+   expect(source).toContain("['"+key+"'");
+  }
+ });
  test('report bundle executes without Node require in a browser-like VM',()=>{
   const source=fs.readFileSync(path.join(__dirname,'../../components/financial-analysis-report.js'),'utf8');
   const ctx={window:{},console};
