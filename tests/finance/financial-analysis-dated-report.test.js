@@ -27,7 +27,7 @@ test('source-dated 2024-2026 table and growth only from documented year columns'
  expect(html).toContain('1,000,000');
  expect(html).toContain('20%');
  expect(html).toContain('9.0909%');
- expect(html).toContain('من المستند');
+ expect(html).toContain('في المستند');
  expect(html).not.toContain('تم التحقق من حفظ النتائج واسترجاعها');
 });
 test('cannot fabricate dated multi-year comparisons from a single-year manual input',()=>{
