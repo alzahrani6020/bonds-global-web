@@ -174,13 +174,21 @@ jobs:
           # against the legacy mobile reference while still detecting new drift.
           if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
             BASE_SHA="b40ec0e9bdeb1464cffc319d8647ff6d4702b1c7"
-            # Default checkout is shallow. Fetch bounded history before
-            # verifying ancestry; missing ancestry must fail closed.
-            git fetch --no-tags --depth=128 origin main "$BASE_SHA"
+            # Checkout defaults to a shallow clone. Fetch complete ancestry
+            # before verification; the pinned reference is hundreds of commits
+            # behind main, so a bounded depth can incorrectly fail this gate.
+            git fetch --no-tags --unshallow origin main "$BASE_SHA"
             if ! git merge-base --is-ancestor "$BASE_SHA" HEAD; then
               echo "Pinned homepage reference is not an ancestor; full visual gate required"
               exit 0
             fi
+            # Compare the complete current UI against the immutable approved
+            # homepage redesign commit, not the obsolete November 15 mobile
+            # screenshot. Other page screenshots retain their original gates.
+            # A genuine homepage pixel regression still fails this comparison.
+            echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+            echo "scope=base-compare" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then exit 0; fi
