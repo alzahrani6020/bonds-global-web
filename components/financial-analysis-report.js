@@ -109,6 +109,8 @@
    tr('نمو الإيرادات','Revenue growth'),metricText('revenue_growth_pct')]);
   if(numeric(inputs.prior_net_income)&&numeric(inputs.net_income))prior.push([
    tr('نمو صافي الربح','Net income growth'),metricText('earnings_growth_pct')]);
+  const {auditEquityRollForward}=require('../lib/finance/three-statement-consistency');
+  const equityMovement=auditEquityRollForward(inputs);
   const reconciliation=[
    [tr('فرق توازن المركز المالي','Balance sheet difference'),
     ['total_assets','total_liabilities','equity'].every(k=>numeric(inputs[k]))?
@@ -118,7 +120,11 @@
     fmt(inputs.ending_cash-metrics.ending_cash_from_flow):'—'],
    [tr('فرق صافي الربح بين القائمتين','Net income statement difference'),
     numeric(inputs.cash_flow_net_income)&&numeric(inputs.net_income)?
-    fmt(inputs.net_income-inputs.cash_flow_net_income):'—']
+    fmt(inputs.net_income-inputs.cash_flow_net_income):'—'],
+   [tr('تسوية التغير في حقوق الملكية','Equity movement reconciliation'),
+    equityMovement.status==='UNVERIFIED'?
+      tr('غير متحقق — بيانات حركة حقوق الملكية ناقصة: ','Unverified — missing equity movements: ')+equityMovement.missing.join(', '):
+      equityMovement.status+' — '+fmt(equityMovement.difference)]
   ];
   const risks=[];
   if(present('dscr')&&metrics.dscr<1)risks.push(tr('تغطية خدمة الدين أقل من مرة','DSCR below 1'));
@@ -142,12 +148,14 @@
   const groupRequirements={
    income_statement:['revenue','cogs','operating_expenses','net_income'],
    financial_position:['total_assets','total_liabilities','equity','current_assets','current_liabilities'],
-   cash_flow:['opening_balance','operating_cash_flow','investing_cash_flow','financing_cash_flow','ending_cash','cash']
+   cash_flow:['opening_balance','operating_cash_flow','investing_cash_flow','financing_cash_flow','ending_cash','cash'],
+   equity_movements:['opening_equity','net_income','owner_contributions','owner_distributions','other_equity_movements','equity']
   };
   const groupNames={
    income_statement:tr('قائمة الدخل','Income statement'),
    financial_position:tr('قائمة المركز المالي','Financial position'),
-   cash_flow:tr('قائمة التدفقات النقدية','Cash-flow statement')
+   cash_flow:tr('قائمة التدفقات النقدية','Cash-flow statement'),
+   equity_movements:tr('حركة حقوق الملكية','Equity movements')
   };
   const statementCoverage=Object.entries(groupRequirements).map(([group,keys])=>{
    const missingFields=keys.filter(key=>!numeric(inputs[key]));
