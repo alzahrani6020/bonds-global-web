@@ -1,0 +1,31 @@
+name: Financial analysis focused acceptance
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lib/finance/**'
+      - 'components/financial-analysis-report.js'
+      - 'tests/finance/**'
+      - '.github/workflows/financial-analysis-acceptance.yml'
+permissions:
+  contents: read
+jobs:
+  financial-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Check finance modules and browser report syntax
+        run: |
+          node --check lib/finance/financial-data-intake.js
+          node --check lib/finance/three-statement-consistency.js
+          node --check components/financial-analysis-report.js
+      - name: Run finance acceptance tests
+        run: npx jest tests/finance/three-statement-consistency.test.js tests/finance/financial-analysis-institutional-evidence.test.js tests/finance/financial-analysis-lab.test.js tests/finance/financial-analysis-end-to-end.test.js --runInBand --silent
