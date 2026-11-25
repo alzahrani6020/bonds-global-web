@@ -1961,7 +1961,18 @@ function renderFinancialIntake(){
    ['prior_net_income','صافي ربح المقارنة','Prior net income'],
    ['cost_of_equity_pct','تكلفة حقوق الملكية %','Cost of equity %'],
    ['cost_of_debt_pct','تكلفة الدين %','Cost of debt %'],
-   ['tax_rate_pct','معدل الضريبة %','Tax rate %']
+   ['tax_rate_pct','معدل الضريبة %','Tax rate %'],
+   ['depreciation_amortization','الإهلاك والإطفاء','Depreciation and amortization'],
+   ['operating_cash_flow','التدفق النقدي التشغيلي','Operating cash flow'],
+   ['investing_cash_flow','التدفق النقدي الاستثماري','Investing cash flow'],
+   ['financing_cash_flow','التدفق النقدي التمويلي','Financing cash flow'],
+   ['opening_balance','النقد أول الفترة','Opening cash balance'],
+   ['ending_cash','النقد نهاية الفترة','Closing cash balance'],
+   ['cash_flow_net_income','صافي الربح بقائمة التدفقات','Net income in cash-flow statement'],
+   ['cash_available_for_debt_service','النقد المتاح لخدمة الدين CFADS','Cash available for debt service'],
+   ['scheduled_debt_service','أقساط خدمة الدين المستحقة','Scheduled debt service'],
+   ['payables','الذمم الدائنة','Accounts payable'],
+   ['one_off_income','الدخل غير المتكرر','Non-recurring income']
   ];
   const controls=manualFields.filter(([key])=>!host.querySelector('[name="'+key+'"]'))
    .map(([key,ar,enLabel])=>'<label class="sr-field"><span>'+escapeHtml(lang==='ar'?ar:enLabel)+'</span>'+
@@ -2034,7 +2045,11 @@ function renderIntakeReview(payload){
   ACCOUNTING_EQUATION_MISMATCH:lang==='ar'?'عدم توازن المركز المالي':'Balance sheet mismatch',
   DEBT_EXCEEDS_TOTAL_LIABILITIES:lang==='ar'?'الدين أكبر من الالتزامات':'Debt exceeds liabilities',
   EBIT_EXCEEDS_EBITDA:lang==='ar'?'الربح التشغيلي أكبر من EBITDA':'EBIT exceeds EBITDA',
-  OPERATING_PROFIT_RECONCILIATION_MISMATCH:lang==='ar'?'عدم تطابق الربح التشغيلي مع الإيرادات والتكاليف':'Operating income reconciliation mismatch'
+  OPERATING_PROFIT_RECONCILIATION_MISMATCH:lang==='ar'?'عدم تطابق الربح التشغيلي مع الإيرادات والتكاليف':'Operating income reconciliation mismatch',
+  CASH_FLOW_RECONCILIATION_MISMATCH:lang==='ar'?'عدم تطابق النقد أول الفترة مع التدفقات والنقد الختامي':'Cash flow roll-forward mismatch',
+  CROSS_STATEMENT_CASH_MISMATCH:lang==='ar'?'النقد بالمركز المالي لا يطابق التدفقات':'Cash differs between financial position and cash flows',
+  CROSS_STATEMENT_NET_INCOME_MISMATCH:lang==='ar'?'صافي الربح يختلف بين قائمة الدخل والتدفقات':'Net income differs between statements',
+  EBITDA_RECONCILIATION_MISMATCH:lang==='ar'?'EBITDA لا يساوي EBIT زائد الإهلاك والإطفاء':'EBITDA differs from EBIT plus D&A'
  };
  const issueText=financialIssues.length?'<div class="sr-intake-warning" role="alert">'+
    financialIssues.map(issue=>escapeHtml(issueNames[issue.code]||issue.code)).join(' ؛ ')+'</div>':'';
@@ -2123,7 +2138,11 @@ async function approveFinancialIntake(headers){
     ACCOUNTING_EQUATION_MISMATCH:lang==='ar'?'الأصول لا تساوي الالتزامات وحقوق الملكية':'Assets do not balance with liabilities plus equity',
     DEBT_EXCEEDS_TOTAL_LIABILITIES:lang==='ar'?'إجمالي الدين أكبر من إجمالي الالتزامات':'Debt exceeds total liabilities',
     EBIT_EXCEEDS_EBITDA:lang==='ar'?'الربح التشغيلي أكبر من EBITDA؛ راجع الإهلاك والإطفاء':'EBIT exceeds EBITDA; check depreciation and amortization',
-    OPERATING_PROFIT_RECONCILIATION_MISMATCH:lang==='ar'?'الربح التشغيلي لا يتطابق مع الإيرادات والتكاليف':'Operating income conflicts with revenue and costs'
+    OPERATING_PROFIT_RECONCILIATION_MISMATCH:lang==='ar'?'الربح التشغيلي لا يتطابق مع الإيرادات والتكاليف':'Operating income conflicts with revenue and costs',
+    CASH_FLOW_RECONCILIATION_MISMATCH:lang==='ar'?'تسوية النقد والتدفقات لا تتوازن':'Cash-flow reconciliation is unbalanced',
+    CROSS_STATEMENT_CASH_MISMATCH:lang==='ar'?'النقد بالمركز المالي يختلف عن التدفقات':'Cash differs between statements',
+    CROSS_STATEMENT_NET_INCOME_MISMATCH:lang==='ar'?'صافي الربح يختلف بين قائمة الدخل والتدفقات':'Net income differs between statements',
+    EBITDA_RECONCILIATION_MISMATCH:lang==='ar'?'EBITDA لا يساوي الربح التشغيلي زائد الإهلاك والإطفاء':'EBITDA differs from EBIT plus D&A'
    };
    const issuesText=issues.map(issue=>explanations[issue.code]||issue.code).join('؛ ');
    throw new Error(issuesText||(missing.length?T.moreInputs+': '+missing.map(humanizeKey).join(', '):(payload?.error?.code||'HTTP '+response.status)));
@@ -2454,7 +2473,7 @@ function printGovernedFinancialReport(payload){
  };
  if(window.BondsFinancialAnalysisReport){display();return;}
  const script=document.createElement('script');
- script.src='/components/financial-analysis-report.js?v=1';
+ script.src='/components/financial-analysis-report.js?v=2';
  script.onload=display;
  script.onerror=()=>{
   popup.close();

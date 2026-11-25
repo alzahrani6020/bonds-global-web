@@ -533,7 +533,7 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
   }
   const inputHash = stableInputHash(extracted.values || {});
   const confidence = fieldConfidenceMap(extracted.fields || []);
-  const qStatus = qualityStatus({ validation: extracted.validation, fields: extracted.fields, reviewed: false });
+  const qStatus = qualityStatus({ validation: extracted.validation, fields: extracted.fields, reviewed: false, serviceCode, values:extracted.values||{} });
   const dependencyGraph = buildDependencyGraph({
     requirementFields: extracted.requirement_fields || [],
     serviceCode,
@@ -763,7 +763,7 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
   const status = validation.valid ? 'validated' : 'reviewed';
   const approvalStatus = validation.valid ? 'approved' : 'reviewed';
   const confidence = fieldConfidenceMap(fields);
-  const qStatus = qualityStatus({ validation, fields, reviewed:true });
+  const qStatus = qualityStatus({ validation, fields, reviewed:true, serviceCode:dataset.service_code, values:reviewed });
   const inputHash = stableInputHash(reviewed);
   const previousHistory = Array.isArray(dataset.execution_history) ? dataset.execution_history : [];
   const executionHistory = valuesChanged
