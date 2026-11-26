@@ -1,0 +1,110 @@
+name: BONDS Backup Freshness and Retention Watchdog
+
+on:
+  schedule:
+    # Every 3 hours at minute 15 UTC; does not start production backups.
+    - cron: '15 0,3,6,9,12,15,18,21 * * *'
+  workflow_dispatch:
+    inputs:
+      simulate_missing_backup:
+        description: 'TEST ONLY: generate an isolated missing-backup alert'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+concurrency:
+  group: bonds-backup-freshness-watchdog
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SIMULATE: ${{ github.event_name == 'workflow_dispatch' && inputs.simulate_missing_backup == true }}
+    steps:
+      - name: Check latest successful backup and encrypted artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          open_alert() {
+            local title="$1" body="$2"
+            local found
+            found="$(gh api -X GET "repos/$GH_REPO/issues?state=open&per_page=100" | jq -r --arg title "$title" '[.[] | select(.title == $title)] | length')"
+            if [[ "$found" != "0" ]]; then
+              echo "PASS: alert already open: $title"
+              return 0
+            fi
+            gh issue create --repo "$GH_REPO" --title "$title" --body "$body" --assignee alzahrani6020
+            echo "PASS: watchdog issue created: $title"
+          }
+
+          if [[ "$SIMULATE" == "true" ]]; then
+            title="[TEST][BONDS Backup Watchdog] Simulated missing backup"
+            body="SIMULATED missing-backup test. No production backup, database, secrets or artifacts were accessed. Test run: https://github.com/$GH_REPO/actions/runs/$GITHUB_RUN_ID"
+            open_alert "$title" "$body"
+            exit 0
+          fi
+
+          workflow="bonds-production-backup-restore.yml"
+          latest="$(gh api -X GET "repos/$GH_REPO/actions/workflows/$workflow/runs?branch=main&status=success&per_page=5")"
+          run_id="$(jq -r '.workflow_runs[0].id // empty' <<< "$latest")"
+          run_completed="$(jq -r '.workflow_runs[0].updated_at // empty' <<< "$latest")"
+          source_url="https://github.com/$GH_REPO/actions/workflows/$workflow"
+          now="$(date -u +%s)"
+          # Allow 2h for the daily 03:00 Riyadh backup, GitHub schedule delays,
+          # and restore. A gap is detected when last success is older than 26h.
+          max_age_seconds=93600
+
+          if [[ -z "$run_id" || -z "$run_completed" ]]; then
+            open_alert "[BONDS Backup Watchdog] No recent successful backup" \
+              "No successful backup run on main was found. Inspect $source_url"
+            exit 0
+          fi
+
+          run_epoch="$(date -u -d "$run_completed" +%s)"
+          age_seconds="$((now - run_epoch))"
+          if (( age_seconds < 0 )); then
+            echo "FAIL: future completion timestamp; check GitHub API clock"
+            exit 1
+          fi
+          if (( age_seconds > max_age_seconds )); then
+            open_alert "[BONDS Backup Watchdog] No recent successful backup" \
+              "Latest successful production backup is older than 26h: run $run_id, completed $run_completed UTC. Inspect https://github.com/$GH_REPO/actions/runs/$run_id and verify backup plus isolated restore."
+          else
+            echo "PASS: latest successful backup $run_id is within 26h."
+          fi
+
+          artifact_name="bonds-production-encrypted-backup-$run_id"
+          artifacts="$(gh api -X GET "repos/$GH_REPO/actions/runs/$run_id/artifacts?per_page=100")"
+          artifact="$(jq -c --arg name "$artifact_name" '.artifacts[] | select(.name == $name)' <<< "$artifacts" | head -n 1)"
+          if [[ -z "$artifact" ]]; then
+            open_alert "[BONDS Backup Watchdog] Missing encrypted artifact" \
+              "No encrypted artifact $artifact_name found for successful run $run_id. Inspect https://github.com/$GH_REPO/actions/runs/$run_id"
+            exit 0
+          fi
+
+          expired="$(jq -r '.expired' <<< "$artifact")"
+          expires="$(jq -r '.expires_at // empty' <<< "$artifact")"
+          size="$(jq -r '.size_in_bytes // 0' <<< "$artifact")"
+          if [[ "$expired" == "true" || -z "$expires" || "$size" -le 0 ]]; then
+            open_alert "[BONDS Backup Watchdog] Unusable encrypted artifact" \
+              "Latest successful run $run_id has an expired, zero-sized or undated encrypted artifact. Inspect https://github.com/$GH_REPO/actions/runs/$run_id"
+            exit 0
+          fi
+          expires_epoch="$(date -u -d "$expires" +%s)"
+          remaining="$((expires_epoch - now))"
+          if (( remaining <= 259200 )); then
+            open_alert "[BONDS Backup Watchdog] Encrypted artifact nearing expiry" \
+              "Latest backup artifact $artifact_name expires at $expires UTC (within 72h). Inspect https://github.com/$GH_REPO/actions/runs/$run_id and ensure external backup custody."
+          else
+            echo "PASS: encrypted artifact $artifact_name exists, nonempty and has more than 72h retention remaining."
+          fi
