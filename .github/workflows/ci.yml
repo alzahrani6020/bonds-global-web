@@ -213,7 +213,7 @@ jobs:
                 # Non-home HR implementation; still execute all code, auth,
                 # RLS, mobile and actual PR-base homepage pixel checks.
                 ;;
-              lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|calculators/auth/auth-shared.css|calculators/auth/index.html|en/calculators/auth/index.html|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|tests/visual/auth-login-acceptance.js|.github/workflows/auth-ui-acceptance.yml|assets/bonds-mark-transparent.svg|tests/auth/mobile-onboarding-session.acceptance.cjs|.github/workflows/mobile-onboarding-session.yml|calculators/auth/onboarding.html|en/calculators/auth/onboarding.html|.github/workflows/ci.yml) ;;
+              lib/api/rate-limit.js|lib/api/rate-limit-distributed.js|scripts/post-deploy-smoke.js|scripts/assistant-production-smoke.js|tests/api/rate-limit-distributed.test.js|tests/api/rate-limit-retry-after.test.js|tests/assistant/assistant-production-smoke.test.js|components/service-discovery.js|en/v3/city-intelligence.html|en/v3/project/index.html|index.html|site-layout.js|styles/bonds-redesign-2026.css|tests/assistant/assistant-ui-interaction.test.js|v3/city-intelligence.html|v3/components/ai-chat-widget.js|v3/investment-map.html|v3/project/index.html|my-bonds/crm/*|en/my-bonds/crm/*|tests/crm/*|tests/admin/crm-client-workspace.test.js|bonds-auth-2026.js|calculators/auth/auth-shared.css|calculators/auth/index.html|en/calculators/auth/index.html|supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql|tests/visual/visual-tests.js|tests/visual/auth-login-acceptance.js|.github/workflows/auth-ui-acceptance.yml|assets/bonds-mark-transparent.svg|tests/auth/mobile-onboarding-session.acceptance.cjs|.github/workflows/mobile-onboarding-session.yml|calculators/auth/onboarding.html|en/calculators/auth/onboarding.html) ;;
               components/letterhead-correspondence.js|lib/api/correspondence.js|tests/security/correspondence-artifact-immutability.test.js|tests/security/correspondence-classified-pdf.test.js|tests/security/correspondence-owner-surface-gate.test.js)
                 # Current main added these correspondence files after this PR base.
                 # Accept only exact, unchanged main copies in GitHub's synthetic merge.
@@ -270,8 +270,8 @@ jobs:
           if(after.replace(helper,'').replace(route,'')!==before)process.exit(1);
           NODE
                 ;;
-              tests/admin/hr-owner-aggregate-overview.test.js)
-                # Test-only non-home source, still run full code and visual gates.
+              tests/admin/hr-owner-aggregate-overview.test.js|tests/admin/dashboard-correspondence-workspace-link.test.js)
+                # Test-only non-home source; the unit suite runs the link contract.
                 ;;
               admin/dashboard.html)
                 # Permit exactly one reviewed sidebar entry; every other byte
@@ -288,7 +288,16 @@ jobs:
           '          <span>مراقبة HR وCRM</span>',
           '        </button>',
           ].join('\n')+'\n';
-          if(head.split(added).length!==2 || head.replace(added,'')!==base)process.exit(1);
+          // Allow one precisely specified correspondence shortcut; no unrelated dashboard bytes.
+          const correspondence=[
+          '        <a class="sidebar-link" href="/letterhead.html?workspace=correspondence&amp;return_to=%2Fadmin%2Fdashboard.html" target="_blank" rel="noopener noreferrer" title="فتح مساحة المراسلات الحالية لإنشاء الخطابات ومراجعتها وإصدارها">',
+          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+          '          <span>مساحة المراسلات</span>',
+          '        </a>',
+          ].join('\n')+'\n';
+          const exactExisting=head.split(added).length===2 && head.replace(added,'')===base;
+          const exactCorrespondence=head.split(correspondence).length===2 && head.replace(correspondence,'')===base;
+          if(!exactExisting && !exactCorrespondence)process.exit(1);
           NODE
                 ;;
               tests/v3/revert-service-request-context.test.js)
