@@ -12,7 +12,7 @@ describe('HR organization and attendance controls',()=>{
    expect(html).toContain('data-hr-category="positions"');
    expect(html).toContain('data-hr-category="attendance"');
    expect(html).toContain('data-hr-category="attendance_corrections"');
-   expect(html).toContain('company-hr.js?v=20');
+   expect(html).toContain('company-hr.js?v=21');
   }
  });
  test('organization has dedicated tables with composite tenant relations',()=>{
