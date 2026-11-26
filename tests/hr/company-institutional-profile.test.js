@@ -16,8 +16,8 @@ describe('HR institutional company profile',()=>{
  test('branding RLS explicitly binds the object path, never the company name',()=>{
   const fix=file('supabase/migrations/20261126082000_hr_branding_storage_owner_rls_fix.sql');
   expect((fix.match(/ALTER POLICY hr_branding_owner_/g)||[])).toHaveLength(3);
-  expect((fix.match(/storage\\.foldername\\(storage\\.objects\\.name\\)/g)||[])).toHaveLength(4);
-  expect(fix).not.toMatch(/storage\\.foldername\\(c\\.name\\)/);
+  expect(fix.split('storage.foldername(storage.objects.name)').length-1).toBe(4);
+  expect(fix).not.toContain('storage.foldername(c.name)');
   expect(fix).toContain("bucket_id = 'hr-company-branding'");
   expect(fix).toContain("c.owner_user_id = (SELECT auth.uid())");
   expect(fix).not.toMatch(/\\b(?:DROP TABLE|TRUNCATE|INSERT INTO|DELETE FROM|ALTER TABLE)\\b/i);
