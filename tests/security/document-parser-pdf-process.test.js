@@ -33,6 +33,19 @@ const {
   parseDocument
 } = require('../../lib/api/document-parser');
 
+describe('PDF parser Node bootstrap order', () => {
+  test('loads CanvasFactory before PDFParse inside the isolated parser', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const source = fs.readFileSync(path.join(__dirname, '../../lib/api/document-parser-core.js'), 'utf8');
+    const bootstrapAt = source.indexOf("require('pdf-parse/worker')");
+    const parserAt = source.indexOf("require('pdf-parse')");
+    expect(bootstrapAt).toBeGreaterThan(-1);
+    expect(parserAt).toBeGreaterThan(bootstrapAt);
+    expect(source).toContain('new PDFParse({ data: buffer, CanvasFactory })');
+  });
+});
+
 describe('document parser PDF process containment', () => {
   beforeEach(() => {
     jest.useRealTimers();
