@@ -9,7 +9,7 @@ describe('HR company overview integration',()=>{
  const css=read('my-bonds/crm/crm-app.css');
  test('both locales register the shared overview script after the HR controller',()=>{
   for(const html of [ar,en]){
-   expect(html).toContain('/my-bonds/crm/company-hr-overview.js?v=1');
+   expect(html).toContain('/my-bonds/crm/company-hr-overview.js?v=2');
    expect(html.indexOf('company-hr-overview.js')).toBeGreaterThan(html.indexOf('company-hr.js'));
   }
  });
