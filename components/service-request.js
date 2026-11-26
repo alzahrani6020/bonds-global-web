@@ -1972,7 +1972,11 @@ function renderFinancialIntake(){
    ['cash_available_for_debt_service','النقد المتاح لخدمة الدين CFADS','Cash available for debt service'],
    ['scheduled_debt_service','أقساط خدمة الدين المستحقة','Scheduled debt service'],
    ['payables','الذمم الدائنة','Accounts payable'],
-   ['one_off_income','الدخل غير المتكرر','Non-recurring income']
+   ['one_off_income','الدخل غير المتكرر','Non-recurring income'],
+   ['opening_equity','حقوق الملكية أول الفترة','Opening equity'],
+   ['owner_contributions','مساهمات الملاك','Owner contributions'],
+   ['owner_distributions','توزيعات الملاك','Owner distributions'],
+   ['other_equity_movements','الحركات الأخرى لحقوق الملكية','Other equity movements']
   ];
   const controls=manualFields.filter(([key])=>!host.querySelector('[name="'+key+'"]'))
    .map(([key,ar,enLabel])=>'<label class="sr-field"><span>'+escapeHtml(lang==='ar'?ar:enLabel)+'</span>'+
