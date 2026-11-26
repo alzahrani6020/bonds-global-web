@@ -223,6 +223,16 @@ jobs:
                 git show "HEAD:$file" > /tmp/bonds-merge-correspondence-file || exit 0
                 cmp -s /tmp/bonds-main-correspondence-file /tmp/bonds-merge-correspondence-file || exit 0
                 ;;
+              .github/workflows/bonds-backup-failure-alert.yml)
+                # Only allow a main-only workflow inherited unmodified by
+                # GitHub's synthetic merge; unrelated edits still require
+                # the full immutable homepage visual gate.
+                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then exit 0; fi
+                git fetch --no-tags --depth=1 origin main
+                git show "FETCH_HEAD:$file" > /tmp/bonds-main-backup-alert.yml || exit 0
+                git show "HEAD:$file" > /tmp/bonds-merge-backup-alert.yml || exit 0
+                cmp -s /tmp/bonds-main-backup-alert.yml /tmp/bonds-merge-backup-alert.yml || exit 0
+                ;;
               .github/workflows/bonds-production-backup-restore.yml)
                 # GitHub tests a synthetic merge commit that contains files
                 # added to main after the PR branch diverged. This workflow
