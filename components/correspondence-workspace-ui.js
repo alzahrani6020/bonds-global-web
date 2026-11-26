@@ -66,6 +66,21 @@
     headingText.append(create('p', '', tr('تحرير الخطابات ومراجعتها وإصدارها ضمن الدورة المعتمدة', 'Author, review and issue within the approved workflow')));
     heading.append(headingText);
 
+    // Counts are mirrored only from the authorized summary returned by the
+    // existing correspondence engine. No independent query or placeholder totals.
+    const stats = create('section', 'bx-stats');
+    stats.setAttribute('aria-label', tr('مؤشرات المراسلات', 'Correspondence statistics'));
+    const metricLabels = isEnglish
+      ? ['Total', 'Urgent', 'Delivery failures', 'Drafts', 'Under review', 'Issued']
+      : ['إجمالي المراسلات', 'العاجل', 'فشل الإرسال', 'المسودات', 'قيد المراجعة', 'الصادر'];
+    const metricValues = metricLabels.map(label => {
+      const card = create('div', 'bx-metric');
+      const number = create('strong', '', '—');
+      card.append(number, create('span', '', label));
+      stats.append(card);
+      return number;
+    });
+
     const layout = create('div', 'bx-layout');
     const nav = create('nav', 'bx-nav');
     nav.setAttribute('aria-label', tr('التنقل في المراسلات', 'Correspondence navigation'));
@@ -158,6 +173,11 @@
     value.id = 'bx-current-status';
     status.append(value);
     panel.append(status);
+
+    panel.append(create('h2', 'bx-work-heading', tr('مهامي الحالية', 'My current tasks')));
+    const workList = create('div', 'bx-work-list');
+    workList.textContent = tr('جارٍ تحميل المهام…', 'Loading tasks…');
+    panel.append(workList);
     const updateStatus = () => {
       const source = document.getElementById('corr-status');
       if (source && source.textContent.trim()) value.textContent = source.textContent.trim();
@@ -180,8 +200,40 @@
     locate.observe(document.body, { childList: true, subtree: true });
     if (document.getElementById('corr-status')) { locateSource(); locate.disconnect(); }
 
+    // Read-only presentation of already-authorized command-center data.
+    const attachMirror = (sourceId, render) => {
+      let source = document.getElementById(sourceId);
+      const mirror = new MutationObserver(() => render(source));
+      const start = () => {
+        source = document.getElementById(sourceId);
+        if (!source) return false;
+        mirror.observe(source, { childList: true, subtree: true, characterData: true });
+        render(source);
+        return true;
+      };
+      if (start()) return;
+      const wait = new MutationObserver(() => { if (start()) wait.disconnect(); });
+      wait.observe(document.body, { childList: true, subtree: true });
+    };
+    attachMirror('corr-summary', source => {
+      [...source.children].slice(0, metricValues.length).forEach((card, index) => {
+        metricValues[index].textContent = card.firstElementChild?.textContent || '—';
+      });
+    });
+    attachMirror('corr-my-work', source => {
+      workList.replaceChildren();
+      const tasks = [...source.children].filter(node => node.tagName === 'BUTTON').slice(0, 6);
+      if (!tasks.length) {
+        workList.textContent = source.textContent.trim() || tr('لا توجد مهام مفتوحة', 'No open tasks');
+        return;
+      }
+      tasks.forEach(original => {
+        workList.append(button(original.textContent.trim(), () => original.click(), 'bx-work-item'));
+      });
+    });
+
     layout.append(nav, editor, panel);
-    root.append(top, heading, layout);
+    root.append(top, heading, stats, layout);
     const insertion = document.querySelector('.preview-exit');
     if (insertion) insertion.insertAdjacentElement('afterend', root);
     else document.body.insertBefore(root, document.body.firstChild);
