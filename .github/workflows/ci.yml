@@ -297,7 +297,13 @@ jobs:
           ].join('\n')+'\n';
           const exactExisting=head.split(added).length===2 && head.replace(added,'')===base;
           const exactCorrespondence=head.split(correspondence).length===2 && head.replace(correspondence,'')===base;
-          if(!exactExisting && !exactCorrespondence)process.exit(1);
+          // Accept only these exact two source insertions on an otherwise identical dashboard.
+          const savedShortcut="        // Preserve the existing correspondence workspace link before removing legacy groups.\n        const correspondenceLink = sidebar.querySelector('a.sidebar-link[href^=\"/letterhead.html?workspace=correspondence\"]');\n";
+          const restoredShortcut="        // Place the retained workspace shortcut alongside the correspondence verification register.\n        const businessGroup = sidebar.querySelector('[data-ia-group=\"العملاء والأعمال\"]');\n        if (correspondenceLink && businessGroup) businessGroup.appendChild(correspondenceLink);\n";
+          const exactSidebarFix=head.split(savedShortcut).length===2
+            && head.split(restoredShortcut).length===2
+            && head.replace(savedShortcut,'').replace(restoredShortcut,'')===base;
+          if(!exactExisting && !exactCorrespondence && !exactSidebarFix)process.exit(1);
           NODE
                 ;;
               tests/v3/revert-service-request-context.test.js)

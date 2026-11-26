@@ -1438,6 +1438,8 @@
           byTarget.set(target, link);
         }
 
+        // Preserve the existing correspondence workspace link before removing legacy groups.
+        const correspondenceLink = sidebar.querySelector('a.sidebar-link[href^="/letterhead.html?workspace=correspondence"]');
         // Remove the legacy flat/duplicated groups. The links themselves are re-used below.
         sidebar.querySelectorAll('.nav-group').forEach(group => group.remove());
 
@@ -1481,6 +1483,9 @@
 
         // Anything introduced by a future module is kept visible under Operations
         // rather than disappearing or creating another unstructured top-level group.
+        // Place the retained workspace shortcut alongside the correspondence verification register.
+        const businessGroup = sidebar.querySelector('[data-ia-group="العملاء والأعمال"]');
+        if (correspondenceLink && businessGroup) businessGroup.appendChild(correspondenceLink);
         const operationsGroup = sidebar.querySelector('[data-ia-group="التشغيل"]');
         for (const [target, link] of byTarget.entries()) {
           if (used.has(target)) continue;
