@@ -4,6 +4,9 @@ on:
     branches: [integration/hr-current-main-20261121, fix/backup-ephemeral-auth-20261124]
     paths: ['.github/workflows/bonds-production-backup-restore.yml']
   workflow_dispatch:
+  schedule:
+    # Every day 03:00 Asia/Riyadh = 00:00 UTC (Saudi Arabia observes no DST).
+    - cron: '0 0 * * *'
 concurrency:
   group: bonds-production-backup-exclusive
   cancel-in-progress: false
