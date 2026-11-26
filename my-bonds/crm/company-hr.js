@@ -634,11 +634,25 @@
     const selected=companySpaces.find(c=>c.id===crmId);
     workspace=workspaces.find(w=>w.crm_workspace_id===crmId)||null;
     if(selected&&!workspace){
-     const created=check(await db.from('hr_saas_workspaces').insert({
+     // A simultaneous tab/session may have linked this CRM company already.
+     // The existing unique index on crm_workspace_id is the final arbiter.
+     // Recover only a confirmed unique-constraint race, never a permission error.
+     const result=await db.from('hr_saas_workspaces').insert({
       name:selected.name,owner_user_id:user.id,crm_workspace_id:selected.id
-     }).select('id,name,owner_user_id,crm_workspace_id').single());
-     if(!created?.id)throw Error(t('تعذر ربط مساحة الشركة','Company workspace link not confirmed'));
-     workspace=created;workspaces.push(created);
+     }).select('id,name,owner_user_id,crm_workspace_id').single();
+     let linked=result.data;
+     if(result.error){
+      if(result.error.code!=='23505')throw result.error;
+      const existing=check(await db.from('hr_saas_workspaces')
+       .select('id,name,owner_user_id,crm_workspace_id')
+       .eq('crm_workspace_id',selected.id).eq('owner_user_id',user.id)
+       .limit(1).maybeSingle());
+      linked=existing;
+     }
+     if(!linked?.id||linked.owner_user_id!==user.id||linked.crm_workspace_id!==selected.id)
+      throw Error(t('تعذر تأكيد ربط مساحة الموارد البشرية','HR workspace ownership/link not verified'));
+     workspace=linked;
+     if(!workspaces.some(w=>w.id===linked.id))workspaces.push(linked);
     }
     $('hr-app').hidden=!workspace;
     select.value=crmId;
