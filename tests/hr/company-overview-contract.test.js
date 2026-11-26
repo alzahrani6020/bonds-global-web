@@ -9,7 +9,7 @@ describe('HR company overview integration',()=>{
  const css=read('my-bonds/crm/crm-app.css');
  test('both locales register the shared overview script after the HR controller',()=>{
   for(const html of [ar,en]){
-   expect(html).toContain('/my-bonds/crm/company-hr-overview.js?v=1');
+   expect(html).toContain('/my-bonds/crm/company-hr-overview.js?v=2');
    expect(html.indexOf('company-hr-overview.js')).toBeGreaterThan(html.indexOf('company-hr.js'));
   }
  });
@@ -73,5 +73,25 @@ describe('remote employee selector for large workspaces',()=>{
   expect(js).toContain(".select('id,employee_number,full_name').eq('workspace_id',owner).in('id',missing)");
   expect(js).toContain("if(!isCurrent())return");
   expect(js).toContain("if(prior&&!choices.has(prior))selector.add(new Option");
+ });
+});
+
+describe('tenant-scoped HR quality indicators',()=>{
+ const js=read('my-bonds/crm/company-hr-overview.js');
+ test('checks only the existing workspace, with exact read-only counts',()=>{
+  expect(js).toContain("const filtered=metric.kind==='is'?query.is(metric.field,metric.value):query.eq(metric.field,metric.value)");
+  expect(js).toContain(".eq('workspace_id',workspaceId)");
+  expect(js).toContain("{count:'exact',head:true}");
+  expect(js).toContain("Promise.allSettled(quality.map(");
+  expect(js).not.toMatch(/\.insert\(|\.update\(|\.delete\(/);
+ });
+ test('flags missing department and position and pending HR decisions, not cross-company records',()=>{
+  for(const s of ["field:'department_id'","field:'position_id'","field:'status',value:'pending'","field:'review_status',value:'submitted'","field:'status',value:'draft'"]){
+   expect(js).toContain(s);
+  }
+  expect(js).toContain("document.getElementById('hr-quality-stats').replaceChildren()");
+  expect(js).toContain("const qualityRequest=refreshQuality(context,run)");
+  expect(js).toContain("if(run!==revision||current!==context)return");
+  expect(js).toContain("val.textContent=outcomes[i].status==='fulfilled'?String(outcomes[i].value):'—'");
  });
 });

@@ -209,7 +209,7 @@ jobs:
                 grep -Fvx "$expected" site-layout.js > /tmp/bonds-head-site-layout-without-hr.js
                 cmp -s /tmp/bonds-base-site-layout.js /tmp/bonds-head-site-layout-without-hr.js || exit 0
                 ;;
-              .github/workflows/apply-migrations.yml|scripts/reconcile-production-migrations.js|scripts/apply-production-migration-api.js|tests/db/production-migration-reconciliation.test.cjs|tests/db/production-migration-api-runner.test.cjs|.github/workflows/hr-isolated-acceptance.yml|.github/workflows/hr-production-connection-gate.yml|api/payments.js|api/platform.js|calculators/auth/index.html|docs/hr-delivery-matrix-20261121.md|en/my-bonds/crm/*|jest.config.js|lib/api/company-programs.js|lib/api/hr-calculations.js|lib/hr/*|my-bonds/crm/*|supabase/migrations/20261117040000_standalone_hr_saas_baseline.sql|supabase/migrations/20261117060000_hr_saas_attendance_leaves.sql|supabase/migrations/20261117070000_hr_saas_payroll_review.sql|supabase/migrations/20261117080000_hr_saas_employment_contracts.sql|supabase/migrations/20261117090000_hr_saas_entitlements.sql|supabase/migrations/20261117100000_hr_saas_leave_ledger.sql|supabase/migrations/20261117110000_hr_saas_roles_self_service.sql|supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql|supabase/migrations/20261121190000_hr_org_attendance_leave_workflows.sql|tests/admin/company-programs-standalone-hr.test.js|tests/admin/crm-unified-shell.test.js|tests/auth-callback-bootstrap.test.js|tests/hr/*)
+              .github/workflows/apply-migrations.yml|scripts/reconcile-production-migrations.js|scripts/apply-production-migration-api.js|tests/db/production-migration-reconciliation.test.cjs|tests/db/production-migration-api-runner.test.cjs|.github/workflows/hr-isolated-acceptance.yml|.github/workflows/hr-production-connection-gate.yml|api/payments.js|api/platform.js|calculators/auth/index.html|docs/hr-delivery-matrix-20261121.md|en/my-bonds/crm/*|jest.config.js|lib/api/company-programs.js|lib/api/hr-calculations.js|lib/hr/*|my-bonds/crm/*|supabase/migrations/20261117040000_standalone_hr_saas_baseline.sql|supabase/migrations/20261117060000_hr_saas_attendance_leaves.sql|supabase/migrations/20261117070000_hr_saas_payroll_review.sql|supabase/migrations/20261117080000_hr_saas_employment_contracts.sql|supabase/migrations/20261117090000_hr_saas_entitlements.sql|supabase/migrations/20261117100000_hr_saas_leave_ledger.sql|supabase/migrations/20261117110000_hr_saas_roles_self_service.sql|supabase/migrations/20261118010000_hr_link_existing_company_workspaces.sql|supabase/migrations/20261121190000_hr_org_attendance_leave_workflows.sql|supabase/migrations/20261125190000_hr_company_profiles.sql|supabase/migrations/20261126010000_hr_production_calculation_draft_policy_integrity.sql|tests/admin/company-programs-standalone-hr.test.js|tests/admin/crm-unified-shell.test.js|tests/auth-callback-bootstrap.test.js|tests/hr/*)
                 # Non-home HR implementation; still execute all code, auth,
                 # RLS, mobile and actual PR-base homepage pixel checks.
                 ;;
@@ -233,6 +233,31 @@ jobs:
                 git show "FETCH_HEAD:$file" > /tmp/bonds-current-main-workflow.yml || exit 0
                 git show "HEAD:$file" > /tmp/bonds-merge-workflow.yml || exit 0
                 cmp -s /tmp/bonds-current-main-workflow.yml /tmp/bonds-merge-workflow.yml || exit 0
+                ;;
+              admin/commercial-systems.html)
+                # New, owner-guarded administration-only page. Compare the real
+                # homepage against the exact PR-base rather than Nov 15 artwork.
+                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then exit 0; fi
+                grep -Fq 'BondsAuth.initAdminGuard()' "$file" || exit 0
+                grep -Fq "/api/admin?action=crm-overview" "$file" || exit 0
+                ;;
+              admin/dashboard.html)
+                # Permit exactly one reviewed sidebar entry; every other byte
+                # of the owner's existing dashboard must match the PR base.
+                git show "$BASE_SHA:$file" > /tmp/bonds-base-owner-dashboard.html
+                node <<'NODE'
+          const fs=require('node:fs');
+          const base=fs.readFileSync('/tmp/bonds-base-owner-dashboard.html','utf8');
+          const head=fs.readFileSync('admin/dashboard.html','utf8');
+          const added=[
+          '        <div class="nav-label">الأنظمة التجارية</div>',
+          '        <button class="sidebar-link" data-target="/admin/commercial-systems.html?embed=1" data-title="مراقبة HR وCRM">',
+          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 12h4l2-4 3 8 2-4"/></svg>',
+          '          <span>مراقبة HR وCRM</span>',
+          '        </button>',
+          ].join('\n')+'\n';
+          if(head.split(added).length!==2 || head.replace(added,'')!==base)process.exit(1);
+          NODE
                 ;;
               tests/v3/revert-service-request-context.test.js)
                 # This file is exclusively a Node/Jest assertion suite;
