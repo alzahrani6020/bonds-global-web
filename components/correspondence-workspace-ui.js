@@ -40,6 +40,7 @@
   }
 
   function mount() {
+    if (new URLSearchParams(location.search).get('workspace') !== 'correspondence') return;
     const toolbar = document.getElementById('letterhead-toolbar');
     const pages = document.getElementById('pages-container');
     if (!toolbar || !pages || document.getElementById('bx-workspace-shell')) return;
