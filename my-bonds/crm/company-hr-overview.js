@@ -22,7 +22,9 @@ const quality=[
  {table:'hr_saas_employees',field:'position_id',value:null,kind:'is',label:word('موظفون بلا وظيفة مرتبطة','Employees without linked position'),link:'employees'},
  {table:'hr_saas_leave_requests',field:'status',value:'pending',kind:'eq',label:word('إجازات تنتظر الاعتماد','Leave requests pending approval'),link:'leaves'},
  {table:'hr_saas_attendance',field:'review_status',value:'submitted',kind:'eq',label:word('حضور ينتظر المراجعة','Attendance pending review'),link:'attendance'},
- {table:'hr_saas_payroll_periods',field:'status',value:'draft',kind:'eq',label:word('مسيرات رواتب مسودة','Draft payroll periods'),link:'payroll_runs'}
+ {table:'hr_saas_payroll_periods',field:'status',value:'draft',kind:'eq',label:word('مسيرات رواتب مسودة','Draft payroll periods'),link:'payroll_runs'},
+ {table:'hr_saas_employment_contracts',field:'end_date',kind:'date-window',state:'active',label:word('عقود نشطة تنتهي خلال 30 يومًا','Active contracts ending within 30 days'),link:'contracts'},
+ {table:'hr_saas_employment_contracts',field:'probation_end_date',kind:'date-window',state:'active',label:word('فترات تجربة نشطة تنتهي خلال 30 يومًا','Active probation periods ending within 30 days'),link:'contracts'}
 ];
 let current=null,revision=0;
 function storeKey(context){return 'bonds-hr-view:'+context.user.id+':'+context.ownerWorkspace.id;}
@@ -45,9 +47,22 @@ function countRows(db,table,workspaceId){
   return res.count;
  });
 }
+function saudiDateWindow(){
+ const dateParts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Riyadh',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+ const part=type=>dateParts.find(item=>item.type===type)?.value;
+ const year=Number(part('year')),month=Number(part('month')),day=Number(part('day'));
+ if(!year||!month||!day)throw Error('DATE_WINDOW_UNAVAILABLE');
+ const today=new Date(Date.UTC(year,month-1,day));
+ const end=new Date(today.getTime()+30*24*60*60*1000);
+ return [today.toISOString().slice(0,10),end.toISOString().slice(0,10)];
+}
 function countQuality(db,metric,workspaceId){
  const query=db.from(metric.table).select('id',{count:'exact',head:true}).eq('workspace_id',workspaceId);
- const filtered=metric.kind==='is'?query.is(metric.field,metric.value):query.eq(metric.field,metric.value);
+ let filtered;
+ if(metric.kind==='date-window'){
+  const [today,end]=saudiDateWindow();
+  filtered=query.eq('status',metric.state).gte(metric.field,today).lte(metric.field,end);
+ }else filtered=metric.kind==='is'?query.is(metric.field,metric.value):query.eq(metric.field,metric.value);
  return filtered.then(res=>{
   if(res.error)throw res.error;
   if(!Number.isInteger(res.count))throw Error(word('تعذر توثيق العدد','Count unavailable'));
