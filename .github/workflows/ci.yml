@@ -288,7 +288,16 @@ jobs:
           '          <span>مراقبة HR وCRM</span>',
           '        </button>',
           ].join('\n')+'\n';
-          if(head.split(added).length!==2 || head.replace(added,'')!==base)process.exit(1);
+          // Allow one precisely specified correspondence shortcut; no unrelated dashboard bytes.
+          const correspondence=[
+          '        <a class="sidebar-link" href="/letterhead.html?workspace=correspondence&amp;return_to=%2Fadmin%2Fdashboard.html" target="_blank" rel="noopener noreferrer" title="فتح مساحة المراسلات الحالية لإنشاء الخطابات ومراجعتها وإصدارها">',
+          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+          '          <span>مساحة المراسلات</span>',
+          '        </a>',
+          ].join('\\n')+'\\n';
+          const exactExisting=head.split(added).length===2 && head.replace(added,'')===base;
+          const exactCorrespondence=head.split(correspondence).length===2 && head.replace(correspondence,'')===base;
+          if(!exactExisting && !exactCorrespondence)process.exit(1);
           NODE
                 ;;
               tests/v3/revert-service-request-context.test.js)
