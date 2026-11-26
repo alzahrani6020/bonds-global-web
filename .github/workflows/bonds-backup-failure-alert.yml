@@ -6,6 +6,13 @@ on:
       - BONDS Production Encrypted Backup and Restore Gate
     types:
       - completed
+  workflow_dispatch:
+    inputs:
+      simulate_failure:
+        description: 'Create an isolated TEST alert without running production backup'
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -14,21 +21,26 @@ permissions:
 
 jobs:
   alert:
-    if: ${{ github.event.workflow_run.conclusion != 'success' }}
+    if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'success') || (github.event_name == 'workflow_dispatch' && inputs.simulate_failure == true) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      RUN_ID: ${{ github.event.workflow_run.id }}
-      RUN_URL: ${{ github.event.workflow_run.html_url }}
-      RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+      RUN_ID: ${{ github.event_name == 'workflow_dispatch' && github.run_id || github.event.workflow_run.id }}
+      RUN_URL: ${{ github.event_name == 'workflow_dispatch' && format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) || github.event.workflow_run.html_url }}
+      RUN_CONCLUSION: ${{ github.event_name == 'workflow_dispatch' && 'SIMULATED_FAILURE' || github.event.workflow_run.conclusion }}
+      IS_TEST: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Create assigned issue for failed backup or restore
         shell: bash
         run: |
           set -euo pipefail
-          title="[BONDS Backup Alert] Run #${RUN_ID} did not succeed"
+          if [[ "$IS_TEST" == "true" ]]; then
+            title="[TEST][BONDS Backup Alert] Run #${RUN_ID} simulated failure"
+          else
+            title="[BONDS Backup Alert] Run #${RUN_ID} did not succeed"
+          fi
 
           # A replayed workflow_run event must not create another alert.
           existing="$(gh issue list --repo "$GH_REPO" --state all --limit 100 --search "${RUN_ID} in:title" --json title --jq '.[].title' | grep -Fx "$title" || true)"
@@ -38,7 +50,11 @@ jobs:
           fi
 
           # Fetch only job/step conclusions, never logs or database secrets.
-          failed_steps="$(gh api "repos/${GH_REPO}/actions/runs/${RUN_ID}/jobs?per_page=100" --jq '[.jobs[] | .name as $job | .steps[]? | select(.conclusion == "failure" or .conclusion == "timed_out" or .conclusion == "cancelled") | "\($job): \(.name) [\(.conclusion)]"] | join("\n")')"
+          if [[ "$IS_TEST" == "true" ]]; then
+            failed_steps="SIMULATED: isolated alert delivery test; no database or production backup accessed."
+          else
+            failed_steps="$(gh api "repos/${GH_REPO}/actions/runs/${RUN_ID}/jobs?per_page=100" --jq '[.jobs[] | .name as $job | .steps[]? | select(.conclusion == "failure" or .conclusion == "timed_out" or .conclusion == "cancelled") | "\($job): \(.name) [\(.conclusion)]"] | join("\n")')"
+          fi
           if [[ -z "$failed_steps" ]]; then
             failed_steps="No failed step reported (run may have been cancelled or timed out)."
           fi
