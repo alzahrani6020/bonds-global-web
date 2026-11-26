@@ -36,3 +36,14 @@ describe('employee 360 existing-workspace read-only contract',()=>{
   expect(code).toContain('Promise.allSettled(sections.map');
  });
 });
+
+describe('employee 360 audit actor/timestamp history',()=>{
+ test('reads immutable-to-authenticated audit entries for selected employee, not other workspace rows',()=>{
+  expect(code).toContain("context.db.from('hr_saas_audit')");
+  expect(code).toContain(".select('created_at,action,actor_user_id')");
+  expect(code).toContain(".eq('workspace_id',wid).eq('entity','hr_saas_employees')");
+  expect(code).toContain(".eq('entity_id',employeeId).order('created_at',{ascending:false}).limit(20)");
+  expect(code).toContain("if(run!==revision||window.BondsHRContext?.ownerWorkspace?.id!==wid)return");
+  expect(code).not.toContain("changed_columns");
+ });
+});
