@@ -108,7 +108,7 @@ describe('contract and probation expiry operational alerts',()=>{
   }
   expect(js).toContain("state:'active'");
   expect(js).toContain(".eq('workspace_id',workspaceId)");
-  expect(js).not.toMatch(/\\.insert\\(|\\.update\\(|\\.delete\\(/);
+  expect(js).not.toMatch(/\.insert\(|\.update\(|\.delete\(/);
  });
  test('links only to existing contracts workflow and handles unknown counts',()=>{
   expect(js).toContain("link:'contracts'");
