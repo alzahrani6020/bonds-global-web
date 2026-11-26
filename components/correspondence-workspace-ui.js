@@ -25,6 +25,14 @@
     }
   }
 
+  function searchRegister(term) {
+    const field = document.getElementById('corr-command-search');
+    const action = document.getElementById('corr-command-search-btn');
+    if (!field || !action) return openCenter(term);
+    field.value = term;
+    action.click();
+  }
+
   function create(tag, className, label) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -89,7 +97,10 @@
     nav.append(button(tr('＋  مراسلة جديدة', '＋  New correspondence'), () => {
       if (!activateExisting('corr-new')) openCenter();
     }));
-    nav.append(button(tr('▤  عرض السجل والبحث', '▤  Search register'), () => openCenter('')));
+    nav.append(button(tr('▤  عرض السجل والبحث', '▤  Search register'), () => {
+      search.focus();
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }));
     nav.append(button(tr('◷  مهامي ومراجعتي', '◷  My work and reviews'), () => openCenter()));
     nav.append(create('div', 'bx-nav-separator'));
     const verification = create('a', '', tr('✓  التحقق من المراسلات', '✓  Correspondence verification'));
@@ -161,10 +172,13 @@
     search.placeholder = tr('ابحث بالرقم أو المستلم أو الموضوع', 'Search number, recipient or subject');
     search.setAttribute('aria-label', tr('البحث في المراسلات', 'Search correspondence'));
     search.addEventListener('keydown', event => {
-      if (event.key === 'Enter') { event.preventDefault(); openCenter(search.value); }
+      if (event.key === 'Enter') { event.preventDefault(); searchRegister(search.value); }
     });
     panel.append(search);
-    panel.append(button(tr('البحث في السجل', 'Search register'), () => openCenter(search.value)));
+    panel.append(button(tr('البحث في السجل', 'Search register'), () => searchRegister(search.value)));
+    const searchResults = create('div', 'bx-search-results');
+    searchResults.setAttribute('aria-live', 'polite');
+    panel.append(searchResults);
     panel.append(create('div', 'bx-note', tr('تظهر المراسلات الحقيقية وحالاتها وصلاحياتها داخل مركز المراسلات. لن تعرض هذه المساحة أرقامًا توضيحية أو تنشئ مراسلات مكررة.', 'Real correspondence records and their permissions remain in the existing command center. No placeholder counts or duplicate messages.')));
 
     const status = create('div', 'bx-status');
@@ -218,6 +232,17 @@
     attachMirror('corr-summary', source => {
       [...source.children].slice(0, metricValues.length).forEach((card, index) => {
         metricValues[index].textContent = card.firstElementChild?.textContent || '—';
+      });
+    });
+    attachMirror('corr-command-results', source => {
+      searchResults.replaceChildren();
+      const results = [...source.children].filter(node => node.tagName === 'BUTTON').slice(0, 10);
+      if (!results.length) {
+        searchResults.textContent = source.textContent.trim();
+        return;
+      }
+      results.forEach(original => {
+        searchResults.append(button(original.textContent.trim(), () => original.click(), 'bx-search-item'));
       });
     });
     attachMirror('corr-my-work', source => {
