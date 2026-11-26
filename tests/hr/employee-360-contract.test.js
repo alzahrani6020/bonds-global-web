@@ -9,7 +9,7 @@ describe('employee 360 existing-workspace read-only contract',()=>{
   expect(directory).toContain("isEmployees?'<button type=\"button\" class=\"secondary\" data-hr-employee-360=");
   for(const lang of ['','en/']){
    const html=read(lang+'my-bonds/crm/index.html');
-   expect(html).toContain('company-hr-employee-360.js?v=1');
+   expect(html).toContain('company-hr-employee-360.js?v=2');
    expect(html).toContain('company-hr.js?v=21');
   }
  });
