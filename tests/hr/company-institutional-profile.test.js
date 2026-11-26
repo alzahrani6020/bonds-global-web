@@ -13,6 +13,15 @@ describe('HR institutional company profile',()=>{
   expect(sql).toMatch(/'hr-company-branding','hr-company-branding',false,2097152/);
   expect(sql).not.toMatch(/\b(drop table|truncate|disable row level security|delete from)\b/i);
  });
+ test('branding RLS explicitly binds the object path, never the company name',()=>{
+  const fix=file('supabase/migrations/20261126082000_hr_branding_storage_owner_rls_fix.sql');
+  expect((fix.match(/ALTER POLICY hr_branding_owner_/g)||[])).toHaveLength(3);
+  expect((fix.match(/storage\\.foldername\\(storage\\.objects\\.name\\)/g)||[])).toHaveLength(4);
+  expect(fix).not.toMatch(/storage\\.foldername\\(c\\.name\\)/);
+  expect(fix).toContain("bucket_id = 'hr-company-branding'");
+  expect(fix).toContain("c.owner_user_id = (SELECT auth.uid())");
+  expect(fix).not.toMatch(/\\b(?:DROP TABLE|TRUNCATE|INSERT INTO|DELETE FROM|ALTER TABLE)\\b/i);
+ });
  test('editor is available in both languages, with protected file type',()=>{
   for(const lang of ['','en/']){
    const html=file(lang+'my-bonds/crm/index.html');
