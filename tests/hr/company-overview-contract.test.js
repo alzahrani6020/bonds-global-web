@@ -79,7 +79,7 @@ describe('remote employee selector for large workspaces',()=>{
 describe('tenant-scoped HR quality indicators',()=>{
  const js=read('my-bonds/crm/company-hr-overview.js');
  test('checks only the existing workspace, with exact read-only counts',()=>{
-  expect(js).toContain("const filtered=metric.kind==='is'?query.is(metric.field,metric.value):query.eq(metric.field,metric.value)");
+  expect(js).toContain("else filtered=metric.kind==='is'?query.is(metric.field,metric.value):query.eq(metric.field,metric.value)");
   expect(js).toContain(".eq('workspace_id',workspaceId)");
   expect(js).toContain("{count:'exact',head:true}");
   expect(js).toContain("Promise.allSettled(quality.map(");
