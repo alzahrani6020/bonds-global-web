@@ -150,8 +150,7 @@
       if (source && source.textContent.trim()) value.textContent = source.textContent.trim();
     };
     const observer = new MutationObserver(updateStatus);
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-    // Observe only until source appears, then reduce observer scope.
+    // Observe only the actual governance status once it is mounted; avoid body observer loops.
     const locateSource = () => {
       const source = document.getElementById('corr-status');
       if (!source) return;
