@@ -306,7 +306,7 @@
    return '<td>'+escape(value??'—')+'</td>';
   }).join('')+(category==='audit'?'':category==='employee_requests'?
     '<td>'+(row.status==='pending'?'<button type="button" class="secondary" data-hr-request-decision="approved" data-hr-request-id="'+escape(row.id)+'">'+t('اعتماد','Approve')+'</button> <button type="button" class="secondary" data-hr-request-decision="rejected" data-hr-request-id="'+escape(row.id)+'">'+t('رفض','Reject')+'</button>':'—')+'</td>':
-    '<td><button type="button" class="secondary" data-hr-edit="'+escape(row.id)+'">'+t('تعديل','Edit')+'</button> '+workflowButtons(row)+'</td>')+'</tr>').join('')||'<tr><td colspan="6">'+t('لا توجد سجلات','No records')+'</td></tr>';
+    '<td><button type="button" class="secondary" data-hr-edit="'+escape(row.id)+'">'+t('تعديل','Edit')+'</button> '+(isEmployees?'<button type="button" class="secondary" data-hr-employee-360="'+escape(row.id)+'">'+t('الملف الموحد','360 profile')+'</button> ':'')+workflowButtons(row)+'</td>')+'</tr>').join('')||'<tr><td colspan="6">'+t('لا توجد سجلات','No records')+'</td></tr>';
   $('hr-count').textContent=isEmployees?String(source.length)+' / '+String(employeeTotal):String(source.length);
  }
  async function load(){
