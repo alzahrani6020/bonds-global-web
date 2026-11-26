@@ -79,7 +79,7 @@ describe('remote employee selector for large workspaces',()=>{
 describe('tenant-scoped HR quality indicators',()=>{
  const js=read('my-bonds/crm/company-hr-overview.js');
  test('checks only the existing workspace, with exact read-only counts',()=>{
-  expect(js).toContain("const filtered=metric.kind==='is'?query.is(metric.field,metric.value):query.eq(metric.field,metric.value)");
+  expect(js).toContain("else filtered=metric.kind==='is'?query.is(metric.field,metric.value):query.eq(metric.field,metric.value)");
   expect(js).toContain(".eq('workspace_id',workspaceId)");
   expect(js).toContain("{count:'exact',head:true}");
   expect(js).toContain("Promise.allSettled(quality.map(");
@@ -92,6 +92,26 @@ describe('tenant-scoped HR quality indicators',()=>{
   expect(js).toContain("document.getElementById('hr-quality-stats').replaceChildren()");
   expect(js).toContain("const qualityRequest=refreshQuality(context,run)");
   expect(js).toContain("if(run!==revision||current!==context)return");
+  expect(js).toContain("val.textContent=outcomes[i].status==='fulfilled'?String(outcomes[i].value):'—'");
+ });
+});
+
+describe('contract and probation expiry operational alerts',()=>{
+ const js=read('my-bonds/crm/company-hr-overview.js');
+ test('uses Riyadh date boundaries without changing contracts',()=>{
+  expect(js).toContain("timeZone:'Asia/Riyadh'");
+  expect(js).toContain("new Date(Date.UTC(year,month-1,day))");
+  expect(js).toContain("today.getTime()+30*24*60*60*1000");
+  expect(js).toContain("filtered=query.eq('status',metric.state).gte(metric.field,today).lte(metric.field,end)");
+  for(const field of ["field:'end_date'","field:'probation_end_date'"]){
+   expect(js).toContain(field);
+  }
+  expect(js).toContain("state:'active'");
+  expect(js).toContain(".eq('workspace_id',workspaceId)");
+  expect(js).not.toMatch(/\.insert\(|\.update\(|\.delete\(/);
+ });
+ test('links only to existing contracts workflow and handles unknown counts',()=>{
+  expect(js).toContain("link:'contracts'");
   expect(js).toContain("val.textContent=outcomes[i].status==='fulfilled'?String(outcomes[i].value):'—'");
  });
 });
