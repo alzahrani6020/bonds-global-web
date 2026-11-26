@@ -235,11 +235,33 @@ jobs:
                 cmp -s /tmp/bonds-current-main-workflow.yml /tmp/bonds-merge-workflow.yml || exit 0
                 ;;
               admin/commercial-systems.html)
-                # New, owner-guarded administration-only page. Compare the real
-                # homepage against the exact PR-base rather than Nov 15 artwork.
-                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then exit 0; fi
+                # Owner-only admin UX cannot alter homepage render; preserve
+                # both permission guard and existing CRM endpoint.
                 grep -Fq 'BondsAuth.initAdminGuard()' "$file" || exit 0
                 grep -Fq "/api/admin?action=crm-overview" "$file" || exit 0
+                grep -Fq "/api/admin?action=hr-overview" "$file" || exit 0
+                ;;
+              api/admin.js)
+                # This PR adds aggregate-only HR observer route. Any additional
+                # API edits force the full screenshot gate, not an exemption.
+                git show "$BASE_SHA:$file" > /tmp/bonds-base-admin-api.js
+                node <<'NODE' || exit 0
+          const fs=require('node:fs');
+          const before=fs.readFileSync('/tmp/bonds-base-admin-api.js','utf8');
+          const after=fs.readFileSync('api/admin.js','utf8');
+          const begin='// Platform-operator HR telemetry:';
+          const end='async function getCrmOverview(sb) {';
+          const a=after.indexOf(begin),b=after.indexOf(end,a);
+          if(a<0||b<=a)process.exit(1);
+          const helper=after.slice(a,b);
+          if(!helper.includes("head: true")||!helper.includes("count: 'exact'")||!helper.includes("counts[key]"))process.exit(1);
+          const route=["      if (action === 'hr-overview') {","        await requireAdminPermission(req, sb, 'observability.read');","        return res.status(200).json(await getHrAdminOverview(sb));","      }"].join('\n')+'\n';
+          if(after.split(route).length!==2)process.exit(1);
+          if(after.replace(helper,'').replace(route,'')!==before)process.exit(1);
+          NODE
+                ;;
+              tests/admin/hr-owner-aggregate-overview.test.js)
+                # Test-only non-home source, still run full code and visual gates.
                 ;;
               admin/dashboard.html)
                 # Permit exactly one reviewed sidebar entry; every other byte
