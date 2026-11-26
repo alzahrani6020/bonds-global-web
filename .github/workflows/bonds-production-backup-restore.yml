@@ -96,7 +96,7 @@ jobs:
         with:
           name: bonds-production-encrypted-backup-${{ github.run_id }}
           path: ${{ runner.temp }}/bonds-backup/production.dump.age
-          retention-days: 1
+          retention-days: 30
           if-no-files-found: error
       - name: Disable temporary database login and scrub temporary credentials
         if: always()
