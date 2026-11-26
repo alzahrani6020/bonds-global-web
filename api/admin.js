@@ -2640,6 +2640,37 @@ async function getSubscriptions(sb, params = {}) {
 }
 
 // ── CRM Operations ──────────────────────────────────────────
+// Platform-operator HR telemetry: aggregate counts only. Permission-gated in GET router.
+// Never return employee, membership, invitation or company profile rows here.
+async function getHrAdminOverview(sb) {
+  const specs = [
+    { key: 'workspaces', table: 'hr_saas_workspaces', column: 'id' },
+    { key: 'employees', table: 'hr_saas_employees', column: 'id' },
+    { key: 'memberships', table: 'hr_saas_memberships', column: 'id' },
+    { key: 'companyProfiles', table: 'hr_company_profiles', column: 'crm_workspace_id' },
+    { key: 'pendingInvitations', table: 'hr_saas_invitations', column: 'id', status: 'pending' },
+    { key: 'pendingLeaves', table: 'hr_saas_leave_requests', column: 'id', status: 'pending' },
+    { key: 'draftPayrollPeriods', table: 'hr_saas_payroll_periods', column: 'id', status: 'draft' }
+  ];
+  const results = await Promise.allSettled(specs.map(async spec => {
+    let query = sb.from(spec.table).select(spec.column, { count: 'exact', head: true });
+    if (spec.status) query = query.eq('status', spec.status);
+    const result = await query;
+    if (result.error) throw result.error;
+    if (!Number.isInteger(result.count) || result.count < 0) throw Error('HR_COUNT_UNAVAILABLE');
+    return result.count;
+  }));
+  const counts = {};
+  const unavailable = [];
+  for (let i = 0; i < specs.length; i++) {
+    const result = results[i];
+    const key = specs[i].key;
+    counts[key] = result.status === 'fulfilled' ? result.value : null;
+    if (result.status !== 'fulfilled') unavailable.push(key);
+  }
+  return { success: true, generatedAt: new Date().toISOString(), counts, unavailable, degraded: unavailable.length > 0 };
+}
+
 async function getCrmOverview(sb) {
   const [
     orgsRes,
@@ -5686,6 +5717,10 @@ async function handler(req, res) {
       if (action === 'support-ticket-detail') {
         await requireAdminPermission(req, sb, 'support.manage');
         return res.status(200).json(await getSupportTicketDetail(sb, req.query?.ticket_id));
+      }
+      if (action === 'hr-overview') {
+        await requireAdminPermission(req, sb, 'observability.read');
+        return res.status(200).json(await getHrAdminOverview(sb));
       }
       if (action === 'crm-overview') {
         await requireAdminPermission(req, sb, 'crm.read');
