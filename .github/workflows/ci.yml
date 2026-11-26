@@ -234,6 +234,31 @@ jobs:
                 git show "HEAD:$file" > /tmp/bonds-merge-workflow.yml || exit 0
                 cmp -s /tmp/bonds-current-main-workflow.yml /tmp/bonds-merge-workflow.yml || exit 0
                 ;;
+              admin/commercial-systems.html)
+                # New, owner-guarded administration-only page. Compare the real
+                # homepage against the exact PR-base rather than Nov 15 artwork.
+                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then exit 0; fi
+                grep -Fq 'BondsAuth.initAdminGuard()' "$file" || exit 0
+                grep -Fq "/api/admin?action=crm-overview" "$file" || exit 0
+                ;;
+              admin/dashboard.html)
+                # Permit exactly one reviewed sidebar entry; every other byte
+                # of the owner's existing dashboard must match the PR base.
+                git show "$BASE_SHA:$file" > /tmp/bonds-base-owner-dashboard.html
+                node <<'NODE'
+          const fs=require('node:fs');
+          const base=fs.readFileSync('/tmp/bonds-base-owner-dashboard.html','utf8');
+          const head=fs.readFileSync('admin/dashboard.html','utf8');
+          const added=[
+          '        <div class="nav-label">الأنظمة التجارية</div>',
+          '        <button class="sidebar-link" data-target="/admin/commercial-systems.html?embed=1" data-title="مراقبة HR وCRM">',
+          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 12h4l2-4 3 8 2-4"/></svg>',
+          '          <span>مراقبة HR وCRM</span>',
+          '        </button>',
+          ].join('\n')+'\n';
+          if(head.split(added).length!==2 || head.replace(added,'')!==base)process.exit(1);
+          NODE
+                ;;
               tests/v3/revert-service-request-context.test.js)
                 # This file is exclusively a Node/Jest assertion suite;
                 # changes cannot alter rendered homepage assets. The full
