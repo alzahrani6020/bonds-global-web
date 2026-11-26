@@ -10,7 +10,7 @@ describe('employee 360 existing-workspace read-only contract',()=>{
   for(const lang of ['','en/']){
    const html=read(lang+'my-bonds/crm/index.html');
    expect(html).toContain('company-hr-employee-360.js?v=1');
-   expect(html).toContain('company-hr.js?v=20');
+   expect(html).toContain('company-hr.js?v=21');
   }
  });
  test('all detail reads enforce company and employee IDs while database RLS remains mandatory',()=>{
