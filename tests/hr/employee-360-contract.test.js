@@ -9,7 +9,7 @@ describe('employee 360 existing-workspace read-only contract',()=>{
   expect(directory).toContain("isEmployees?'<button type=\"button\" class=\"secondary\" data-hr-employee-360=");
   for(const lang of ['','en/']){
    const html=read(lang+'my-bonds/crm/index.html');
-   expect(html).toContain('company-hr-employee-360.js?v=1');
+   expect(html).toContain('company-hr-employee-360.js?v=2');
    expect(html).toContain('company-hr.js?v=21');
   }
  });
@@ -34,5 +34,16 @@ describe('employee 360 existing-workspace read-only contract',()=>{
   expect(code).toContain("if(response.error||!response.data||response.data.id!==employeeId)");
   expect(code).toContain("body.textContent=label('تعذر التحقق من ملف الموظف أو صلاحية الوصول'");
   expect(code).toContain('Promise.allSettled(sections.map');
+ });
+});
+
+describe('employee 360 audit actor/timestamp history',()=>{
+ test('reads immutable-to-authenticated audit entries for selected employee, not other workspace rows',()=>{
+  expect(code).toContain("context.db.from('hr_saas_audit')");
+  expect(code).toContain(".select('created_at,action,actor_user_id')");
+  expect(code).toContain(".eq('workspace_id',wid).eq('entity','hr_saas_employees')");
+  expect(code).toContain(".eq('entity_id',employeeId).order('created_at',{ascending:false}).limit(20)");
+  expect(code).toContain("if(run!==revision||window.BondsHRContext?.ownerWorkspace?.id!==wid)return");
+  expect(code).not.toContain("changed_columns");
  });
 });

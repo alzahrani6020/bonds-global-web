@@ -93,6 +93,15 @@ async function open(employeeId){
   const outcome=results[i];
   group(sections[i].title,outcome.status==='fulfilled'?outcome.value:null,sections[i].view);
  }
+ // The audit ledger is append-only for authenticated clients and is scoped
+ // to this employee's own record; it does not expose sensitive field values.
+ const audit=await context.db.from('hr_saas_audit')
+  .select('created_at,action,actor_user_id')
+  .eq('workspace_id',wid).eq('entity','hr_saas_employees')
+  .eq('entity_id',employeeId).order('created_at',{ascending:false}).limit(20);
+ if(run!==revision||window.BondsHRContext?.ownerWorkspace?.id!==wid)return;
+ group(label('سجل تغييرات الملف الوظيفي','Employee file change history'),
+  audit.error?null:(audit.data||[]),['created_at','action','actor_user_id']);
  const footer=document.createElement('p');footer.className='muted';
  footer.textContent=label('يعرض أحدث 20 سجلًا في كل قسم؛ لا يشكّل كشفًا تاريخيًا كاملًا أو سجل تدقيق غير قابل للتغيير.','Latest 20 records per category. This is not a complete historical or immutable audit ledger.');
  body.append(footer);
