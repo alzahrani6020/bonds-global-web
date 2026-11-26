@@ -234,11 +234,10 @@ jobs:
                 cmp -s /tmp/bonds-main-backup-alert.yml /tmp/bonds-merge-backup-alert.yml || exit 0
                 ;;
               .github/workflows/bonds-production-backup-restore.yml)
-                # GitHub tests a synthetic merge commit that contains files
-                # added to main after the PR branch diverged. This workflow
-                # may be treated as main-only only when absent at the PR base
-                # and byte-identical to the current main version.
-                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then exit 0; fi
+                # This workflow was updated on main after the PR diverged.
+                # Treat it as inherited main-only ONLY if the synthetic merge
+                # reproduces current main byte-for-byte. Any PR divergence
+                # still forces full immutable visual snapshot comparison.
                 git fetch --no-tags --depth=1 origin main
                 git show "FETCH_HEAD:$file" > /tmp/bonds-current-main-workflow.yml || exit 0
                 git show "HEAD:$file" > /tmp/bonds-merge-workflow.yml || exit 0
