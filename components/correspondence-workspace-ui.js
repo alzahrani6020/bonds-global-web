@@ -115,6 +115,18 @@
     const documentArea = create('div', 'bx-document-area');
     editor.append(toolbar, documentArea);
     documentArea.append(pages);
+    // The existing correspondence engine can mount its governance bar before or
+    // after DOMContentLoaded. Keep it in the editor in both execution orders.
+    const relocateGovernance = () => {
+      const governance = document.getElementById('correspondence-governance');
+      if (!governance) return false;
+      if (governance.parentElement !== editor) editor.insertBefore(governance, toolbar);
+      return true;
+    };
+    const governanceObserver = new MutationObserver(() => {
+      if (relocateGovernance()) governanceObserver.disconnect();
+    });
+    if (!relocateGovernance()) governanceObserver.observe(document.body, { childList: true, subtree: true });
 
     const panel = create('aside', 'bx-panel');
     panel.setAttribute('aria-label', tr('سجل المراسلات', 'Correspondence register'));
