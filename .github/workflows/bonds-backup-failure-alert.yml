@@ -1,0 +1,48 @@
+name: BONDS Backup and Restore Failure Alert
+
+on:
+  workflow_run:
+    workflows:
+      - BONDS Production Encrypted Backup and Restore Gate
+    types:
+      - completed
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+jobs:
+  alert:
+    if: ${{ github.event.workflow_run.conclusion != 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RUN_ID: ${{ github.event.workflow_run.id }}
+      RUN_URL: ${{ github.event.workflow_run.html_url }}
+      RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+    steps:
+      - name: Create assigned issue for failed backup or restore
+        shell: bash
+        run: |
+          set -euo pipefail
+          title="[BONDS Backup Alert] Run #${RUN_ID} did not succeed"
+
+          # A replayed workflow_run event must not create another alert.
+          existing="$(gh issue list --repo "$GH_REPO" --state all --limit 100 --search "${RUN_ID} in:title" --json title --jq '.[].title' | grep -Fx "$title" || true)"
+          if [[ -n "$existing" ]]; then
+            echo "PASS: alert issue already exists for run ${RUN_ID}"
+            exit 0
+          fi
+
+          # Fetch only job/step conclusions, never logs or database secrets.
+          failed_steps="$(gh api "repos/${GH_REPO}/actions/runs/${RUN_ID}/jobs?per_page=100" --jq '[.jobs[] | .name as $job | .steps[]? | select(.conclusion == "failure" or .conclusion == "timed_out" or .conclusion == "cancelled") | "\($job): \(.name) [\(.conclusion)]"] | join("\n")')"
+          if [[ -z "$failed_steps" ]]; then
+            failed_steps="No failed step reported (run may have been cancelled or timed out)."
+          fi
+
+          printf -v body 'Production backup/restore gate did not succeed.\n\nRun: %s\nConclusion: %s\n\nAffected steps:\n%s\n\nAction: inspect the linked run; do not rotate keys or retry before identifying the cause.\n' "$RUN_URL" "$RUN_CONCLUSION" "$failed_steps"
+          gh issue create --repo "$GH_REPO" --title "$title" --body "$body" --assignee alzahrani6020
+          echo "PASS: backup failure alert issue opened and assigned"
