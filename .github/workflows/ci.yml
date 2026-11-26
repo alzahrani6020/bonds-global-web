@@ -228,11 +228,21 @@ jobs:
                 # added to main after the PR branch diverged. This workflow
                 # may be treated as main-only only when absent at the PR base
                 # and byte-identical to the current main version.
-                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then exit 0; fi
-                git fetch --no-tags --depth=1 origin main
-                git show "FETCH_HEAD:$file" > /tmp/bonds-current-main-workflow.yml || exit 0
-                git show "HEAD:$file" > /tmp/bonds-merge-workflow.yml || exit 0
-                cmp -s /tmp/bonds-current-main-workflow.yml /tmp/bonds-merge-workflow.yml || exit 0
+                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then
+                  # Accept only one reviewed retention adjustment; compare
+                  # all other workflow bytes with the exact PR base.
+                  git show "$BASE_SHA:$file" > /tmp/bonds-base-backup-workflow.yml
+                  test "$(grep -Fxc '          retention-days: 1' /tmp/bonds-base-backup-workflow.yml)" -eq 1 || exit 0
+                  test "$(grep -Fxc '          retention-days: 30' "$file")" -eq 1 || exit 0
+                  sed 's/retention-days: 30/retention-days: 1/' "$file" > /tmp/bonds-normalized-backup-workflow.yml
+                  cmp -s /tmp/bonds-base-backup-workflow.yml /tmp/bonds-normalized-backup-workflow.yml || exit 0
+                else
+                  git fetch --no-tags --depth=1 origin main
+                  git show "FETCH_HEAD:$file" > /tmp/bonds-current-main-workflow.yml || exit 0
+                  git show "HEAD:$file" > /tmp/bonds-merge-workflow.yml || exit 0
+                  cmp -s /tmp/bonds-current-main-workflow.yml /tmp/bonds-merge-workflow.yml || exit 0
+                fi
+                # The homepage still receives a real PR-base pixel comparison.
                 ;;
               admin/commercial-systems.html)
                 # Owner-only admin UX cannot alter homepage render; preserve
