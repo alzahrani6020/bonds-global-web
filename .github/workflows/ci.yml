@@ -223,7 +223,7 @@ jobs:
                 git show "HEAD:$file" > /tmp/bonds-merge-correspondence-file || exit 0
                 cmp -s /tmp/bonds-main-correspondence-file /tmp/bonds-merge-correspondence-file || exit 0
                 ;;
-              .github/workflows/bonds-backup-failure-alert.yml)
+              .github/workflows/bonds-backup-*.yml)
                 # Only allow a main-only workflow inherited unmodified by
                 # GitHub's synthetic merge; unrelated edits still require
                 # the full immutable homepage visual gate.
