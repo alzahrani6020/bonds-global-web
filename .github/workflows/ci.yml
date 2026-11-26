@@ -270,8 +270,8 @@ jobs:
           if(after.replace(helper,'').replace(route,'')!==before)process.exit(1);
           NODE
                 ;;
-              tests/admin/hr-owner-aggregate-overview.test.js)
-                # Test-only non-home source, still run full code and visual gates.
+              tests/admin/hr-owner-aggregate-overview.test.js|tests/admin/dashboard-correspondence-workspace-link.test.js)
+                # Test-only non-home source; the unit suite runs the link contract.
                 ;;
               admin/dashboard.html)
                 # Permit exactly one reviewed sidebar entry; every other byte
