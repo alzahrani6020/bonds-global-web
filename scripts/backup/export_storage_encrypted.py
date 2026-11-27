@@ -19,8 +19,7 @@ from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 PROJECT = "hutxsqzplyuqgnghsrcs"
-BUCKETS = ("avatars", "client-documents", "client-documents-quarantine",
-           "correspondence-artifacts", "hr-company-branding")
+
 MAX_OBJECTS = 100000
 MAX_TOTAL_BYTES = 2 * 1024 ** 3
 PAGE_SIZE = 100
@@ -34,6 +33,23 @@ def request_json(url, key, payload):
     })
     with urlopen(req, timeout=45) as response:
         return json.load(response)
+
+
+def list_buckets(base, key):
+    """Discover every production bucket; never silently omit new buckets."""
+    req = Request(base + "/storage/v1/bucket", method="GET", headers={
+        "apikey": key, "Authorization": "Bearer " + key
+    })
+    with urlopen(req, timeout=45) as response:
+        entries = json.load(response)
+    if not isinstance(entries, list) or not entries:
+        raise RuntimeError("missing or invalid bucket inventory")
+    names = [item.get("id") for item in entries if isinstance(item, dict)]
+    if len(names) != len(entries) or any(not isinstance(n, str) or not n for n in names):
+        raise RuntimeError("invalid bucket identifier")
+    if len(names) != len(set(names)):
+        raise RuntimeError("duplicate bucket identifier")
+    return sorted(names)
 
 
 def inventory_bucket(base, key, bucket):
@@ -85,9 +101,9 @@ def inventory_bucket(base, key, bucket):
     return result
 
 
-def inventory(base, key):
+def inventory(base, key, buckets):
     objects = []
-    for bucket in BUCKETS:
+    for bucket in buckets:
         objects.extend(inventory_bucket(base, key, bucket))
     objects.sort(key=lambda x: (x["bucket"], x["path"]))
     if not objects:
@@ -127,12 +143,13 @@ def produce(base, key, recipient, destination, run_id):
         raise RuntimeError("refuse to overwrite encrypted archive")
     if not destination.parent.is_dir():
         raise RuntimeError("destination parent missing")
-    starting = inventory(base, key)
+    buckets = list_buckets(base, key)
+    starting = inventory(base, key, buckets)
     with tempfile.TemporaryDirectory(prefix="bonds-storage-", dir=os.getenv("RUNNER_TEMP")) as tmp:
         tmpdir = Path(tmp)
         (tmpdir / "blobs").mkdir()
         manifest = {"format": "bonds-storage-v1", "project": PROJECT,
-                    "run_id": run_id, "objects": []}
+                    "run_id": run_id, "buckets": buckets, "objects": []}
         for index, item in enumerate(starting):
             blob_name = "%08d" % index
             length, sha = download(base, key, item["bucket"], item["path"],
@@ -143,7 +160,7 @@ def produce(base, key, recipient, destination, run_id):
             manifest["objects"].append({**item, "blob": "blobs/" + blob_name,
                                         "sha256": sha})
         # A second listing detects added/deleted/changed object metadata.
-        if inventory(base, key) != starting:
+        if list_buckets(base, key) != buckets or inventory(base, key, buckets) != starting:
             raise RuntimeError("inventory changed during export: reject inconsistent snapshot")
         (tmpdir / "manifest.json").write_text(
             json.dumps(manifest, sort_keys=True, ensure_ascii=False, indent=2),
