@@ -4,6 +4,16 @@
 
 This runbook covers encrypted PostgreSQL backup custody, audit evidence and isolated disaster recovery testing. No live database mutation is authorized by this document. **The presence of code, a CI success, or a manual backup does not prove scheduled operation.** Do not store private AGE identities or unlock passphrases in this repository, CI artifacts, shared logs or public issue bodies.
 
+## BONDS production architecture boundaries (verified 2026-11-27)
+
+- **Vercel** hosts the BONDS web application and API. Confirmed linked Vercel project: `bonds-global-web` (project `prj_djffUO1KXbGKtumZBWsziWxqJ6Qk`, team `DR Talal`). The Vercel response reported `live=false`, no domains in the project response, and a most recent deployment with `READY`; **do not infer which public production domain is live from this alone**.
+- **Supabase** holds BONDS production data: project reference `hutxsqzplyuqgnghsrcs`. Do not point recovery tests or temporary databases at production.
+- **GitHub** owns source, CI, approved encrypted backup/isolated restore workflow and watchdog. Only an actual `event=schedule` execution satisfies schedule acceptance; manual runs and merged commits cannot substitute.
+- **Independent encrypted custody** is a separate recovery storage failure domain selected and approved explicitly; no backup or private key may be copied to an unrelated application workspace by default.
+- **Render is not part of the approved BONDS deployment topology.** Do not deploy a BONDS worker, cron job or database to Render, SCC380 or AFAQ merely because another project's resources are available.
+- Current `vercel.json` on `main` already declares eight application cron entries. **Before adding a new Vercel Cron**, inventory those entries, verify the intended BONDS project, Git commit, plan quota, runtime/API authentication, failure alert path and independent acceptance. Vercel Cron could monitor GitHub dispatch, but must not itself count as an independent off-platform data copy or a verified disaster recovery test.
+- Project deployment configuration changes must use a scoped PR with CI validation and a verified Vercel preview/production release path. No new paid services, credentials, database changes or deployment are authorized by this runbook.
+
 ## Read-only operational reference
 
 - Production Supabase project identity: `hutxsqzplyuqgnghsrcs` (check current identity before any action).
