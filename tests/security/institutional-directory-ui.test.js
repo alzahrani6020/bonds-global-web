@@ -4,6 +4,7 @@ const path=require('path');
 const root=path.resolve(__dirname,'../..');
 const page=fs.readFileSync(path.join(root,'institutional-directory.html'),'utf8');
 const client=fs.readFileSync(path.join(root,'components/institutional-directory-ui.js'),'utf8');
+const english=fs.readFileSync(path.join(root,'en/institutional-directory.html'),'utf8');
 const correspondence=fs.readFileSync(path.join(root,'components/correspondence-workspace-ui.js'),'utf8');
 describe('Institutional directory presentation cannot bypass tenant API',()=>{
  test('is discoverable from correspondence without replacing its governed actions',()=>{
@@ -32,4 +33,13 @@ describe('Institutional directory presentation cannot bypass tenant API',()=>{
   expect(client).not.toMatch(/\.insert\(|\.update\(|\.delete\(|method:\s*'POST'/);
   expect(page).not.toContain('data-demo=');
  });
+ test('has a genuine English counterpart and language-sensitive status messages',()=>{
+  expect(english).toContain('lang="en" dir="ltr"');
+  expect(english).toContain('id="directory-form"');
+  expect(english).toContain('Institutional Directory');
+  expect(english).not.toMatch(/[\u0600-\u06FF]/);
+  expect(client).toContain("document.documentElement.lang === 'en'");
+  expect(client).toContain('Displayed records: ');
+ });
+
 });
