@@ -1966,6 +1966,7 @@ function render(){
  renderFinancialOperationalInputs();
  renderStudiesOperationalInputs();
  renderFinancialIntake();
+ if(serviceCode==='financial_analysis')restoreSavedFinancialResult({silent:true});
  bindFinancialChoiceControls();
  restoreWorkspaceDraft();
  renderFeasibilityControls();
@@ -2014,7 +2015,7 @@ function renderFinancialIntake(){
      '<label><input type="radio" name="__intake_mode" value="manual"> '+escapeHtml(T.manual)+'</label>'+
    '</div>'+
    '<div id="srIntakeFileWrap"><input id="srIntakeFile" type="file" accept=".pdf,.xlsx,.xls,.csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"><div class="sr-muted">'+escapeHtml(T.chooseFile)+'</div>'+
-    (serviceCode==='financial_analysis'?'<div class="sr-saved-reanalysis"><button type="button" id="srReprocessSavedFile" class="sr-secondary">'+escapeHtml(lang==='ar'?'إعادة تحليل آخر ملف محفوظ':'Reanalyze latest saved document')+'</button><small>'+escapeHtml(lang==='ar'?'ينشئ نسخة جديدة دون استبدال سجل التحليل السابق.':'Creates a new version without replacing the prior analysis record.')+'</small></div>':'')+
+    (serviceCode==='financial_analysis'?'<div class="sr-saved-reanalysis"><button type="button" id="srShowSavedFinancialResult" class="sr-secondary">'+escapeHtml(lang==='ar'?'عرض آخر تحليل مالي محفوظ':'View latest saved financial analysis')+'</button><button type="button" id="srReprocessSavedFile" class="sr-secondary">'+escapeHtml(lang==='ar'?'إعادة تحليل آخر ملف محفوظ':'Reanalyze latest saved document')+'</button><small>'+escapeHtml(lang==='ar'?'يمكن عرض التقرير المحفوظ دون إعادة رفع الملف أو تشغيل الحسابات.':'View your saved report without uploading or recalculating.')+'</small></div>':'')+
    '</div>'+
    '<div id="srIntakeReview"></div>';
  if(serviceCode==='financial_analysis'){
@@ -2080,6 +2081,7 @@ function renderFinancialIntake(){
    document.head.appendChild(script);
   }
  }
+ panel.querySelector('#srShowSavedFinancialResult')?.addEventListener('click',()=>restoreSavedFinancialResult({scroll:true}));
  panel.querySelector('#srReprocessSavedFile')?.addEventListener('click',reprocessLatestSavedFinancialFile);
  panel.querySelectorAll('input[name="__intake_mode"]').forEach(radio=>radio.addEventListener('change',()=>{
    intakeMode=radio.value;
@@ -2322,6 +2324,60 @@ async function uploadIntakeFile(sb,user){
  if(error)throw error;
  intakeUploadedPath=path;
  return {storage_path:path,file_name:file.name,mime_type:mime,size_bytes:file.size};
+}
+async function restoreSavedFinancialResult({scroll=false,silent=false}={}){
+ if(serviceCode!=='financial_analysis'||intakeDatasetId)return false;
+ const button=$('#srShowSavedFinancialResult');
+ if(button)button.disabled=true;
+ try{
+  await window.BondsAuth.ensureEnv();
+  const user=(await window.BondsAuth.getUser()).data?.user;
+  if(!user){if(!silent)throw new Error(T.login);return false;}
+  const sb=window.BondsAuth.getSupabase();
+  const projectId=params.get('project_id')||null;
+  const clientId=params.get('client_id')||null;
+  let query=sb.from('financial_datasets')
+   .select('id,dataset_version,source_file_name,status,approval_status,quality_status,reviewed_values,field_provenance,validation,execution_result,last_executed_at')
+   .eq('user_id',user.id)
+   .eq('service_code','financial_analysis')
+   .eq('status','executed')
+   .eq('approval_status','approved')
+   .is('deleted_at',null);
+  query=projectId?query.eq('project_id',projectId):query.is('project_id',null);
+  query=clientId?query.eq('client_id',clientId):query.is('client_id',null);
+  const {data,error}=await query.order('last_executed_at',{ascending:false}).limit(1).maybeSingle();
+  if(error)throw new Error(lang==='ar'?'تعذر قراءة نتائج التحليل المحفوظ من حسابك.':'Could not read your saved analysis.');
+  const stored=data?.execution_result;
+  if(!data||stored?.executed!==true||!stored.metrics||typeof stored.metrics!=='object'||
+    !Object.values(stored.metrics).some(value=>typeof value==='number'&&Number.isFinite(value))){
+   if(!silent)throw new Error(lang==='ar'?'لا يوجد تقرير مالي منفذ ومحفوظ في مساحة العمل الحالية.':'No completed financial report was found in this workspace.');
+   return false;
+  }
+  const evidence=stored.dataset||{};
+  const payload={...stored,dataset:{
+   ...evidence,
+   dataset_id:data.id,
+   dataset_version:data.dataset_version,
+   inputs_used:evidence.inputs_used||data.reviewed_values||{},
+   field_provenance:evidence.field_provenance||data.field_provenance?.fields||[],
+   validation:data.validation||{}
+  },dataset_persistence:{status:'saved',dataset_id:data.id,verified:true}};
+  renderExecutionResult(payload);
+  const result=$('#srExecutionResult');
+  if(result){
+   result.setAttribute('aria-label',lang==='ar'?'التحليل المالي المحفوظ':'Saved financial analysis');
+   result.querySelector('h2')?.insertAdjacentHTML('afterend','<p class="sr-muted">'+escapeHtml(
+    (lang==='ar'?'ملف المصدر: ':'Source: ')+(data.source_file_name||'—')+
+    ' · '+(lang==='ar'?'نسخة ':'Version ')+data.dataset_version+
+    (data.quality_status==='unverified'?(lang==='ar'?' · بيانات المصدر غير معتمدة':' · Source not independently verified'):'')
+   )+'</p>');
+   if(scroll)result.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  return true;
+ }catch(error){
+  if(!silent)showStatus(String(error?.message||error),false);
+  return false;
+ }finally{if(button)button.disabled=false;}
 }
 async function reprocessLatestSavedFinancialFile(){
  if(serviceCode!=='financial_analysis'||submitting)return;
@@ -2787,7 +2843,8 @@ function renderExecutionResult(payload, executedInputs={}){
   box=document.createElement('section');
   box.id='srExecutionResult';
   box.className='sr-card';
-  $('#srRequestForm').insertAdjacentElement('afterend',box);
+  if(serviceCode==='financial_analysis')$('#srRequestForm').insertAdjacentElement('beforebegin',box);
+  else $('#srRequestForm').insertAdjacentElement('afterend',box);
  }
  const result=payload?.result||{};
  const metrics=result.metrics||payload?.metrics||{};
