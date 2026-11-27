@@ -1784,11 +1784,57 @@ function showStatus(msg,ok){
 }
 function contextQuery(){const p=new URLSearchParams();for(const k of ['country','sector','activity']){const v=params.get(k);if(v)p.set(k,v)}return p.toString()}
 function renderList(id,items,fn){const el=$(id);if(!el)return;el.innerHTML=items.length?'<ul class="sr-list">'+items.map(fn).join('')+'</ul>':'<div class="sr-empty">—</div>'}
+// Use accessible suggestion lists without changing the server field keys or
+// restricting previously entered values. This covers both API form schemas.
+function financialFriendlyField(field, rawLabel, requiredLabel) {
+ if(serviceCode!=='financial_analysis')return null;
+ const key=String(field.field_key||'');
+ const label=String(rawLabel||'');
+ const normalized=label.toLowerCase().replace(/\s+/g,' ').trim();
+ const isPeriod=/(الفترة محل التحليل|سنة التحليل|analysis period|period under analysis|financial period)/i.test(normalized) ||
+  /^(analysis_period|financial_period|period_under_analysis|reporting_period)$/.test(key);
+ const isGoal=/(هدف التحليل|الغرض من التحليل|analysis (goal|objective|purpose)|purpose of analysis)/i.test(normalized) ||
+  /^(analysis_goal|analysis_objective|analysis_purpose|financial_analysis_goal)$/.test(key);
+ const isNotes=/(ملاحظات إضافية|ملاحظات اخرى|additional notes|other notes)/i.test(normalized) ||
+  /^(additional_notes|analysis_notes)$/.test(key);
+ if(!isPeriod&&!isGoal&&!isNotes)return null;
+ const safeKey=escapeHtml(key);
+ const required=field.is_required?' required':'';
+ const desc=(isPeriod
+  ?(lang==='ar'?'اختر السنة أو اكتب الفترة كما تظهر في القوائم المالية.':'Select a year or enter the reporting period as shown in your statements.')
+  :(lang==='ar'?'اختر الهدف الأقرب، ويمكنك كتابة هدف آخر.':'Select a goal or type a different one.'));
+ if(isNotes && !field.is_required){
+  return '<details class="sr-friendly-notes sr-field full"><summary>'+
+   (lang==='ar'?'تفاصيل أو تعليمات إضافية (اختياري)':'Additional details or instructions (optional)')+
+   '</summary><label for="srFriendlyNotes_'+safeKey+'">'+escapeHtml(label)+'</label>'+
+   '<textarea id="srFriendlyNotes_'+safeKey+'" name="'+safeKey+'" rows="3" placeholder="'+
+   escapeHtml(lang==='ar'?'اكتب أي أمر خاص تريد مراعاته في التحليل':'Any special context for the analysis')+
+   '"></textarea></details>';
+ }
+ const choices=isPeriod
+  ?Array.from({length:12},(_,i)=>String(new Date().getFullYear()+1-i))
+  :(lang==='ar'
+   ?['تحليل مالي شامل','تحليل المركز المالي والسيولة','تحليل الإيرادات والأرباح','تحليل التدفقات النقدية','تقييم الملاءة والقدرة على السداد','مقارنة الأداء المالي بين الفترات']
+   :['Comprehensive financial analysis','Financial position and liquidity','Revenue and profitability','Cash flow analysis','Solvency and debt capacity','Period-on-period comparison']);
+ const listId='srFriendlyOptions_'+safeKey;
+ return '<div class="sr-field sr-friendly-choice"><label for="srFriendlyInput_'+safeKey+'">'+
+  escapeHtml(isPeriod?(lang==='ar'?'ما الفترة التي تريد تحليلها؟':'Which period do you want to analyze?'):
+   (lang==='ar'?'ما الذي تريد معرفته عن الوضع المالي؟':'What do you want to know about the financial position?'))+
+  ' <small>('+escapeHtml(requiredLabel)+')</small></label>'+
+  '<input id="srFriendlyInput_'+safeKey+'" name="'+safeKey+'" list="'+listId+'"'+required+
+  ' autocomplete="off" placeholder="'+escapeHtml(isPeriod
+    ?(lang==='ar'?'اختر السنة أو اكتب فترة أخرى':'Choose a year or enter another period')
+    :(lang==='ar'?'اختر من المقترحات أو اكتب هدفك':'Choose a suggestion or enter your goal'))+'">'+
+  '<datalist id="'+listId+'">'+choices.map(value=>'<option value="'+escapeHtml(value)+'"></option>').join('')+
+  '</datalist><small class="sr-friendly-help">'+escapeHtml(desc)+'</small></div>';
+}
 function renderRequestProfileField(field){
  const key=escapeHtml(field.field_key),label=escapeHtml(lang==='ar'?(field.label_ar||field.label_en||field.field_key):(field.label_en||field.label_ar||field.field_key));
  const req=field.is_required?' required':'';
  const reqLabel=field.is_required?T.required:T.optional;
  const placeholder=escapeHtml(lang==='ar'?(field.placeholder_ar||''):(field.placeholder_en||''));
+ const friendly=financialFriendlyField(field,label,reqLabel);
+ if(friendly)return friendly;
  if(field.field_type==='textarea')return '<div class="sr-field full"><label>'+label+' <small>('+reqLabel+')</small></label><textarea name="'+key+'"'+req+' placeholder="'+placeholder+'"></textarea></div>';
  return '<div class="sr-field"><label>'+label+' <small>('+reqLabel+')</small></label><input type="text" name="'+key+'"'+req+' placeholder="'+placeholder+'"></div>';
 }
@@ -1857,6 +1903,8 @@ function renderRequestProfile(){
 
 function renderField(field){
  const key=escapeHtml(field.field_key),label=escapeHtml(text(field,'label_ar','label_en')),req=field.is_required?' required':'',reqLabel=field.is_required?T.required:T.optional;
+ const friendly=financialFriendlyField(field,text(field,'label_ar','label_en'),reqLabel);
+ if(friendly)return friendly;
  if(field.field_type==='section')return '<div class="sr-field full"><h3>'+label+'</h3></div>';
  if(field.field_type==='instruction')return '<div class="sr-field full sr-field-info">'+label+'</div>';
  if(field.field_type==='file'&&!isServiceWorkspace)return '<div class="sr-field full"><label>'+label+'</label><div class="sr-muted">'+(lang==='ar'?'تُطلب المرفقات بعد تقديم الطلب ومراجعته؛ لا يلزم رفعها قبل إرسال البيانات.':'Attachments are requested after the initial intake is reviewed; no upload is required before submitting the form.')+'</div></div>';
@@ -1924,8 +1972,16 @@ function isRequestOnlyIntakeService(){
  return detail?.intake?.supported===true &&
    detail?.intake?.execution_mode==='request_only';
 }
+function ensureFinancialGuideStyles(){
+ if(document.getElementById('srFinancialGuideStyles'))return;
+ const style=document.createElement('style');
+ style.id='srFinancialGuideStyles';
+ style.textContent="\n/* Guided financial intake: beginner-readable controls without changing field names. */\n.sr-friendly-choice input[list]{width:100%;min-height:48px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice .sr-friendly-help{display:block;margin-top:6px;font-size:.85rem;color:#57657b;line-height:1.6}\n.sr-friendly-notes{padding:12px 14px;border:1px solid #dbe2ec;border-radius:12px;background:#f8fafc}\n.sr-friendly-notes summary{font-weight:700;color:#123050;cursor:pointer}\n.sr-friendly-notes textarea{display:block;width:100%;min-height:88px;margin-top:10px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-review-guide{padding:12px 14px;margin:12px 0;border:1px solid #dbe7f4;border-radius:12px;background:#f5f8fc;line-height:1.8;font-weight:600;color:#18334f}\n.sr-review-group{border:1px solid #d7e0eb;border-radius:14px;margin:12px 0;background:#fff;overflow:hidden}\n.sr-review-group>summary{padding:14px 16px;background:#f8fafc;cursor:pointer;font-weight:800;color:#0d2343}\n.sr-review-group>.sr-intake-table{padding:10px}\n.sr-review-group summary:focus-visible,.sr-friendly-notes summary:focus-visible{outline:3px solid #2563eb;outline-offset:2px}\n@media(max-width:700px){.sr-review-guide{font-size:.88rem}.sr-review-group>.sr-intake-table{padding:6px}}\n";
+ document.head.appendChild(style);
+}
 function renderFinancialIntake(){
  if(!isFinancialIntakeService())return;
+ if(serviceCode==='financial_analysis')ensureFinancialGuideStyles();
  const host=$('#srDynamicFields');
  if(!host||$('#srFinancialIntake'))return;
  const panel=document.createElement('div');
@@ -2038,6 +2094,28 @@ function intakeSourceLabel(field){
  if(src.extraction_method==='manual_input')parts.push(T.manual);
  return parts.join(' · ')||T.manual;
 }
+function renderIntakeReviewField(field){
+     const derived=field.status==='derived';
+    const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
+      field.status==='missing'?(intakeMode==='file'?(lang==='ar'?'لم يُستخرج من الملف':'Not extracted from document'):T.missing):(field.status==='conflict'?T.conflict:field.status||'');
+     const current=field.value??'';
+     const candidates=Array.isArray(field.candidates)&&field.candidates.length?
+       ' ['+field.candidates.map(item=>{
+         if(item&&typeof item==='object'){
+           const value=typeof item.value==='number'&&Number.isFinite(item.value)?String(item.value):'—';
+           const period=item.period?String(item.period):(lang==='ar'?'فترة غير محددة':'undated');
+           return value+' ('+period+')';
+         }
+         return String(item);
+       }).join(' / ')+']':'';
+     return '<div class="sr-intake-row">'+
+       '<div><strong>'+escapeHtml(humanizeKey(field.field))+'</strong><small>'+escapeHtml(status)+escapeHtml(candidates)+'</small></div>'+
+       '<div><label>'+escapeHtml(derived?(lang==='ar'?'قيمة مستنتجة':'Derived value'):T.correction)+'</label><input type="number" step="any" data-intake-field="'+escapeHtml(field.field)+'" value="'+escapeHtml(current)+'"'+(derived?' data-derived="true" readonly':'')+'></div>'+
+       '<div><label>'+escapeHtml(T.currency)+'</label><span>'+escapeHtml(field.currency||'—')+'</span></div>'+
+       '<div><label>'+escapeHtml(T.period)+'</label><span>'+escapeHtml(field.period||'—')+'</span></div>'+
+       '<div class="sr-intake-source"><label>'+escapeHtml(T.source)+'</label><span>'+escapeHtml(intakeSourceLabel(field))+'</span></div>'+
+     '</div>';
+ }
 function renderIntakeReview(payload){
  intakeReview=payload;
  const host=$('#srIntakeReview');
@@ -2061,7 +2139,7 @@ function renderIntakeReview(payload){
  const unresolvedStatus=new Set(['missing','conflict','multi_period']);
  const confirmed=fields.filter(field=>!unresolvedStatus.has(field.status) && field.value!==null && field.value!==undefined);
  const unresolved=fields.filter(field=>unresolvedStatus.has(field.status) || field.value===null || field.value===undefined);
- const orderedFields=[...confirmed,...unresolved];
+ const orderedFields=[...confirmed,...unresolved]; // Preserves the original extraction order within each status group.
  const summary=(lang==='ar'
    ?'قيم مستخرجة: '+confirmed.length+' | بنود لم يُتحقق منها: '+unresolved.length
    :'Extracted values: '+confirmed.length+' | Unverified fields: '+unresolved.length);
@@ -2072,28 +2150,19 @@ function renderIntakeReview(payload){
    '<p class="sr-muted" role="status">'+escapeHtml(summary)+'</p>'+
    '<p class="sr-muted">'+escapeHtml(note)+'</p>'+
    issueText+
-   '<div class="sr-intake-table">'+orderedFields.map(field=>{
-     const derived=field.status==='derived';
-    const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
-      field.status==='missing'?(intakeMode==='file'?(lang==='ar'?'لم يُستخرج من الملف':'Not extracted from document'):T.missing):(field.status==='conflict'?T.conflict:field.status||'');
-     const current=field.value??'';
-     const candidates=Array.isArray(field.candidates)&&field.candidates.length?
-       ' ['+field.candidates.map(item=>{
-         if(item&&typeof item==='object'){
-           const value=typeof item.value==='number'&&Number.isFinite(item.value)?String(item.value):'—';
-           const period=item.period?String(item.period):(lang==='ar'?'فترة غير محددة':'undated');
-           return value+' ('+period+')';
-         }
-         return String(item);
-       }).join(' / ')+']':'';
-     return '<div class="sr-intake-row">'+
-       '<div><strong>'+escapeHtml(humanizeKey(field.field))+'</strong><small>'+escapeHtml(status)+escapeHtml(candidates)+'</small></div>'+
-       '<div><label>'+escapeHtml(derived?(lang==='ar'?'قيمة مستنتجة':'Derived value'):T.correction)+'</label><input type="number" step="any" data-intake-field="'+escapeHtml(field.field)+'" value="'+escapeHtml(current)+'"'+(derived?' data-derived="true" readonly':'')+'></div>'+
-       '<div><label>'+escapeHtml(T.currency)+'</label><span>'+escapeHtml(field.currency||'—')+'</span></div>'+
-       '<div><label>'+escapeHtml(T.period)+'</label><span>'+escapeHtml(field.period||'—')+'</span></div>'+
-       '<div class="sr-intake-source"><label>'+escapeHtml(T.source)+'</label><span>'+escapeHtml(intakeSourceLabel(field))+'</span></div>'+
-     '</div>';
-   }).join('')+'</div>';
+   (serviceCode==='financial_analysis'
+     ?'<div class="sr-review-guide" role="note">'+escapeHtml(lang==='ar'?'1. ارفع الملف  ·  2. راجع الأرقام التي قرأها النظام  ·  3. تأكد من البنود غير الواضحة  ·  4. أنشئ التقرير':'1. Upload  ·  2. Review extracted figures  ·  3. Resolve uncertain items  ·  4. Generate report')+'</div>'
+     :'')+
+   (serviceCode==='financial_analysis'
+     ?[
+        '<details class="sr-review-group" open><summary>'+escapeHtml(lang==='ar'?'الأرقام التي تم التعرف عليها':'Recognized figures')+' ('+confirmed.length+')</summary><div class="sr-intake-table">',
+        ...confirmed.map(field=>renderIntakeReviewField(field)),
+        '</div></details>',
+        '<details class="sr-review-group"'+(unresolved.length?' open':'')+'><summary>'+escapeHtml(lang==='ar'?'أرقام تحتاج مراجعتك':'Figures needing your review')+' ('+unresolved.length+')</summary><div class="sr-intake-table">',
+        ...unresolved.map(field=>renderIntakeReviewField(field)),
+        '</div></details>'
+       ].join('')
+     :'<div class="sr-intake-table">'+orderedFields.map(field=>renderIntakeReviewField(field)).join('')+'</div>');
  $('#srSubmit').textContent=T.approveExecute;
 }
 function collectIntakeCorrections(){
