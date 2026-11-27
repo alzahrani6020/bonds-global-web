@@ -8,6 +8,8 @@ create table if not exists public.correspondence_campaigns (
   kind text not null check (kind in ('investment','partnership','institutional','customer','supplier','other')),
   status text not null default 'draft' check (status in ('draft','review','approved','running','paused','completed','cancelled')),
   description text not null default '',
+  subject_template text not null default '',
+  body_template text not null default '',
   approved_by uuid references auth.users(id) on delete set null,
   approved_at timestamptz,
   created_at timestamptz not null default now(),
@@ -25,6 +27,7 @@ create table if not exists public.correspondence_campaign_recipients (
   email text not null check (char_length(email) between 5 and 320),
   contact_id uuid,
   document_id uuid references public.correspondence_documents(id) on delete restrict,
+  draft_document_id uuid references public.correspondence_documents(id) on delete restrict,
   status text not null default 'pending' check (status in ('pending','prepared','issued','queued','accepted','delivered','failed','replied','excluded')),
   provider_message_id text,
   created_at timestamptz not null default now(),
@@ -33,6 +36,11 @@ create table if not exists public.correspondence_campaign_recipients (
 );
 create unique index if not exists correspondence_campaign_recipients_unique
   on public.correspondence_campaign_recipients (campaign_id, lower(trim(email)));
+create unique index if not exists correspondence_documents_campaign_recipient_unique
+  on public.correspondence_documents ((workspace_context->>'campaign_recipient_id'))
+  where workspace_context ? 'campaign_recipient_id';
+create unique index if not exists correspondence_campaign_recipients_draft_unique
+  on public.correspondence_campaign_recipients (draft_document_id) where draft_document_id is not null;
 create unique index if not exists correspondence_campaign_recipients_document_unique
   on public.correspondence_campaign_recipients (document_id) where document_id is not null;
 create index if not exists correspondence_campaign_recipients_status_idx
