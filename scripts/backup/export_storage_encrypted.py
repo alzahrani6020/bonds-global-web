@@ -15,7 +15,7 @@ import sys
 import tarfile
 import tempfile
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
 PROJECT = "hutxsqzplyuqgnghsrcs"
@@ -36,21 +36,34 @@ def request_json(url, key, payload):
 
 
 def list_buckets(base, key):
-    """Discover every production bucket; never silently omit new buckets."""
-    req = Request(base + "/storage/v1/bucket", method="GET", headers={
-        "apikey": key, "Authorization": "Bearer " + key
-    })
-    with urlopen(req, timeout=45) as response:
-        entries = json.load(response)
-    if not isinstance(entries, list) or not entries:
-        raise RuntimeError("missing or invalid bucket inventory")
-    names = [item.get("id") for item in entries if isinstance(item, dict)]
-    if len(names) != len(entries) or any(not isinstance(n, str) or not n for n in names):
-        raise RuntimeError("invalid bucket identifier")
-    if len(names) != len(set(names)):
-        raise RuntimeError("duplicate bucket identifier")
+    """Exhaust paginated Storage bucket listing; reject duplicates or API drift."""
+    names = []
+    offset = 0
+    while True:
+        query = urlencode({"limit": PAGE_SIZE, "offset": offset,
+                           "sortColumn": "name", "sortOrder": "asc"})
+        req = Request(base + "/storage/v1/bucket?" + query,
+                      method="GET", headers={
+                          "apikey": key, "Authorization": "Bearer " + key
+                      })
+        with urlopen(req, timeout=45) as response:
+            entries = json.load(response)
+        if not isinstance(entries, list):
+            raise RuntimeError("invalid bucket listing response")
+        page_names = [entry.get("id") for entry in entries
+                      if isinstance(entry, dict)]
+        if (len(page_names) != len(entries) or
+                any(not isinstance(n, str) or not n for n in page_names)):
+            raise RuntimeError("invalid bucket identifier")
+        names.extend(page_names)
+        if len(names) > 100000:
+            raise RuntimeError("bucket inventory exceeds safety limit")
+        if len(entries) < PAGE_SIZE:
+            break
+        offset += len(entries)
+    if not names or len(names) != len(set(names)):
+        raise RuntimeError("empty or duplicate bucket inventory")
     return sorted(names)
-
 
 def inventory_bucket(base, key, bucket):
     """List all objects including nested folders, without relying on a short page."""
