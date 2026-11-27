@@ -78,6 +78,19 @@ describe('financial-analysis dated columns - source anchored comparisons',()=>{
   expect(d.values.revenue).toBeUndefined();
   expect(d.fields.find(x=>x.field==='revenue').status).toBe('conflict');
  });
+ test('multiple workbook sheets contribute to a consolidated financial analysis with source sheets',()=>{
+  const d=extractFinancialFields({
+    parsed:{sheets:[
+      {name:'المركز المالي',rows:[['البيان','2025','2024'],['إجمالي الأصول',1000,900],['إجمالي الالتزامات',600,550],['حقوق الملكية',400,350]]},
+      {name:'الدخل',rows:[['البيان','2025','2024'],['الإيرادات',2000,1600],['صافي الربح',200,160]]},
+      {name:'التدفقات',rows:[['البيان','2025','2024'],['التدفقات النقدية التشغيلية',300,240]]}
+    ]},
+    primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(d.values).toMatchObject({total_assets:1000,total_liabilities:600,equity:400,revenue:2000,prior_revenue:1600,net_income:200,operating_cash_flow:300});
+  expect(d.fields.find(x=>x.field==='revenue').source).toEqual(expect.arrayContaining([expect.objectContaining({sheet:'الدخل',period:'2025'})]));
+  expect(d.fields.find(x=>x.field==='total_assets').source).toEqual(expect.arrayContaining([expect.objectContaining({sheet:'المركز المالي',period:'2025'})]));
+ });
  test('non-financial-analysis services keep their original field extraction contract',()=>{
   const d=extractFinancialFields({
    parsed:{rows:[['Revenue',2000000],['Current Assets',400000],['Current Liabilities',200000]]},
