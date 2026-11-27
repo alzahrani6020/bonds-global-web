@@ -132,6 +132,18 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
   expect(r.fields.find(f=>f.field==='revenue').currency).toBe('SAR');
   expect(r.fields.find(f=>f.field==='revenue').period).toBe('2026');
  });
+ test('PDF text heading with explicit thousands scales its rows once',()=>{
+  const parsed={text:[
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'المبالغ بالألف ريال سعودي',
+   '100 200 الإيرادات',
+   '200 400 مجموع الموجودات'
+  ].join('\n')};
+  const r=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(r.values.revenue).toBe(200000);
+  expect(r.values.total_assets).toBe(400000);
+  expect(r.fields.find(f=>f.field==='revenue').currency).toBe('SAR');
+ });
  test('Arabic الفترة cannot create an implicit thousand multiplier',()=>{
   const parsed={text:[
    'البيان ديسمبر 2025 سبتمبر 2026',
