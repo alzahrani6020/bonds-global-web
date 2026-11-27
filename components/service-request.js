@@ -2131,7 +2131,7 @@ function renderIntakeReviewField(field, allFields){
   return {value:item,period:'',currency:field.currency||'',source:''};
  }).filter(item=>item.value!==null&&item.value!==undefined&&item.value!==''&&Number.isFinite(Number(item.value)));
  const suggestion=(!derived&&(field.status==='missing'||field.status==='conflict'||field.status==='multi_period'||current===''))?financialReviewSuggestion(field,allFields||[]):null;
- const options=candidates.length&&!derived?'<label>'+escapeHtml(lang==='ar'?'اختر قيمة من الملف':'Select a document value')+'</label><select data-intake-candidate="'+escapeHtml(field.field)+'"><option value="">'+escapeHtml(lang==='ar'?'اختر قيمة أو أدخل يدويًا':'Choose a value or enter manually')+'</option>'+candidates.map(item=>'<option value="'+escapeHtml(String(item.value))+'">'+escapeHtml(String(item.value)+(item.period?' · '+item.period:'')+(item.currency?' · '+item.currency:''))+'</option>').join('')+'</select>':'';
+ const options=candidates.length&&!derived?'<label>'+escapeHtml(lang==='ar'?'اختر قيمة من الملف':'Select a document value')+'</label><select data-intake-candidate="'+escapeHtml(field.field)+'"><option value="">'+escapeHtml(lang==='ar'?'اختر قيمة أو أدخل يدويًا':'Choose a value or enter manually')+'</option>'+candidates.map((item,index)=>'<option value="'+index+'">'+escapeHtml(String(item.value)+(item.period?' · '+item.period:'')+(item.currency?' · '+item.currency:''))+'</option>').join('')+'</select>':'';
  const formula=suggestion&&!derived?'<button type="button" class="sr-secondary" data-intake-suggest="'+escapeHtml(field.field)+'" data-suggest-value="'+escapeHtml(String(suggestion.value))+'">'+escapeHtml(lang==='ar'?'استخدام احتساب مقترح: ':'Use suggested calculation: ')+escapeHtml(String(suggestion.value))+'</button><small>'+escapeHtml(suggestion.formula)+'</small>':'';
  const missing=field.status==='missing'||field.status==='conflict'||field.status==='multi_period'||current==='';
  return '<div class="sr-intake-row">'+
@@ -2191,13 +2191,30 @@ function renderIntakeReview(payload){
      :'<div class="sr-intake-table">'+orderedFields.map(field=>renderIntakeReviewField(field,fields)).join('')+'</div>');
  host.querySelectorAll('[data-intake-candidate]').forEach(select=>select.addEventListener('change',()=>{
   const input=Array.from(host.querySelectorAll('[data-intake-field]')).find(item=>item.dataset.intakeField===select.dataset.intakeCandidate);
-  if(input&&!input.readOnly&&select.value!=='')input.value=select.value;
+  const record=fields.find(item=>item.field===select.dataset.intakeCandidate);
+  const candidate=Array.isArray(record?.candidates)?record.candidates[Number(select.value)]:null;
+  if(input&&!input.readOnly&&select.value!==''&&candidate&&Number.isFinite(Number(candidate.value))){
+   input.value=String(candidate.value);
+   input.dataset.candidateIndex=select.value;
+  }else if(input){delete input.dataset.candidateIndex;}
+ }));
+ host.querySelectorAll('[data-intake-field]').forEach(input=>input.addEventListener('input',()=>{
+  delete input.dataset.candidateIndex;
+  const select=Array.from(host.querySelectorAll('[data-intake-candidate]')).find(item=>item.dataset.intakeCandidate===input.dataset.intakeField);
+  if(select)select.value='';
  }));
  host.querySelectorAll('[data-intake-suggest]').forEach(button=>button.addEventListener('click',()=>{
   const input=Array.from(host.querySelectorAll('[data-intake-field]')).find(item=>item.dataset.intakeField===button.dataset.intakeSuggest);
   if(input&&!input.readOnly)input.value=button.dataset.suggestValue;
  }));
  $('#srSubmit').textContent=T.approveExecute;
+}
+function collectIntakeSelections(){
+ const selections={};
+ document.querySelectorAll('[data-intake-field][data-candidate-index]').forEach(input=>{
+  if(!input.readOnly && /^\\d+$/.test(input.dataset.candidateIndex))selections[input.dataset.intakeField]=Number(input.dataset.candidateIndex);
+ });
+ return selections;
 }
 function collectIntakeCorrections(){
  const out={};
@@ -2253,7 +2270,8 @@ async function approveFinancialIntake(headers){
    headers,
    body:JSON.stringify({
      dataset_id:intakeDatasetId,
-     corrections:collectIntakeCorrections()
+     corrections:collectIntakeCorrections(),
+     selections:collectIntakeSelections()
    })
  });
  const payload=await response.json().catch(()=>({}));
