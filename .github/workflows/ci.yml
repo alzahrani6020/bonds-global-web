@@ -258,6 +258,13 @@ jobs:
               raise SystemExit(1)
           PY
                 ;;
+              scripts/backup/archive_encrypted_backup.py|scripts/backup/test_archive_encrypted_backup.py|scripts/backup/check_github_backup_schedule.py|scripts/backup/test_check_github_backup_schedule.py|.github/workflows/bonds-offline-backup-custody-tests.yml|docs/BONDS_BACKUP_DISASTER_RECOVERY_ACCEPTANCE.md)
+                # New disaster-recovery custody-only source, tests, CI and runbook.
+                # This branch does not change any website asset. Enforce these
+                # files are additions; pre-existing content needs full visual.
+                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then exit 0; fi
+                test -s "$file" || exit 0
+                ;;
               .github/workflows/bonds-production-backup-restore.yml)
                 # Cron-only change accepted only if all other bytes match PR base.
                 # Retain the previously approved retention-only path below.
