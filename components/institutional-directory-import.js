@@ -139,7 +139,7 @@
       clearPending();message(tr('تغيرت مساحة الشركة، أعد المعاينة.','Workspace changed. Preview again.'));return;
     }
     state.busy=true;$('institutional-apply').disabled=true;
-    let created=0,skipped=0;
+    let created=0,skipped=0,failedAt=null;
     try{
       const sb=await authenticatedClient();
       const workspaceId=state.workspaceId;
@@ -147,16 +147,17 @@
       if(spaceError||!space)throw Error('WORKSPACE_NOT_AVAILABLE');
       const orgKeys=await getAllKeys(sb,'crm_app_companies',workspaceId);
       const contactKeys=await getAllKeys(sb,'crm_app_contacts',workspaceId);
-      for(const item of state.pending){
+      for(const [index,item] of state.pending.entries()){
+        failedAt=index+1;
         if(workspace.value!==workspaceId)throw Error('WORKSPACE_CHANGED');
         const keys=item.type==='organization'?orgKeys:contactKeys;
         const key=item.row.name.toLocaleLowerCase();
-        if(keys.has(key)){skipped++;continue;}
+        if(keys.has(key)){skipped++;failedAt=null;continue;}
         const table=item.type==='organization'?'crm_app_companies':'crm_app_contacts';
         // RLS is the authorization boundary, not the browser's selected role.
         const {error}=await sb.from(table).insert({...item.row,workspace_id:workspaceId});
         if(error)throw Error('RLS_OR_DATABASE_REJECTED');
-        keys.add(key);created++;
+        keys.add(key);created++;failedAt=null;
       }
       clearPending();
       file.value='';
@@ -166,6 +167,7 @@
       clearPending();
       message(tr('توقف الاستيراد. المحفوظ: ','Import stopped. Created: ')+created+
         tr('؛ المتجاوز: ','; skipped: ')+skipped+
+        (failedAt===null?'':tr('؛ السجل المتوقف عنده: ','; stopped at record: ')+failedAt)+
         tr('؛ السبب: ','; reason: ')+err.message+
         tr(' — راجع الدليل قبل إعادة المحاولة.',' — check the directory before retrying.'));
     }finally{state.busy=false;$('institutional-apply').disabled=true;}
