@@ -20,3 +20,13 @@ Commercial module independent from the BONDS production database and corresponde
 
 ## Installation readiness
 This is source-level modularization, **not an installable customer release**. Packaging, reproducible container image, offline license verification, deployment scripts, signed updates and tenant E2E acceptance must pass separately.
+
+## Local developer smoke test (Node.js >=22)
+
+From this directory, install the listed dependencies in an isolated test environment, then run:
+
+```sh
+node cli.js sample.csv --workspace-id 12345678-1234-4123-8123-1234567890ab --type organization
+```
+
+CLI emits JSON **review proposals only**. Its workspace identifier is metadata, **not an authorization token**: a customer-hosted server must enforce identity/tenant rights before accepting imports. Do not run CLI against untrusted files without sandboxing, size caps and malware scanning. The production installer and offline dependency bundle are still pending.
