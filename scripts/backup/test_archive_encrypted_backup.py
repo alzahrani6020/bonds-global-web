@@ -38,6 +38,21 @@ class ArchiveTests(unittest.TestCase):
         other.write_bytes(b'unsafe')
         with self.assertRaises(ValueError):
             module.archive(other, self.out_dir)
+    def test_real_production_name_with_explicit_run_id(self):
+        self.source.rename(self.src_dir / 'production.dump.age')
+        source = self.src_dir / 'production.dump.age'
+        result = module.archive(source, self.out_dir, '45814509069')
+        self.assertEqual(result['filename'], 'production-45814509069.dump.age')
+        self.assertTrue(source.exists())
+        self.assertTrue((self.out_dir / 'production-45814509069.dump.age').exists())
+    def test_real_production_name_requires_run_id(self):
+        source = self.src_dir / 'production.dump.age'
+        self.source.rename(source)
+        with self.assertRaises(ValueError):
+            module.archive(source, self.out_dir)
+    def test_run_id_mismatch_rejected(self):
+        with self.assertRaises(ValueError):
+            module.archive(self.source, self.out_dir, '45814509070')
     def test_no_copy_to_source_dir(self):
         with self.assertRaises(ValueError):
             module.archive(self.source, self.src_dir)
