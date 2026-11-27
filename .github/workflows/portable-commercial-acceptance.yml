@@ -64,6 +64,15 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw 'EXTRACTED_RUNTIME_FAILED' }
           }
           finally { Pop-Location }
+      - name: Run customer acceptance using only extracted encrypted Windows bundle
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $extract = Join-Path $env:RUNNER_TEMP 'bonds-commercial-acceptance-extracted'
+          if (!(Test-Path (Join-Path $extract 'commercial-server.js'))) { throw 'EXTRACTED_BUNDLE_MISSING' }
+          $env:BONDS_EXTRACTED_BUNDLE = $extract
+          & (Join-Path $extract 'node.exe') tests/intelligence/portable-extracted-bundle.acceptance.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'EXTRACTED_BUNDLE_E2E_FAILED' }
       - name: Upload isolated portable package evidence (not customer release)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
