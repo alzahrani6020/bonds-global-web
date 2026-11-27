@@ -6,6 +6,8 @@ on:
       - 'scripts/backup/test_archive_encrypted_backup.py'
       - 'scripts/backup/check_github_backup_schedule.py'
       - 'scripts/backup/test_check_github_backup_schedule.py'
+      - 'scripts/backup/test_watchdog_schedule_order.py'
+      - '.github/workflows/bonds-backup-freshness-watchdog.yml'
       - '.github/workflows/bonds-offline-backup-custody-tests.yml'
   workflow_dispatch:
 
