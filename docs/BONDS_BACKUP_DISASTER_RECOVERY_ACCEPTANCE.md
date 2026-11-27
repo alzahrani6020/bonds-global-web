@@ -25,6 +25,14 @@ This runbook covers encrypted PostgreSQL backup custody, audit evidence and isol
 6. Record custody evidence in a restricted audit register: workflow run ID, source location, destination custody owner, UTC timestamp, hash, verified reader, media identification, retention deadline. **Do not** record private keys or passwords.
 7. Periodically decrypt a copy of the encrypted file in a dedicated isolated environment, perform full `pg_restore --exit-on-error` and data invariants checks. SHA-256 alone proves byte equality, **not** that a backup can actually be restored.
 
+## Independent scheduling monitor (outside GitHub)
+
+Run `python3 scripts/backup/check_github_backup_schedule.py` from an **independently scheduled** computer or server with HTTPS access to the GitHub REST API (optionally configure `GH_TOKEN` through a private environment, never command-line plaintext). The script is read-only: it confirms a recent successful `event=schedule` backup and watchdog run on `main`, checks the encrypted artifact name, nonzero size, expiry and returns JSON.
+
+Exit codes: `0=PASS`, `1=FAIL`, `2=UNKNOWN`, `3=PENDING`. **A manual backup does not satisfy the schedule gate.** The initial grace dates are explicitly pinned to this rollout; adjust only through a reviewed source change for future migrations.
+
+The presence of this script in GitHub does **not** make it an independent monitor. Schedule it on a separate host, connect its nonzero results to an actually delivered alert and test receipt. These steps remain `NOT DONE` until demonstrated. Avoid placing the scheduler on the same GitHub Actions failure domain.
+
 ## Acceptance matrix
 
 | Gate | Pass evidence | Current classification |
