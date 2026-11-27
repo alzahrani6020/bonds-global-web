@@ -26,7 +26,10 @@
     "approved-directory-export.js",
     "commercial-workflow.js",
     "licensed-commercial-workflow.js",
-    "labeled-entity-list.js"
+    "labeled-entity-list.js",
+    "commercial-server.js",
+    "commercial-ui.html",
+    "commercial-ui.js"
   ],
   "engines": {
     "node": ">=22"
