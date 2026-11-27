@@ -563,6 +563,38 @@ async function assertFinancialDataIntake(token) {
     return { format, bytes: bytes.length, contentType: response.headers.get('content-type') };
   }));
 
+  // Test 8 — authenticated real-production report persistence and exact readback.
+  const reportPrepare=await prepareManual('financial_analysis',{
+    revenue:1000000,cogs:600000,operating_expenses:200000,net_income:150000,
+    operating_income:200000,ebitda:220000,depreciation_amortization:20000,
+    current_assets:300000,current_liabilities:150000,
+    total_assets:900000,total_liabilities:500000,equity:400000,
+    cash:80000,inventory:50000,receivables:100000,payables:50000,
+    opening_balance:50000,operating_cash_flow:40000,
+    investing_cash_flow:-10000,financing_cash_flow:0,ending_cash:80000
+  });
+  if(!reportPrepare.res.ok||!reportPrepare.body?.dataset_id)
+    throw new Error('Financial report smoke preparation failed: '+JSON.stringify(reportPrepare.body));
+  const reportApproval=await approveDataset(reportPrepare.body.dataset_id);
+  if(!reportApproval.res.ok||reportApproval.body?.approval_status!=='approved')
+    throw new Error('Financial report smoke approval failed: '+JSON.stringify(reportApproval.body));
+  const reportExecution=await executeDataset('financial_analysis',reportPrepare.body.dataset_id);
+  if(!reportExecution.res.ok||reportExecution.body?.executed!==true)
+    throw new Error('Financial report smoke execution failed: '+JSON.stringify(reportExecution.body));
+  const reportPath='/api/v3/services/intake/datasets/'+encodeURIComponent(reportPrepare.body.dataset_id)+'/report';
+  const reportRead=await get(reportPath);
+  if(!reportRead.res.ok||reportRead.body?.report?.format!=='html'||
+     !reportRead.body.report.html?.includes('تقرير التحليل المالي'))
+    throw new Error('Financial report was not auto-persisted for a real execution: '+JSON.stringify(reportRead.body).slice(0,1000));
+  const reportAgain=await post(reportPath,{});
+  if(!reportAgain.res.ok||reportAgain.body?.reused!==true||
+     reportAgain.body?.report?.sha256!==reportRead.body.report.sha256)
+    throw new Error('Financial report persistent readback or idempotency mismatch');
+  console.log('Financial report artifact acceptance PASS (dataset_version='+
+    reportRead.body.report.dataset_version+', sha256='+
+    reportRead.body.report.sha256.slice(0,16)+', saved_html_bytes='+
+    Buffer.byteLength(reportRead.body.report.html,'utf8')+')');
+
   console.log(
     `Financial Data 62 acceptance PASS (debt_equity=${calculated}, liquidity_peak_gap=${peakGap}, gross_margin=${grossMargin}, stale=true, conflict=true, fail_closed=true, version=2, quality_metrics=${JSON.stringify(extractionMetrics)}, exports=${JSON.stringify(marginExports)})`
   );

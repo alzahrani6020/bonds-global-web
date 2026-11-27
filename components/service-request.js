@@ -2325,6 +2325,74 @@ async function uploadIntakeFile(sb,user){
  intakeUploadedPath=path;
  return {storage_path:path,file_name:file.name,mime_type:mime,size_bytes:file.size};
 }
+async function ensureSavedFinancialReport(datasetId,scroll=false){
+ if(serviceCode!=='financial_analysis'||!datasetId)return false;
+ const host=$('#srExecutionResult');
+ if(!host)return false;
+ let panel=host.querySelector('#srPersistedFinancialReport');
+ if(!panel){
+  panel=document.createElement('section');
+  panel.id='srPersistedFinancialReport';
+  panel.className='financial-result-section';
+  host.appendChild(panel);
+ }
+ panel.textContent=lang==='ar'?'جاري إعداد التقرير المالي المحفوظ...':'Preparing saved financial report...';
+ try{
+  const session=(await window.BondsAuth.getSupabase().auth.getSession()).data?.session;
+  if(!session?.access_token)throw new Error('UNAUTHORIZED');
+  const response=await fetch('/api/v3/services/intake/datasets/'+encodeURIComponent(datasetId)+'/report',{
+   method:'POST',
+   headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'}
+  });
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||!result.report?.html||result.report.dataset_id!==datasetId)
+   throw new Error(result.error?.code||'FINANCIAL_REPORT_NOT_SAVED');
+  // Server acknowledges persistence only after exact HTML SHA-256 readback.
+  // Use a sandboxed document; never inject generated markup into the parent DOM.
+  panel.textContent='';
+  const heading=document.createElement('h3');
+  heading.textContent=lang==='ar'?'التقرير المالي المحفوظ':'Saved financial report';
+  const notice=document.createElement('p');
+  notice.className='sr-muted';
+  notice.textContent=lang==='ar'
+   ?'تقرير تحليلي محفوظ مرتبط بإصدار الملف. بيانات المصدر غير مدققة، ولا يمثل اعتمادًا محاسبيًا.'
+   :'Persisted report tied to this file version. Source figures are unaudited.';
+  const frame=document.createElement('iframe');
+  frame.title=lang==='ar'?'معاينة التقرير المالي المحفوظ':'Saved financial report preview';
+  frame.setAttribute('sandbox','allow-modals');
+  frame.style.cssText='width:100%;height:740px;border:1px solid #cbd5e1;border-radius:8px;background:#fff';
+  frame.srcdoc=result.report.html;
+  const controls=document.createElement('div');
+  controls.className='sr-actions';
+  const saveHtml=document.createElement('button');
+  saveHtml.type='button';
+  saveHtml.className='sr-secondary';
+  saveHtml.textContent=lang==='ar'?'تنزيل التقرير المحفوظ HTML':'Download saved HTML report';
+  saveHtml.addEventListener('click',()=>{
+   const href=URL.createObjectURL(new Blob([result.report.html],{type:'text/html;charset=utf-8'}));
+   const link=document.createElement('a');link.href=href;
+   link.download='bonds-financial-report-'+datasetId+'.html';link.click();
+   setTimeout(()=>URL.revokeObjectURL(href),1000);
+  });
+  const print=document.createElement('button');
+  print.type='button';
+  print.className='sr-secondary';
+  print.textContent=lang==='ar'?'طباعة التقرير / حفظ PDF':'Print report / Save PDF';
+  print.addEventListener('click',()=>{try{
+   const win=window.open('','_blank');
+   if(!win)throw new Error('POPUP_BLOCKED');
+   win.document.open();win.document.write(result.report.html);win.document.close();win.focus();win.print();
+  }catch(e){showStatus(lang==='ar'?'اسمح بفتح نافذة التقرير للطباعة أو حفظ PDF.':'Allow the report popup to print or save PDF.',false);}});
+  controls.append(saveHtml,print);
+  panel.append(heading,notice,controls,frame);
+  if(scroll)panel.scrollIntoView({behavior:'smooth',block:'start'});
+  return true;
+ }catch(error){
+  panel.textContent=(lang==='ar'?'تعذر إنشاء التقرير المحفوظ: ':'Could not persist report: ')+String(error.message||error);
+  panel.setAttribute('role','alert');
+  return false;
+ }
+}
 async function restoreSavedFinancialResult({scroll=false,silent=false}={}){
  if(serviceCode!=='financial_analysis'||(silent&&intakeDatasetId))return false;
  const button=$('#srShowSavedFinancialResult');
@@ -2363,6 +2431,7 @@ async function restoreSavedFinancialResult({scroll=false,silent=false}={}){
    validation:data.validation||{}
   },dataset_persistence:{status:'saved',dataset_id:data.id,verified:true}};
   renderExecutionResult(payload);
+  await ensureSavedFinancialReport(data.id,scroll);
   const result=$('#srExecutionResult');
   if(result){
    result.setAttribute('aria-label',lang==='ar'?'التحليل المالي المحفوظ':'Saved financial analysis');
@@ -3172,6 +3241,7 @@ async function submit(e){
     track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null,dataset_id:intakeDatasetId});
     const artifactSaved=showExecutionPersistenceStatus(execution);
     renderExecutionResult(execution);
+    await ensureSavedFinancialReport(intakeDatasetId,true);
     if(artifactSaved)clearWorkspaceDraft();
     $('#srSubmit').disabled=true;
     return;
