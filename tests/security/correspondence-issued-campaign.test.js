@@ -55,8 +55,8 @@ describe('Clix issued campaign preflight - fail closed', () => {
     expect(()=>buildIssuedCampaignPlan(request([letter(contact('one@example.com',{tenantId:randomUUID()}))]))).toThrow('another tenant');
   });
   test('rejects header injection in addresses and subjects',()=>{
-    expect(()=>buildIssuedCampaignPlan(request([letter(contact('a@example.com\\nBcc:other@example.com'))]))).toThrow();
-    expect(()=>buildIssuedCampaignPlan(request([letter(contact('a@example.com'),{subject:'hello\\r\\nBcc: other'})]))).toThrow();
+    expect(()=>buildIssuedCampaignPlan(request([letter(contact('a@example.com\nBcc:other@example.com'))]))).toThrow();
+    expect(()=>buildIssuedCampaignPlan(request([letter(contact('a@example.com'),{subject:'hello\r\nBcc: other'})]))).toThrow();
   });
   test('no mail provider, database or queue dependency is imported',()=>{
     const src=require('node:fs').readFileSync(require('node:path').resolve(__dirname,'../../lib/api/correspondence-issued-campaign.js'),'utf8');
