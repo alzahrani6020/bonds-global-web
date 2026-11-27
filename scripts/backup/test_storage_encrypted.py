@@ -69,6 +69,28 @@ class ArchiveVerificationTests(unittest.TestCase):
 
 
 class StorageInventoryTests(unittest.TestCase):
+    def test_discover_all_buckets_including_empty(self):
+        payload = [{"id": "avatars"}, {"id": "new-empty"}, {"id": "documents"}]
+        with patch.object(export, "urlopen") as open_url:
+            response = open_url.return_value.__enter__.return_value
+            response.read.return_value = json.dumps(payload).encode()
+            self.assertEqual(export.list_buckets("https://example.invalid", "fake"),
+                             ["avatars", "documents", "new-empty"])
+        with patch.object(export, "inventory_bucket", side_effect=[
+                [], [{"bucket": "documents", "path": "a", "id": "1",
+                      "size": 1, "updated_at": None}], []]) as bucket_inventory:
+            found = export.inventory("https://example.invalid", "fake",
+                                     ["avatars", "documents", "new-empty"])
+            self.assertEqual(len(found), 1)
+            self.assertEqual(bucket_inventory.call_count, 3)
+
+    def test_missing_bucket_listing_rejected(self):
+        with patch.object(export, "urlopen") as open_url:
+            response = open_url.return_value.__enter__.return_value
+            response.read.return_value = b"[]"
+            with self.assertRaises(RuntimeError):
+                export.list_buckets("https://example.invalid", "fake")
+
     def test_nested_pagination(self):
         def list_api(url, key, payload):
             prefix, offset = payload["prefix"], payload["offset"]
@@ -112,8 +134,9 @@ class StorageInventoryTests(unittest.TestCase):
                     "size": 1, "updated_at": None}]
         with tempfile.TemporaryDirectory() as tmp:
             dest = Path(tmp) / "output.age"
-            with patch.object(export, "inventory", side_effect=[originals, changed]):
-                with patch.object(export, "download", return_value=(1, hashlib.sha256(b"a").hexdigest())):
+            with patch.object(export, "list_buckets", return_value=["avatars"]):
+              with patch.object(export, "inventory", side_effect=[originals, changed]):
+                  with patch.object(export, "download", return_value=(1, hashlib.sha256(b"a").hexdigest())):
                     with self.assertRaises(RuntimeError):
                         export.produce("https://example.invalid", "fake",
                                        "age1recipient", dest, "123")
