@@ -81,11 +81,15 @@ BEGIN
  VALUES(c,a,r,'44444444-4444-4444-8444-444444444444',m,repeat('a',64),repeat('b',64));
  IF (SELECT count(*) FROM public.correspondence_campaign_dispatch_jobs WHERE campaign_id=c)<>1
  THEN RAISE EXCEPTION 'Dispatch job not persisted'; END IF;
+ INSERT INTO public.correspondence_documents(id,company_id,status)
+ VALUES('88888888-8888-4888-8888-888888888888',a,'issued');
+ INSERT INTO public.correspondence_campaign_recipients(id,campaign_id,company_id,email,organization)
+ VALUES('99999999-9999-4999-8999-999999999999',c,a,'separate@example.com','Separate');
  rejected:=false;
  BEGIN
   INSERT INTO public.correspondence_campaign_dispatch_jobs
   (campaign_id,company_id,recipient_id,document_id,mailbox_id,issued_hash,idempotency_key)
-  VALUES(c,b,r,'44444444-4444-4444-8444-444444444444',m,repeat('a',64),repeat('c',64));
+  VALUES(c,b,'99999999-9999-4999-8999-999999999999','88888888-8888-4888-8888-888888888888',m,repeat('a',64),repeat('c',64));
  EXCEPTION WHEN foreign_key_violation THEN rejected:=true;
  END;
  IF NOT rejected THEN RAISE EXCEPTION 'Cross-tenant dispatch job accepted'; END IF;
