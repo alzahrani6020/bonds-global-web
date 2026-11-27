@@ -7,7 +7,7 @@
   function status(message,bad=false){$('status').textContent=message;$('status').classList.toggle('error',bad);}
   function node(tag,content){const el=document.createElement(tag);if(content!==undefined)el.textContent=String(content);return el;}
   function option(value,label){const el=node('option',label);el.value=value;return el;}
-  function setBusy(value){loading=value;for(const id of ['create','refresh','submit','approve','back','cancel','import','bind']){$(id).disabled=value;}}
+  function setBusy(value){loading=value;for(const id of ['create','refresh','submit','approve','back','cancel','import','bind','connect-mailbox','refresh-mailbox']){$(id).disabled=value;}}
   async function session(){
     let auth=window.BondsAuth;
     if(!auth?.getSession){
@@ -27,6 +27,48 @@
     const out=await res.json().catch(()=>({}));
     if(!res.ok)throw new Error(out.error||'REQUEST_FAILED');
     return out;
+  }
+  async function mailboxApi(path='',payload){
+    const token=await session();
+    const response=await fetch('/api/campaign-mailboxes'+path,{
+      method:payload?'POST':'GET',cache:'no-store',credentials:'same-origin',
+      headers:{Accept:'application/json',Authorization:'Bearer '+token,...(payload?{'Content-Type':'application/json'}:{})},
+      ...(payload?{body:JSON.stringify(payload)}:{})
+    });
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data.error||'MAILBOX_SERVICE_UNAVAILABLE');
+    return data;
+  }
+  async function loadMailboxes(){
+    const list=$('mailbox-list');
+    list.replaceChildren();
+    if(!UUID.test($('company').value)){
+      list.textContent='اختر الشركة لعرض صناديق بريدها.';return;
+    }
+    try{
+      const data=await mailboxApi('?company_id='+encodeURIComponent($('company').value));
+      if(!data.mailboxes?.length){list.textContent='لم يتم ربط صندوق Zoho لهذه الشركة بعد.';return;}
+      for(const mailbox of data.mailboxes){
+        const row=node('p',(mailbox.address||'')+' — '+(mailbox.enabled?'متصل ومتحقق منه':'معطل'));
+        list.append(row);
+      }
+    }catch(e){
+      list.textContent=e.message==='MAILBOX_PERMISSION_DENIED'
+        ? 'إدارة صناديق البريد متاحة لمالك الشركة ومسؤولها فقط.'
+        : 'تعذر تحميل صناديق البريد: '+message(e);
+    }
+  }
+  async function connectMailbox(){
+    const company_id=$('company').value;
+    if(!UUID.test(company_id))throw new Error('اختر شركة قبل ربط البريد.');
+    const address=$('mailbox-address').value.trim().toLowerCase();
+    if(!address||!address.includes('@'))throw new Error('أدخل بريد الشركة الرسمي.');
+    if(!window.confirm('سيتم توجيهك إلى Zoho للموافقة على ربط بريد '+address+' بالشركة المحددة. هل تتابع؟'))return;
+    const data=await mailboxApi('',{action:'connect',company_id,address,region:$('mailbox-region').value});
+    const authorization=new URL(data.authorization_url);
+    if(authorization.protocol!=='https:'||!/^(accounts\.zoho\.(com|eu|in|com\.au|jp|com\.cn)|accounts\.zohocloud\.ca)$/.test(authorization.hostname))
+      throw new Error('رابط تفويض Zoho غير صالح');
+    window.location.assign(authorization.href);
   }
   function message(err){
     const map={AUTH_REQUIRED:'يجب تسجيل الدخول إلى BONDS أولاً.',COMPANY_NOT_FOUND:'ليس لديك وصول لهذه الشركة.',
@@ -68,6 +110,7 @@
     activeCampaign=null;updateActions();
     const list=$('campaign-list');list.replaceChildren();
     if(!UUID.test(selectedCompany)){list.textContent='اختر شركة مصرحًا بها.';return;}
+    await loadMailboxes();
     const result=await api('?company_id='+encodeURIComponent(selectedCompany));
     const campaigns=result.campaigns||[];
     if(!campaigns.length){list.textContent='لا توجد حملات حتى الآن.';return;}
@@ -137,6 +180,8 @@
   }
   window.addEventListener('DOMContentLoaded',()=>{
     $('company').addEventListener('change',()=>run(loadCampaigns));
+    $('connect-mailbox').addEventListener('click',()=>run(connectMailbox));
+    $('refresh-mailbox').addEventListener('click',()=>run(loadMailboxes));
     $('refresh').addEventListener('click',()=>run(loadCampaigns));
     $('create').addEventListener('click',()=>run(create));
     $('import').addEventListener('click',()=>run(importRecipients));
