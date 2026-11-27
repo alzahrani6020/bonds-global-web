@@ -1,0 +1,147 @@
+(function () {
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  let activeCampaign=null,selectedCompany='',loading=false;
+  const labels={draft:'مسودة',review:'قيد المراجعة',approved:'معتمدة',running:'قيد الإرسال',paused:'متوقفة',completed:'مكتملة',cancelled:'ملغاة'};
+  function status(message,bad=false){$('status').textContent=message;$('status').classList.toggle('error',bad);}
+  function node(tag,content){const el=document.createElement(tag);if(content!==undefined)el.textContent=String(content);return el;}
+  function option(value,label){const el=node('option',label);el.value=value;return el;}
+  function setBusy(value){loading=value;for(const id of ['create','refresh','submit','approve','back','cancel','import','bind']){$(id).disabled=value;}}
+  async function session(){
+    let auth=window.BondsAuth;
+    if(!auth?.getSession){
+      await new Promise(resolve=>window.addEventListener('load',resolve,{once:true}));
+      auth=window.BondsAuth;
+    }
+    const result=await auth?.getSession?.();
+    const token=result?.data?.session?.access_token;
+    if(!token)throw new Error('AUTH_REQUIRED');
+    return token;
+  }
+  async function api(path='',payload){
+    const token=await session();
+    const res=await fetch('/api/campaigns'+path,{method:payload?'POST':'GET',cache:'no-store',credentials:'same-origin',
+      headers:{Accept:'application/json',Authorization:'Bearer '+token,...(payload?{'Content-Type':'application/json'}:{})},
+      ...(payload?{body:JSON.stringify(payload)}:{})});
+    const out=await res.json().catch(()=>({}));
+    if(!res.ok)throw new Error(out.error||'REQUEST_FAILED');
+    return out;
+  }
+  function message(err){
+    const map={AUTH_REQUIRED:'يجب تسجيل الدخول إلى BONDS أولاً.',COMPANY_NOT_FOUND:'ليس لديك وصول لهذه الشركة.',
+      CAMPAIGN_BACKEND_NOT_CONFIGURED:'خدمة الحملات غير مهيأة على هذا النشر.',
+      CAMPAIGN_BACKEND_UNAVAILABLE:'تعذر الوصول إلى خدمة الحملات. تحقق من ترحيلات القاعدة.',
+      CAMPAIGN_NOT_EDITABLE:'التعديل متاح في حالة المسودة فقط.',
+      APPROVAL_FORBIDDEN:'اعتماد الحملات محصور في المالك أو المسؤول.',
+      ISSUED_DOCUMENT_NOT_VERIFIED:'الخطاب غير صادر أو ليس لنفس المستلم أو تنقصه بيانات الإصدار.',
+      ISSUE_BINDING_MISMATCH:'توقيع وسجل إصدار المستند غير متطابقين.',
+      ISSUED_PDF_HASH_MISMATCH:'ملف PDF لا يطابق البصمة الموثقة.',
+      DUPLICATE_RECIPIENT:'بريد المستلم مكرر في الحملة.',
+      CAMPAIGN_WRITE_FORBIDDEN:'ليس لديك صلاحية تحرير حملات هذه الشركة.'};
+    return map[err?.message]||err?.message||'تعذر تنفيذ العملية';
+  }
+  async function run(fn){if(loading)return;setBusy(true);try{await fn();}catch(e){status(message(e),true);}finally{setBusy(false);updateActions();}}
+  function updateActions(){
+    const state=activeCampaign?.status||'';
+    $('detail').hidden=!activeCampaign;
+    $('detail-state').textContent=labels[state]||state;
+    $('submit').hidden=state!=='draft';$('approve').hidden=state!=='review';$('back').hidden=state!=='review';
+    $('cancel').hidden=!['draft','review','approved'].includes(state);
+    $('import').disabled=loading||state!=='draft';
+    $('bind').disabled=loading||!['draft','review','approved'].includes(state);
+    $('dispatch').disabled=true;
+    $('dispatch').textContent='الإرسال الآلي غير متاح بعد';
+  }
+  async function loadCompanies(){
+    const result=await api('?mine=1');
+    const select=$('company');select.replaceChildren(option('','اختر الشركة'));
+    for(const c of result.companies||[])select.append(option(c.id,c.name+' — '+(c.role||'مستخدم')));
+    const requested=new URLSearchParams(location.search).get('company_id');
+    if(requested&&[...select.options].some(o=>o.value===requested))select.value=requested;
+    else if(select.options.length===2)select.selectedIndex=1;
+    selectedCompany=select.value;
+    if(selectedCompany)await loadCampaigns();
+  }
+  async function loadCampaigns(){
+    selectedCompany=$('company').value;
+    activeCampaign=null;updateActions();
+    const list=$('campaign-list');list.replaceChildren();
+    if(!UUID.test(selectedCompany)){list.textContent='اختر شركة مصرحًا بها.';return;}
+    const result=await api('?company_id='+encodeURIComponent(selectedCompany));
+    const campaigns=result.campaigns||[];
+    if(!campaigns.length){list.textContent='لا توجد حملات حتى الآن.';return;}
+    for(const c of campaigns){
+      const row=node('div');row.style.padding='10px 0';row.style.borderBottom='1px solid #e4e9f0';
+      row.append(node('strong',c.title),node('small',' — '+(labels[c.status]||c.status)+' '));
+      const button=node('button','فتح');button.type='button';button.className='secondary';
+      button.addEventListener('click',()=>run(()=>openCampaign(c.id)));
+      row.append(button);list.append(row);
+    }
+  }
+  function renderRecipients(items){
+    const body=$('recipients');body.replaceChildren();
+    for(const r of items){
+      const tr=node('tr');tr.append(node('td',r.organization||r.name||'-'),node('td',r.email),node('td',r.status),node('td',r.document_id||'—'));
+      const cell=node('td'),button=node('button','اختيار');button.className='secondary';button.type='button';
+      button.addEventListener('click',()=>{$('recipient-id').value=r.id;status('تم اختيار مستلم لإسناد خطاب صادر مستقل.')});
+      cell.append(button);tr.append(cell);body.append(tr);
+    }
+    if(!items.length){const tr=node('tr'),td=node('td','لم تُضف جهات للحملة بعد.');td.colSpan=5;tr.append(td);body.append(tr);}
+  }
+  async function openCampaign(id){
+    const result=await api('?id='+encodeURIComponent(id));
+    activeCampaign=result.campaign;$('detail-title').textContent=result.campaign.title;
+    renderRecipients(result.recipients||[]);updateActions();
+    status('تم تحميل الحملة من قاعدة البيانات: '+(labels[activeCampaign.status]||activeCampaign.status));
+  }
+  async function create(){
+    const c=$('company').value;if(!UUID.test(c))throw new Error('اختر الشركة المالكة للحملة');
+    const result=await api('',{action:'create',company_id:c,title:$('title').value,kind:$('kind').value,description:$('description').value});
+    await loadCampaigns();await openCampaign(result.campaign.id);
+  }
+  function parseRecipients(text){
+    const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    if(lines.length<1||lines.length>250)throw new Error('أدخل من 1 إلى 250 مستلمًا في الدفعة');
+    const seen=new Set();
+    return lines.map((line,index)=>{
+      const split=line.lastIndexOf(',')>=0?line.lastIndexOf(','):line.lastIndexOf('؛')>=0?line.lastIndexOf('؛'):line.lastIndexOf(';');
+      if(split<1)throw new Error('السطر '+(index+1)+': استخدم اسم الجهة، البريد الإلكتروني');
+      const organization=line.slice(0,split).trim().replace(/^["']|["']$/g,'');
+      const email=line.slice(split+1).trim().toLowerCase();
+      if(!organization||!email||!email.includes('@'))throw new Error('السطر '+(index+1)+' غير مكتمل');
+      if(seen.has(email))throw new Error('البريد مكرر في القائمة: '+email);
+      seen.add(email);return {organization,email};
+    });
+  }
+  async function importRecipients(){
+    if(!activeCampaign||activeCampaign.status!=='draft')throw new Error('لا يمكن تعديل المستلمين بعد رفع الحملة للمراجعة');
+    const recipients=parseRecipients($('recipient-lines').value);
+    const approved=window.confirm('إضافة '+recipients.length+' مستلمًا إلى حملة '+activeCampaign.title+'؟ لن تُرسل أي رسائل.');
+    if(!approved)return;
+    await api('',{action:'add_recipients',id:activeCampaign.id,recipients});
+    $('recipient-lines').value='';await openCampaign(activeCampaign.id);
+  }
+  async function transition(action){
+    if(!activeCampaign)return;
+    if(['approve','cancel'].includes(action)&&!window.confirm('تأكيد الإجراء: '+action+'؟'))return;
+    const result=await api('',{action,id:activeCampaign.id});
+    await loadCampaigns();await openCampaign(result.campaign.id);
+  }
+  async function bind(){
+    if(!activeCampaign)return;
+    const recipient_id=$('recipient-id').value,document_id=$('document-id').value.trim();
+    if(!UUID.test(recipient_id)||!UUID.test(document_id))throw new Error('حدد مستلمًا ومعرف خطاب صادر صحيحًا');
+    await api('',{action:'bind_issued_letter',id:activeCampaign.id,recipient_id,document_id});
+    $('document-id').value='';await openCampaign(activeCampaign.id);
+  }
+  window.addEventListener('DOMContentLoaded',()=>{
+    $('company').addEventListener('change',()=>run(loadCampaigns));
+    $('refresh').addEventListener('click',()=>run(loadCampaigns));
+    $('create').addEventListener('click',()=>run(create));
+    $('import').addEventListener('click',()=>run(importRecipients));
+    $('bind').addEventListener('click',()=>run(bind));
+    for(const id of ['submit','approve','back','cancel'])$(id).addEventListener('click',()=>run(()=>transition(id==='back'?'return':id)));
+    run(async()=>{await loadCompanies();status('المركز جاهز لإنشاء الحملات. الإرسال الجماعي يتطلب ربط بريد موثق.');});
+  });
+})();
