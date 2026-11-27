@@ -311,6 +311,14 @@
       "destination": "/api/platform"
     },
     {
+      "source": "/api/institutional-directory",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/institutional-directory/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/crm-invite",
       "destination": "/api/platform"
     },
