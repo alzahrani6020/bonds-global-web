@@ -63,6 +63,16 @@ class ArchiveVerificationTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 verifier.verify(archive, destination)
 
+    def test_unsafe_bucket_rejected_before_restore(self):
+        payload = tar_with_objects([("..", "file")], [b"A"])
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / "malicious.tar"
+            destination = Path(tmp) / "restored"
+            archive.write_bytes(payload)
+            with self.assertRaises(ValueError):
+                verifier.verify(archive, destination)
+            self.assertFalse(destination.exists())
+
     def test_duplicate_object_identity_rejected(self):
         raw = tar_with_objects([("avatars", "same"), ("avatars", "same")],
                                [b"A", b"B"])
