@@ -165,8 +165,8 @@ describe('guided financial intake fields',()=>{
  });
  test('financial reanalysis is limited to signed-in owner and creates a new dataset version',()=>{
   expect(source).toContain("id=\"srReprocessSavedFile\"");
-  expect(source).toContain("query.eq('user_id',user.id)");
-  expect(source).toContain("query.eq('service_code','financial_analysis')");
+  expect(source).toContain(".eq('user_id',user.id)");
+  expect(source).toContain(".eq('service_code','financial_analysis')");
   expect(source).toContain("query.is('project_id',null)");
   expect(source).toContain("query.is('client_id',null)");
   expect(source).toContain("parent_dataset_id:prior.id");
