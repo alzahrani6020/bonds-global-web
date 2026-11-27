@@ -133,6 +133,18 @@ describe('document parser containment', () => {
     expect(typeof result.text).toBe('string');
   });
 
+  test('XLSX parser retains bounded distinct worksheets for financial analysis', async () => {
+    const xlsx = require('xlsx');
+    const book = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(book, xlsx.utils.aoa_to_sheet([['البيان','2025','2024'],['إجمالي الأصول',1000,900]]), 'Balance');
+    xlsx.utils.book_append_sheet(book, xlsx.utils.aoa_to_sheet([['البيان','2025','2024'],['الإيرادات',2000,1800]]), 'Income');
+    const buffer = xlsx.write(book, { type:'buffer', bookType:'xlsx' });
+    const result = await parseDocument({buffer,mime:MIME.xlsx,filename:'multi-statement.xlsx'});
+    expect(result.sheets.map(s => s.name)).toEqual(['Balance','Income']);
+    expect(result.sheets[0].rows[1][1]).toBe(1000);
+    expect(result.sheets[1].rows[1][1]).toBe(2000);
+  });
+
   test('CSV parsing also uses the containment layer', async () => {
     const result = await parseDocument({
       buffer: Buffer.from('name,value\nalpha,1\nbeta,2\n', 'utf8'),

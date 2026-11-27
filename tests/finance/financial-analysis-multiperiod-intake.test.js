@@ -53,6 +53,53 @@ describe('financial-analysis dated columns - source anchored comparisons',()=>{
   expect(d.values.prior_revenue).toBeUndefined();
   expect(d.values.revenue).toBe(2000000);
  });
+ test('PDF text extracts explicit dated Arabic comparative columns without inventing values',()=>{
+  const d=extractFinancialFields({
+    parsed:{text:['قائمة الدخل','البيان 2025 2024','الإيرادات 2,000,000 1,800,000','صافي الربح 225,000 180,000','الأصول المتداولة 400,000 350,000','الالتزامات المتداولة 200,000 150,000'].join('\n')},
+    primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(d.values).toMatchObject({revenue:2000000,prior_revenue:1800000,net_income:225000,prior_net_income:180000});
+  const revenue=d.fields.find(x=>x.field==='revenue');
+  expect(revenue.status).toBe('extracted_multi_period');
+  expect(revenue.period_values).toEqual({'2025':2000000,'2024':1800000});
+  expect(revenue.source).toEqual(expect.arrayContaining([expect.objectContaining({line:3,column:1,period:'2025',header_line:2})]));
+ });
+ test('PDF with two undated amount columns does not choose one',()=>{
+  const d=extractFinancialFields({
+    parsed:{text:'الإيرادات 2,000,000 1,800,000\nالأصول المتداولة 400,000\nالالتزامات المتداولة 200,000'},
+    primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(d.values.revenue).toBeUndefined();
+  expect(d.fields.find(x=>x.field==='revenue').status).toBe('conflict');
+ });
+ test('PDF dated column header expires rather than binding unrelated later figures',()=>{
+  const lines=['البيان 2025 2024', ...Array(42).fill('ملاحظات'), 'الإيرادات 200 100'];
+  const d=extractFinancialFields({parsed:{text:lines.join('\n')},primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(d.values.revenue).toBeUndefined();
+  expect(d.fields.find(x=>x.field==='revenue').status).toBe('conflict');
+ });
+ test('multiple workbook sheets contribute to a consolidated financial analysis with source sheets',()=>{
+  const d=extractFinancialFields({
+    parsed:{sheets:[
+      {name:'المركز المالي',rows:[['البيان','2025','2024'],['إجمالي الأصول',1000,900],['إجمالي الالتزامات',600,550],['حقوق الملكية',400,350]]},
+      {name:'الدخل',rows:[['البيان','2025','2024'],['الإيرادات',2000,1600],['صافي الربح',200,160]]},
+      {name:'التدفقات',rows:[['البيان','2025','2024'],['التدفقات النقدية التشغيلية',300,240]]}
+    ]},
+    primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(d.values).toMatchObject({total_assets:1000,total_liabilities:600,equity:400,revenue:2000,prior_revenue:1600,net_income:200,operating_cash_flow:300});
+  expect(d.fields.find(x=>x.field==='revenue').source).toEqual(expect.arrayContaining([expect.objectContaining({sheet:'الدخل',period:'2025'})]));
+  expect(d.fields.find(x=>x.field==='total_assets').source).toEqual(expect.arrayContaining([expect.objectContaining({sheet:'المركز المالي',period:'2025'})]));
+ });
+ test('PDF page-table provenance remains visible while text fills only uncovered fields',()=>{
+  const d=extractFinancialFields({parsed:{
+    sheets:[{name:'PDF page 2 table 1',page:2,rows:[['البيان','2025','2024'],['إجمالي الأصول',1000,900],['إجمالي الالتزامات',600,550],['حقوق الملكية',400,350]]}],
+    text:'الإيرادات 2000\nصافي الربح 200'
+  },primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(d.values).toMatchObject({total_assets:1000,total_liabilities:600,equity:400,revenue:2000,net_income:200});
+  expect(d.fields.find(x=>x.field==='total_assets').source).toEqual(expect.arrayContaining([expect.objectContaining({page:2,sheet:'PDF page 2 table 1',period:'2025'})]));
+  expect(d.fields.find(x=>x.field==='revenue').source).toEqual(expect.arrayContaining([expect.objectContaining({extraction_method:'text_parser'})]));
+ });
  test('non-financial-analysis services keep their original field extraction contract',()=>{
   const d=extractFinancialFields({
    parsed:{rows:[['Revenue',2000000],['Current Assets',400000],['Current Liabilities',200000]]},
