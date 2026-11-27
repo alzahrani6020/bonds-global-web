@@ -36,7 +36,7 @@ describe('commercial licensing is enforced across operations',()=>{
   expect(()=>setup(signed({workspaceId:'12345678-1234-4123-8123-1234567890ac'}))).toThrow('INVALID_LICENSE_SCOPE');
  });
  test('denies tampered signature',()=>{
-  const token=signed();token.licenseToken=token.licenseToken.slice(0,-1)+(token.licenseToken.endsWith('A')?'B':'A');
+  const token=signed();const parts=token.licenseToken.split('.');parts[1]=(parts[1][0]==='A'?'B':'A')+parts[1].slice(1);token.licenseToken=parts.join('.');
   expect(()=>setup(token)).toThrow('LICENSE_SIGNATURE_INVALID');
  });
 });
