@@ -71,7 +71,7 @@ describe('financial-analysis dated columns - source anchored comparisons',()=>{
  ])('recognizes explicit comparative reporting dates in PDF headers: %s',(header)=>{
   const d=extractFinancialFields({
    parsed:{text:[header,'الإيرادات 2,000,000 1,800,000','صافي الربح 225,000 180,000',
-    'الأصول المتداولة 400,000 350,000','الالتزامات المتداولة 200,000 150,000'].join('\\n')},
+    'الأصول المتداولة 400,000 350,000','الالتزامات المتداولة 200,000 150,000'].join('\n')},
    primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
   });
   expect(d.values).toMatchObject({revenue:2000000,prior_revenue:1800000,
@@ -81,7 +81,7 @@ describe('financial-analysis dated columns - source anchored comparisons',()=>{
  });
  test('a December reporting date without an explicit header remains ambiguous',()=>{
   const d=extractFinancialFields({
-   parsed:{text:'31 ديسمبر 2025 31 ديسمبر 2024\\nالإيرادات 2,000,000 1,800,000'},
+   parsed:{text:'31 ديسمبر 2025 31 ديسمبر 2024\nالإيرادات 2,000,000 1,800,000'},
    primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
   });
   expect(d.values.revenue).toBeUndefined();
@@ -89,7 +89,7 @@ describe('financial-analysis dated columns - source anchored comparisons',()=>{
  });
  test('mixed or duplicate reporting dates do not silently establish comparable years',()=>{
   const d=extractFinancialFields({
-   parsed:{text:'البيان 31 ديسمبر 2025 31 ديسمبر 2025\\nالإيرادات 2,000,000 1,800,000'},
+   parsed:{text:'البيان 31 ديسمبر 2025 31 ديسمبر 2025\nالإيرادات 2,000,000 1,800,000'},
    primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
   });
   expect(d.values.revenue).toBeUndefined();
