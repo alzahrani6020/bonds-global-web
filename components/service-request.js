@@ -2694,7 +2694,7 @@ function printGovernedFinancialReport(payload){
  };
  if(window.BondsFinancialAnalysisReport){display();return;}
  const script=document.createElement('script');
- script.src='/components/financial-analysis-report.js?v=2';
+ script.src='/components/financial-analysis-report.js?v=3';
  script.onload=display;
  script.onerror=()=>{
   popup.close();
