@@ -90,6 +90,9 @@ table button{padding:6px 10px;font-size:12px}
 <div>
 <h2>إضافة المستلمين</h2>
 <p class="muted">أدخل جهة واحدة في كل سطر بالشكل: اسم المؤسسة، البريد الإلكتروني. راجع العناوين قبل الاستيراد.</p>
+<label for="import-file">استيراد ملف المستثمرين للمراجعة</label><input id="import-file" type="file" accept=".xlsx,.xls,.csv,.pdf,application/pdf,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+<button id="preview-import" type="button" class="secondary">معاينة العناوين المستخرجة</button>
+<p id="import-summary" class="muted" aria-live="polite">لم يتم اختيار ملف. نتائج PDF قد تحتاج تصحيحًا يدويًا.</p>
 <label for="recipient-lines">قائمة الجهات</label>
 <textarea id="recipient-lines" rows="7" placeholder="شركة المثال, contact@example.com"></textarea>
 <button id="import" type="button">مراجعة وإضافة المستلمين</button>
