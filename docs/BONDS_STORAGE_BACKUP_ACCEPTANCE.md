@@ -35,7 +35,7 @@ The existing PostgreSQL backup schedule must remain unaffected; the Storage work
 
 - [x] Source-code gate: secrets are scoped only to the credential-guard and export steps, never job-global; no secret values printed by intended code paths.
 - [x] Supply-chain gate: the sensitive workflow pins `actions/checkout` and `actions/upload-artifact` to inspected full commit SHAs instead of mutable major-version tags; a dedicated regression test enforces these refs.
-- [x] Source-code gate: bucket enumeration is dynamic; omitted/invalid bucket inventory fails closed.
+- [x] Source-code gate: bucket enumeration is dynamic; omitted/invalid bucket inventory fails closed. Pagination uses `limit`/`offset` and rejects duplicate IDs across pages; synthetic tests cover 101 buckets.
 - [x] Source-code gate: encrypted artifact is the only declared upload path; archival source data never deliberately uploaded as a plain artifact.
 - [x] Source-code gate: isolated restoration checks SHA-256 of each actual written file, rejects unsafe bucket/object names, duplicates, unexpected tar members, and existing destination paths; counts and declared bytes are bounded.
 - [ ] Operational gate: verify GitHub secret exists, is the correct credential for the production project, and is not exposed to untrusted branch code. Restrict Actions workflow editing and dispatch permissions; require reviewed commit and change approvals before sensitive export.
