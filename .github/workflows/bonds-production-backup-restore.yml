@@ -5,8 +5,8 @@ on:
     paths: ['.github/workflows/bonds-production-backup-restore.yml']
   workflow_dispatch:
   schedule:
-    # Every day 03:00 Asia/Riyadh = 00:00 UTC (Saudi Arabia observes no DST).
-    - cron: '0 0 * * *'
+    # Every day 03:07 Asia/Riyadh = 00:07 UTC (Saudi Arabia observes no DST).
+    - cron: '7 0 * * *'
 concurrency:
   group: bonds-production-backup-exclusive
   cancel-in-progress: false
