@@ -137,7 +137,9 @@ describe('durable financial report contract',()=>{
   const source=fs.readFileSync('components/service-request.js','utf8');
   const api=fs.readFileSync('v3/api/services.js','utf8');
   expect(source).toContain('async function ensureSavedFinancialReport(');
-  expect(source).toContain("renderExecutionResult(payload);\n  await ensureSavedFinancialReport(data.id,scroll);");
+  expect(source).toContain("renderExecutionResult(payload);\n  const reportReady=await ensureSavedFinancialReport(data.id,scroll);");
+  expect(source).toContain('return reportReady;');
+  expect(source).not.toContain("renderExecutionResult(payload);\n  await ensureSavedFinancialReport(data.id,scroll);");
   expect(source).toContain("frame.srcdoc=result.report.html");
   expect(source).toContain("frame.setAttribute('sandbox','allow-modals')");
   expect(source).toContain("await ensureSavedFinancialReport(intakeDatasetId,true)");
