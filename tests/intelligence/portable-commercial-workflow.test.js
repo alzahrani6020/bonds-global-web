@@ -34,7 +34,7 @@ describe('complete portable commercial workflow from source to destination inten
    expect(exportResult).toMatchObject({send_mail:false,commit_destination:false,create_hr_employee:false});
    expect(exportResult.records[0].city).toBe('الرياض');
    const audit=await workflow.audit({workspaceId:A,actorId:'alice'});
-   expect(audit.map(a=>a.action)).toEqual(['import.reviewed','records.update']);
+   expect(audit.map(a=>a.action)).toEqual(['import.reviewed','records.update','directory.export.correspondence']);
   }finally{cleanup()}
  });
  test('cross-company and viewer cannot approve, edit or export',async()=>{
@@ -46,6 +46,13 @@ describe('complete portable commercial workflow from source to destination inten
    await expect(workflow.approve({workspaceId:A,actorId:'viewer',proposal,approvedIndices:[0]})).rejects.toThrow('TENANT_ACCESS_DENIED');
    await expect(workflow.update({workspaceId:A,actorId:'viewer',id:1,changes:{name:'Intruder'}})).rejects.toThrow('TENANT_ACCESS_DENIED');
    await expect(workflow.exportDirectory({workspaceId:B,actorId:'bob',target:'crm',recordIds:[1]})).rejects.toThrow('EXPORT_RECORD_NOT_FOUND');
+  }finally{cleanup()}
+ });
+ test('denied export does not write an audit event',async()=>{
+  const {workflow,cleanup}=setup();
+  try{
+   await expect(workflow.exportDirectory({workspaceId:A,actorId:'viewer',target:'crm',recordIds:[1]})).rejects.toThrow('EXPORT_NOT_AUTHORIZED');
+   expect(await workflow.audit({workspaceId:A,actorId:'alice'})).toHaveLength(0);
   }finally{cleanup()}
  });
  test('identical entity requires duplicate decision before second save',async()=>{
