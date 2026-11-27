@@ -11,6 +11,7 @@
     "core.js",
     "file-adapters.js",
     "review-gate.js",
+    "local-ocr.js",
     "cli.js",
     "README.md"
   ],
