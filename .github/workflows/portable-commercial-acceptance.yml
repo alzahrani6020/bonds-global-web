@@ -34,6 +34,8 @@ jobs:
         run: node --test tests/intelligence/portable-sqlite-acceptance.cjs
       - name: Verify encrypted backup recovery and signed license boundaries
         run: node --test tests/intelligence/portable-backup-license.acceptance.cjs
+      - name: Verify live encrypted SQLite snapshot and isolated disaster recovery
+        run: node --test tests/intelligence/portable-online-backup.acceptance.cjs
       - name: Test reviewed extraction, role gates, cross-company export, duplicate races and per-operation licensing
         run: npx jest tests/intelligence/portable-commercial-engine.test.js tests/intelligence/portable-integration-contract.test.js tests/intelligence/portable-commercial-workflow.test.js tests/intelligence/portable-approved-directory-export.test.js tests/intelligence/portable-tenant-authorization.test.js tests/intelligence/portable-entity-intelligence.test.js tests/intelligence/portable-licensed-workflow.test.js tests/intelligence/portable-multi-entity-review.test.js tests/intelligence/portable-commercial-http.test.js tests/intelligence/portable-local-identity.test.js --runInBand --no-coverage
       - name: Install Chromium for isolated local UI acceptance
