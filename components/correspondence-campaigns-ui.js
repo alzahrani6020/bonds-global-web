@@ -70,7 +70,7 @@
     if(!window.confirm('سيتم توجيهك إلى Zoho للموافقة على ربط بريد '+address+' بالشركة المحددة. هل تتابع؟'))return;
     const data=await mailboxApi('',{action:'connect',workspace_id,address,region:$('mailbox-region').value});
     const authorization=new URL(data.authorization_url);
-    if(authorization.protocol!=='https:'||!/^(accounts\.zoho\.(com|eu|in|com\.au|jp|com\.cn)|accounts\.zohocloud\.ca)$/.test(authorization.hostname))
+    if(authorization.protocol!=='https:'||!/^(accounts\.zoho\.(com|eu|in|com\.au|jp|com\.cn|ae|sa)|accounts\.zohocloud\.ca)$/.test(authorization.hostname))
       throw new Error('رابط تفويض Zoho غير صالح');
     window.location.assign(authorization.href);
   }
