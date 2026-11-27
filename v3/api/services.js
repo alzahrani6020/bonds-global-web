@@ -1325,6 +1325,20 @@ async function handleFinancialDatasetExport(req,res,supabase,user,id){
     XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(summaryRows),'Summary');
     XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(metricRows),'Metrics');
     XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(inputRows),'Approved Inputs');
+    const provenanceRows=(Array.isArray(data.field_provenance?.fields)?data.field_provenance.fields:[])
+      .map(row=>({
+        field:row.field||'',value:row.value??'',status:row.status||'',
+        period:row.period||'',currency:row.currency||'',
+        comparison_excluded:row.comparison_excluded===true,
+        source_disclaimer:row.document_disclaimer||'',
+        source_references:JSON.stringify(row.source||[])
+      }));
+    const warningRows=(Array.isArray(data.validation?.warnings)?data.validation.warnings:[])
+      .map(item=>({code:item.code||'',details:JSON.stringify(item)}));
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(
+      provenanceRows.length?provenanceRows:[{field:'',value:'',status:'No provenance available'}]),'Field Provenance');
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(
+      warningRows.length?warningRows:[{code:'NONE',details:'No recorded warnings'}]),'Validation Warnings');
     const bytes=XLSX.write(workbook,{type:'buffer',bookType:'xlsx'});
     return sendBinary(res,200,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','financial-analysis-'+id+'.xlsx',bytes);
   }
