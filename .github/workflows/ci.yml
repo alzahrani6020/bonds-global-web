@@ -199,7 +199,7 @@ jobs:
             echo "VISUAL_SCOPE_CLASSIFY: $file"
             case "$file" in
               components/service-request.js|lib/api/document-parser-core.js|tests/security/document-parser-pdf-process.test.js|lib/finance/three-statement-consistency.js|tests/finance/three-statement-consistency.test.js|.github/workflows/financial-analysis-acceptance.yml|components/feasibility-report.js|components/financial-analysis-report.js|components/financial-analysis-lab.js|lib/finance/financial-analysis-lab.js|tests/finance/financial-analysis-lab.test.js|tests/v3/financial-analysis-lab-browser.test.js|lib/finance/financial-data-intake.js|lib/finance/engines/financial-analysis-engine.js|tests/finance/financial-analysis-end-to-end.test.js|tests/finance/financial-engine-registry.test.js|tests/finance/financial-analysis-derivation-gate.test.js|tests/finance/financial-analysis-institutional-evidence.test.js|tests/finance/financial-analysis-multiperiod-intake.test.js|tests/finance/feasibility-institutional-report.test.js|components/service-workspace.css|my-bonds/workspace/index.html|en/my-bonds/workspace/index.html|service-request.html|en/service-request.html|lib/finance/engines/feasibility-engine.js|lib/finance/feasibility-input-validator.js|lib/finance/feasibility-artifact-gate.js|tests/finance/feasibility-artifact-gate.test.js|lib/intent/intent-engine.js|tests/intent/intent-engine.test.js|lib/semantic/profiles.json|tests/orchestrator/trade-sector-acceptance.test.js|lib/services/studies-workspace-bindings.js|tests/v3/studies-research-preservation.test.js|lib/finance/shared/math.js|lib/orchestrator/intelligence-orchestrator.js|lib/orchestrator/ucp-bridge.js|tests/finance/feasibility-input-validator.test.js|tests/orchestrator/ucp-bridge.test.js|tests/v3/feasibility-integrity-gate.test.js|tests/v3/feasibility-workspace-browser.test.js|tests/v3/service-artifact-persistence-contract.test.js|tests/v3/service-request-readback-contract.test.js|tests/v3/service-request-success-destination.test.js|tests/v3/service-workspace-continuity.test.js|tests/v3/service-workspace-routing.test.js|v3/api/services.js|lib/capabilities/runtime-adapters.js|tests/capabilities/user-governed-execution.test.js|tests/v3/feasibility-orchestrator-response-envelope.test.js|tests/assistant/assistant-production-smoke.test.js) ;;
-              components/correspondence-workspace-ui.css|components/correspondence-workspace-ui.js|tests/letterhead/correspondence-institutional-ui.test.js|tests/letterhead/correspondence-institutional-ui.browser.test.js|lib/api/correspondence-tenant-dispatch.js|tests/security/correspondence-tenant-dispatch.test.js|docs/correspondence-institutional-delivery-matrix-20261127.md|lib/api/institutional-directory.js|tests/security/institutional-directory-isolation.test.js)
+              components/correspondence-workspace-ui.css|components/correspondence-workspace-ui.js|tests/letterhead/correspondence-institutional-ui.test.js|tests/letterhead/correspondence-institutional-ui.browser.test.js|lib/api/correspondence-tenant-dispatch.js|tests/security/correspondence-tenant-dispatch.test.js|docs/correspondence-institutional-delivery-matrix-20261127.md|lib/api/institutional-directory.js|tests/security/institutional-directory-isolation.test.js|institutional-directory.html|components/institutional-directory-ui.js|tests/security/institutional-directory-ui.test.js)
                 # Correspondence-only assets, security test and scope report are not homepage assets.
                 # Existing paths are normal in follow-up fixes: compare real PR-base
                 # homepage pixels instead of obsolete pre-redesign mobile snapshots.
@@ -207,21 +207,17 @@ jobs:
                 test -s "$file" || exit 0
                 ;;
               letterhead.html)
-                # Scope-limited cache-bust: only the two existing workspace
-                # asset references may move from v1 to v2. Compare all other
-                # HTML bytes to this PR's actual base (no snapshot bypass).
+                # The directory navigation changes only the versioned
+                # correspondence UI script; every other page byte is identical.
                 git show "$BASE_SHA:letterhead.html" > /tmp/bonds-base-letterhead.html
                 node <<'NODE'
           const fs=require('node:fs');
           const base=fs.readFileSync('/tmp/bonds-base-letterhead.html','utf8');
           const head=fs.readFileSync('letterhead.html','utf8');
-          const oldCss='/components/correspondence-workspace-ui.css?v=1';
-          const oldJs='/components/correspondence-workspace-ui.js?v=1';
-          const newCss='/components/correspondence-workspace-ui.css?v=2';
-          const newJs='/components/correspondence-workspace-ui.js?v=2';
-          if(base.split(oldCss).length!==2||base.split(oldJs).length!==2)process.exit(1);
-          if(head.split(newCss).length!==2||head.split(newJs).length!==2)process.exit(1);
-          if(head.replace(newCss,oldCss).replace(newJs,oldJs)!==base)process.exit(1);
+          const oldJs='/components/correspondence-workspace-ui.js?v=2';
+          const newJs='/components/correspondence-workspace-ui.js?v=3';
+          if(base.split(oldJs).length!==2||head.split(newJs).length!==2)process.exit(1);
+          if(head.replace(newJs,oldJs)!==base)process.exit(1);
           NODE
                 ;;
               site-layout.js)
