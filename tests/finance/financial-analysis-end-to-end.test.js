@@ -158,6 +158,31 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
   expect(r.values.opening_balance).toBe(200);
   expect(r.values.cash_flow_net_income).toBe(45);
  });
+ test('RTL-reversed comparative headers keep annual and interim figures incomparable',()=>{
+  const text=[
+   'قائمة الدخل',
+   '2025 ديسمبر 31 في المنتهية بالسنة مقارنة 2026 سبتمبر 30 في المنتهية أشهر التسعة فترة عن',
+   'البيان',
+   '30 2026 سبتمبر',
+   '31 2025 ديسمبر',
+   'سعودي ريال',
+   'الإيرادات',
+   '4668',
+   '3737',
+   'معتمدة مالية قوائم تمثل لا ، المنشأة بدفاتر مثبتة غير افتراضات على مبنية 2026 عام أرقام'
+  ].join('\n');
+  const parsed={text};
+  const x=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(x.values.revenue).toBe(4668);
+  expect(x.values.prior_revenue).toBeUndefined();
+  expect(x.fields.find(item=>item.field==='revenue').currency).toBe('SAR');
+  expect(x.fields.find(item=>item.field==='prior_revenue')).toMatchObject({
+   period:'2025',status:'not_comparable',comparison_excluded:true
+  });
+  expect(x.validation.warnings.map(item=>item.code)).toEqual(expect.arrayContaining([
+   'FINANCIAL_SOURCE_UNVERIFIED','COMPARATIVE_PERIOD_DURATION_MISMATCH'
+  ]));
+ });
  test('traditional interest coverage requires EBIT, not only EBITDA',()=>{
   const report=financialAnalysis({ebitda:250000,interest_expense:50000},{serviceCode:'interest_coverage_analysis'});
   expect(report.executed).toBe(false);
