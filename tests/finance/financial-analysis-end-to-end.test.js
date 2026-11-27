@@ -143,6 +143,16 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
   expect(html).toContain('&lt;svg onload=alert(1)&gt;');
   expect(html).not.toContain('<svg onload=alert(1)>');
   expect(html).toContain('تم التحقق من حفظ النتائج');
+  p.dataset.field_provenance=[{
+   field:'revenue',value:1000000,document_disclaimer:'source_figures_unverified',
+   source:[{sheet:'Statement',row:4}]
+  },{
+   field:'prior_revenue',value:800000,comparison_excluded:true,
+   comparison_reason:'unequal_reporting_duration',source:[{sheet:'Statement',row:4}]
+  }];
+  const cautioned=render(p,'ar');
+  expect(cautioned).toContain('الأرقام مبنية على افتراضات');
+  expect(cautioned).toContain('فترة التقرير تسعة أشهر');
   const english=render(p,'en');
   expect(english).toContain('Financial Analysis Report');
   p.dataset_persistence={status:'unverified'};
