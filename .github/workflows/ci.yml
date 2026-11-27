@@ -329,7 +329,7 @@ jobs:
           if(after.replace(helper,'').replace(route,'')!==before)process.exit(1);
           NODE
                 ;;
-              lib/portable-intelligence/*|tests/intelligence/portable-commercial-engine.test.js|scripts/site-audit.js)
+              lib/portable-intelligence/*|tests/intelligence/portable-commercial-engine.test.js|tests/intelligence/portable-offline-ocr.test.js|scripts/site-audit.js)
                 # Portable backend-only core and its tests never load on the homepage.
                 # Their changes still run the full unit, integration and security gates.
                 ;;
