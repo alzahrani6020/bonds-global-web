@@ -14,9 +14,9 @@ Commercial module independent from the BONDS production database and corresponde
 
 ## Supported foundation
 - XLSX/CSV: structured rows and bilingual field aliases.
-- PDF: extracted text, non-authoritative email/phone candidates only.
+- PDF/DOCX: extracted text, non-authoritative email/phone candidates only.
 - Business card image: pluggable OCR; throws `OCR_ADAPTER_REQUIRED` without one.
-- DOCX, PDF tables, multi-sheet provenance, offline OCR, installers, key management, licensing and local database migrations: **not implemented**.
+- PDF tables, multi-sheet provenance, offline OCR, installers, key management, licensing and local database migrations: **not implemented**.
 
 ## Installation readiness
 This is source-level modularization, **not an installable customer release**. Packaging, reproducible container image, offline license verification, deployment scripts, signed updates and tenant E2E acceptance must pass separately.
