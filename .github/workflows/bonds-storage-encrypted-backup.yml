@@ -1,0 +1,49 @@
+name: BONDS Storage Encrypted Backup (Manual Gate)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bonds-production-storage-backup-exclusive
+  cancel-in-progress: false
+jobs:
+  storage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      BONDS_STORAGE_SERVICE_ROLE_KEY: ${{ secrets.BONDS_STORAGE_SERVICE_ROLE_KEY }}
+      BONDS_BACKUP_AGE_RECIPIENT: ${{ secrets.BONDS_BACKUP_AGE_RECIPIENT }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Guard credentials and project identity without printing
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${SUPABASE_PROJECT_REF:-}" = "hutxsqzplyuqgnghsrcs" || { echo "BLOCKED: wrong project"; exit 1; }
+          test -n "${BONDS_STORAGE_SERVICE_ROLE_KEY:-}" || { echo "BLOCKED: storage credential missing"; exit 1; }
+          [[ "${BONDS_BACKUP_AGE_RECIPIENT:-}" == age1* ]] || { echo "BLOCKED: public AGE recipient missing"; exit 1; }
+      - name: Install AGE
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age
+      - name: Export and encrypt Storage objects
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/bonds-storage-encrypted"
+          python3 scripts/backup/export_storage_encrypted.py --run-id "$GITHUB_RUN_ID" --output "$RUNNER_TEMP/bonds-storage-encrypted/storage-$GITHUB_RUN_ID.tar.age"
+      - name: Verify encrypted artifact exists
+        run: |
+          set -euo pipefail
+          test -s "$RUNNER_TEMP/bonds-storage-encrypted/storage-$GITHUB_RUN_ID.tar.age"
+          echo "PASS: nonempty encrypted Storage archive"
+      - name: Upload encrypted artifact only
+        uses: actions/upload-artifact@v4
+        with:
+          name: bonds-storage-encrypted-${{ github.run_id }}
+          path: ${{ runner.temp }}/bonds-storage-encrypted/storage-${{ github.run_id }}.tar.age
+          retention-days: 30
+          if-no-files-found: error
