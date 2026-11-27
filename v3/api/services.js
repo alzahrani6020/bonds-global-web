@@ -1146,7 +1146,9 @@ async function handleServiceExecute(req, res, supabase, user) {
           const {render}=require('../../components/financial-analysis-report');
           const html=render({...result.body,dataset:evidence,
             dataset_persistence:{status:'saved',verified:true,dataset_id:dataset.id}},'ar');
-          if(html.startsWith('<!doctype html>')&&html.length>1000){
+          if(typeof html!=='string'||!html.startsWith('<!doctype html>')||html.length<=1000)
+            throw new Error('FINANCIAL_REPORT_INVALID_HTML');
+          {
             executionToPersist={...result.body,report_artifact:{
               format:'html',html,
               sha256:crypto.createHash('sha256').update(html,'utf8').digest('hex'),
@@ -1155,7 +1157,9 @@ async function handleServiceExecute(req, res, supabase, user) {
             }};
           }
         }catch(reportError){
-          console.warn('[services/execute] report generation blocked:',reportError.message);
+          console.error('[services/execute] report generation blocked:',reportError.message);
+          return sendJson(res,422,{ok:false,executed:false,service_code:serviceCode,
+            error:{code:'FINANCIAL_REPORT_GENERATION_FAILED'}});
         }
       }
       // Do not report a completed financial-analysis archive until the exact
@@ -1326,6 +1330,15 @@ async function handleFinancialDatasetReport(req,res,supabase,user,id){
     !execution?.metrics||!Object.values(execution.metrics).some(v=>typeof v==='number'&&Number.isFinite(v)))
   return sendJson(res,409,{ok:false,error:{code:'FINANCIAL_REPORT_REQUIRES_VERIFIED_EXECUTION'}});
  const report=execution.report_artifact;
+ // Every response must validate the stored artifact before returning or reusing it.
+ if(report){
+  const valid=report.format==='html'&&report.dataset_id===id&&
+   report.dataset_version===data.dataset_version&&typeof report.html==='string'&&
+   report.html.startsWith('<!doctype html>')&&report.html.length>1000&&
+   /^[0-9a-f]{64}$/.test(report.sha256||'')&&
+   crypto.createHash('sha256').update(report.html,'utf8').digest('hex')===report.sha256;
+  if(!valid)return sendJson(res,409,{ok:false,error:{code:'FINANCIAL_REPORT_INTEGRITY_FAILED'}});
+ }
  if(req.method==='GET'){
   if(!report?.html||report.format!=='html'||report.dataset_id!==id)
    return sendJson(res,404,{ok:false,error:{code:'FINANCIAL_REPORT_NOT_GENERATED'}});
@@ -1363,7 +1376,8 @@ async function handleFinancialDatasetReport(req,res,supabase,user,id){
  const {data:check,error:checkError}=await supabase.from('financial_datasets')
   .select('id,execution_result').eq('id',id).eq('user_id',user.id).maybeSingle();
  if(checkError||check?.execution_result?.report_artifact?.sha256!==sha256||
-    check?.execution_result?.report_artifact?.html!==html)
+    check?.execution_result?.report_artifact?.html!==html||
+    crypto.createHash('sha256').update(check.execution_result.report_artifact.html,'utf8').digest('hex')!==sha256)
   return sendJson(res,409,{ok:false,error:{code:'FINANCIAL_REPORT_READBACK_UNVERIFIED'}});
  res.setHeader('Cache-Control','private, no-store');
  return sendJson(res,200,{ok:true,report:{html,sha256,generated_at,format:'html',dataset_id:id,dataset_version:data.dataset_version,source_quality:data.quality_status},saved:true});
