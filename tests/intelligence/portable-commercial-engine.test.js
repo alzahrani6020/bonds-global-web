@@ -36,6 +36,18 @@ describe('portable commercial intelligence engine',()=>{
   expect(adapter).not.toContain("require('../intelligence/content-extraction')");
   expect(cli).not.toMatch(/https?:\/\/|fetch\(|http\.request|https\.request/i);
  });
+ test('original spreadsheet row numbers survive blank rows',()=>{
+  const rows=rowsFromMatrix([['name','type'],['First','contact'],[],['Second','contact']]);
+  const result=normalizeRows({rows,workspaceId:A,source:{filename:'contacts.xlsx',kind:'spreadsheet'}});
+  expect(result.items.map(item=>item.source.row)).toEqual([2,4]);
+  expect(result.items.map(item=>item.source.sheet)).toEqual([null,null]);
+ });
+ test('spreadsheet sheet provenance remains review-only metadata',()=>{
+  const result=normalizeRows({rows:[{name:'First',type:'organization',_sheet:'Sheet 2',_sourceRow:8}],workspaceId:A,source:{filename:'contacts.xlsx'}});
+  expect(result.items[0].source).toMatchObject({sheet:'Sheet 2',row:8});
+  expect(result.items[0].record._sheet).toBeUndefined();
+  expect(result.auto_saved).toBe(false);
+ });
  test('CSV quoted comma is preserved',async()=>{
   const result=await analyzeFile({file:{filename:'org.csv',buffer:Buffer.from('type,name,city\norganization,"Company, Ltd",Jeddah\n')},workspaceId:A});
   expect(result.items[0].record.name).toBe('Company, Ltd');
