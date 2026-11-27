@@ -1138,6 +1138,26 @@ async function handleServiceExecute(req, res, supabase, user) {
         recorded_at:now
       };
 
+      // Generate the durable report as part of the same execution record write.
+      // Older executed datasets can be backfilled through the authenticated /report endpoint.
+      let executionToPersist=result.body||{};
+      if(successful&&serviceCode==='financial_analysis'){
+        try{
+          const {render}=require('../../components/financial-analysis-report');
+          const html=render({...result.body,dataset:evidence,
+            dataset_persistence:{status:'saved',verified:true,dataset_id:dataset.id}},'ar');
+          if(html.startsWith('<!doctype html>')&&html.length>1000){
+            executionToPersist={...result.body,report_artifact:{
+              format:'html',html,
+              sha256:crypto.createHash('sha256').update(html,'utf8').digest('hex'),
+              dataset_id:dataset.id,dataset_version:dataset.dataset_version||1,
+              generated_at:now
+            }};
+          }
+        }catch(reportError){
+          console.warn('[services/execute] report generation blocked:',reportError.message);
+        }
+      }
       // Do not report a completed financial-analysis archive until the exact
       // dataset is updated AND read back. A computation can succeed when its
       // persistence fails; preserve the input snapshot for operator recovery.
@@ -1147,7 +1167,7 @@ async function handleServiceExecute(req, res, supabase, user) {
           .from('financial_datasets')
           .update({
             status: successful ? 'executed' : 'validated',
-            execution_result: result.body || {},
+            execution_result: executionToPersist,
             execution_history:history,
             input_snapshot:inputSnapshot,
             derived_metrics:metrics,
@@ -1169,14 +1189,15 @@ async function handleServiceExecute(req, res, supabase, user) {
         }
         const {data:readback,error:readbackError}=await supabase
           .from('financial_datasets')
-          .select('id,user_id,status,input_hash,derived_metrics')
+          .select('id,user_id,status,input_hash,derived_metrics,execution_result')
           .eq('id',dataset.id)
           .eq('user_id',user.id)
           .maybeSingle();
         if(readbackError || !readback || readback.user_id!==user.id ||
            readback.status!==(successful?'executed':'validated') ||
            readback.input_hash!==inputHash ||
-           !require('node:util').isDeepStrictEqual(readback.derived_metrics,JSON.parse(JSON.stringify(metrics)))){
+           !require('node:util').isDeepStrictEqual(readback.derived_metrics,JSON.parse(JSON.stringify(metrics))) ||
+           (executionToPersist.report_artifact && readback.execution_result?.report_artifact?.sha256!==executionToPersist.report_artifact.sha256)){
           throw readbackError || new Error('FINANCIAL_DATASET_READBACK_MISMATCH');
         }
         datasetPersistence={status:'saved',dataset_id:dataset.id,verified:true};
