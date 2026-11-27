@@ -22,8 +22,8 @@
     const crmLink = $('crm-workspace-link');
     if (crmLink) {
       crmLink.href = ready && uuid.test(select.value)
-        ? '/my-bonds/crm/?workspace_id=' + encodeURIComponent(select.value)
-        : '/my-bonds/crm/';
+        ? (english ? '/en/my-bonds/crm/' : '/my-bonds/crm/') + '?workspace_id=' + encodeURIComponent(select.value)
+        : (english ? '/en/my-bonds/crm/' : '/my-bonds/crm/');
     }
   }
   setWorkspaceReady(false);
@@ -152,6 +152,8 @@
       const chosen = matched || spaces.find(w => w.owner_user_id === currentUserId) || spaces[0];
       select.value = chosen.id;
       setWorkspaceReady(true);
+      const loginLink = $('directory-signin-link');
+      if (loginLink) loginLink.hidden = true;
       say(tr('مساحة العمل المختارة: ','Selected workspace: ') + chosen.name);
     } catch (error) {
       sb = null;
