@@ -25,6 +25,20 @@ describe('portable commercial intelligence engine',()=>{
   expect(candidate.records).toEqual([]);
   expect(candidate.requires_manual_identification).toBe(true);
  });
+ test('explicit review converts PDF evidence into pending organization proposal',()=>{
+  const {prepareTextReview}=require('../../lib/portable-intelligence/core');
+  const extraction=proposeFromText('اسم الشركة: مصنع المثال\nEmail: info@example.org');
+  const result=prepareTextReview({extraction,workspaceId:A,filename:'company.pdf',identity:{type:'organization',name:'مصنع المثال',email:'info@example.org'}});
+  expect(result.items[0]).toMatchObject({review_status:'pending',record:{type:'organization',name:'مصنع المثال',email:'info@example.org'}});
+  expect(result.auto_saved).toBe(false);
+ });
+ test('text review rejects evidence substitution and identity changes without confirmation',()=>{
+  const {prepareTextReview}=require('../../lib/portable-intelligence/core');
+  const extraction=proposeFromText('اسم الشركة: مصنع المثال\nEmail: info@example.org');
+  const base={extraction,workspaceId:A,filename:'company.pdf'};
+  expect(()=>prepareTextReview({...base,identity:{type:'organization',name:'شركة أخرى'}})).toThrow('IDENTITY_CONFIRMATION_REQUIRED');
+  expect(()=>prepareTextReview({...base,identity:{type:'organization',name:'مصنع المثال',email:'another@example.org'}})).toThrow('EVIDENCE_MISMATCH');
+ });
  test('images require an explicit local or authorized OCR adapter',async()=>await expect(analyzeFile({file:{filename:'card.png',buffer:Buffer.from('image')},workspaceId:A})).rejects.toThrow('OCR_ADAPTER_REQUIRED'));
  test('rejects malformed records rather than inventing data',()=>{
   const r=normalizeRows({rows:[{name:'Missing type'}],workspaceId:A,source:{filename:'a.csv'}});
