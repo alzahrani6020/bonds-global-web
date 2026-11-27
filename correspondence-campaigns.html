@@ -70,7 +70,10 @@ table button{padding:6px 10px;font-size:12px}
 <button id="approve" type="button">اعتماد الحملة</button>
 <button id="back" class="secondary" type="button">إعادة إلى المسودة</button>
 <button id="cancel" class="warn" type="button">إلغاء الحملة</button>
-<button id="dispatch" disabled type="button" title="يتطلب مزود بريد مربوطًا وصف إرسال دائمًا">الإرسال الآلي غير متاح بعد</button>
+<label for="dispatch-mailbox">صندوق الإرسال</label><select id="dispatch-mailbox" style="max-width:270px"><option value="">اختر صندوق Zoho موثقًا</option></select>
+<button id="dispatch" disabled type="button">اعتماد بدء الإرسال</button>
+<button id="resume-dispatch" class="secondary" disabled type="button">متابعة الإرسال</button>
+<button id="refresh-dispatch" class="secondary" disabled type="button">تحديث النتائج</button>
 </div>
 <div class="grid" style="margin-top:18px">
 <div>
