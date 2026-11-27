@@ -17,7 +17,11 @@
     "integration-contract.js",
     "local-ocr.js",
     "cli.js",
-    "README.md"
+    "README.md",
+    "entity-intelligence.js",
+    "html-table-review.js",
+    "table-financial-review.js",
+    "local-pdf-ocr.js"
   ],
   "engines": {
     "node": ">=22"
