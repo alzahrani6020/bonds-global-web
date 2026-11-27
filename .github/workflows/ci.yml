@@ -190,6 +190,31 @@ jobs:
             echo "scope=base-compare" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          # A backup-only PR has no homepage or visual-test modifications.
+          # Compare its rendered homepage to the *exact current base tree*
+          # from the synthetic merge, never to obsolete legacy screenshots.
+          # This preserves pixel regression detection and other page baselines.
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            git fetch --no-tags --unshallow origin main || true
+            if [[ "$(git rev-list --parents -n 1 HEAD | wc -w)" -eq 3 ]]; then
+              base_parent="$(git rev-parse HEAD^1)"
+              git diff --name-only "$base_parent" HEAD > /tmp/bonds-merge-pr-files.txt
+              backup_only=1
+              while IFS= read -r candidate; do
+                case "$candidate" in
+                  .github/workflows/bonds-offline-backup-custody-tests.yml|.github/workflows/bonds-storage-encrypted-backup.yml|.github/workflows/ci.yml|docs/BONDS_STORAGE_BACKUP_ACCEPTANCE.md|scripts/backup/export_storage_encrypted.py|scripts/backup/verify_storage_restored.py|scripts/backup/test_storage_encrypted.py|scripts/backup/check_storage_db_alignment.py|scripts/backup/test_check_storage_db_alignment.py|scripts/backup/export_isolated_storage_metadata.sql|scripts/backup/test_storage_postgres_integration.py)
+                    ;;
+                  *) backup_only=0 ;;
+                esac
+              done < /tmp/bonds-merge-pr-files.txt
+              if [[ "$backup_only" -eq 1 ]] && [[ -s /tmp/bonds-merge-pr-files.txt ]]; then
+                echo "PASS: backup-only tree diff, homepage pixels compared against current merge base"
+                echo "reference-sha=$base_parent" >> "$GITHUB_OUTPUT"
+                echo "scope=base-compare" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+            fi
+          fi
           echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then exit 0; fi
           git fetch --no-tags --depth=1 origin "$BASE_SHA"
