@@ -100,14 +100,20 @@
       if (!activateExisting('corr-new')) openCenter();
     }));
     nav.append(button(tr('▦  دليل الجهات', '▦  Institutional directory'), () => {
+      // The directory must resolve the authorized CRM workspace; never invent a tenant id.
       window.location.assign('/institutional-directory.html');
     }));
     nav.append(button(tr('▤  عرض السجل والبحث', '▤  Search register'), () => {
       search.focus();
       panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }));
-    nav.append(button(tr('◷  مهامي ومراجعتي', '◷  My work and reviews'), () => openCenter()));
-    nav.append(button(tr('▤  الصادر وسجل النشاط', '▤  Issues and activity'), () => openCenter()));
+    nav.append(button(tr('◷  مهامي ومراجعتي', '◷  My work and reviews'), () => {
+      document.querySelector('.bx-work-list')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }));
+    nav.append(button(tr('▤  الصادر وسجل النشاط', '▤  Issues and activity'), () => {
+      openCenter();
+      document.getElementById('corr-issue-ledger')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }));
     nav.append(button(tr('▣  المسودات والأرشيف', '▣  Drafts and archive'), () => {
       if (typeof window.toggleInbox === 'function') window.toggleInbox();
       else openCenter();
@@ -185,7 +191,10 @@
     }, 'bx-primary'));
     const filter = create('div', 'bx-filter-list');
     filter.append(button(tr('الكل', 'All'), () => openCenter('')));
-    filter.append(button(tr('بحث متقدم', 'Advanced search'), () => openCenter('')));
+    filter.append(button(tr('بحث متقدم', 'Advanced search'), () => {
+      search.focus();
+      search.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }));
     panel.append(filter);
 
     const search = create('input', 'bx-search');

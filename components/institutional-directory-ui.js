@@ -12,10 +12,14 @@
   let sb = null;
   let busy = false;
   let loadingWorkspaces = false;
+  let requestSerial = 0;
+  let initializationSerial = 0;
+  let allowedWorkspaceIds = new Set();
   const requestedWorkspace = new URLSearchParams(window.location.search).get('workspace_id');
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const controls = ['search-directory', 'institutional-preview-entry', 'institutional-preview-csv'];
   function setWorkspaceReady(ready) {
+    ready = Boolean(ready && allowedWorkspaceIds.has(select.value));
     controls.forEach(id => { const button = $(id); if (button) button.disabled = !ready; });
     const importButton = $('institutional-apply');
     if (!ready && importButton) importButton.disabled = true;
@@ -68,11 +72,12 @@
     return token;
   }
   async function loadResults() {
-    if (busy || !sb || loadingWorkspaces) return;
+    if (!sb || loadingWorkspaces) return;
+    const serial = ++requestSerial;
     const workspace = select.value;
     const type = $('entity-type').value;
     const q = $('directory-query').value.trim();
-    if (!workspace) { say(tr('اختر مساحة شركة مصرحًا بها أولًا.','Choose an authorized company workspace first.')); return; }
+    if (!allowedWorkspaceIds.has(workspace)) { say(tr('اختر مساحة شركة مصرحًا بها أولًا.','Choose an authorized company workspace first.')); return; }
     if (q.length > 80 || /[^\p{L}\p{N}\s._-]/u.test(q)) {
       say(tr('استخدم الاسم أو جزءًا منه دون رموز البحث الخاصة.','Search by name without special wildcard symbols.')); return;
     }
@@ -92,9 +97,11 @@
       if (!response.ok) throw new Error('DIRECTORY_UNAVAILABLE');
       const payload = await response.json();
       if (payload.workspace_id !== workspace || !Array.isArray(payload.items)) throw new Error('DIRECTORY_UNAVAILABLE');
+      if (serial !== requestSerial || select.value !== workspace) return;
       renderItems(payload.items,type);
       say(tr('عدد النتائج المعروضة: ','Displayed records: ') + payload.items.length + tr(' (الحد الأقصى 25 سجلًا لكل بحث).',' (maximum 25 records per search).'));
     } catch (error) {
+      if (serial !== requestSerial || select.value !== workspace) return;
       const message = error?.message === 'AUTH_REQUIRED'
         ? tr('انتهت جلسة الدخول. سجّل الدخول إلى BONDS ثم أعد المحاولة.','Your session has expired. Sign in to BONDS and retry.')
         : error?.message === 'WORKSPACE_NOT_FOUND'
@@ -102,18 +109,27 @@
           : tr('تعذر تحميل دليل الجهات حاليًا. لم تُغيّر أي بيانات.','Unable to load the directory. No data was changed.');
       say(message);
     } finally {
-      submit.disabled = false;
-      busy = false;
+      if (serial === requestSerial) {
+        busy = false;
+        setWorkspaceReady(Boolean(sb && !loadingWorkspaces));
+      }
     }
   }
   form.addEventListener('submit', event => { event.preventDefault(); void loadResults(); });
   select.addEventListener('change', () => {
+    ++requestSerial;
+    results.replaceChildren();
     setWorkspaceReady(Boolean(select.value));
     void loadResults();
   });
   $('entity-type').addEventListener('change', () => { void loadResults(); });
 
   async function initialize() {
+    const initSerial = ++initializationSerial;
+    ++requestSerial;
+    allowedWorkspaceIds = new Set();
+    select.value = '';
+    results.replaceChildren();
     loadingWorkspaces = true;
     setWorkspaceReady(false);
     say(tr('جارٍ التحقق من الجلسة ومساحات العمل...', 'Checking session and workspaces...'));
@@ -129,6 +145,8 @@
       const { data: spaces, error } = await sb.from('crm_app_workspaces')
         .select('id,name,owner_user_id').order('created_at',{ascending:true}).limit(100);
       if (error) throw error;
+      if (initSerial !== initializationSerial) return;
+      allowedWorkspaceIds = new Set((spaces || []).map(space => space.id));
       select.replaceChildren();
       if (!spaces?.length) {
         select.append(new Option(tr('لا توجد مساحات CRM مصرح بها','No authorized CRM workspaces'), ''));
@@ -156,16 +174,19 @@
       if (loginLink) loginLink.hidden = true;
       say(tr('مساحة العمل المختارة: ','Selected workspace: ') + chosen.name);
     } catch (error) {
+      if (initSerial !== initializationSerial) return;
       sb = null;
+      allowedWorkspaceIds = new Set();
       select.replaceChildren(new Option(tr('تسجيل الدخول مطلوب','Sign-in required'), ''));
       const loginLink = $('directory-signin-link');
       if (loginLink) loginLink.hidden = false;
       say(tr('تعذر ربط الدليل بجلسة BONDS. افتح تسجيل الدخول ثم أعد المحاولة.',
         'Unable to connect the directory to your BONDS session. Sign in and retry.'));
     } finally {
+      if (initSerial !== initializationSerial) return;
       loadingWorkspaces = false;
       setWorkspaceReady(Boolean(sb && select.value));
-      if (sb && select.value) await loadResults();
+      if (sb && allowedWorkspaceIds.has(select.value)) await loadResults();
     }
   }
   const refresh = $('directory-refresh-workspaces');
