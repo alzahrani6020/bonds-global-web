@@ -83,6 +83,38 @@ jobs:
             echo "PASS: latest successful backup $run_id is within 26h."
           fi
 
+          # Independently prove that a scheduled, successful backup exists.
+          # Manual successes remain valid for emergency recovery but must never
+          # conceal a broken daily GitHub schedule.
+          scheduled="$(gh api -X GET "repos/$GH_REPO/actions/workflows/$workflow/runs?branch=main&event=schedule&status=success&per_page=1")"
+          scheduled_id="$(jq -r '.workflow_runs[0].id // empty' <<< "$scheduled")"
+          scheduled_completed="$(jq -r '.workflow_runs[0].updated_at // empty' <<< "$scheduled")"
+          if [[ -z "$scheduled_id" || -z "$scheduled_completed" ]]; then
+            # The first post-rollout scheduled backup is due 2026-11-28 00:07 UTC.
+            # Give GitHub scheduling and the isolated restore a two-hour grace.
+            # Before that instant, report PENDING rather than a false failure.
+            first_due_epoch="$(date -u -d '2026-11-28T02:07:00Z' +%s)"
+            if (( now < first_due_epoch )); then
+              echo "PENDING: first post-rollout scheduled backup not yet due (grace through 2026-11-28T02:07Z)."
+            else
+              open_alert "[BONDS Backup Watchdog] No successful scheduled backup" \
+                "No successful event=schedule backup was recorded by the initial grace deadline. A manual backup does not satisfy the daily schedule gate. Check $source_url and tracking issue #1273."
+            fi
+          else
+            scheduled_epoch="$(date -u -d "$scheduled_completed" +%s)"
+            scheduled_age="$((now - scheduled_epoch))"
+            if (( scheduled_age < 0 )); then
+              echo "FAIL: scheduled backup completion timestamp is in the future"
+              exit 1
+            fi
+            if (( scheduled_age > max_age_seconds )); then
+              open_alert "[BONDS Backup Watchdog] Scheduled backup overdue" \
+                "Latest successful scheduled backup is older than 26h: run $scheduled_id, completed $scheduled_completed UTC. Manual successes do not resolve schedule freshness."
+            else
+              echo "PASS: successful event=schedule backup $scheduled_id is within 26h."
+            fi
+          fi
+
           artifact_name="bonds-production-encrypted-backup-$run_id"
           artifacts="$(gh api -X GET "repos/$GH_REPO/actions/runs/$run_id/artifacts?per_page=100")"
           artifact="$(jq -c --arg name "$artifact_name" '.artifacts[] | select(.name == $name)' <<< "$artifacts" | head -n 1)"
