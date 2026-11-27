@@ -45,6 +45,25 @@ describe('BONDS institutional directory and CRM workspace action wiring',()=>{
   expect(importer).not.toContain("crm_app_members').insert");
   expect(crm).not.toContain("requestedWorkspaceId}).insert");
  });
+ test('switching workspaces invalidates stale directory responses and disables unauthorized actions',()=>{
+  expect(directory).toContain('const serial = ++requestSerial');
+  expect(directory).toContain('serial !== requestSerial || select.value !== workspace');
+  expect(directory).toContain('allowedWorkspaceIds.has(select.value)');
+  expect(directory).toContain('++requestSerial;');
+  expect(directory).toContain('initSerial !== initializationSerial');
+ });
+ test('correspondence work and issue controls have distinct navigation actions',()=>{
+  const shell=file('components/correspondence-workspace-ui.js');
+  expect(shell).toContain("document.querySelector('.bx-work-list')?.scrollIntoView");
+  expect(shell).toContain("document.getElementById('corr-issue-ledger')?.scrollIntoView");
+  expect(shell).toContain('search.focus();');
+  expect(shell).toContain("window.location.assign('/institutional-directory.html')");
+ });
+ test('partial CSV import explains the failing record without silently retrying writes',()=>{
+  expect(importer).toContain('failedAt=index+1');
+  expect(importer).toContain('created++;failedAt=null;');
+  expect(importer).toContain('stopped at record: ');
+ });
  test('CRM has bilingual links and cache-busted script',()=>{
   for(const [page,link] of [['my-bonds/crm/index.html','/institutional-directory.html'],['en/my-bonds/crm/index.html','/en/institutional-directory.html']]){
    const html=file(page);
