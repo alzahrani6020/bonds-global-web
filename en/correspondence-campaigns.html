@@ -90,6 +90,9 @@ table button{padding:6px 10px;font-size:12px}
 <div>
 <h2>Add recipients</h2>
 <p class="muted">Enter one organization per line as: Organization, email address. Review addresses before import.</p>
+<label for="import-file">Import investor/contact file for review</label><input id="import-file" type="file" accept=".xlsx,.xls,.csv,.pdf,application/pdf,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+<button id="preview-import" type="button" class="secondary">Preview extracted contacts</button>
+<p id="import-summary" class="muted" aria-live="polite">No file selected. PDF extraction may require manual correction.</p>
 <label for="recipient-lines">Recipients</label>
 <textarea id="recipient-lines" rows="7" placeholder="Example Company, contact@example.com"></textarea>
 <button id="import" type="button">مراجعة وAdd recipients</button>
