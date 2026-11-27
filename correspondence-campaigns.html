@@ -89,6 +89,14 @@ table button{padding:6px 10px;font-size:12px}
 <p id="dispatch-status" class="muted" role="status" aria-live="polite">لم يبدأ الإرسال بعد.</p>
 <div class="actions"><button id="sync-replies" type="button" class="secondary" disabled>مطابقة الردود الواردة في Zoho</button><button id="refresh-replies" type="button" class="secondary" disabled>تحديث سجل الردود</button></div>
 <p id="reply-summary" role="status" aria-live="polite" class="muted">لا توجد ردود مثبتة في سجل الحملة بعد.</p>
+<div class="panel" style="margin-top:16px;background:#f7f9fc"><h2>قالب خطابات الحملة الموحد</h2>
+<p class="muted">يُعد النظام مسودة مستقلة باسم كل مستلم، دون توقيع أو ختم أو إرسال تلقائي.</p>
+<label for="subject-template">موضوع الخطاب</label><input id="subject-template" maxlength="200" placeholder="دعوة لبحث التعاون الاستثماري">
+<label for="body-template">نص الخطاب (يمكن استخدام {{organization}} أو {{name}} للتخصيص)</label>
+<textarea id="body-template" rows="6" maxlength="12000" placeholder="اكتب الغرض من التعاون دون مبالغ تمويلية أو وعود عائد غير مثبتة."></textarea>
+<div class="actions"><button id="save-template" type="button" class="secondary">حفظ قالب الحملة</button>
+<button id="prepare-drafts" type="button">إنشاء مسودات مستقلة لجميع المستلمين</button></div>
+<p id="draft-progress" class="muted" role="status" aria-live="polite">تخضع كل مسودة للاعتماد الرسمي المستقل.</p></div>
 <div class="grid" style="margin-top:18px">
 <div>
 <h2>إضافة المستلمين</h2>
