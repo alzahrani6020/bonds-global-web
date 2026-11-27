@@ -64,25 +64,6 @@ jobs:
           # and restore. A gap is detected when last success is older than 26h.
           max_age_seconds=93600
 
-          if [[ -z "$run_id" || -z "$run_completed" ]]; then
-            open_alert "[BONDS Backup Watchdog] No recent successful backup" \
-              "No successful backup run on main was found. Inspect $source_url"
-            exit 0
-          fi
-
-          run_epoch="$(date -u -d "$run_completed" +%s)"
-          age_seconds="$((now - run_epoch))"
-          if (( age_seconds < 0 )); then
-            echo "FAIL: future completion timestamp; check GitHub API clock"
-            exit 1
-          fi
-          if (( age_seconds > max_age_seconds )); then
-            open_alert "[BONDS Backup Watchdog] No recent successful backup" \
-              "Latest successful production backup is older than 26h: run $run_id, completed $run_completed UTC. Inspect https://github.com/$GH_REPO/actions/runs/$run_id and verify backup plus isolated restore."
-          else
-            echo "PASS: latest successful backup $run_id is within 26h."
-          fi
-
           # Independently prove that a scheduled, successful backup exists.
           # Manual successes remain valid for emergency recovery but must never
           # conceal a broken daily GitHub schedule.
@@ -113,6 +94,25 @@ jobs:
             else
               echo "PASS: successful event=schedule backup $scheduled_id is within 26h."
             fi
+          fi
+
+          if [[ -z "$run_id" || -z "$run_completed" ]]; then
+            open_alert "[BONDS Backup Watchdog] No recent successful backup" \
+              "No successful backup run on main was found. Inspect $source_url"
+            exit 0
+          fi
+
+          run_epoch="$(date -u -d "$run_completed" +%s)"
+          age_seconds="$((now - run_epoch))"
+          if (( age_seconds < 0 )); then
+            echo "FAIL: future completion timestamp; check GitHub API clock"
+            exit 1
+          fi
+          if (( age_seconds > max_age_seconds )); then
+            open_alert "[BONDS Backup Watchdog] No recent successful backup" \
+              "Latest successful production backup is older than 26h: run $run_id, completed $run_completed UTC. Inspect https://github.com/$GH_REPO/actions/runs/$run_id and verify backup plus isolated restore."
+          else
+            echo "PASS: latest successful backup $run_id is within 26h."
           fi
 
           artifact_name="bonds-production-encrypted-backup-$run_id"
