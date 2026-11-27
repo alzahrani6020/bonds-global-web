@@ -441,6 +441,12 @@ jobs:
                 # pixel comparison against the immutable PR base, not old
                 # mobile snapshots that predate the approved redesign.
                 ;;
+              .github/workflows/bonds-production-backup-restore.yml|components/correspondence-campaigns-ui.js|components/letterhead-correspondence.js|correspondence-campaigns.html|en/correspondence-campaigns.html|lib/api/correspondence-campaign-dispatch.js|lib/api/correspondence-campaign-replies.js|lib/api/correspondence-campaign-workflow.js|lib/api/correspondence-campaigns.js|lib/api/correspondence-issued-campaign.js|lib/api/correspondence-mailbox-crypto.js|lib/api/correspondence-mailboxes.js|lib/api/correspondence-recipient-extraction.js|lib/api/correspondence-zoho-oauth.js|lib/api/correspondence-zoho-provider.js|lib/api/correspondence-zoho-replies.js|lib/api/correspondence.js|supabase/migrations/20261127220000_correspondence_campaigns.sql|supabase/migrations/20261127221000_correspondence_mailboxes.sql|supabase/migrations/20261127222000_correspondence_campaign_dispatch.sql|supabase/migrations/20261127223000_correspondence_campaign_replies.sql|tests/api/correspondence-campaign-drafts.test.js|tests/api/correspondence-campaigns.test.js|tests/api/correspondence-zoho-provider.test.js|tests/letterhead/correspondence-campaigns-ui.browser.test.js|tests/security/correspondence-campaign-drafts.test.js|tests/security/correspondence-campaign-replies-acceptance.pg.sql|tests/security/correspondence-campaign-workflow.test.js|tests/security/correspondence-campaign-workspace-context.test.js|tests/security/correspondence-campaigns-acceptance.pg.sql|tests/security/correspondence-campaigns-bootstrap.pg.sql|tests/security/correspondence-issued-campaign.test.js|tests/security/correspondence-mailbox-crypto.test.js|tests/security/correspondence-recipient-extraction.test.js|tests/security/correspondence-zoho-oauth.test.js|tests/security/correspondence-zoho-replies.test.js)
+                # These paths are campaign-only API, schema, UI and tests;
+                # they do not modify public homepage presentation assets.
+                # Pixel-diff against the exact PR base remains mandatory.
+                test -s "$file" || exit 0
+                ;;
               .github/workflows/ci.yml)
                 # This PR adjusts only the visual-scope classifier; enforce
                 # byte-for-byte parity for every OTHER CI workflow section.
@@ -450,16 +456,22 @@ jobs:
                 cmp -s /tmp/bonds-base-ci-other-steps.yml /tmp/bonds-head-ci-other-steps.yml || exit 0
                 ;;
               vercel.json)
-                # Allow exactly two new route mappings to the existing platform
-                # handler, with every other config byte identical to the PR base.
+                # Allow only eight campaign-specific rewrites. Every previous
+                # rewrite, header, redirect, cron, function and project option
+                # must remain identical to the exact PR base.
                 git show "$BASE_SHA:vercel.json" > /tmp/bonds-base-vercel.json
                 node <<'NODE' || exit 0
           const fs=require('node:fs');
-          const base=fs.readFileSync('/tmp/bonds-base-vercel.json','utf8');
-          const head=fs.readFileSync('vercel.json','utf8');
-          const block='    {\n      "source": "/api/institutional-directory",\n      "destination": "/api/platform"\n    },\n    {\n      "source": "/api/institutional-directory/",\n      "destination": "/api/platform"\n    },\n';
-          if(head.split(block).length!==2)process.exit(1);
-          if(head.replace(block,'')!==base)process.exit(1);
+          const base=JSON.parse(fs.readFileSync('/tmp/bonds-base-vercel.json','utf8'));
+          const head=JSON.parse(fs.readFileSync('vercel.json','utf8'));
+          const paths=['/api/campaigns','/api/campaign-mailboxes','/api/campaign-dispatch','/api/campaign-replies'];
+          const allowed=new Set(paths.flatMap(p=>[p,p+'/']));
+          const added=(head.rewrites||[]).filter(r=>allowed.has(r.source));
+          if(added.length!==allowed.size)process.exit(1);
+          if(added.some(r=>r.destination!=='/api/platform'||!allowed.has(r.source)))process.exit(1);
+          if(new Set(added.map(r=>r.source)).size!==allowed.size)process.exit(1);
+          const trimmed={...head,rewrites:head.rewrites.filter(r=>!allowed.has(r.source))};
+          if(JSON.stringify(trimmed)!==JSON.stringify(base))process.exit(1);
           NODE
                 ;;
               sw.js)
@@ -480,6 +492,12 @@ jobs:
               *) exit 0 ;;
             esac
           done < /tmp/bonds-pr-changed-files.txt
+          # Deny scoped treatment if any real public homepage source changed.
+          # No baseline or screenshot file is overwritten or ignored.
+          git diff --quiet "$BASE_SHA" HEAD -- \
+            site-layout.js index.html en/index.html \
+            styles.css header-footer.css styles/bonds-redesign-2026.css \
+            styles/home.css styles/institutional-home.css
           echo "scope=base-compare" >> "$GITHUB_OUTPUT"
 
       - name: Prepare exact PR-base homepage visual reference
