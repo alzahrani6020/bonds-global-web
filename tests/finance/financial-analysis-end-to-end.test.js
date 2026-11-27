@@ -75,6 +75,47 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
   expect(revenue.currency).toBe('SAR');
   expect(revenue.candidates.map(c=>c.period)).toEqual(expect.arrayContaining(['2025','2026']));
  });
+ test('three-statement Arabic PDF-shaped text preserves subtotals, evidence and incompatible comparison',()=>{
+  const {qualityStatus}=require('../../lib/finance/financial-data-intake');
+  const parsed={text:[
+   'قائمة المركز المالي',
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'ريال سعودي',
+   '1000 2250 مجموع الموجودات',
+   '120 900 مجموع الالتزامات',
+   '880 1350 مجموع حقوق الملكية',
+   'قائمة الدخل والدخل الشامل',
+   'عن فترة التسعة أشهر المنتهية في 30 سبتمبر 2026 مقارنة بالسنة المنتهية في 31 ديسمبر 2025',
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'ريال سعودي',
+   '3737 4668 الإيرادات',
+   '2160 3600 تكلفة الإيرادات',
+   '550 390 المصروفات العمومية والإدارية',
+   '560 415 مجموع المصروفات العمومية والإدارية',
+   '995 636 صافي الربح بعد الزكاة',
+   'قائمة التدفقات النقدية',
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'ريال سعودي',
+   '995 636 صافي ربح السنة / الفترة بعد الزكاة',
+   'أرقام عام 2026 مبنية على افتراضات غير مثبتة ولا تمثل قوائم مالية معتمدة'
+  ].join('\n')};
+  const result=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(result.values.revenue).toBe(4668);
+  expect(result.values.operating_expenses).toBe(415);
+  expect(result.values.net_income).toBe(636);
+  expect(result.values.cash_flow_net_income).toBe(636);
+  expect(result.values.prior_revenue).toBeUndefined();
+  expect(result.values.prior_net_income).toBeUndefined();
+  expect(result.fields.find(f=>f.field==='prior_revenue')).toMatchObject({
+   status:'not_comparable',period:'2025',comparison_excluded:true
+  });
+  expect(result.validation.warnings.map(w=>w.code)).toEqual(expect.arrayContaining([
+   'FINANCIAL_SOURCE_UNVERIFIED','COMPARATIVE_PERIOD_DURATION_MISMATCH'
+  ]));
+  expect(qualityStatus({validation:{valid:true,missing:[],unresolved:[]},
+   fields:result.fields,reviewed:true,serviceCode:'financial_analysis',values:result.values})).toBe('unverified');
+  expect(result.fields.find(f=>f.field==='revenue').currency).toBe('SAR');
+ });
  test('traditional interest coverage requires EBIT, not only EBITDA',()=>{
   const report=financialAnalysis({ebitda:250000,interest_expense:50000},{serviceCode:'interest_coverage_analysis'});
   expect(report.executed).toBe(false);
