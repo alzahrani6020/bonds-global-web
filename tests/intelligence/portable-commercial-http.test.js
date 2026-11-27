@@ -1,6 +1,7 @@
 'use strict';
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),crypto=require('node:crypto');
 const {createCommercialServer}=require('../../lib/portable-intelligence/commercial-server');
+const {createLocalIdentityStore}=require('../../lib/portable-intelligence/local-identity');
 const A='12345678-1234-4123-8123-1234567890ab',B='12345678-1234-4123-8123-1234567890ac';
 function licensedToken(){
  const {privateKey,publicKey}=crypto.generateKeyPairSync('ed25519');
@@ -70,6 +71,27 @@ describe('commercial installed-loopback API acceptance',()=>{
    const csrf=await fetch(f.url+'/logout',{method:'POST',headers:{Origin:'https://outside.example',Cookie:auth.cookie,'Content-Type':'application/json'},body:'{}'});
    expect(csrf.status).toBe(403);
   }finally{await f.close()}
+ });
+ test('persisted local identities enforce real role revocation across HTTP sessions',async()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bonds-local-user-http-'));
+  const filename=path.join(dir,'customer.sqlite'),identity=createLocalIdentityStore({filename}),dataKey=crypto.randomBytes(32);
+  const owner=identity.createUser({username:'alice',password:'trusted-local-password-2026',workspaceId:A,role:'owner'});
+  const viewer=identity.createUser({username:'bob',password:'another-local-password-2026',workspaceId:A,role:'viewer'});
+  const app=createCommercialServer({workspaceId:A,databasePath:filename,...licensedToken(),encryptionKey:dataKey,getMembership:identity.getMembership,verifyCredentials:identity.verifyCredentials});
+  const url=await app.listen();
+  try{
+   const login=async(username,password)=>{
+    const res=await fetch(url+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+    return {status:res.status,cookie:(res.headers.get('set-cookie')||'').split(';')[0]};
+   };
+   const ownerAuth=await login('alice','trusted-local-password-2026'),viewAuth=await login('bob','another-local-password-2026');
+   expect(ownerAuth.status).toBe(200);expect(viewAuth.status).toBe(200);
+   expect((await fetch(url+'/records',{headers:{Cookie:viewAuth.cookie}})).status).toBe(200);
+   identity.setMembershipActive({workspaceId:A,actorId:viewer.actor_id,active:false});
+   expect((await fetch(url+'/records',{headers:{Cookie:viewAuth.cookie}})).status).toBe(403);
+   expect((await fetch(url+'/records',{headers:{Cookie:ownerAuth.cookie}})).status).toBe(200);
+   expect(owner.actor_id).not.toBe(viewer.actor_id);
+  }finally{await app.close();identity.close();fs.rmSync(dir,{recursive:true,force:true})}
  });
  test('server refuses non-loopback host and invalid signatures',()=>{
   const fields={workspaceId:A,databasePath:path.join(os.tmpdir(),'customer-test.sqlite'),getMembership:async()=>null,verifyCredentials:async()=>null,...licensedToken()};
