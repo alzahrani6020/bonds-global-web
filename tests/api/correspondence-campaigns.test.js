@@ -4,8 +4,8 @@ const {createHandler}=require('../../lib/api/correspondence-campaigns');
 function mockDatabase(actor,owner){
  const companyA=randomUUID(),companyB=randomUUID();
  const tables={
-  companies:[{id:companyA,owner_user_id:owner,is_active:true,name:'BONDS'},{id:companyB,owner_user_id:randomUUID(),is_active:true,name:'Other'}],
-  company_members:[],correspondence_campaigns:[],correspondence_campaign_recipients:[],
+  crm_app_workspaces:[{id:companyA,owner_user_id:owner,name:'BONDS'},{id:companyB,owner_user_id:randomUUID(),name:'Other'}],
+  crm_app_members:[],correspondence_campaigns:[],correspondence_campaign_recipients:[],
   correspondence_campaign_events:[],correspondence_documents:[],correspondence_issues:[]
  };
  function builder(table,op,arg){
@@ -57,17 +57,17 @@ describe('BONDS campaign API authorization and readback',()=>{
   const db=mockDatabase(randomUUID(),randomUUID()),handler=createHandler(()=>db.sb);
   expect((await request(handler,'GET',null,{mine:'1'},'bad')).statusCode).toBe(401);
  });
- test('separates companies and never sends mail',async()=>{
+ test('separates crm_app_workspaces and never sends mail',async()=>{
   const owner=randomUUID(),db=mockDatabase(owner,owner),handler=createHandler(()=>db.sb);
-  let r=await request(handler,'POST',{action:'create',company_id:db.companyB,title:'Wrong tenant',kind:'investment'});
+  let r=await request(handler,'POST',{action:'create',workspace_id:db.companyB,title:'Wrong tenant',kind:'investment'});
   expect(r.statusCode).toBe(404);
-  r=await request(handler,'POST',{action:'create',company_id:db.companyA,title:'Clix investor outreach',kind:'investment'});
+  r=await request(handler,'POST',{action:'create',workspace_id:db.companyA,title:'Clix investor outreach',kind:'investment'});
   expect(r.statusCode).toBe(201);
   const id=r.body.campaign.id;
   const mine=await request(handler,'GET',null,{mine:'1'});
-  expect(mine.body.companies).toHaveLength(1);
-  expect(mine.body.companies[0].id).toBe(db.companyA);
-  let list=await request(handler,'GET',null,{company_id:db.companyA});
+  expect(mine.body.workspaces).toHaveLength(1);
+  expect(mine.body.workspaces[0].id).toBe(db.companyA);
+  let list=await request(handler,'GET',null,{workspace_id:db.companyA});
   expect(list.body.campaigns.map(x=>x.id)).toEqual([id]);
   r=await request(handler,'POST',{action:'add_recipients',id,recipients:[
     {organization:'Alpha',email:'a@example.com'},{organization:'Beta',email:'b@example.com'}]});
@@ -86,7 +86,7 @@ describe('BONDS campaign API authorization and readback',()=>{
  });
  test('rejects invalid issuer and anonymous provider credentials',async()=>{
   const owner=randomUUID(),db=mockDatabase(owner,owner),handler=createHandler(()=>db.sb);
-  const r=await request(handler,'POST',{action:'create',company_id:db.companyA,title:'Clix',kind:'investment'},undefined,'bad');
+  const r=await request(handler,'POST',{action:'create',workspace_id:db.companyA,title:'Clix',kind:'investment'},undefined,'bad');
   expect(r.statusCode).toBe(401);
   expect(db.tables.correspondence_campaigns).toHaveLength(0);
  });
