@@ -70,6 +70,9 @@ describe('BONDS campaign visual browser acceptance (mock isolated)',()=>{
     expect(state.campaigns[0].workspace_id).toBe(workspace);
     expect(await page.locator('#dispatch').isDisabled()).toBe(true);
     expect(await page.locator('#detail').isVisible()).toBe(true);
+    expect(await page.locator('#dispatch-status').textContent()).toContain('معلقة:');
+    expect(await page.locator('#reply-summary').textContent()).toContain('ردود مثبتة: 0');
+    expect(await page.locator('#sync-replies').isDisabled()).toBe(true);
   }finally{await page.close();}
  },30000);
  test('mobile 390px: no horizontal page overflow, accessible form and buttons',async()=>{
