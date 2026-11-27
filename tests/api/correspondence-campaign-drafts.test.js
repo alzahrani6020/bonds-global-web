@@ -36,9 +36,9 @@ function database(owner){
   function execute(){
    if(!rows)return {data:null,error:new Error('Unknown table '+table)};
    if(type==='insert'){
-    const incoming={id:randomUUID(),...arg};
-    rows.push(incoming);
-    return {data:[{...incoming}],error:null};
+    const incoming=(Array.isArray(arg)?arg:[arg]).map(item=>({id:randomUUID(),...item}));
+    rows.push(...incoming);
+    return {data:incoming.map(item=>({...item})),error:null};
    }
    let matched=rows.filter(x=>filters.every(fn=>fn(x)));
    if(type==='update')matched.forEach(x=>Object.assign(x,arg));
