@@ -6,6 +6,9 @@
 const getSupabase = require('../lib/api/supabase');
 const crmInviteHandler = require('../lib/api/crm-invite');
 const institutionalDirectoryHandler = require('../lib/api/institutional-directory');
+const correspondenceCampaignsHandler = require('../lib/api/correspondence-campaigns');
+const correspondenceMailboxesHandler = require('../lib/api/correspondence-mailboxes');
+const correspondenceDispatchHandler = require('../lib/api/correspondence-campaign-dispatch');
 const hrInviteHandler = require('../lib/api/hr-invite');
 const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
@@ -2363,6 +2366,22 @@ module.exports = async function handler(req, res) {
       req.query = req.query || {}; req.query.action = 'send-letter';
       if (await checkRateLimit('auth', req, res)) return;
       return siteHandler(req, res);
+    }
+
+    // Tenant-isolated institutional campaign manager, OAuth mailbox and delivery.
+    // Consolidated to preserve the existing Vercel serverless function budget.
+    if (pathname === '/api/campaigns' || pathname === '/api/campaigns/') {
+      if (await checkRateLimit(req.method === 'GET' ? 'admin_read' : 'auth', req, res)) return;
+      return correspondenceCampaignsHandler(req, res);
+    }
+    if (pathname === '/api/campaign-mailboxes' || pathname === '/api/campaign-mailboxes/') {
+      const callback = req.method === 'GET' && Boolean(url.searchParams.get('state'));
+      if (await checkRateLimit(callback ? 'public' : 'auth', req, res)) return;
+      return correspondenceMailboxesHandler(req, res);
+    }
+    if (pathname === '/api/campaign-dispatch' || pathname === '/api/campaign-dispatch/') {
+      if (await checkRateLimit('strict', req, res)) return;
+      return correspondenceDispatchHandler(req, res);
     }
 
     // Authenticated, tenant-scoped and read-only CRM organization/contact directory.
