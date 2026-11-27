@@ -9,6 +9,7 @@ const institutionalDirectoryHandler = require('../lib/api/institutional-director
 const correspondenceCampaignsHandler = require('../lib/api/correspondence-campaigns');
 const correspondenceMailboxesHandler = require('../lib/api/correspondence-mailboxes');
 const correspondenceDispatchHandler = require('../lib/api/correspondence-campaign-dispatch');
+const correspondenceRepliesHandler = require('../lib/api/correspondence-campaign-replies');
 const hrInviteHandler = require('../lib/api/hr-invite');
 const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
@@ -2382,6 +2383,11 @@ module.exports = async function handler(req, res) {
     if (pathname === '/api/campaign-dispatch' || pathname === '/api/campaign-dispatch/') {
       if (await checkRateLimit('strict', req, res)) return;
       return correspondenceDispatchHandler(req, res);
+    }
+
+    if (pathname === '/api/campaign-replies' || pathname === '/api/campaign-replies/') {
+      if (await checkRateLimit('strict', req, res)) return;
+      return correspondenceRepliesHandler(req, res);
     }
 
     // Authenticated, tenant-scoped and read-only CRM organization/contact directory.
