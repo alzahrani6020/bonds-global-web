@@ -64,6 +64,37 @@ describe('financial-analysis dated columns - source anchored comparisons',()=>{
   expect(revenue.period_values).toEqual({'2025':2000000,'2024':1800000});
   expect(revenue.source).toEqual(expect.arrayContaining([expect.objectContaining({line:3,column:1,period:'2025',header_line:2})]));
  });
+ test.each([
+  'البيان 31 ديسمبر 2025 31 ديسمبر 2024',
+  'البيان 31/12/2025 31/12/2024',
+  'Description 31 December 2025 31 December 2024'
+ ])('recognizes explicit comparative reporting dates in PDF headers: %s',(header)=>{
+  const d=extractFinancialFields({
+   parsed:{text:[header,'الإيرادات 2,000,000 1,800,000','صافي الربح 225,000 180,000',
+    'الأصول المتداولة 400,000 350,000','الالتزامات المتداولة 200,000 150,000'].join('\\n')},
+   primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(d.values).toMatchObject({revenue:2000000,prior_revenue:1800000,
+   net_income:225000,prior_net_income:180000});
+  expect(d.fields.find(field=>field.field==='revenue').source).toEqual(
+   expect.arrayContaining([expect.objectContaining({line:2,column:1,period:'2025',header_line:1})]));
+ });
+ test('a December reporting date without an explicit header remains ambiguous',()=>{
+  const d=extractFinancialFields({
+   parsed:{text:'31 ديسمبر 2025 31 ديسمبر 2024\\nالإيرادات 2,000,000 1,800,000'},
+   primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(d.values.revenue).toBeUndefined();
+  expect(d.fields.find(field=>field.field==='revenue').status).toBe('conflict');
+ });
+ test('mixed or duplicate reporting dates do not silently establish comparable years',()=>{
+  const d=extractFinancialFields({
+   parsed:{text:'البيان 31 ديسمبر 2025 31 ديسمبر 2025\\nالإيرادات 2,000,000 1,800,000'},
+   primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(d.values.revenue).toBeUndefined();
+  expect(d.fields.find(field=>field.field==='revenue').status).toBe('conflict');
+ });
  test('PDF with two undated amount columns does not choose one',()=>{
   const d=extractFinancialFields({
     parsed:{text:'الإيرادات 2,000,000 1,800,000\nالأصول المتداولة 400,000\nالالتزامات المتداولة 200,000'},
