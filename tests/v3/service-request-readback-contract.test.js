@@ -137,7 +137,9 @@ describe('guided financial intake fields',()=>{
   expect(source).toContain('data-intake-field=');
   expect(source).toContain('sr-review-group');
   expect(source).toContain('confirmed.map(field=>renderIntakeReviewField(field,fields))');
-  expect(source).toContain('unresolved.map(field=>renderIntakeReviewField(field,fields))');
+  expect(source).toContain('critical.map(field=>renderIntakeReviewField(field,fields))');
+  expect(source).toContain('supplemental.map(field=>renderIntakeReviewField(field,fields))');
+  expect(source).toContain('المطلوب لإكمال التحليل');
  });
 });
 
