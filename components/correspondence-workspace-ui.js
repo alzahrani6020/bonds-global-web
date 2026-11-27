@@ -6,7 +6,9 @@
 
   function activateExisting(id) {
     const action = document.getElementById(id);
-    if (!action || action.hidden || action.disabled) return false;
+    // The governed engine switches actions via inline display, not the hidden property.
+    // Never bypass its document-state and permission decisions.
+    if (!action || action.hidden || action.disabled || action.style.display === 'none') return false;
     action.click();
     return true;
   }
@@ -102,6 +104,11 @@
       panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }));
     nav.append(button(tr('◷  مهامي ومراجعتي', '◷  My work and reviews'), () => openCenter()));
+    nav.append(button(tr('▤  الصادر وسجل النشاط', '▤  Issues and activity'), () => openCenter()));
+    nav.append(button(tr('▣  المسودات والأرشيف', '▣  Drafts and archive'), () => {
+      if (typeof window.toggleInbox === 'function') window.toggleInbox();
+      else openCenter();
+    }));
     nav.append(create('div', 'bx-nav-separator'));
     const verification = create('a', '', tr('✓  التحقق من المراسلات', '✓  Correspondence verification'));
     verification.href = '/admin/correspondence-verification/';
@@ -117,14 +124,18 @@
       if (!activateExisting('corr-save')) window.alert(tr('الحفظ غير متاح في حالة المستند الحالية.', 'Saving is unavailable in the current state.'));
     }));
     headerActions.append(button(tr('إرسال للمراجعة', 'Submit for review'), () => {
-      if (!activateExisting('corr-save-submit')) window.alert(tr('الإرسال غير متاح في الحالة الحالية.', 'Submission is unavailable in the current state.'));
+      // Fresh drafts use save-submit; existing owned drafts use submit.
+      // The canonical engine alone decides which action is permitted.
+      if (!activateExisting('corr-save-submit') && !activateExisting('corr-submit')) {
+        window.alert(tr('الإرسال غير متاح في حالة المستند الحالية أو لحسابك.', 'Submission is unavailable in the current document state or for your account.'));
+      }
     }));
     const toolToggle = button(tr('أدوات التنسيق', 'Formatting tools'), () => {
-      const expanded = editor.classList.toggle('bx-show-tools');
-      toolToggle.setAttribute('aria-expanded', String(expanded));
+      const collapsed = editor.classList.toggle('bx-hide-tools');
+      toolToggle.setAttribute('aria-expanded', String(!collapsed));
     }, 'bx-advanced-toggle');
     toolToggle.setAttribute('aria-controls', 'letterhead-toolbar');
-    toolToggle.setAttribute('aria-expanded', 'false');
+    toolToggle.setAttribute('aria-expanded', 'true');
     headerActions.append(toolToggle);
     editorHeader.append(editorName, headerActions);
     editor.append(editorHeader);
@@ -136,6 +147,14 @@
       document.getElementById('corr-details-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }));
     tabs.append(button(tr('المرفقات وسجل الإجراءات', 'Attachments and activity'), () => openCenter()));
+    tabs.append(button(tr('سجل الصادر والأنشطة', 'Issue ledger and activity'), () => {
+      openCenter();
+      document.getElementById('corr-issue-ledger')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }));
+    tabs.append(button(tr('المسودات والأرشيف', 'Drafts and archive'), () => {
+      if (typeof window.toggleInbox === 'function') window.toggleInbox();
+      else openCenter();
+    }));
     editor.append(tabs);
 
     const documentArea = create('div', 'bx-document-area');

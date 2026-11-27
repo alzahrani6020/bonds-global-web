@@ -33,6 +33,10 @@ describe('Correspondence institutional UI integration', () => {
     expect(styles).toContain('@media print');
     expect(styles).toContain('@media(max-width:780px)');
     expect(styles).toContain('.bx-document-area .sheet');
-    expect(styles).toContain('.bx-editor:not(.bx-show-tools) #letterhead-toolbar .toolbar-row');
+    expect(styles).toContain('.bx-editor #letterhead-toolbar .toolbar-row{display:flex');
+    expect(styles).toContain('.bx-editor.bx-hide-tools #letterhead-toolbar .toolbar-row{display:none}');
+    expect(script).toContain("action.style.display === 'none'");
+    expect(script).toContain("activateExisting('corr-submit')");
+    expect(script).toContain("window.toggleInbox");
   });
 });
