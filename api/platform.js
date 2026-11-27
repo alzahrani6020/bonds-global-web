@@ -5,6 +5,7 @@
 
 const getSupabase = require('../lib/api/supabase');
 const crmInviteHandler = require('../lib/api/crm-invite');
+const institutionalDirectoryHandler = require('../lib/api/institutional-directory');
 const hrInviteHandler = require('../lib/api/hr-invite');
 const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
@@ -2362,6 +2363,12 @@ module.exports = async function handler(req, res) {
       req.query = req.query || {}; req.query.action = 'send-letter';
       if (await checkRateLimit('auth', req, res)) return;
       return siteHandler(req, res);
+    }
+
+    // Authenticated, tenant-scoped and read-only CRM organization/contact directory.
+    if (pathname === '/api/institutional-directory' || pathname === '/api/institutional-directory/') {
+      if (await checkRateLimit('admin_read', req, res)) return;
+      return institutionalDirectoryHandler(req, res);
     }
 
     // Owner-only CRM email invitations; no separate serverless function.
