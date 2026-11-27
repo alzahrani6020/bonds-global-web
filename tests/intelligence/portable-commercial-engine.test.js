@@ -14,6 +14,11 @@ describe('portable commercial intelligence engine',()=>{
  });
  test('missing authorized tenant context fails closed',()=>expect(()=>normalizeRows({rows:[],source:{filename:'x.csv'}})).toThrow('WORKSPACE_ID_REQUIRED'));
  test('unverified PDF evidence never becomes a saved contact',()=>expect(proposeFromText('info@example.com').records).toEqual([]));
+ test('multiline PDF text remains data and can yield review-only candidates',()=>{
+  const result=proposeFromText('شركة مثال\nEmail: info@example.org\nPhone: +966 50 123 4567');
+  expect(result.candidates.email).toBe('info@example.org');
+  expect(result.records).toEqual([]);
+ });
  test('images require an explicit local or authorized OCR adapter',async()=>await expect(analyzeFile({file:{filename:'card.png',buffer:Buffer.from('image')},workspaceId:A})).rejects.toThrow('OCR_ADAPTER_REQUIRED'));
  test('rejects malformed records rather than inventing data',()=>{
   const r=normalizeRows({rows:[{name:'Missing type'}],workspaceId:A,source:{filename:'a.csv'}});
