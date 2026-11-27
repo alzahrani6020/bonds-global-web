@@ -128,6 +128,9 @@ jobs:
       - name: Verify portable local SQLite save/reopen/tenant isolation
         run: node --test tests/intelligence/portable-sqlite-acceptance.cjs
 
+      - name: Verify portable encrypted backup and license signing
+        run: node --test tests/intelligence/portable-backup-license.acceptance.cjs
+
       - name: Run Unit and Integration Tests
         run: npm test
 
@@ -332,7 +335,7 @@ jobs:
           if(after.replace(helper,'').replace(route,'')!==before)process.exit(1);
           NODE
                 ;;
-              lib/portable-intelligence/*|tests/intelligence/portable-commercial-engine.test.js|tests/intelligence/portable-offline-ocr.test.js|tests/intelligence/portable-integration-contract.test.js|tests/intelligence/portable-sqlite-acceptance.cjs|scripts/site-audit.js)
+              lib/portable-intelligence/*|tests/intelligence/portable-commercial-engine.test.js|tests/intelligence/portable-offline-ocr.test.js|tests/intelligence/portable-integration-contract.test.js|tests/intelligence/portable-sqlite-acceptance.cjs|tests/intelligence/portable-backup-license.acceptance.cjs|scripts/site-audit.js)
                 # Portable backend-only core and its tests never load on the homepage.
                 # Their changes still run the full unit, integration and security gates.
                 ;;
@@ -388,7 +391,9 @@ jobs:
                 # Normalize only this exact additional step; any other CI edit still fails parity.
                 test "$(grep -Fxc '      - name: Verify portable local SQLite save/reopen/tenant isolation' "$file")" -eq 1 || exit 0
                 test "$(grep -Fxc '        run: node --test tests/intelligence/portable-sqlite-acceptance.cjs' "$file")" -eq 1 || exit 0
-                sed '/^      - name: Determine visual regression scope from PR base$/,/^      - name: Prepare exact PR-base homepage visual reference$/c\VISUAL_SCOPE_CLASSIFIER' "$file" | sed '/^      - name: Verify portable local SQLite save\/reopen\/tenant isolation$/,+2d' > /tmp/bonds-head-ci-other-steps.yml
+                test "$(grep -Fxc '      - name: Verify portable encrypted backup and license signing' "$file")" -eq 1 || exit 0
+                test "$(grep -Fxc '        run: node --test tests/intelligence/portable-backup-license.acceptance.cjs' "$file")" -eq 1 || exit 0
+                sed '/^      - name: Determine visual regression scope from PR base$/,/^      - name: Prepare exact PR-base homepage visual reference$/c\VISUAL_SCOPE_CLASSIFIER' "$file" | sed '/^      - name: Verify portable local SQLite save\/reopen\/tenant isolation$/,+2d' | sed '/^      - name: Verify portable encrypted backup and license signing$/,+2d' > /tmp/bonds-head-ci-other-steps.yml
                 cmp -s /tmp/bonds-base-ci-other-steps.yml /tmp/bonds-head-ci-other-steps.yml || exit 0
                 ;;
               vercel.json)
