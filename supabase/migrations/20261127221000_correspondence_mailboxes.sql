@@ -6,7 +6,7 @@ create table if not exists public.correspondence_mailboxes (
  provider text not null default 'zoho' check(provider='zoho'),
  address text not null,
  account_id text not null check(account_id ~ '^[0-9]{4,24}$'),
- region text not null default 'com' check(region in ('com','eu','in','comau','jp','ca','comcn')),
+ region text not null default 'com' check(region in ('com','eu','in','comau','jp','ca','comcn','ae','sa')),
  encrypted_refresh_token text not null,
  enabled boolean not null default false,
  verified_at timestamptz,
@@ -25,7 +25,7 @@ create table if not exists public.correspondence_mailbox_oauth_states (
  workspace_id uuid not null references public.crm_app_workspaces(id) on delete restrict,
  actor_user_id uuid not null references auth.users(id) on delete restrict,
  requested_address text not null,
- region text not null check(region in ('com','eu','in','comau','jp','ca','comcn')),
+ region text not null check(region in ('com','eu','in','comau','jp','ca','comcn','ae','sa')),
  expires_at timestamptz not null,
  consumed_at timestamptz,
  created_at timestamptz not null default now()
