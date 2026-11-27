@@ -19,6 +19,18 @@ describe('portable commercial intelligence engine',()=>{
   const r=normalizeRows({rows:[{name:'Missing type'}],workspaceId:A,source:{filename:'a.csv'}});
   expect(r.items).toHaveLength(0);expect(r.errors[0].code).toBe('TYPE_REVIEW_REQUIRED');
  });
+ test('standalone manifest and adapters do not depend on BONDS production services',()=>{
+  const fs=require('node:fs');const path=require('node:path');
+  const root=path.resolve(__dirname,'../../lib/portable-intelligence');
+  const packageJson=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
+  const adapter=fs.readFileSync(path.join(root,'file-adapters.js'),'utf8');
+  const cli=fs.readFileSync(path.join(root,'cli.js'),'utf8');
+  expect(packageJson.bin['bonds-document-intelligence']).toBe('./cli.js');
+  expect(packageJson.dependencies).toHaveProperty('pdf-parse');
+  expect(adapter).not.toMatch(/supabase|service.role|\/api\/|correspondence|\.insert\(|\.upsert\(/i);
+  expect(adapter).not.toContain("require('../intelligence/content-extraction')");
+  expect(cli).not.toMatch(/https?:\/\/|fetch\(|http\.request|https\.request/i);
+ });
  test('CSV quoted comma is preserved',async()=>{
   const result=await analyzeFile({file:{filename:'org.csv',buffer:Buffer.from('type,name,city\norganization,"Company, Ltd",Jeddah\n')},workspaceId:A});
   expect(result.items[0].record.name).toBe('Company, Ltd');
