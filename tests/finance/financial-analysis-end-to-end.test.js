@@ -183,6 +183,65 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
    'FINANCIAL_SOURCE_UNVERIFIED','COMPARATIVE_PERIOD_DURATION_MISMATCH'
   ]));
  });
+ test('original-PDF-shaped RTL three statements reconcile without uploading private document to GitHub',()=>{
+  // Anonymous test numbers. Structure mimics the user's three-page, per-line
+  // right-to-left PDF extraction, not a copy of their confidential statement.
+  const rows=[
+   'المالي المركز قائمة',
+   'البيان','30 2026 سبتمبر','31 2025 ديسمبر','سعودي ريال',
+   'حكمه في وما النقد','920,000.00','410,000.00',
+   'المتداولة الموجودات مجموع','1,600,000.00','980,000.00',
+   'الموجودات مجموع','2,400,000.00','1,800,000.00',
+   'المتداولة الالتزامات مجموع','800,000.00','320,000.00',
+   'الالتزامات مجموع','960,000.00','500,000.00',
+   'الملكية حقوق مجموع','1,440,000.00','1,300,000.00',
+   'الشامل والدخل الدخل قائمة',
+   '2025 ديسمبر 31 في المنتهية بالسنة مقارنة 2026 سبتمبر 30 في المنتهية أشهر التسعة فترة عن',
+   'البيان','30 2026 سبتمبر','31 2025 ديسمبر','سعودي ريال',
+   'الإيرادات','5,000,000.00','4,200,000.00',
+   'الإيرادات تكلفة','(3,500,000.00)','(2,700,000.00)',
+   'إدارية والعمومية المصروفات','(380,000.00)','(440,000.00)',
+   'والمعدات الممتلكات اك ل وإه اك ل استه','(20,000.00)','(10,000.00)',
+   'إدارية والعمومية المصروفات مجموع','(400,000.00)','(450,000.00)',
+   'الزكاة بعد الربح صافي','1,050,000.00','950,000.00',
+   'النقدية التدفقات قائمة',
+   '2025 ديسمبر 31 في المنتهية بالسنة مقارنة 2026 سبتمبر 30 في المنتهية أشهر التسعة فترة عن',
+   'البيان','30 2026 سبتمبر','31 2025 ديسمبر','سعودي ريال',
+   'الزكاة بعد الفترة السنة ربح صافي','1,050,000.00','950,000.00',
+   'والمعدات الممتلكات اك ل وإه اك ل استه','20,000.00','10,000.00',
+   'التشغيلية الأنشطة من الناتج النقد صافي','900,000.00','650,000.00',
+   'الاستثمارية الأنشطة من الناتج النقد صافي','150,000.00','(300,000.00)',
+   'التمويلية الأنشطة من الناتج النقد صافي','(540,000.00)','200,000.00',
+   'الفترة أول حكمه في وما النقد','410,000.00','190,000.00',
+   'الفترة آخر حكمه في وما النقد','920,000.00','740,000.00',
+   'معتمدة مالية قوائم تمثل لا المنشأة بدفاتر مثبتة غير افتراضات على مبنية 2026 عام أرقام'
+  ];
+  const {deriveFinancialInputs}=require('../../lib/finance/financial-data-intake');
+  const x=extractFinancialFields({parsed:{text:rows.join('\n')},
+    primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  const expected={
+   total_assets:2400000,total_liabilities:960000,equity:1440000,
+   current_assets:1600000,current_liabilities:800000,cash:920000,
+   revenue:5000000,cogs:3500000,operating_expenses:400000,net_income:1050000,
+   depreciation_amortization:20000,cash_flow_net_income:1050000,
+   opening_balance:410000,ending_cash:920000,
+   operating_cash_flow:900000,investing_cash_flow:150000,financing_cash_flow:-540000
+  };
+  for(const [field,value] of Object.entries(expected))
+    expect(x.values[field]).toBe(value);
+  expect(x.values.prior_revenue).toBeUndefined();
+  expect(x.fields.find(item=>item.field==='prior_revenue')).toMatchObject({
+   status:'not_comparable',comparison_excluded:true
+  });
+  expect(x.validation.errors).toEqual([]);
+  expect(x.validation.warnings.map(w=>w.code)).toEqual(expect.arrayContaining([
+   'FINANCIAL_SOURCE_UNVERIFIED','COMPARATIVE_PERIOD_DURATION_MISMATCH'
+  ]));
+  const derived=deriveFinancialInputs(x.values,x.fields);
+  expect(derived.values.operating_income).toBe(1100000);
+  expect(derived.values.ebitda).toBe(1120000);
+  expect(x.fields.find(item=>item.field==='financing_cash_flow').currency).toBe('SAR');
+ });
  test('traditional interest coverage requires EBIT, not only EBITDA',()=>{
   const report=financialAnalysis({ebitda:250000,interest_expense:50000},{serviceCode:'interest_coverage_analysis'});
   expect(report.executed).toBe(false);
