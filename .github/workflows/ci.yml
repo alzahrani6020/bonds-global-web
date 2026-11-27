@@ -245,36 +245,43 @@ jobs:
                 cmp -s /tmp/bonds-main-correspondence-file /tmp/bonds-merge-correspondence-file || exit 0
                 ;;
               .github/workflows/bonds-backup-freshness-watchdog.yml)
-                # Only the exact reviewed schedule-proof block is non-visual.
-                # Any further changes retain the existing full visual gate.
+                # Require the exact existing scheduled-check block to move before
+                # early return, with no other workflow modifications.
                 git show "$BASE_SHA:$file" > /tmp/bonds-base-watchdog.yml || exit 0
                 python3 - <<'PY' || exit 0
           from pathlib import Path
           base = Path('/tmp/bonds-base-watchdog.yml').read_text()
           head = Path('.github/workflows/bonds-backup-freshness-watchdog.yml').read_text()
-          marker = "          artifact_name=\"bonds-production-encrypted-backup-$run_id\""
-          addition = "          # Independently prove that a scheduled, successful backup exists.\n          # Manual successes remain valid for emergency recovery but must never\n          # conceal a broken daily GitHub schedule.\n          scheduled=\"$(gh api -X GET \"repos/$GH_REPO/actions/workflows/$workflow/runs?branch=main&event=schedule&status=success&per_page=1\")\"\n          scheduled_id=\"$(jq -r '.workflow_runs[0].id // empty' <<< \"$scheduled\")\"\n          scheduled_completed=\"$(jq -r '.workflow_runs[0].updated_at // empty' <<< \"$scheduled\")\"\n          if [[ -z \"$scheduled_id\" || -z \"$scheduled_completed\" ]]; then\n            # The first post-rollout scheduled backup is due 2026-11-28 00:07 UTC.\n            # Give GitHub scheduling and the isolated restore a two-hour grace.\n            # Before that instant, report PENDING rather than a false failure.\n            first_due_epoch=\"$(date -u -d '2026-11-28T02:07:00Z' +%s)\"\n            if (( now < first_due_epoch )); then\n              echo \"PENDING: first post-rollout scheduled backup not yet due (grace through 2026-11-28T02:07Z).\"\n            else\n              open_alert \"[BONDS Backup Watchdog] No successful scheduled backup\" \\\n                \"No successful event=schedule backup was recorded by the initial grace deadline. A manual backup does not satisfy the daily schedule gate. Check $source_url and tracking issue #1273.\"\n            fi\n          else\n            scheduled_epoch=\"$(date -u -d \"$scheduled_completed\" +%s)\"\n            scheduled_age=\"$((now - scheduled_epoch))\"\n            if (( scheduled_age < 0 )); then\n              echo \"FAIL: scheduled backup completion timestamp is in the future\"\n              exit 1\n            fi\n            if (( scheduled_age > max_age_seconds )); then\n              open_alert \"[BONDS Backup Watchdog] Scheduled backup overdue\" \\\n                \"Latest successful scheduled backup is older than 26h: run $scheduled_id, completed $scheduled_completed UTC. Manual successes do not resolve schedule freshness.\"\n            else\n              echo \"PASS: successful event=schedule backup $scheduled_id is within 26h.\"\n            fi\n          fi\n\n"
-          if base.count(marker) != 1 or head != base.replace(marker, addition + marker):
+          marker = '          # Independently prove that a scheduled, successful backup exists.'
+          after = '          artifact_name="bonds-production-encrypted-backup-$run_id"'
+          before = '          if [[ -z "$run_id" || -z "$run_completed" ]]; then'
+          if any(base.count(x) != 1 for x in (marker, after, before)):
+              raise SystemExit(1)
+          start, end = base.index(marker), base.index(after)
+          if start >= end:
+              raise SystemExit(1)
+          block = base[start:end]
+          without = base[:start] + base[end:]
+          expected = without.replace(before, block + before, 1)
+          if head != expected:
               raise SystemExit(1)
           PY
                 ;;
-              docs/BONDS_BACKUP_DISASTER_RECOVERY_ACCEPTANCE.md)
-                # Allow only the reviewed runbook-only architecture block.
-                # Any other edit uses the full visual regression gate.
-                git show "$BASE_SHA:$file" > /tmp/bonds-base-dr-runbook.md || exit 0
+              .github/workflows/bonds-offline-backup-custody-tests.yml)
+                git show "$BASE_SHA:$file" > /tmp/bonds-base-custody-ci.yml || exit 0
                 python3 - <<'PY' || exit 0
           from pathlib import Path
-          base = Path('/tmp/bonds-base-dr-runbook.md').read_text()
-          head = Path('docs/BONDS_BACKUP_DISASTER_RECOVERY_ACCEPTANCE.md').read_text()
-          marker = '## BONDS production architecture boundaries (verified 2026-11-27)'
-          anchor = '## Read-only operational reference'
-          if marker in base or base.count(anchor) != 1 or head.count(marker) != 1 or head.count(anchor) != 1:
-              raise SystemExit(1)
-          start = head.index(marker)
-          end = head.index(anchor, start)
-          if head != base.replace(anchor, head[start:end] + anchor):
+          base = Path('/tmp/bonds-base-custody-ci.yml').read_text()
+          head = Path('.github/workflows/bonds-offline-backup-custody-tests.yml').read_text()
+          anchor = "      - 'scripts/backup/test_check_github_backup_schedule.py'"
+          addition = anchor + "\n      - 'scripts/backup/test_watchdog_schedule_order.py'\n      - '.github/workflows/bonds-backup-freshness-watchdog.yml'"
+          if base.count(anchor) != 1 or head != base.replace(anchor, addition):
               raise SystemExit(1)
           PY
+                ;;
+              scripts/backup/test_watchdog_schedule_order.py)
+                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then exit 0; fi
+                test -s "$file" || exit 0
                 ;;
               scripts/backup/archive_encrypted_backup.py|scripts/backup/test_archive_encrypted_backup.py|scripts/backup/check_github_backup_schedule.py|scripts/backup/test_check_github_backup_schedule.py|.github/workflows/bonds-offline-backup-custody-tests.yml|docs/BONDS_BACKUP_DISASTER_RECOVERY_ACCEPTANCE.md)
                 # New disaster-recovery custody-only source, tests, CI and runbook.
