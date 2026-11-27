@@ -42,3 +42,23 @@ jobs:
         run: npx playwright install chromium
       - name: Verify real Arabic UI on Windows Chromium
         run: node --test tests/intelligence/portable-commercial-browser.acceptance.cjs
+      - name: Assemble independent Windows test-only runtime bundle
+        shell: pwsh
+        run: |
+          ./scripts/build-portable-commercial-windows.ps1 -OutputDirectory "$env:RUNNER_TEMP/bonds-commercial-bundle"
+      - name: Verify archived bundle can launch without global Node/npm
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Get-ChildItem "$env:RUNNER_TEMP/bonds-commercial-bundle/bonds-commercial-test-*.zip" | Select-Object -First 1
+          if (!$archive) { throw 'TEST_BUNDLE_MISSING' }
+          $extract = Join-Path $env:RUNNER_TEMP 'bonds-commercial-acceptance-extracted'
+          Expand-Archive -LiteralPath $archive.FullName -DestinationPath $extract
+          & (Join-Path $extract 'node.exe') -e "require('./commercial-server');require('./licensed-commercial-workflow');require('./file-adapters');console.log('EXTRACTED_RUNTIME_PASS')"
+          if ($LASTEXITCODE -ne 0) { throw 'EXTRACTED_RUNTIME_FAILED' }
+      - name: Upload isolated portable package evidence (not customer release)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: commercial-portable-windows-test-only
+          path: ${{ runner.temp }}/bonds-commercial-bundle/bonds-commercial-test-*.zip
+          retention-days: 1
