@@ -2,6 +2,8 @@
 import hashlib
 import io
 import json
+import shutil
+import subprocess
 from pathlib import Path
 import tarfile
 import tempfile
@@ -124,6 +126,60 @@ class StorageWorkflowSecurityTests(unittest.TestCase):
         self.assertNotIn("  pull_request:", workflow)
         self.assertNotIn("  schedule:", workflow)
         self.assertIn("  contents: read", workflow)
+
+
+class RealAgeRoundTripTests(unittest.TestCase):
+    @unittest.skipUnless(shutil.which("age") and shutil.which("age-keygen"),
+                         "AGE executable is required for real encryption tests")
+    def test_export_encrypt_decrypt_and_restore_without_production(self):
+        """Use an ephemeral local AGE identity and a fully mocked Storage API."""
+        blob = b"offline-synthetic-client-document"
+        listing = [{
+            "name": "sample.txt", "id": "synthetic-id",
+            "metadata": {"size": len(blob)}, "updated_at": "2026-11-27T00:00:00Z"
+        }]
+        responses = [
+            [{"id": "synthetic"}], listing, blob,
+            [{"id": "synthetic"}], listing
+        ]
+        requested = []
+
+        def fake_urlopen(request, timeout=None):
+            requested.append((request.full_url, request.get_method()))
+            payload = responses.pop(0)
+            if isinstance(payload, bytes):
+                return io.BytesIO(payload)
+            return io.BytesIO(json.dumps(payload).encode("utf-8"))
+
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            key_path = folder / "test-identity.txt"
+            subprocess.run(["age-keygen", "-o", str(key_path)],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           check=True)
+            recipient_line = next(line for line in key_path.read_text().splitlines()
+                                  if line.startswith("# public key: age1"))
+            recipient = recipient_line.split(": ", 1)[1]
+            encrypted = folder / "backup.tar.age"
+            decrypted = folder / "decrypted.tar"
+            restored = folder / "restored"
+            with patch.object(export, "urlopen", side_effect=fake_urlopen):
+                with patch("builtins.print"):
+                    export.produce("https://example.invalid", "synthetic-not-secret",
+                                   recipient, encrypted, "123456")
+            self.assertEqual(responses, [])
+            self.assertTrue(encrypted.is_file())
+            self.assertGreater(encrypted.stat().st_size, 0)
+            subprocess.run(["age", "-d", "-i", str(key_path), "-o",
+                            str(decrypted), str(encrypted)],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           check=True)
+            with patch("builtins.print"):
+                verifier.verify(decrypted, restored)
+            self.assertEqual((restored / "synthetic" / "sample.txt").read_bytes(), blob)
+            self.assertEqual(len(requested), 5)
+            self.assertEqual([method for _, method in requested],
+                             ["GET", "POST", "GET", "GET", "POST"])
 
 
 class StorageInventoryTests(unittest.TestCase):
