@@ -89,6 +89,14 @@ table button{padding:6px 10px;font-size:12px}
 <p id="dispatch-status" class="muted" role="status" aria-live="polite">No dispatch has started.</p>
 <div class="actions"><button id="sync-replies" type="button" class="secondary" disabled>Match Zoho inbox replies</button><button id="refresh-replies" type="button" class="secondary" disabled>Refresh reply register</button></div>
 <p id="reply-summary" role="status" aria-live="polite" class="muted">No verified replies recorded yet.</p>
+<div class="panel" style="margin-top:16px;background:#f7f9fc"><h2>Reusable campaign letter template</h2>
+<p class="muted">The system prepares one separately addressed draft for each recipient. It does not approve, stamp or send letters.</p>
+<label for="subject-template">Letter subject</label><input id="subject-template" maxlength="200" placeholder="Invitation to discuss cooperation">
+<label for="body-template">Letter body (use {{organization}} or {{name}} to personalize)</label>
+<textarea id="body-template" rows="6" maxlength="12000" placeholder="Describe the purpose without invented investment amounts or promises."></textarea>
+<div class="actions"><button id="save-template" type="button" class="secondary">Save template</button>
+<button id="prepare-drafts" type="button">Prepare separate drafts for all recipients</button></div>
+<p id="draft-progress" class="muted" role="status" aria-live="polite">Drafts require separate official approval.</p></div>
 <div class="grid" style="margin-top:18px">
 <div>
 <h2>Add recipients</h2>
