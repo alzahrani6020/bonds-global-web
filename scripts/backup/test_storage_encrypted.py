@@ -112,6 +112,20 @@ class ArchiveVerificationTests(unittest.TestCase):
                 verifier.verify(path)
 
 
+class StorageWorkflowSecurityTests(unittest.TestCase):
+    def test_sensitive_workflow_uses_pinned_actions(self):
+        workflow = (Path(__file__).resolve().parents[2] /
+                    ".github/workflows/bonds-storage-encrypted-backup.yml").read_text()
+        self.assertIn("uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262", workflow)
+        self.assertIn("uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", workflow)
+        self.assertNotIn("uses: actions/checkout@v4", workflow)
+        self.assertNotIn("uses: actions/upload-artifact@v4", workflow)
+        self.assertIn("  workflow_dispatch:", workflow)
+        self.assertNotIn("  pull_request:", workflow)
+        self.assertNotIn("  schedule:", workflow)
+        self.assertIn("  contents: read", workflow)
+
+
 class StorageInventoryTests(unittest.TestCase):
     def test_discover_all_buckets_including_empty(self):
         payload = [{"id": "avatars"}, {"id": "new-empty"}, {"id": "documents"}]
