@@ -28,7 +28,8 @@ def verify(path, restore_to=None):
             raise ValueError("unexpected manifest format")
         buckets = manifest.get("buckets")
         if (not isinstance(buckets, list) or not buckets or
-                any(not isinstance(b, str) or not b or "/" in b for b in buckets) or
+                any(not isinstance(b, str) or not b or b in (".", "..") or
+                    any(c in b for c in ("\\\\", "/", ":", "\\x00")) for b in buckets) or
                 len(buckets) != len(set(buckets))):
             raise ValueError("invalid bucket coverage manifest")
         if not objects:
