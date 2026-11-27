@@ -59,5 +59,9 @@ table{border-collapse:collapse;width:100%}td,th{padding:9px;border-bottom:1px so
 <section class="panel"><h2>تصدير السجلات المعتمدة حسب الصلاحية</h2><p>ينشئ طلب تكامل فقط؛ لا يرسل رسائل ولا ينشئ موظفين.</p>
 <form id="exportForm" class="controls"><label>الوجهة<select id="target"><option value="crm">CRM</option><option value="correspondence">المراسلات</option><option value="hr">HR</option></select></label><label>معرّفات السجلات (مفصولة بفاصلة)<input id="recordIds" placeholder="1,2" required></label><button type="submit">إنشاء حزمة التصدير المصرح بها</button></form>
 <pre id="exportOutput"></pre></section>
+<section class="panel"><h2>نسخة احتياطية مشفرة — صلاحية المالك</h2>
+<p>يُنشئ النظام لقطة SQLite متسقة ويُشفرها بكلمة مرور منفصلة. يجب حفظ الملف الناتج والمفتاح في مكانين آمنين.</p>
+<form id="backupForm"><label>عبارة مرور النسخة الاحتياطية (16 حرفًا على الأقل)<input id="backupPassphrase" type="password" minlength="16" autocomplete="new-password" required></label><button type="submit">إنشاء نسخة مشفرة بعد التأكيد</button></form>
+<pre id="backupOutput"></pre></section>
 </div></main>
 <script src="/commercial-ui.js" defer></script></body></html>
