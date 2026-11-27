@@ -17,7 +17,7 @@ import verify_storage_restored as verifier
 
 
 def tar_with_objects(items, contents):
-    manifest = {"format": "bonds-storage-v1", "buckets": sorted({b for b, _ in items}), "objects": []}
+    manifest = {"format": "bonds-storage-v1", "project": "hutxsqzplyuqgnghsrcs", "run_id": "123", "buckets": sorted({b for b, _ in items}), "objects": []}
     stream = io.BytesIO()
     for index, ((bucket, path), raw) in enumerate(zip(items, contents)):
         manifest["objects"].append({
@@ -64,6 +64,18 @@ class ArchiveVerificationTests(unittest.TestCase):
                              b"statement-bytes")
             with self.assertRaises(ValueError):
                 verifier.verify(archive, destination)
+
+    def test_wrong_project_archive_rejected_before_restore(self):
+        raw = tar_with_objects([("avatars", "file")], [b"A"])
+        data = raw.replace(b"hutxsqzplyuqgnghsrcs",
+                           b"xxxxxxxxxxxxxxxxxxxx")
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / "other-project.tar"
+            destination = Path(tmp) / "restored"
+            archive.write_bytes(data)
+            with self.assertRaises(ValueError):
+                verifier.verify(archive, destination)
+            self.assertFalse(destination.exists())
 
     def test_unsafe_bucket_rejected_before_restore(self):
         payload = tar_with_objects([("..", "file")], [b"A"])
