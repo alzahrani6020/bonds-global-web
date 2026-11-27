@@ -46,6 +46,23 @@ class ArchiveVerificationTests(unittest.TestCase):
             with patch("builtins.print"):
                 verifier.verify(path)
 
+    def test_isolated_restore_roundtrip_and_refuse_overwrite(self):
+        source = tar_with_objects([("avatars", "nested/photo.png"),
+                                   ("client-documents", "statement.pdf")],
+                                  [b"photo-bytes", b"statement-bytes"])
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / "backup.tar"
+            destination = Path(tmp) / "restored"
+            archive.write_bytes(source)
+            with patch("builtins.print"):
+                verifier.verify(archive, destination)
+            self.assertEqual((destination / "avatars/nested/photo.png").read_bytes(),
+                             b"photo-bytes")
+            self.assertEqual((destination / "client-documents/statement.pdf").read_bytes(),
+                             b"statement-bytes")
+            with self.assertRaises(ValueError):
+                verifier.verify(archive, destination)
+
     def test_duplicate_object_identity_rejected(self):
         raw = tar_with_objects([("avatars", "same"), ("avatars", "same")],
                                [b"A", b"B"])
