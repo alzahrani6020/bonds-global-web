@@ -2086,6 +2086,28 @@ function intakeSourceLabel(field){
  if(src.extraction_method==='manual_input')parts.push(T.manual);
  return parts.join(' · ')||T.manual;
 }
+function renderIntakeReviewField(field){
+     const derived=field.status==='derived';
+    const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
+      field.status==='missing'?(intakeMode==='file'?(lang==='ar'?'لم يُستخرج من الملف':'Not extracted from document'):T.missing):(field.status==='conflict'?T.conflict:field.status||'');
+     const current=field.value??'';
+     const candidates=Array.isArray(field.candidates)&&field.candidates.length?
+       ' ['+field.candidates.map(item=>{
+         if(item&&typeof item==='object'){
+           const value=typeof item.value==='number'&&Number.isFinite(item.value)?String(item.value):'—';
+           const period=item.period?String(item.period):(lang==='ar'?'فترة غير محددة':'undated');
+           return value+' ('+period+')';
+         }
+         return String(item);
+       }).join(' / ')+']':'';
+     return '<div class="sr-intake-row">'+
+       '<div><strong>'+escapeHtml(humanizeKey(field.field))+'</strong><small>'+escapeHtml(status)+escapeHtml(candidates)+'</small></div>'+
+       '<div><label>'+escapeHtml(derived?(lang==='ar'?'قيمة مستنتجة':'Derived value'):T.correction)+'</label><input type="number" step="any" data-intake-field="'+escapeHtml(field.field)+'" value="'+escapeHtml(current)+'"'+(derived?' data-derived="true" readonly':'')+'></div>'+
+       '<div><label>'+escapeHtml(T.currency)+'</label><span>'+escapeHtml(field.currency||'—')+'</span></div>'+
+       '<div><label>'+escapeHtml(T.period)+'</label><span>'+escapeHtml(field.period||'—')+'</span></div>'+
+       '<div class="sr-intake-source"><label>'+escapeHtml(T.source)+'</label><span>'+escapeHtml(intakeSourceLabel(field))+'</span></div>'+
+     '</div>';
+ }
 function renderIntakeReview(payload){
  intakeReview=payload;
  const host=$('#srIntakeReview');
@@ -2109,7 +2131,7 @@ function renderIntakeReview(payload){
  const unresolvedStatus=new Set(['missing','conflict','multi_period']);
  const confirmed=fields.filter(field=>!unresolvedStatus.has(field.status) && field.value!==null && field.value!==undefined);
  const unresolved=fields.filter(field=>unresolvedStatus.has(field.status) || field.value===null || field.value===undefined);
- const orderedFields=[...confirmed,...unresolved];
+ const orderedFields=[...confirmed,...unresolved]; // Preserves the original extraction order within each status group.
  const summary=(lang==='ar'
    ?'قيم مستخرجة: '+confirmed.length+' | بنود لم يُتحقق منها: '+unresolved.length
    :'Extracted values: '+confirmed.length+' | Unverified fields: '+unresolved.length);
@@ -2120,28 +2142,19 @@ function renderIntakeReview(payload){
    '<p class="sr-muted" role="status">'+escapeHtml(summary)+'</p>'+
    '<p class="sr-muted">'+escapeHtml(note)+'</p>'+
    issueText+
-   '<div class="sr-intake-table">'+orderedFields.map(field=>{
-     const derived=field.status==='derived';
-    const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
-      field.status==='missing'?(intakeMode==='file'?(lang==='ar'?'لم يُستخرج من الملف':'Not extracted from document'):T.missing):(field.status==='conflict'?T.conflict:field.status||'');
-     const current=field.value??'';
-     const candidates=Array.isArray(field.candidates)&&field.candidates.length?
-       ' ['+field.candidates.map(item=>{
-         if(item&&typeof item==='object'){
-           const value=typeof item.value==='number'&&Number.isFinite(item.value)?String(item.value):'—';
-           const period=item.period?String(item.period):(lang==='ar'?'فترة غير محددة':'undated');
-           return value+' ('+period+')';
-         }
-         return String(item);
-       }).join(' / ')+']':'';
-     return '<div class="sr-intake-row">'+
-       '<div><strong>'+escapeHtml(humanizeKey(field.field))+'</strong><small>'+escapeHtml(status)+escapeHtml(candidates)+'</small></div>'+
-       '<div><label>'+escapeHtml(derived?(lang==='ar'?'قيمة مستنتجة':'Derived value'):T.correction)+'</label><input type="number" step="any" data-intake-field="'+escapeHtml(field.field)+'" value="'+escapeHtml(current)+'"'+(derived?' data-derived="true" readonly':'')+'></div>'+
-       '<div><label>'+escapeHtml(T.currency)+'</label><span>'+escapeHtml(field.currency||'—')+'</span></div>'+
-       '<div><label>'+escapeHtml(T.period)+'</label><span>'+escapeHtml(field.period||'—')+'</span></div>'+
-       '<div class="sr-intake-source"><label>'+escapeHtml(T.source)+'</label><span>'+escapeHtml(intakeSourceLabel(field))+'</span></div>'+
-     '</div>';
-   }).join('')+'</div>';
+   (serviceCode==='financial_analysis'
+     ?'<div class="sr-review-guide" role="note">'+escapeHtml(lang==='ar'?'1. ارفع الملف  ·  2. راجع الأرقام التي قرأها النظام  ·  3. تأكد من البنود غير الواضحة  ·  4. أنشئ التقرير':'1. Upload  ·  2. Review extracted figures  ·  3. Resolve uncertain items  ·  4. Generate report')+'</div>'
+     :'')+
+   (serviceCode==='financial_analysis'
+     ?[
+        '<details class="sr-review-group" open><summary>'+escapeHtml(lang==='ar'?'الأرقام التي تم التعرف عليها':'Recognized figures')+' ('+confirmed.length+')</summary><div class="sr-intake-table">',
+        ...confirmed.map(field=>renderIntakeReviewField(field)),
+        '</div></details>',
+        '<details class="sr-review-group"'+(unresolved.length?' open':'')+'><summary>'+escapeHtml(lang==='ar'?'أرقام تحتاج مراجعتك':'Figures needing your review')+' ('+unresolved.length+')</summary><div class="sr-intake-table">',
+        ...unresolved.map(field=>renderIntakeReviewField(field)),
+        '</div></details>'
+       ].join('')
+     :'<div class="sr-intake-table">'+orderedFields.map(field=>renderIntakeReviewField(field)).join('')+'</div>');
  $('#srSubmit').textContent=T.approveExecute;
 }
 function collectIntakeCorrections(){
