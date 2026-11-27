@@ -180,7 +180,7 @@ def produce(base, key, recipient, destination, run_id):
         (tmpdir / "manifest.json").write_text(
             json.dumps(manifest, sort_keys=True, ensure_ascii=False, indent=2),
             encoding="utf-8")
-        archive = tmpdir.parent / (tmpdir.name + ".tar")
+        archive = tmpdir / "storage-plaintext.tar"
         try:
             with tarfile.open(archive, "w") as tar:
                 tar.add(tmpdir / "manifest.json", arcname="manifest.json", recursive=False)
