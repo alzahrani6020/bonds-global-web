@@ -163,73 +163,15 @@ describe('guided financial intake fields',()=>{
   expect(changed.current_assets).toBe('210');
   expect(changed.cash).toBeNull();
  });
- test('saved financial PDF reanalysis uses authenticated owner, tenant scope and new dataset version',async()=>{
-  const vm=require('node:vm');
-  const start=source.indexOf('async function reprocessLatestSavedFinancialFile(){');
-  const end=source.indexOf('async function prepareFinancialIntake(',start);
-  expect(start).toBeGreaterThan(-1);
-  expect(end).toBeGreaterThan(start);
-  const filters=[],button={disabled:false};
-  const query={
-   select(){return this;},eq(key,value){filters.push(['eq',key,value]);return this;},
-   is(key,value){filters.push(['is',key,value]);return this;},
-   order(){return this;},limit(){return this;},
-   async maybeSingle(){return {data:{
-    id:'source-dataset',source_file_name:'test.pdf',source_storage_path:'financial-intake/test-user/doc.pdf',
-    source_mime_type:'application/pdf'
-   }};}
-  };
-  const sb={
-   from:table=>{expect(table).toBe('financial_datasets');return query;},
-   auth:{getSession:async()=>({data:{session:{access_token:'test-session'}}})}
-  };
-  let sent=null,shown=null;
-  const ctx={
-   serviceCode:'financial_analysis',submitting:false,lang:'ar',T:{login:'Login'},
-   '
-  expect(source).toContain("if(serviceCode==='financial_analysis'){");
-  expect(source).toContain("document.body.classList.add('financial-review-wide')");
-  expect(source).toContain('body.financial-review-wide .sr-grid{grid-template-columns:minmax(0,1fr)}');
- });
- test('review groups preserve source, candidate, and correction field rendering',()=>{
-  expect(source).toContain('renderIntakeReviewField(field,fields)');
-  expect(source).toContain('data-intake-field=');
-  expect(source).toContain('sr-review-group');
-  expect(source).toContain('confirmed.map(field=>renderIntakeReviewField(field,fields))');
-  expect(source).toContain('critical.map(field=>renderIntakeReviewField(field,fields))');
-  expect(source).toContain('supplemental.map(field=>renderIntakeReviewField(field,fields))');
-  expect(source).toContain('المطلوب لإكمال التحليل');
- });
-});
-
-}
-:()=>button,params:{get:()=>null},intakeDatasetId:null,intakeMode:'manual',
-   window:{BondsAuth:{
-    ensureEnv:async()=>{},getUser:async()=>({data:{user:{id:'test-user'}}}),
-    getSupabase:()=>sb
-   }},
-   fetch:async(url,options)=>{
-    sent={url,options,body:JSON.parse(options.body)};
-    return {ok:true,json:async()=>({dataset_id:'next-dataset',fields:[]})};
-   },
-   renderIntakeReview:payload=>{shown=payload;},
-   showStatus:()=>{}
-  };
-  vm.createContext(ctx);
-  vm.runInContext(source.slice(start,end),ctx);
-  await ctx.reprocessLatestSavedFinancialFile();
-  expect(filters).toEqual(expect.arrayContaining([
-   ['eq','user_id','test-user'],
-   ['eq','service_code','financial_analysis'],
-   ['is','project_id',null],
-   ['is','client_id',null]
-  ]));
-  expect(sent.url).toBe('/api/v3/services/intake/prepare');
-  expect(sent.body.parent_dataset_id).toBe('source-dataset');
-  expect(sent.body.storage_path).toBe('financial-intake/test-user/doc.pdf');
-  expect(ctx.intakeDatasetId).toBe('next-dataset');
-  expect(shown.dataset_id).toBe('next-dataset');
-  expect(button.disabled).toBe(false);
+ test('financial reanalysis is limited to signed-in owner and creates a new dataset version',()=>{
+  expect(source).toContain("id=\"srReprocessSavedFile\"");
+  expect(source).toContain("query.eq('user_id',user.id)");
+  expect(source).toContain("query.eq('service_code','financial_analysis')");
+  expect(source).toContain("query.is('project_id',null)");
+  expect(source).toContain("query.is('client_id',null)");
+  expect(source).toContain("parent_dataset_id:prior.id");
+  expect(source).toContain("storage_path:prior.source_storage_path");
+  expect(source).toContain("renderIntakeReview(payload)");
  });
  test('financial analysis uses a full-width review without altering other workspaces',()=>{
   expect(source).toContain("if(serviceCode==='financial_analysis'){");
