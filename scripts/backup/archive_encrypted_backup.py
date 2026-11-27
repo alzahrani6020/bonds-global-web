@@ -37,13 +37,17 @@ def archive(source: Path, destination_dir: Path) -> dict:
         raise ValueError('destination is the source directory')
     if dest.exists() or dest.is_symlink() or manifest.exists() or manifest.is_symlink():
         raise FileExistsError('refusing overwrite of prior custody copy or manifest')
-    with source.open('rb') as inp, dest.open('xb') as out:
-        if os.name != 'nt':
-            os.fchmod(out.fileno(), stat.S_IRUSR | stat.S_IWUSR)
-        shutil.copyfileobj(inp, out, length=1024 * 1024)
-        out.flush()
-        os.fsync(out.fileno())
     source_sha = checksum(source)
+    try:
+        with source.open('rb') as inp, dest.open('xb') as out:
+            if os.name != 'nt':
+                os.fchmod(out.fileno(), stat.S_IRUSR | stat.S_IWUSR)
+            shutil.copyfileobj(inp, out, length=1024 * 1024)
+            out.flush()
+            os.fsync(out.fileno())
+    except Exception:
+        dest.unlink(missing_ok=True)
+        raise
     dest_sha = checksum(dest)
     if source_sha != dest_sha or source.stat().st_size != dest.stat().st_size:
         dest.unlink(missing_ok=True)
@@ -61,6 +65,7 @@ def archive(source: Path, destination_dir: Path) -> dict:
             f.flush()
             os.fsync(f.fileno())
     except Exception:
+        manifest.unlink(missing_ok=True)
         dest.unlink(missing_ok=True)
         raise
     return output
