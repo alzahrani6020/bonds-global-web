@@ -2077,7 +2077,15 @@ function renderIntakeReview(payload){
     const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
       field.status==='missing'?(intakeMode==='file'?(lang==='ar'?'لم يُستخرج من الملف':'Not extracted from document'):T.missing):(field.status==='conflict'?T.conflict:field.status||'');
      const current=field.value??'';
-     const candidates=Array.isArray(field.candidates)&&field.candidates.length?' ['+field.candidates.join(' / ')+']':'';
+     const candidates=Array.isArray(field.candidates)&&field.candidates.length?
+       ' ['+field.candidates.map(item=>{
+         if(item&&typeof item==='object'){
+           const value=typeof item.value==='number'&&Number.isFinite(item.value)?String(item.value):'—';
+           const period=item.period?String(item.period):(lang==='ar'?'فترة غير محددة':'undated');
+           return value+' ('+period+')';
+         }
+         return String(item);
+       }).join(' / ')+']':'';
      return '<div class="sr-intake-row">'+
        '<div><strong>'+escapeHtml(humanizeKey(field.field))+'</strong><small>'+escapeHtml(status)+escapeHtml(candidates)+'</small></div>'+
        '<div><label>'+escapeHtml(derived?(lang==='ar'?'قيمة مستنتجة':'Derived value'):T.correction)+'</label><input type="number" step="any" data-intake-field="'+escapeHtml(field.field)+'" value="'+escapeHtml(current)+'"'+(derived?' data-derived="true" readonly':'')+'></div>'+
