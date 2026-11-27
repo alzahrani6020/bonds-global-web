@@ -2094,28 +2094,54 @@ function intakeSourceLabel(field){
  if(src.extraction_method==='manual_input')parts.push(T.manual);
  return parts.join(' · ')||T.manual;
 }
-function renderIntakeReviewField(field){
-     const derived=field.status==='derived';
-    const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
-      field.status==='missing'?(intakeMode==='file'?(lang==='ar'?'لم يُستخرج من الملف':'Not extracted from document'):T.missing):(field.status==='conflict'?T.conflict:field.status||'');
-     const current=field.value??'';
-     const candidates=Array.isArray(field.candidates)&&field.candidates.length?
-       ' ['+field.candidates.map(item=>{
-         if(item&&typeof item==='object'){
-           const value=typeof item.value==='number'&&Number.isFinite(item.value)?String(item.value):'—';
-           const period=item.period?String(item.period):(lang==='ar'?'فترة غير محددة':'undated');
-           return value+' ('+period+')';
-         }
-         return String(item);
-       }).join(' / ')+']':'';
-     return '<div class="sr-intake-row">'+
-       '<div><strong>'+escapeHtml(humanizeKey(field.field))+'</strong><small>'+escapeHtml(status)+escapeHtml(candidates)+'</small></div>'+
-       '<div><label>'+escapeHtml(derived?(lang==='ar'?'قيمة مستنتجة':'Derived value'):T.correction)+'</label><input type="number" step="any" data-intake-field="'+escapeHtml(field.field)+'" value="'+escapeHtml(current)+'"'+(derived?' data-derived="true" readonly':'')+'></div>'+
-       '<div><label>'+escapeHtml(T.currency)+'</label><span>'+escapeHtml(field.currency||'—')+'</span></div>'+
-       '<div><label>'+escapeHtml(T.period)+'</label><span>'+escapeHtml(field.period||'—')+'</span></div>'+
-       '<div class="sr-intake-source"><label>'+escapeHtml(T.source)+'</label><span>'+escapeHtml(intakeSourceLabel(field))+'</span></div>'+
-     '</div>';
- }
+function financialReviewSuggestion(field, fields){
+ if(serviceCode!=='financial_analysis'||field.status==='derived')return null;
+ const map=new Map(fields.filter(item=>item && item.field).map(item=>[item.field,item]));
+ const number=(key)=>{
+  const item=map.get(key);
+  if(!item||['missing','conflict','multi_period'].includes(item.status)||item.value===null||item.value===undefined||item.value==='')return null;
+  const value=Number(item.value);
+  return Number.isFinite(value)?value:null;
+ };
+ const rules={
+  equity:[['total_assets',1],['total_liabilities',-1]],
+  total_liabilities:[['total_assets',1],['equity',-1]],
+  total_assets:[['total_liabilities',1],['equity',1]],
+  ending_cash:[['opening_balance',1],['operating_cash_flow',1],['investing_cash_flow',1],['financing_cash_flow',1]],
+  opening_balance:[['ending_cash',1],['operating_cash_flow',-1],['investing_cash_flow',-1],['financing_cash_flow',-1]]
+ };
+ const parts=rules[field.field];
+ if(!parts)return null;
+ const inputs=parts.map(([key,coefficient])=>({key,coefficient,value:number(key)}));
+ if(inputs.some(item=>item.value===null))return null;
+ const periods=inputs.map(item=>String(map.get(item.key).period||''));
+ const currencies=inputs.map(item=>String(map.get(item.key).currency||''));
+ if(periods.some(v=>!v)||new Set(periods).size!==1||currencies.some(v=>!v)||new Set(currencies).size!==1)return null;
+ const value=inputs.reduce((sum,item)=>sum+item.coefficient*item.value,0);
+ if(!Number.isFinite(value))return null;
+ return {value,formula:inputs.map(item=>(item.coefficient<0?'− ':'+ ')+humanizeKey(item.key)).join(' ').replace(/^\+ /,'')};
+}
+function renderIntakeReviewField(field, allFields){
+ const derived=field.status==='derived';
+ const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
+  field.status==='missing'?(intakeMode==='file'?(lang==='ar'?'لم يُستخرج من الملف':'Not extracted from document'):T.missing):(field.status==='conflict'?T.conflict:field.status||'');
+ const current=field.value??'';
+ const candidates=(Array.isArray(field.candidates)?field.candidates:[]).map(item=>{
+  if(item&&typeof item==='object')return {value:item.value,period:item.period||'',currency:item.currency||field.currency||'',source:item.source||''};
+  return {value:item,period:'',currency:field.currency||'',source:''};
+ }).filter(item=>item.value!==null&&item.value!==undefined&&item.value!==''&&Number.isFinite(Number(item.value)));
+ const suggestion=financialReviewSuggestion(field,allFields||[]);
+ const options=candidates.length&&!derived?'<label>'+escapeHtml(lang==='ar'?'اختر قيمة من الملف':'Select a document value')+'</label><select data-intake-candidate="'+escapeHtml(field.field)+'"><option value="">'+escapeHtml(lang==='ar'?'اختر قيمة أو أدخل يدويًا':'Choose a value or enter manually')+'</option>'+candidates.map(item=>'<option value="'+escapeHtml(String(item.value))+'">'+escapeHtml(String(item.value)+(item.period?' · '+item.period:'')+(item.currency?' · '+item.currency:''))+'</option>').join('')+'</select>':'';
+ const formula=suggestion&&!derived?'<button type="button" class="sr-secondary" data-intake-suggest="'+escapeHtml(field.field)+'" data-suggest-value="'+escapeHtml(String(suggestion.value))+'">'+escapeHtml(lang==='ar'?'استخدام احتساب مقترح: ':'Use suggested calculation: ')+escapeHtml(String(suggestion.value))+'</button><small>'+escapeHtml(suggestion.formula)+'</small>':'';
+ const missing=field.status==='missing'||field.status==='conflict'||field.status==='multi_period'||current==='';
+ return '<div class="sr-intake-row">'+
+  '<div><strong>'+escapeHtml(humanizeKey(field.field))+'</strong><small>'+escapeHtml(status)+'</small></div>'+
+  '<div>'+options+'<label>'+escapeHtml(derived?(lang==='ar'?'قيمة مستنتجة':'Derived value'):(lang==='ar'?'القيمة المعتمدة أو الإدخال اليدوي':'Confirmed value or manual entry'))+'</label><input type="number" step="any" data-intake-field="'+escapeHtml(field.field)+'" value="'+escapeHtml(String(current))+'"'+(derived?' data-derived="true" readonly':'')+'>'+formula+(missing?'<small>'+escapeHtml(lang==='ar'?'إن لم توجد قيمة موثقة، اترك الحقل فارغًا.':'Leave blank when there is no supported value.')+'</small>':'')+'</div>'+
+  '<div><label>'+escapeHtml(T.currency)+'</label><span>'+escapeHtml(field.currency||'—')+'</span></div>'+
+  '<div><label>'+escapeHtml(T.period)+'</label><span>'+escapeHtml(field.period||'—')+'</span></div>'+
+  '<div class="sr-intake-source"><label>'+escapeHtml(T.source)+'</label><span>'+escapeHtml(intakeSourceLabel(field))+'</span></div>'+
+ '</div>';
+}
 function renderIntakeReview(payload){
  intakeReview=payload;
  const host=$('#srIntakeReview');
@@ -2156,13 +2182,21 @@ function renderIntakeReview(payload){
    (serviceCode==='financial_analysis'
      ?[
         '<details class="sr-review-group" open><summary>'+escapeHtml(lang==='ar'?'الأرقام التي تم التعرف عليها':'Recognized figures')+' ('+confirmed.length+')</summary><div class="sr-intake-table">',
-        ...confirmed.map(field=>renderIntakeReviewField(field)),
+        ...confirmed.map(field=>renderIntakeReviewField(field,fields)),
         '</div></details>',
         '<details class="sr-review-group"'+(unresolved.length?' open':'')+'><summary>'+escapeHtml(lang==='ar'?'أرقام تحتاج مراجعتك':'Figures needing your review')+' ('+unresolved.length+')</summary><div class="sr-intake-table">',
-        ...unresolved.map(field=>renderIntakeReviewField(field)),
+        ...unresolved.map(field=>renderIntakeReviewField(field,fields)),
         '</div></details>'
        ].join('')
-     :'<div class="sr-intake-table">'+orderedFields.map(field=>renderIntakeReviewField(field)).join('')+'</div>');
+     :'<div class="sr-intake-table">'+orderedFields.map(field=>renderIntakeReviewField(field,fields)).join('')+'</div>');
+ host.querySelectorAll('[data-intake-candidate]').forEach(select=>select.addEventListener('change',()=>{
+  const input=Array.from(host.querySelectorAll('[data-intake-field]')).find(item=>item.dataset.intakeField===select.dataset.intakeCandidate);
+  if(input&&!input.readOnly&&select.value!=='')input.value=select.value;
+ }));
+ host.querySelectorAll('[data-intake-suggest]').forEach(button=>button.addEventListener('click',()=>{
+  const input=Array.from(host.querySelectorAll('[data-intake-field]')).find(item=>item.dataset.intakeField===button.dataset.intakeSuggest);
+  if(input&&!input.readOnly)input.value=button.dataset.suggestValue;
+ }));
  $('#srSubmit').textContent=T.approveExecute;
 }
 function collectIntakeCorrections(){
@@ -2245,6 +2279,22 @@ async function approveFinancialIntake(headers){
 }
 function humanizeKey(key){
  const labels={
+  total_expenses:lang==='ar'?'إجمالي المصروفات':'Total expenses',
+  payables:lang==='ar'?'الذمم الدائنة':'Accounts payable',
+  opening_balance:lang==='ar'?'النقد أول الفترة':'Opening cash balance',
+  ending_cash:lang==='ar'?'النقد نهاية الفترة':'Closing cash balance',
+  operating_cash_flow:lang==='ar'?'التدفق النقدي التشغيلي':'Operating cash flow',
+  investing_cash_flow:lang==='ar'?'التدفق النقدي الاستثماري':'Investing cash flow',
+  financing_cash_flow:lang==='ar'?'التدفق النقدي التمويلي':'Financing cash flow',
+  depreciation_amortization:lang==='ar'?'الإهلاك والإطفاء':'Depreciation and amortization',
+  cash_flow_net_income:lang==='ar'?'صافي الربح بقائمة التدفقات':'Cash flow statement net income',
+  cash_available_for_debt_service:lang==='ar'?'النقد المتاح لخدمة الدين':'Cash available for debt service',
+  scheduled_debt_service:lang==='ar'?'خدمة الدين المستحقة':'Scheduled debt service',
+  opening_equity:lang==='ar'?'حقوق الملكية أول الفترة':'Opening equity',
+  owner_contributions:lang==='ar'?'مساهمات الملاك':'Owner contributions',
+  owner_distributions:lang==='ar'?'توزيعات الملاك':'Owner distributions',
+  other_equity_movements:lang==='ar'?'حركات حقوق الملكية الأخرى':'Other equity movements',
+  one_off_income:lang==='ar'?'الدخل غير المتكرر':'Non-recurring income',
   total_debt:lang==='ar'?'إجمالي الدين':'Total debt',
   equity:lang==='ar'?'حقوق الملكية':'Equity',
   total_assets:lang==='ar'?'إجمالي الأصول':'Total assets',
