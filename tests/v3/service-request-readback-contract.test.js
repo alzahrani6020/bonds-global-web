@@ -48,9 +48,9 @@ describe('service request persistence and readback contracts', () => {
 
   test('both language and workspace routes use the same cache-busted client', () => {
     for (const route of ['service-request.html','en/service-request.html','my-bonds/workspace/index.html','en/my-bonds/workspace/index.html']) {
-      expect(read(route)).toContain('/components/service-request.js?v=50');
+      expect(read(route)).toContain('/components/service-request.js?v=51');
     }
-    expect(read('sw.js')).toContain("'/components/service-request.js?v=50'");
+    expect(read('sw.js')).toContain("'/components/service-request.js?v=51'");
   });
 });
 
@@ -162,6 +162,16 @@ describe('guided financial intake fields',()=>{
   expect(changed.revenue).toBeUndefined();
   expect(changed.current_assets).toBe('210');
   expect(changed.cash).toBeNull();
+ });
+ test('financial reanalysis is limited to signed-in owner and creates a new dataset version',()=>{
+  expect(source).toContain("id=\"srReprocessSavedFile\"");
+  expect(source).toContain(".eq('user_id',user.id)");
+  expect(source).toContain(".eq('service_code','financial_analysis')");
+  expect(source).toContain("query.is('project_id',null)");
+  expect(source).toContain("query.is('client_id',null)");
+  expect(source).toContain("parent_dataset_id:prior.id");
+  expect(source).toContain("storage_path:prior.source_storage_path");
+  expect(source).toContain("renderIntakeReview(payload)");
  });
  test('financial analysis uses a full-width review without altering other workspaces',()=>{
   expect(source).toContain("if(serviceCode==='financial_analysis'){");

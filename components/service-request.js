@@ -1994,7 +1994,7 @@ function ensureFinancialGuideStyles(){
  if(document.getElementById('srFinancialGuideStyles'))return;
  const style=document.createElement('style');
  style.id='srFinancialGuideStyles';
- style.textContent="\n/* Guided financial intake: beginner-readable controls without changing field names. */\nbody.financial-review-wide .sr-grid{grid-template-columns:minmax(0,1fr)}\nbody.financial-review-wide .sr-grid>aside{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}\nbody.financial-review-wide .sr-grid>aside .sr-card{margin:0;min-width:0}\n@media(max-width:700px){body.financial-review-wide .sr-grid>aside{grid-template-columns:1fr}}\n.sr-intake-row select[data-intake-candidate]{width:100%;min-width:0;min-height:46px;padding:9px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#10233f;font:inherit}\n.sr-intake-row [data-intake-suggest]{width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere;text-align:start;justify-content:flex-start;cursor:pointer}\n.sr-intake-row [data-intake-field]{min-width:0;min-height:44px}\n.sr-intake-row>div{min-width:0}\n.sr-friendly-choice select{width:100%;min-height:48px;margin:8px 0;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice input[list]{width:100%;min-height:48px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice .sr-friendly-help{display:block;margin-top:6px;font-size:.85rem;color:#57657b;line-height:1.6}\n.sr-friendly-notes{padding:12px 14px;border:1px solid #dbe2ec;border-radius:12px;background:#f8fafc}\n.sr-friendly-notes summary{font-weight:700;color:#123050;cursor:pointer}\n.sr-friendly-notes textarea{display:block;width:100%;min-height:88px;margin-top:10px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-review-guide{padding:12px 14px;margin:12px 0;border:1px solid #dbe7f4;border-radius:12px;background:#f5f8fc;line-height:1.8;font-weight:600;color:#18334f}\n.sr-review-group{border:1px solid #d7e0eb;border-radius:14px;margin:12px 0;background:#fff;overflow:hidden}\n.sr-review-group>summary{padding:14px 16px;background:#f8fafc;cursor:pointer;font-weight:800;color:#0d2343}\n.sr-review-group>.sr-intake-table{padding:10px}\n.sr-review-group summary:focus-visible,.sr-friendly-notes summary:focus-visible{outline:3px solid #2563eb;outline-offset:2px}\n@media(max-width:700px){.sr-review-guide{font-size:.88rem}.sr-review-group>.sr-intake-table{padding:6px}}\n";
+ style.textContent="\n/* Guided financial intake: beginner-readable controls without changing field names. */\nbody.financial-review-wide .sr-grid{grid-template-columns:minmax(0,1fr)}\nbody.financial-review-wide .sr-grid>aside{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}\nbody.financial-review-wide .sr-grid>aside .sr-card{margin:0;min-width:0}\n@media(max-width:700px){body.financial-review-wide .sr-grid>aside{grid-template-columns:1fr}}\n.sr-saved-reanalysis{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}\n.sr-saved-reanalysis small{color:#64748b;line-height:1.6}\n.sr-saved-reanalysis button:disabled{opacity:.65;cursor:wait}\n.sr-intake-row select[data-intake-candidate]{width:100%;min-width:0;min-height:46px;padding:9px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#10233f;font:inherit}\n.sr-intake-row [data-intake-suggest]{width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere;text-align:start;justify-content:flex-start;cursor:pointer}\n.sr-intake-row [data-intake-field]{min-width:0;min-height:44px}\n.sr-intake-row>div{min-width:0}\n.sr-friendly-choice select{width:100%;min-height:48px;margin:8px 0;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice input[list]{width:100%;min-height:48px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice .sr-friendly-help{display:block;margin-top:6px;font-size:.85rem;color:#57657b;line-height:1.6}\n.sr-friendly-notes{padding:12px 14px;border:1px solid #dbe2ec;border-radius:12px;background:#f8fafc}\n.sr-friendly-notes summary{font-weight:700;color:#123050;cursor:pointer}\n.sr-friendly-notes textarea{display:block;width:100%;min-height:88px;margin-top:10px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-review-guide{padding:12px 14px;margin:12px 0;border:1px solid #dbe7f4;border-radius:12px;background:#f5f8fc;line-height:1.8;font-weight:600;color:#18334f}\n.sr-review-group{border:1px solid #d7e0eb;border-radius:14px;margin:12px 0;background:#fff;overflow:hidden}\n.sr-review-group>summary{padding:14px 16px;background:#f8fafc;cursor:pointer;font-weight:800;color:#0d2343}\n.sr-review-group>.sr-intake-table{padding:10px}\n.sr-review-group summary:focus-visible,.sr-friendly-notes summary:focus-visible{outline:3px solid #2563eb;outline-offset:2px}\n@media(max-width:700px){.sr-review-guide{font-size:.88rem}.sr-review-group>.sr-intake-table{padding:6px}}\n";
  document.head.appendChild(style);
 }
 function renderFinancialIntake(){
@@ -2013,7 +2013,9 @@ function renderFinancialIntake(){
      '<label><input type="radio" name="__intake_mode" value="file" checked> '+escapeHtml(T.upload)+'</label>'+
      '<label><input type="radio" name="__intake_mode" value="manual"> '+escapeHtml(T.manual)+'</label>'+
    '</div>'+
-   '<div id="srIntakeFileWrap"><input id="srIntakeFile" type="file" accept=".pdf,.xlsx,.xls,.csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"><div class="sr-muted">'+escapeHtml(T.chooseFile)+'</div></div>'+
+   '<div id="srIntakeFileWrap"><input id="srIntakeFile" type="file" accept=".pdf,.xlsx,.xls,.csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"><div class="sr-muted">'+escapeHtml(T.chooseFile)+'</div>'+
+    (serviceCode==='financial_analysis'?'<div class="sr-saved-reanalysis"><button type="button" id="srReprocessSavedFile" class="sr-secondary">'+escapeHtml(lang==='ar'?'إعادة تحليل آخر ملف محفوظ':'Reanalyze latest saved document')+'</button><small>'+escapeHtml(lang==='ar'?'ينشئ نسخة جديدة دون استبدال سجل التحليل السابق.':'Creates a new version without replacing the prior analysis record.')+'</small></div>':'')+
+   '</div>'+
    '<div id="srIntakeReview"></div>';
  if(serviceCode==='financial_analysis'){
   const manualFields=[
@@ -2078,6 +2080,7 @@ function renderFinancialIntake(){
    document.head.appendChild(script);
   }
  }
+ panel.querySelector('#srReprocessSavedFile')?.addEventListener('click',reprocessLatestSavedFinancialFile);
  panel.querySelectorAll('input[name="__intake_mode"]').forEach(radio=>radio.addEventListener('change',()=>{
    intakeMode=radio.value;
    $('#srIntakeFileWrap').hidden=intakeMode!=='file';
@@ -2319,6 +2322,59 @@ async function uploadIntakeFile(sb,user){
  if(error)throw error;
  intakeUploadedPath=path;
  return {storage_path:path,file_name:file.name,mime_type:mime,size_bytes:file.size};
+}
+async function reprocessLatestSavedFinancialFile(){
+ if(serviceCode!=='financial_analysis'||submitting)return;
+ const button=$('#srReprocessSavedFile');
+ if(button)button.disabled=true;
+ try{
+  await window.BondsAuth.ensureEnv();
+  const user=(await window.BondsAuth.getUser()).data?.user;
+  if(!user)throw new Error(T.login);
+  const sb=window.BondsAuth.getSupabase();
+  const session=(await sb.auth.getSession()).data?.session;
+  if(!session?.access_token)throw new Error(T.login);
+  // Explicitly restrict to the signed-in user AND the selected workspace scope.
+  // An owner with several clients must never see another client's financial file.
+  const projectId=params.get('project_id')||null;
+  const clientId=params.get('client_id')||null;
+  let query=sb.from('financial_datasets')
+   .select('id,source_file_name,source_storage_path,source_mime_type')
+   .eq('user_id',user.id)
+   .eq('service_code','financial_analysis')
+   .eq('source_type','file')
+   .is('deleted_at',null);
+  query=projectId?query.eq('project_id',projectId):query.is('project_id',null);
+  query=clientId?query.eq('client_id',clientId):query.is('client_id',null);
+  const {data:prior,error}=await query.order('created_at',{ascending:false}).limit(1).maybeSingle();
+  if(error)throw new Error(lang==='ar'?'تعذر الوصول إلى ملفك المحفوظ بصلاحيات حسابك.':'Saved document could not be accessed with your account permissions.');
+  if(!prior?.source_storage_path||!prior?.source_file_name||!prior?.source_mime_type)
+   throw new Error(lang==='ar'?'لا يوجد ملف محفوظ في مساحة العمل المحددة؛ ارفع الملف من جهازك.':'No saved document in this workspace; upload it from your device.');
+  const response=await fetch('/api/v3/services/intake/prepare',{
+   method:'POST',
+   headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},
+   body:JSON.stringify({
+    service_code:'financial_analysis',
+    storage_path:prior.source_storage_path,
+    file_name:prior.source_file_name,
+    mime_type:prior.source_mime_type,
+    parent_dataset_id:prior.id,
+    project_id:projectId,
+    client_id:clientId
+   })
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok||!payload.dataset_id)
+   throw new Error(payload?.error?.code||('HTTP '+response.status));
+  intakeDatasetId=payload.dataset_id;
+  intakeMode='file';
+  renderIntakeReview(payload);
+  showStatus(lang==='ar'?'أعيد استخراج الملف المحفوظ في نسخة مستقلة؛ راجع النتائج قبل اعتمادها.':'Saved document re-extracted into a new version; review before approval.',true);
+ }catch(error){
+  showStatus(String(error?.message||error),false);
+ }finally{
+  if(button)button.disabled=false;
+ }
 }
 async function prepareFinancialIntake({sb,user,headers,values}){
  let source={manual_values:values};
