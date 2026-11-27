@@ -7,6 +7,7 @@ END $$;
 CREATE SCHEMA auth;
 CREATE TABLE auth.users(id uuid PRIMARY KEY);
 CREATE TABLE public.crm_app_workspaces(id uuid PRIMARY KEY, owner_user_id uuid not null references auth.users(id), name text);
+CREATE TABLE public.crm_app_activities(id uuid PRIMARY KEY);
 CREATE TABLE public.correspondence_documents(id uuid PRIMARY KEY, company_id uuid, owner_user_id uuid REFERENCES auth.users(id), workspace_context jsonb default '{}'::jsonb,status text);
 INSERT INTO auth.users(id) VALUES ('11111111-1111-4111-8111-111111111111');
 INSERT INTO public.crm_app_workspaces(id,owner_user_id,name) VALUES
