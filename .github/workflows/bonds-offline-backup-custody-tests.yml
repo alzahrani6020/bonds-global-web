@@ -8,6 +8,10 @@ on:
       - 'scripts/backup/test_check_github_backup_schedule.py'
       - 'scripts/backup/test_watchdog_schedule_order.py'
       - '.github/workflows/bonds-backup-freshness-watchdog.yml'
+      - 'scripts/backup/export_storage_encrypted.py'
+      - 'scripts/backup/verify_storage_restored.py'
+      - 'scripts/backup/test_storage_encrypted.py'
+      - '.github/workflows/bonds-storage-encrypted-backup.yml'
       - '.github/workflows/bonds-offline-backup-custody-tests.yml'
   workflow_dispatch:
 
