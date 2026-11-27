@@ -105,6 +105,7 @@ describe('guided financial intake fields',()=>{
  test('financial derivation is blocked across reporting periods and preserves a valid period',()=>{
   const {deriveFinancialInputs}=require('../../lib/finance/financial-data-intake');
   const values={total_assets:300,total_liabilities:100};
+  expect(deriveFinancialInputs(values).values.equity).toBe(200);
   const rows=[
    {field:'total_assets',value:300,status:'extracted',currency:'SAR',period:'2026'},
    {field:'total_liabilities',value:100,status:'extracted',currency:'SAR',period:'2025'}
