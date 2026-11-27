@@ -28,9 +28,14 @@ describe('Institutional directory presentation cannot bypass tenant API',()=>{
   expect(client).not.toContain('sessionStorage');
   expect(client).not.toMatch(/sendEmail|smtp|zoho\.send/i);
  });
- test('does not claim mail dispatch or create database records',()=>{
-  expect(page).toContain('قراءة فقط');
+ test('directory browsing remains read-only, while creation is a separate confirmed and RLS-controlled form',()=>{
+  const importer=fs.readFileSync(path.join(root,'components/institutional-directory-import.js'),'utf8');
   expect(client).not.toMatch(/\.insert\(|\.update\(|\.delete\(|method:\s*'POST'/);
+  expect(page).toContain('id="institutional-apply" disabled');
+  expect(importer).toContain("addEventListener('click',async()=>");
+  expect(importer).toContain("await sb.auth.getUser()");
+  expect(importer).toContain('workspace_id:workspaceId');
+  expect(importer).not.toMatch(/sendEmail|smtp|zoho\.send/i);
   expect(page).not.toContain('data-demo=');
  });
  test('has a genuine English counterpart and language-sensitive status messages',()=>{
