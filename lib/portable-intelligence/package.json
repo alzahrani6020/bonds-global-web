@@ -21,7 +21,8 @@
     "entity-intelligence.js",
     "html-table-review.js",
     "table-financial-review.js",
-    "local-pdf-ocr.js"
+    "local-pdf-ocr.js",
+    "tenant-authorization.js"
   ],
   "engines": {
     "node": ">=22"
