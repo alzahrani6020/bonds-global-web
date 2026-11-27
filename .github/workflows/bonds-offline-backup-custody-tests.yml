@@ -13,6 +13,8 @@ on:
       - 'scripts/backup/test_storage_encrypted.py'
       - 'scripts/backup/check_storage_db_alignment.py'
       - 'scripts/backup/test_check_storage_db_alignment.py'
+      - 'scripts/backup/test_storage_postgres_integration.py'
+      - 'scripts/backup/export_isolated_storage_metadata.sql'
       - '.github/workflows/bonds-storage-encrypted-backup.yml'
       - '.github/workflows/bonds-offline-backup-custody-tests.yml'
   workflow_dispatch:
@@ -23,7 +25,19 @@ permissions:
 jobs:
   custody-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: test-password-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd 'pg_isready -U postgres'
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,5 +48,16 @@ jobs:
           sudo apt-get install -y -qq age
           command -v age
           command -v age-keygen
-      - name: Validate secure offline custody behavior
+      - name: Provision disposable isolated PostgreSQL database
+        env:
+          PGPASSWORD: test-password-only
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17 || sudo apt-get install -y -qq postgresql-client
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE bonds_restore_gate;'
+      - name: Validate secure offline custody and real PostgreSQL alignment
+        env:
+          RUN_DISPOSABLE_PG_INTEGRATION: '1'
+          ISOLATED_TEST_DATABASE_URL: postgresql://postgres:test-password-only@127.0.0.1:5432/bonds_restore_gate
         run: python3 -m unittest discover -s scripts/backup -p 'test_*.py' -v
