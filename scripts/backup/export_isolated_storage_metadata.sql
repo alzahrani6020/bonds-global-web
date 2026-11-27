@@ -4,7 +4,8 @@
 -- This is read-only and emits exactly one JSON inventory object.
 -- Hard stop if this is not the dedicated disposable recovery database.
 -- Change the expected name only after independent verification of isolation.
-\\set ON_ERROR_STOP on
+\set ON_ERROR_STOP on
+\set QUIET 1
 BEGIN READ ONLY;
 DO $guard$
 BEGIN
