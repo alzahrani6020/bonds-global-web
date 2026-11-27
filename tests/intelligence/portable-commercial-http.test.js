@@ -93,6 +93,38 @@ describe('commercial installed-loopback API acceptance',()=>{
    expect(owner.actor_id).not.toBe(viewer.actor_id);
   }finally{await app.close();identity.close();fs.rmSync(dir,{recursive:true,force:true})}
  });
+ test('authenticated remote delivery requires server destination policy and token, not browser credentials',async()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bonds-destination-http-'));
+  const filename=path.join(dir,'customer.sqlite');
+  const destinationFetch=jest.fn(async(_url,request)=>{
+   const payload=JSON.parse(request.body);
+   expect(request.headers.Authorization).toBe('Bearer pinned-server-token-1234567890123456');
+   expect(payload).toMatchObject({workspace_id:A,target:'crm',approved:true,send_mail:false,create_hr_employee:false});
+   return {status:200,ok:true,headers:{get:()=> 'application/json'},json:async()=>({accepted:true,workspace_id:A,target:'crm',accepted_count:1,receipt_id:'verified-external-receipt-1234'})};
+  });
+  const identity=async({workspaceId,actorId})=>({workspace_id:workspaceId,actor_id:actorId,active:true,role:'owner'});
+  const app=createCommercialServer({workspaceId:A,databasePath:filename,...licensedToken(),getMembership:identity,verifyCredentials:async({password})=>password==='fixture-remote-auth'?'owner':null,
+   destinationConfig:{crm:{endpoint:'https://company-destination.example.org/api/reviewed-directory',allowedOrigin:'https://company-destination.example.org'}},
+   getDestinationToken:async()=> 'pinned-server-token-1234567890123456',destinationFetch
+  });
+  const url=await app.listen();
+  async function send(route,cookie,data){return fetch(url+route,{method:'POST',headers:{Cookie:cookie,'Content-Type':'application/json'},body:JSON.stringify(data)})}
+  try{
+   const login=await send('/login','',{username:'owner',password:'fixture-remote-auth'});
+   const cookie=(login.headers.get('set-cookie')||'').split(';')[0];
+   const html='<p>اسم الشركة: مؤسسة أطلس</p>';
+   const analyzed=await (await send('/analyze',cookie,{filename:'source.html',base64:Buffer.from(html).toString('base64')})).json();
+   await send('/review',cookie,{preview_id:analyzed.preview_id,identity:{type:'organization',name:'مؤسسة أطلس'}});
+   const committed=await (await send('/commit',cookie,{preview_id:analyzed.preview_id,approve:true,approvedIndices:[0]})).json();
+   const forbidden=await send('/deliver',cookie,{target:'hr',recordIds:committed.ids});
+   expect(forbidden.status).toBe(400);
+   expect(destinationFetch).not.toHaveBeenCalled();
+   const sent=await send('/deliver',cookie,{target:'crm',recordIds:committed.ids,bearerToken:'fake-user-token',remoteEndpoint:'http://untrusted.example'});
+   expect(sent.status).toBe(200);
+   const receipt=await sent.json();expect(receipt).toMatchObject({verified_destination_ack:true,delivered:true,send_mail:false});
+   expect(destinationFetch).toHaveBeenCalledTimes(1);
+  }finally{await app.close();fs.rmSync(dir,{recursive:true,force:true})}
+ });
  test('server refuses non-loopback host and invalid signatures',()=>{
   const fields={workspaceId:A,databasePath:path.join(os.tmpdir(),'customer-test.sqlite'),getMembership:async()=>null,verifyCredentials:async()=>null,...licensedToken()};
   expect(()=>createCommercialServer({...fields,host:'0.0.0.0'})).toThrow('LOOPBACK_ONLY');
