@@ -72,6 +72,15 @@ class AlignmentGateTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             alignment.compare(self.tar, self.db)
 
+    def test_matching_metadata_but_tampered_bytes_rejected(self):
+        archive(self.tar, self.blob)
+        db_inventory(self.db, self.row)
+        data = self.tar.read_bytes()
+        self.assertIn(b"AAAAAAAAAA", data)
+        self.tar.write_bytes(data.replace(b"AAAAAAAAAA", b"BBBBBBBBBB"))
+        with self.assertRaises(ValueError):
+            alignment.compare(self.tar, self.db)
+
     def test_wrong_id_fails(self):
         archive(self.tar, self.blob)
         db_inventory(self.db, [{**self.row[0], "id": "different"}])
