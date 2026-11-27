@@ -1,0 +1,24 @@
+{
+  "name": "@bonds-global/document-intelligence-core",
+  "version": "0.1.0",
+  "description": "BONDS offline-first review-only extraction foundation",
+  "private": true,
+  "type": "commonjs",
+  "bin": {
+    "bonds-document-intelligence": "./cli.js"
+  },
+  "files": [
+    "core.js",
+    "file-adapters.js",
+    "cli.js",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "mammoth": "1.12.0",
+    "pdf-parse": "2.4.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  }
+}
