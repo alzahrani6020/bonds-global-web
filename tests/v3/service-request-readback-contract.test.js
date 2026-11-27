@@ -163,6 +163,11 @@ describe('guided financial intake fields',()=>{
   expect(changed.current_assets).toBe('210');
   expect(changed.cash).toBeNull();
  });
+ test('financial analysis uses a full-width review without altering other workspaces',()=>{
+  expect(source).toContain("if(serviceCode==='financial_analysis'){");
+  expect(source).toContain("document.body.classList.add('financial-review-wide')");
+  expect(source).toContain('body.financial-review-wide .sr-grid{grid-template-columns:minmax(0,1fr)}');
+ });
  test('review groups preserve source, candidate, and correction field rendering',()=>{
   expect(source).toContain('renderIntakeReviewField(field,fields)');
   expect(source).toContain('data-intake-field=');
