@@ -91,6 +91,15 @@ describe('financial-analysis dated columns - source anchored comparisons',()=>{
   expect(d.fields.find(x=>x.field==='revenue').source).toEqual(expect.arrayContaining([expect.objectContaining({sheet:'الدخل',period:'2025'})]));
   expect(d.fields.find(x=>x.field==='total_assets').source).toEqual(expect.arrayContaining([expect.objectContaining({sheet:'المركز المالي',period:'2025'})]));
  });
+ test('PDF page-table provenance remains visible while text fills only uncovered fields',()=>{
+  const d=extractFinancialFields({parsed:{
+    sheets:[{name:'PDF page 2 table 1',page:2,rows:[['البيان','2025','2024'],['إجمالي الأصول',1000,900],['إجمالي الالتزامات',600,550],['حقوق الملكية',400,350]]}],
+    text:'الإيرادات 2000\nصافي الربح 200'
+  },primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(d.values).toMatchObject({total_assets:1000,total_liabilities:600,equity:400,revenue:2000,net_income:200});
+  expect(d.fields.find(x=>x.field==='total_assets').source).toEqual(expect.arrayContaining([expect.objectContaining({page:2,sheet:'PDF page 2 table 1',period:'2025'})]));
+  expect(d.fields.find(x=>x.field==='revenue').source).toEqual(expect.arrayContaining([expect.objectContaining({extraction_method:'text_parser'})]));
+ });
  test('non-financial-analysis services keep their original field extraction contract',()=>{
   const d=extractFinancialFields({
    parsed:{rows:[['Revenue',2000000],['Current Assets',400000],['Current Liabilities',200000]]},
