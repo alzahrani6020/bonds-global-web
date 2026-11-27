@@ -245,20 +245,6 @@ jobs:
                 cmp -s /tmp/bonds-main-correspondence-file /tmp/bonds-merge-correspondence-file || exit 0
                 ;;
               .github/workflows/bonds-backup-freshness-watchdog.yml)
-                # Non-visual schedule-only change: require exact PR-base parity.
-                # Any other change falls back to the full visual snapshot gate.
-                git show "$BASE_SHA:$file" > /tmp/bonds-base-watchdog-workflow.yml || exit 0
-                python3 - <<'PY' || exit 0
-          from pathlib import Path
-          base = Path('/tmp/bonds-base-watchdog-workflow.yml').read_text()
-          head = Path('.github/workflows/bonds-backup-freshness-watchdog.yml').read_text()
-          old = "# Every 3 hours at minute 15 UTC; does not start production backups.\n    - cron: '15 0,3,6,9,12,15,18,21 * * *'"
-          new = "# Every 3 hours at minute 35 UTC; gives the 00:07 UTC daily backup time to finish.\n    - cron: '35 0,3,6,9,12,15,18,21 * * *'"
-          if base.count(old) != 1 or head != base.replace(old, new):
-              raise SystemExit(1)
-          PY
-                ;;
-              .github/workflows/bonds-backup-freshness-watchdog.yml)
                 # Only the exact reviewed schedule-proof block is non-visual.
                 # Any further changes retain the existing full visual gate.
                 git show "$BASE_SHA:$file" > /tmp/bonds-base-watchdog.yml || exit 0
