@@ -102,6 +102,32 @@ describe('guided financial intake fields',()=>{
   expect(source).toContain("total_expenses:lang==='ar'?'إجمالي المصروفات'");
   expect(source).toContain("payables:lang==='ar'?'الذمم الدائنة'");
  });
+ test('financial derivation is blocked across reporting periods and preserves a valid period',()=>{
+  const {deriveFinancialInputs}=require('../../lib/finance/financial-data-intake');
+  const values={total_assets:300,total_liabilities:100};
+  const rows=[
+   {field:'total_assets',value:300,status:'extracted',currency:'SAR',period:'2026'},
+   {field:'total_liabilities',value:100,status:'extracted',currency:'SAR',period:'2025'}
+  ];
+  const conflicting=deriveFinancialInputs(values,rows);
+  expect(conflicting.values.equity).toBeUndefined();
+  rows[1].period='2026';
+  const matching=deriveFinancialInputs(values,rows);
+  expect(matching.values.equity).toBe(200);
+  const equity=matching.fields.find(row=>row.field==='equity');
+  expect(equity.period).toBe('2026');
+  expect(equity.currency).toBe('SAR');
+  rows[1].currency='USD';
+  expect(deriveFinancialInputs(values,rows).values.equity).toBeUndefined();
+ });
+ test('approval verifies candidate index, value and source dimensions',()=>{
+  const approval=read('v3/api/services.js');
+  expect(approval).toContain('FINANCIAL_CANDIDATE_INDEX_INVALID');
+  expect(approval).toContain('FINANCIAL_CANDIDATE_VALUE_MISMATCH');
+  expect(approval).toContain("current.status = selectedCandidate ? 'selected_from_source' : 'corrected'");
+  expect(approval).toContain("FINANCIAL_SELECTED_PERIOD_MISMATCH");
+  expect(approval).toContain("method:'candidate_selection'");
+ });
  test('review groups preserve source, candidate, and correction field rendering',()=>{
   expect(source).toContain('renderIntakeReviewField(field,fields)');
   expect(source).toContain('data-intake-field=');
