@@ -94,3 +94,21 @@ BEGIN
  END;
  IF NOT rejected THEN RAISE EXCEPTION 'Cross-tenant dispatch job accepted'; END IF;
 END $$;
+
+DO $$
+DECLARE u uuid='11111111-1111-4111-8111-111111111111'; 
+ a uuid='22222222-2222-4222-8222-222222222222';
+ r uuid='66666666-6666-4666-8666-666666666666';
+ rejected boolean:=false;
+BEGIN
+ INSERT INTO public.correspondence_documents(id,owner_user_id,workspace_context,status)
+ VALUES('aaaaaaa1-aaaa-4aaa-8aaa-aaaaaaaaaaaa',u,
+  jsonb_build_object('campaign_workspace_id',a::text,'campaign_recipient_id',r::text),'draft');
+ BEGIN
+  INSERT INTO public.correspondence_documents(id,owner_user_id,workspace_context,status)
+  VALUES('aaaaaaa2-aaaa-4aaa-8aaa-aaaaaaaaaaaa',u,
+   jsonb_build_object('campaign_workspace_id',a::text,'campaign_recipient_id',r::text),'draft');
+ EXCEPTION WHEN unique_violation THEN rejected:=true;
+ END;
+ IF NOT rejected THEN RAISE EXCEPTION 'Multiple personalized drafts created for same campaign recipient'; END IF;
+END $$;
