@@ -1,10 +1,12 @@
 -- Durable, idempotent and tenant-bound delivery queue. A provider uncertainty is
 -- terminal to automatic retries until separately reconciled by an operator.
+create unique index if not exists correspondence_campaign_recipients_scope_uidx
+ on public.correspondence_campaign_recipients(id,campaign_id,company_id);
 create table if not exists public.correspondence_campaign_dispatch_jobs (
  id uuid primary key default gen_random_uuid(),
  campaign_id uuid not null,
  company_id uuid not null,
- recipient_id uuid not null references public.correspondence_campaign_recipients(id) on delete restrict,
+ recipient_id uuid not null,
  document_id uuid not null references public.correspondence_documents(id) on delete restrict,
  mailbox_id uuid not null,
  issued_hash text not null check(issued_hash ~ '^[a-f0-9]{64}$'),
@@ -20,6 +22,7 @@ create table if not exists public.correspondence_campaign_dispatch_jobs (
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now(),
  foreign key(campaign_id,company_id) references public.correspondence_campaigns(id,company_id) on delete restrict,
+ foreign key(recipient_id,campaign_id,company_id) references public.correspondence_campaign_recipients(id,campaign_id,company_id) on delete restrict,
  foreign key(mailbox_id,company_id) references public.correspondence_mailboxes(id,company_id) on delete restrict
 );
 create unique index if not exists correspondence_campaign_dispatch_jobs_recipient_uidx
