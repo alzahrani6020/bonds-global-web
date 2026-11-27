@@ -5,6 +5,7 @@ Commercial module independent from the BONDS production database and corresponde
 ## Architecture
 - `core.js`: dependency-free structured normalization; proposals only; explicit workspace context.
 - `file-adapters.js`: XLSX/CSV parser, PDF text extraction; images require an injected OCR implementation.
+- `integration-contract.js`: CRM and correspondence reviewed-directory intent envelopes only; HR employee creation fails closed until authenticated employment linking is implemented. No email is sent.
 - `local-ocr.js`: optional offline Tesseract subprocess adapter for images. Tesseract with Arabic and English trained data must be installed separately; the adapter has no cloud fallback and is not a Windows installer.
 - `review-gate.js`: fail-closed review boundary requiring selected proposals, a trusted host authorization callback, and a single atomic host commit callback. Workspace IDs supplied by a caller are NOT proof of membership.
 - The engine **never writes** to Supabase/PostgreSQL or sends mail. The host product must enforce authenticated tenant permission, review, persistence, duplicate checks and audit log.
