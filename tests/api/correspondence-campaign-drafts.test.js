@@ -2,7 +2,7 @@
 const {randomUUID}=require('node:crypto');
 jest.mock('../../lib/api/correspondence',()=>({
  createDocument:jest.fn(async(sb,user,body)=>{
-  const row={id:randomUUID(),owner_user_id:user.id,recipient_email:body.recipient_email,
+  const row={id:require('node:crypto').randomUUID(),owner_user_id:user.id,recipient_email:body.recipient_email,
    status:'draft',current_version:0,workspace_context:body.workspace_context};
   const result=await sb.from('correspondence_documents').insert(row).select('*').single();
   if(result.error)throw result.error;
