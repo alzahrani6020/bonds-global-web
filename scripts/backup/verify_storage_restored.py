@@ -49,12 +49,21 @@ def verify(path, restore_to=None):
                 raise ValueError("duplicate object path")
             seen_paths.add(pair)
         expected = {"manifest.json"}
+        if len(objects) > 100000:
+            raise ValueError("object count exceeds safety limit")
+        total_bytes = 0
         for index, item in enumerate(objects):
             blob = "blobs/%08d" % index
             if item.get("blob") != blob:
                 raise ValueError("unexpected blob path")
-            if len(item.get("sha256", "")) != 64 or item.get("size", -1) < 0:
+            size, digest = item.get("size"), item.get("sha256")
+            if (type(size) is not int or size < 0 or
+                    not isinstance(digest, str) or len(digest) != 64 or
+                    any(ch not in "0123456789abcdef" for ch in digest)):
                 raise ValueError("invalid object metadata")
+            total_bytes += size
+            if total_bytes > 2 * 1024 ** 3:
+                raise ValueError("archive declared size exceeds safety limit")
             expected.add(blob)
         if {m.name for m in members} != expected or len(members) != len(expected):
             raise ValueError("archive members do not match manifest")
