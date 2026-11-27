@@ -132,6 +132,31 @@ describe('guided financial intake fields',()=>{
   expect(approval).toContain("FINANCIAL_SELECTED_PERIOD_MISMATCH");
   expect(approval).toContain("method:'candidate_selection'");
  });
+ test('unchanged source values are never recast as manual corrections',()=>{
+  const vm=require('node:vm');
+  const start=source.indexOf('function collectIntakeCorrections(){');
+  const end=source.indexOf('async function uploadIntakeFile(',start);
+  expect(start).toBeGreaterThan(-1);
+  const inputs=[
+   {dataset:{intakeField:'revenue'},value:'100'},
+   {dataset:{intakeField:'current_assets'},value:'210'},
+   {dataset:{intakeField:'cash'},value:''}
+  ];
+  const ctx={
+   intakeReview:{fields:[
+    {field:'revenue',value:100,status:'extracted'},
+    {field:'current_assets',value:200,status:'extracted'},
+    {field:'cash',value:50,status:'extracted'}
+   ]},
+   document:{querySelectorAll:()=>inputs}
+  };
+  vm.createContext(ctx);
+  vm.runInContext(source.slice(start,end),ctx);
+  const changed=ctx.collectIntakeCorrections();
+  expect(changed.revenue).toBeUndefined();
+  expect(changed.current_assets).toBe('210');
+  expect(changed.cash).toBeNull();
+ });
  test('review groups preserve source, candidate, and correction field rendering',()=>{
   expect(source).toContain('renderIntakeReviewField(field,fields)');
   expect(source).toContain('data-intake-field=');
