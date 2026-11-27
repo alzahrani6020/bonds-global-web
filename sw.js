@@ -35,7 +35,7 @@ const CORE_ASSETS = [
   '/components/service-discovery.js?v=9',
   '/components/service-request.css?v=1',
   '/lib/services/studies-workspace-bindings.js?v=2',
-  '/components/service-request.js?v=46',
+  '/components/service-request.js?v=47',
   '/components/feasibility-report.js?v=1',
   '/components/service-workspace.css?v=9',
   '/service-request.html',
