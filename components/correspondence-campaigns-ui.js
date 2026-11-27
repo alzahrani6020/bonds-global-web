@@ -48,7 +48,7 @@
       list.textContent='اختر الشركة لعرض صناديق بريدها.';return;
     }
     try{
-      const data=await mailboxApi('?company_id='+encodeURIComponent($('company').value));
+      const data=await mailboxApi('?workspace_id='+encodeURIComponent($('company').value));
       if(!data.mailboxes?.length){list.textContent='لم يتم ربط صندوق Zoho لهذه الشركة بعد.';return;}
       for(const mailbox of data.mailboxes){
         const row=node('p',(mailbox.address||'')+' — '+(mailbox.enabled?'متصل ومتحقق منه':'معطل'));
@@ -63,12 +63,12 @@
     }
   }
   async function connectMailbox(){
-    const company_id=$('company').value;
-    if(!UUID.test(company_id))throw new Error('اختر شركة قبل ربط البريد.');
+    const workspace_id=$('company').value;
+    if(!UUID.test(workspace_id))throw new Error('اختر شركة قبل ربط البريد.');
     const address=$('mailbox-address').value.trim().toLowerCase();
     if(!address||!address.includes('@'))throw new Error('أدخل بريد الشركة الرسمي.');
     if(!window.confirm('سيتم توجيهك إلى Zoho للموافقة على ربط بريد '+address+' بالشركة المحددة. هل تتابع؟'))return;
-    const data=await mailboxApi('',{action:'connect',company_id,address,region:$('mailbox-region').value});
+    const data=await mailboxApi('',{action:'connect',workspace_id,address,region:$('mailbox-region').value});
     const authorization=new URL(data.authorization_url);
     if(authorization.protocol!=='https:'||!/^(accounts\.zoho\.(com|eu|in|com\.au|jp|com\.cn)|accounts\.zohocloud\.ca)$/.test(authorization.hostname))
       throw new Error('رابط تفويض Zoho غير صالح');
@@ -149,8 +149,8 @@
   async function loadCompanies(){
     const result=await api('?mine=1');
     const select=$('company');select.replaceChildren(option('','اختر الشركة'));
-    for(const c of result.companies||[])select.append(option(c.id,c.name+' — '+(c.role||'مستخدم')));
-    const requested=new URLSearchParams(location.search).get('company_id');
+    for(const c of result.workspaces||[])select.append(option(c.id,c.name+' — '+(c.role||'مستخدم')));
+    const requested=new URLSearchParams(location.search).get('workspace_id');
     if(requested&&[...select.options].some(o=>o.value===requested))select.value=requested;
     else if(select.options.length===2)select.selectedIndex=1;
     selectedCompany=select.value;
@@ -162,7 +162,7 @@
     const list=$('campaign-list');list.replaceChildren();
     if(!UUID.test(selectedCompany)){list.textContent='اختر شركة مصرحًا بها.';return;}
     await loadMailboxes();
-    const result=await api('?company_id='+encodeURIComponent(selectedCompany));
+    const result=await api('?workspace_id='+encodeURIComponent(selectedCompany));
     const campaigns=result.campaigns||[];
     if(!campaigns.length){list.textContent='لا توجد حملات حتى الآن.';return;}
     for(const c of campaigns){
@@ -192,7 +192,7 @@
   }
   async function create(){
     const c=$('company').value;if(!UUID.test(c))throw new Error('اختر الشركة المالكة للحملة');
-    const result=await api('',{action:'create',company_id:c,title:$('title').value,kind:$('kind').value,description:$('description').value});
+    const result=await api('',{action:'create',workspace_id:c,title:$('title').value,kind:$('kind').value,description:$('description').value});
     await loadCampaigns();await openCampaign(result.campaign.id);
   }
   function parseRecipients(text){
