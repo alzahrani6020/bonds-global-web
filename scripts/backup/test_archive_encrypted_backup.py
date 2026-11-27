@@ -2,6 +2,7 @@ import importlib.util
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 spec = importlib.util.spec_from_file_location('archiver', Path(__file__).with_name('archive_encrypted_backup.py'))
 module = importlib.util.module_from_spec(spec)
@@ -40,6 +41,12 @@ class ArchiveTests(unittest.TestCase):
     def test_no_copy_to_source_dir(self):
         with self.assertRaises(ValueError):
             module.archive(self.source, self.src_dir)
+    def test_interrupted_copy_removed(self):
+        with mock.patch.object(module.shutil, 'copyfileobj', side_effect=OSError('disk full')):
+            with self.assertRaises(OSError):
+                module.archive(self.source, self.out_dir)
+        self.assertFalse((self.out_dir/self.source.name).exists())
+        self.assertFalse((self.out_dir/(self.source.name+'.sha256.json')).exists())
     def test_symlink_rejected(self):
         link = self.src_dir / 'production-45814509070.dump.age'
         try:
