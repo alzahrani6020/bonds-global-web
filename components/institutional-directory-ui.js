@@ -1,5 +1,7 @@
 (async function () {
   'use strict';
+  const english = document.documentElement.lang === 'en';
+  const tr = (ar, en) => english ? en : ar;
   const $ = id => document.getElementById(id);
   const status = $('directory-status');
   const results = $('directory-results');
@@ -24,17 +26,17 @@
   function renderItems(items, type) {
     results.replaceChildren();
     if (!items.length) {
-      results.append(element('div', 'empty', 'لا توجد سجلات مطابقة في مساحة الشركة المحددة.'));
+      results.append(element('div', 'empty', tr('لا توجد سجلات مطابقة في مساحة الشركة المحددة.','No matching records in the selected company workspace.')));
       return;
     }
     const frag = document.createDocumentFragment();
     for (const item of items) {
       const card = element('article','entity');
-      card.append(element('h2','',item.name || 'بدون اسم'));
+      card.append(element('h2','',item.name || tr('بدون اسم','Unnamed')));
       const attributes = type === 'contacts'
-        ? [['الصفة',item.role],['البريد',item.email],['الهاتف',item.phone],['الحالة',item.status]]
-        : [['الاسم القانوني',item.legal_name],['القطاع',item.sector],['المدينة',item.city],
-           ['الدولة',item.country],['البريد',item.email],['الهاتف',item.phone],['الحالة',item.status]];
+        ? [[tr('الصفة','Role'),item.role],[tr('البريد','Email'),item.email],[tr('الهاتف','Phone'),item.phone],[tr('الحالة','Status'),item.status]]
+        : [[tr('الاسم القانوني','Legal name'),item.legal_name],[tr('القطاع','Sector'),item.sector],[tr('المدينة','City'),item.city],
+           [tr('الدولة','Country'),item.country],[tr('البريد','Email'),item.email],[tr('الهاتف','Phone'),item.phone],[tr('الحالة','Status'),item.status]];
       for (const [label,value] of attributes) {
         const line = row(label,value);
         if (line) card.append(line);
@@ -54,13 +56,13 @@
     const workspace = select.value;
     const type = $('entity-type').value;
     const q = $('directory-query').value.trim();
-    if (!workspace) { say('اختر مساحة شركة مصرحًا بها أولًا.'); return; }
+    if (!workspace) { say(tr('اختر مساحة شركة مصرحًا بها أولًا.','Choose an authorized company workspace first.')); return; }
     if (q.length > 80 || /[^\p{L}\p{N}\s._-]/u.test(q)) {
-      say('استخدم الاسم أو جزءًا منه دون رموز البحث الخاصة.'); return;
+      say(tr('استخدم الاسم أو جزءًا منه دون رموز البحث الخاصة.','Search by name without special wildcard symbols.')); return;
     }
     busy = true;
     submit.disabled = true;
-    say('جارٍ تحميل الجهات المصرح بها...');
+    say(tr('جارٍ تحميل الجهات المصرح بها...','Loading authorized records...'));
     results.replaceChildren();
     try {
       const token = await authenticatedSession();
@@ -75,13 +77,13 @@
       const payload = await response.json();
       if (payload.workspace_id !== workspace || !Array.isArray(payload.items)) throw new Error('DIRECTORY_UNAVAILABLE');
       renderItems(payload.items,type);
-      say('عدد النتائج المعروضة: ' + payload.items.length + ' (الحد الأقصى 25 سجلًا لكل بحث).');
+      say(tr('عدد النتائج المعروضة: ','Displayed records: ') + payload.items.length + tr(' (الحد الأقصى 25 سجلًا لكل بحث).',' (maximum 25 records per search).'));
     } catch (error) {
       const message = error?.message === 'AUTH_REQUIRED'
-        ? 'انتهت جلسة الدخول. سجّل الدخول إلى BONDS ثم أعد المحاولة.'
+        ? tr('انتهت جلسة الدخول. سجّل الدخول إلى BONDS ثم أعد المحاولة.','Your session has expired. Sign in to BONDS and retry.')
         : error?.message === 'WORKSPACE_NOT_FOUND'
-          ? 'مساحة الشركة غير متاحة لهذا الحساب.'
-          : 'تعذر تحميل دليل الجهات حاليًا. لم تُغيّر أي بيانات.';
+          ? tr('مساحة الشركة غير متاحة لهذا الحساب.','This company workspace is not available to your account.')
+          : tr('تعذر تحميل دليل الجهات حاليًا. لم تُغيّر أي بيانات.','Unable to load the directory. No data was changed.');
       say(message);
     } finally {
       submit.disabled = false;
@@ -105,17 +107,17 @@
     if (error) throw error;
     select.replaceChildren();
     if (!spaces?.length) {
-      select.append(new Option('لا توجد مساحات CRM مصرح بها',''));
-      say('لا توجد مساحة CRM متاحة لهذا الحساب. يمكنك فتح CRM لإنشاء مساحة إذا كانت لديك الصلاحية.');
+      select.append(new Option(tr('لا توجد مساحات CRM مصرح بها','No authorized CRM workspaces'),''));
+      say(tr('لا توجد مساحة CRM متاحة لهذا الحساب. يمكنك فتح CRM لإنشاء مساحة إذا كانت لديك الصلاحية.','No CRM workspace is available. Open CRM to create one if authorized.'));
       return;
     }
     for (const space of spaces) {
-      select.append(new Option(space.name || 'مساحة بلا اسم',space.id));
+      select.append(new Option(space.name || tr('مساحة بلا اسم','Unnamed workspace'),space.id));
     }
-    say('تم تحديد مساحة الشركة. يعرض الدليل السجلات الحقيقية المسموح لك بها.');
+    say(tr('تم تحديد مساحة الشركة. يعرض الدليل السجلات الحقيقية المسموح لك بها.','Company selected. Showing only permitted CRM records.'));
     await loadResults();
   } catch (_err) {
-    select.replaceChildren(new Option('تسجيل الدخول مطلوب',''));
-    say('يلزم تسجيل الدخول إلى BONDS لعرض دليل الجهات. لن تظهر بيانات أي شركة دون جلسة مصرح بها.');
+    select.replaceChildren(new Option(tr('تسجيل الدخول مطلوب','Sign-in required'),''));
+    say(tr('يلزم تسجيل الدخول إلى BONDS لعرض دليل الجهات. لن تظهر بيانات أي شركة دون جلسة مصرح بها.','Sign in to BONDS to view the directory. Company records require an authorized session.'));
   }
 })();
