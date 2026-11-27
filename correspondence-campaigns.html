@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>مركز الحملات المؤسسية | BONDS Global</title>
+<meta name="theme-color" content="#0c2140">
+<style>
+:root{font:15px/1.65 Tahoma,Arial,sans-serif;color:#132e4c;background:#f3f6fa}
+*{box-sizing:border-box}body{margin:0}a{color:#0b477e}
+header{background:#0c2140;color:white;padding:18px clamp(14px,4vw,44px);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header a{color:#fff;text-decoration:none}.brand{font-size:20px;font-weight:800;letter-spacing:.7px}
+main{max-width:1240px;margin:auto;padding:22px 16px 40px}
+h1{font-size:clamp(23px,3vw,31px);margin:0 0 6px}h2{font-size:19px;margin:0 0 14px}
+.muted{color:#60748a}.intro{margin:0 0 22px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.panel{background:#fff;border:1px solid #d9e1eb;border-radius:14px;padding:20px;min-width:0}
+label{display:block;font-weight:bold;font-size:13px;margin:9px 0 5px}input,textarea,select,button{font:inherit}
+input,textarea,select{display:block;width:100%;padding:11px;border:1px solid #bbcadb;border-radius:9px;min-height:44px;background:#fff;color:#123;max-width:100%}
+button{padding:10px 17px;margin:8px 0 0;border:0;border-radius:9px;background:#0c315f;color:#fff;cursor:pointer;font-weight:bold}
+button:disabled{opacity:.48;cursor:not-allowed}
+button.secondary{background:#e8eff8;color:#173b62}button.warn{background:#8c5117}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #d4a659;outline-offset:2px}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+th,td{text-align:right;padding:11px 8px;border-bottom:1px solid #e0e6ee;overflow-wrap:anywhere}th{color:#49627b}
+table button{padding:6px 10px;font-size:12px}
+.alert{padding:12px;background:#fff6e4;border:1px solid #efd397;border-radius:9px;color:#66491e;margin-bottom:15px}
+#status{padding:12px;border-radius:10px;background:#e5eef8;margin:14px 0;white-space:pre-wrap}
+#status.error{background:#fee8e8;color:#902d2d}
+.actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.pill{display:inline-block;border-radius:6px;padding:2px 9px;background:#e8eef6;font-size:12px}
+[hidden]{display:none!important}.wide{grid-column:1/-1}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.panel{padding:15px}table{font-size:12px}th,td{padding:7px 5px}header{padding:14px}}
+</style>
+<script src="/api/env" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="/bonds-auth-2026.js?v=3.1.4" defer></script>
+<script src="/components/correspondence-campaigns-ui.js?v=1" defer></script>
+</head>
+<body>
+<header><a href="/" class="brand">BONDS GLOBAL</a><nav><a href="/letterhead.html?workspace=correspondence">المراسلات الرسمية</a> &nbsp;|&nbsp; <a href="/institutional-directory.html">دليل الجهات</a> &nbsp;|&nbsp; <a href="/admin/dashboard">لوحة التحكم</a></nav></header>
+<main>
+<section class="intro"><h1>مركز الحملات والمراسلات المؤسسية</h1><p class="muted">إنشاء الحملات وإدارة المستلمين والربط بالخطابات الصادرة، مع فصل بيانات الشركات ودورة اعتماد رسمية.</p></section>
+<div class="alert" role="note"><strong>ضابط الإرسال:</strong> لا تُرسل المراسلات الجماعية إلا بعد ربط صندوق بريد الشركة والتحقق من الصادر واعتماد الإرسال. هذا الإصدار لا ينفذ إرسالًا تلقائيًا.</div>
+<div id="status" role="status" aria-live="polite">جارٍ التحقق من جلسة BONDS...</div>
+<div class="grid">
+<section class="panel"><h2>حملة جديدة</h2>
+<label for="company">الشركة المالكة للحملة</label><select id="company"><option value="">تحميل الشركات المصرح بها...</option></select>
+<label for="kind">نوع الحملة</label><select id="kind"><option value="investment">التعاون الاستثماري</option><option value="partnership">الشراكات</option><option value="institutional">المراسلات المؤسسية</option><option value="customer">العملاء</option><option value="supplier">الموردون</option><option value="other">أخرى</option></select>
+<label for="title">اسم الحملة</label><input id="title" maxlength="180" placeholder="مثال: جولة التعاون الاستثماري — كليكس">
+<label for="description">وصف الهدف</label><textarea id="description" rows="3" maxlength="2000" placeholder="نوع التعاون والهدف والقطاع"></textarea>
+<button id="create" type="button" disabled>إنشاء وحفظ الحملة</button>
+</section>
+<section class="panel"><h2>الحملات المحفوظة</h2>
+<div class="actions"><button id="refresh" class="secondary" type="button" disabled>تحديث القائمة</button></div>
+<div id="campaign-list" class="muted">اختر شركة لعرض حملاتها.</div>
+</section>
+<section class="panel wide" id="detail" hidden>
+<h2 id="detail-title">تفاصيل الحملة</h2><div class="actions"><span class="pill" id="detail-state"></span>
+<button id="submit" class="secondary" type="button">إرسال للمراجعة</button>
+<button id="approve" type="button">اعتماد الحملة</button>
+<button id="back" class="secondary" type="button">إعادة إلى المسودة</button>
+<button id="cancel" class="warn" type="button">إلغاء الحملة</button>
+<button id="dispatch" disabled type="button" title="يتطلب مزود بريد مربوطًا وصف إرسال دائمًا">الإرسال الآلي غير متاح بعد</button>
+</div>
+<div class="grid" style="margin-top:18px">
+<div>
+<h2>إضافة المستلمين</h2>
+<p class="muted">أدخل جهة واحدة في كل سطر بالشكل: اسم المؤسسة، البريد الإلكتروني. راجع العناوين قبل الاستيراد.</p>
+<label for="recipient-lines">قائمة الجهات</label>
+<textarea id="recipient-lines" rows="7" placeholder="شركة المثال, contact@example.com"></textarea>
+<button id="import" type="button">مراجعة وإضافة المستلمين</button>
+</div>
+<div>
+<h2>الخطابات الصادرة</h2>
+<p class="muted">أنشئ خطابًا مستقلًا لكل جهة من مركز المراسلات، ثم اربطه برقم المعرف بعد الاعتماد والإصدار والختم والتحقق من PDF.</p>
+<p><a href="/letterhead.html?workspace=correspondence" target="_blank" rel="noopener">فتح مركز الخطابات الرسمية</a></p>
+<label for="recipient-id">معرف المستلم من القائمة</label><input id="recipient-id" placeholder="UUID" readonly>
+<label for="document-id">معرف الخطاب الصادر</label><input id="document-id" placeholder="UUID">
+<button id="bind" type="button">التحقق من المستند وربطه</button>
+</div>
+</div>
+<div style="overflow-x:auto;margin-top:20px"><table aria-label="المستلمون"><thead><tr><th>الجهة</th><th>البريد</th><th>الحالة</th><th>الخطاب</th><th>تحديد</th></tr></thead><tbody id="recipients"></tbody></table></div>
+</section>
+</div>
+</main>
+</body>
+</html>
