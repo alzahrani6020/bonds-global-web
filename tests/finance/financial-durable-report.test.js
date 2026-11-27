@@ -132,12 +132,40 @@ describe('durable financial report contract',()=>{
   expect(api).toContain("error:{code:'FINANCIAL_REPORT_GENERATION_FAILED'}");
   expect(api).toContain("throw new Error('FINANCIAL_REPORT_INVALID_HTML')");
  });
+ test('restoration result reflects actual report persistence, not metrics readback alone',async()=>{
+  const fs=require('node:fs');
+  const vm=require('node:vm');
+  const source=fs.readFileSync('components/service-request.js','utf8');
+  const start=source.indexOf('async function restoreSavedFinancialResult(');
+  const end=source.indexOf('async function reprocessLatestSavedFinancialFile(',start);
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const query={select(){return this;},eq(){return this;},is(){return this;},
+   order(){return this;},limit(){return this;},async maybeSingle(){return {data:{
+    id:ID,dataset_version:3,source_file_name:'source.pdf',quality_status:'unverified',
+    reviewed_values:{revenue:100},execution_result:{executed:true,metrics:{gross_margin_pct:20},dataset:{}}
+   },error:null};}};
+  let rendered=0;
+  for(const reportReady of [false,true]){
+   const context={serviceCode:'financial_analysis',intakeDatasetId:null,lang:'en',
+    params:{get:()=>null},T:{login:'Sign in'},
+    window:{BondsAuth:{ensureEnv:async()=>{},getUser:async()=>({data:{user:{id:OWNER}}}),
+     getSupabase:()=>({from:()=>query})}},
+    $:()=>null,renderExecutionResult:()=>{rendered++;},
+    ensureSavedFinancialReport:async()=>reportReady,showStatus:()=>{},escapeHtml:value=>value};
+   const restore=vm.runInNewContext('('+source.slice(start,end).trim()+')',context);
+   expect(await restore({scroll:false,silent:false})).toBe(reportReady);
+  }
+  expect(rendered).toBe(2);
+ });
  test('front-end embeds saved report and offers PDF print only after verified save',()=>{
   const fs=require('node:fs');
   const source=fs.readFileSync('components/service-request.js','utf8');
   const api=fs.readFileSync('v3/api/services.js','utf8');
   expect(source).toContain('async function ensureSavedFinancialReport(');
-  expect(source).toContain("renderExecutionResult(payload);\n  await ensureSavedFinancialReport(data.id,scroll);");
+  expect(source).toContain("renderExecutionResult(payload);\n  const reportReady=await ensureSavedFinancialReport(data.id,scroll);");
+  expect(source).toContain('return reportReady;');
+  expect(source).not.toContain("renderExecutionResult(payload);\n  await ensureSavedFinancialReport(data.id,scroll);");
   expect(source).toContain("frame.srcdoc=result.report.html");
   expect(source).toContain("frame.setAttribute('sandbox','allow-modals')");
   expect(source).toContain("await ensureSavedFinancialReport(intakeDatasetId,true)");
