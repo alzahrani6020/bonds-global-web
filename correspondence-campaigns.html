@@ -54,6 +54,16 @@ table button{padding:6px 10px;font-size:12px}
 <div class="actions"><button id="refresh" class="secondary" type="button" disabled>تحديث القائمة</button></div>
 <div id="campaign-list" class="muted">اختر شركة لعرض حملاتها.</div>
 </section>
+<section class="panel wide" id="mailbox-panel">
+<h2>ربط صندوق البريد الرسمي — Zoho Mail</h2>
+<p class="muted">يتطلب تفويض OAuth من صاحب الحساب. يتم حفظ رمز التجديد مشفرًا على الخادم، ويُربط صندوق البريد بالشركة المحددة فقط.</p>
+<div class="grid">
+<div><label for="mailbox-address">عنوان بريد الشركة</label><input id="mailbox-address" type="email" placeholder="info@bonds-global.com" autocomplete="email"></div>
+<div><label for="mailbox-region">منطقة حساب Zoho</label><select id="mailbox-region"><option value="com">الولايات المتحدة / .com</option><option value="eu">أوروبا / .eu</option><option value="in">الهند / .in</option><option value="comau">أستراليا / .com.au</option><option value="jp">اليابان / .jp</option><option value="ca">كندا / .ca</option><option value="comcn">الصين / .com.cn</option></select></div>
+</div>
+<div class="actions"><button type="button" id="connect-mailbox" disabled>ربط Zoho بتفويض آمن</button><button type="button" id="refresh-mailbox" class="secondary" disabled>التحقق من حالة الاتصال</button></div>
+<div id="mailbox-list" role="status" aria-live="polite" class="muted">حدد الشركة لتحميل صناديقها المرتبطة.</div>
+</section>
 <section class="panel wide" id="detail" hidden>
 <h2 id="detail-title">تفاصيل الحملة</h2><div class="actions"><span class="pill" id="detail-state"></span>
 <button id="submit" class="secondary" type="button">إرسال للمراجعة</button>
