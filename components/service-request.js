@@ -2326,7 +2326,7 @@ async function uploadIntakeFile(sb,user){
  return {storage_path:path,file_name:file.name,mime_type:mime,size_bytes:file.size};
 }
 async function restoreSavedFinancialResult({scroll=false,silent=false}={}){
- if(serviceCode!=='financial_analysis'||intakeDatasetId)return false;
+ if(serviceCode!=='financial_analysis'||(silent&&intakeDatasetId))return false;
  const button=$('#srShowSavedFinancialResult');
  if(button)button.disabled=true;
  try{
