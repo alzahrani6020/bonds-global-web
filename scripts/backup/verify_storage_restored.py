@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Verify an isolated, decrypted BONDS Storage tar without extracting files."""
+"""Verify an isolated BONDS Storage tar; optionally restore into a new local directory."""
 import argparse
 import hashlib
 import json
+import os
+import shutil
 from pathlib import Path
 import sys
 import tarfile
 
 
-def verify(path):
+def verify(path, restore_to=None):
     with tarfile.open(path, "r:") as archive:
         members = archive.getmembers()
         if not members or members[0].name != "manifest.json":
@@ -38,7 +40,8 @@ def verify(path):
             bucket, object_path = item.get("bucket"), item.get("path")
             if (bucket not in buckets or not isinstance(object_path, str) or
                     not object_path or object_path.startswith("/") or
-                    "\\x00" in object_path or any(p in ("", ".", "..") for p in object_path.split("/"))):
+                    any(c in object_path for c in ("\\", ":", "\x00")) or
+                    any(p in ("", ".", "..") for p in object_path.split("/"))):
                 raise ValueError("invalid bucket/object path")
             pair = (bucket, object_path)
             if pair in seen_paths:
@@ -70,16 +73,48 @@ def verify(path):
                 digest.update(chunk)
             if digest.hexdigest() != item["sha256"]:
                 raise ValueError("checksum mismatch")
+        # Only after the entire archive verifies may we create a recovery folder.
+        # The destination must not already exist: never overwrite client data.
+        if restore_to is not None:
+            destination = Path(restore_to)
+            if destination.exists() or destination.is_symlink():
+                raise ValueError("restore destination already exists")
+            if not destination.parent.is_dir() or destination.parent.is_symlink():
+                raise ValueError("restore parent unavailable or symlinked")
+            destination.mkdir(mode=0o700)
+            try:
+                for item in objects:
+                    target = destination.joinpath(item["bucket"], *item["path"].split("/"))
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    member_stream = archive.extractfile(by_name[item["blob"]])
+                    if member_stream is None:
+                        raise ValueError("missing restored object")
+                    with target.open("xb") as out:
+                        shutil.copyfileobj(member_stream, out, length=1024 * 1024)
+                    os.chmod(target, 0o600)
+                # Verify actual bytes on disk, not only source tar streams.
+                for item in objects:
+                    target = destination.joinpath(item["bucket"], *item["path"].split("/"))
+                    if target.stat().st_size != item["size"]:
+                        raise ValueError("restored size mismatch")
+                    with target.open("rb") as inp:
+                        digest = hashlib.file_digest(inp, "sha256").hexdigest()
+                    if digest != item["sha256"]:
+                        raise ValueError("restored digest mismatch")
+            except Exception:
+                # Leave recovery output intact for forensic inspection.
+                raise
         print(json.dumps({"status": "PASS", "objects": len(objects),
-                          "verified": len(objects)}, sort_keys=True))
+                          "verified": len(objects), "restored": len(objects) if restore_to is not None else 0}, sort_keys=True))
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--archive", type=Path, required=True)
+    parser.add_argument("--restore-to", type=Path, help="new, nonexisting isolated recovery directory")
     args = parser.parse_args()
     try:
-        verify(args.archive)
+        verify(args.archive, args.restore_to)
     except (OSError, ValueError, TypeError, KeyError, tarfile.TarError,
             json.JSONDecodeError) as exc:
         print("STATUS: FAIL - STORAGE_RESTORE_CHECK (" +
