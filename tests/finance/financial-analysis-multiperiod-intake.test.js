@@ -55,7 +55,7 @@ describe('financial-analysis dated columns - source anchored comparisons',()=>{
  });
  test('PDF text extracts explicit dated Arabic comparative columns without inventing values',()=>{
   const d=extractFinancialFields({
-    parsed:{text:['قائمة الدخل','البيان 2025 2024','الإيرادات 2,000,000 1,800,000','صافي الربح 225,000 180,000','الأصول المتداولة 400,000 350,000','الالتزامات المتداولة 200,000 150,000'].join('\\n')},
+    parsed:{text:['قائمة الدخل','البيان 2025 2024','الإيرادات 2,000,000 1,800,000','صافي الربح 225,000 180,000','الأصول المتداولة 400,000 350,000','الالتزامات المتداولة 200,000 150,000'].join('\n')},
     primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
   });
   expect(d.values).toMatchObject({revenue:2000000,prior_revenue:1800000,net_income:225000,prior_net_income:180000});
@@ -66,7 +66,7 @@ describe('financial-analysis dated columns - source anchored comparisons',()=>{
  });
  test('PDF with two undated amount columns does not choose one',()=>{
   const d=extractFinancialFields({
-    parsed:{text:'الإيرادات 2,000,000 1,800,000\\nالأصول المتداولة 400,000\\nالالتزامات المتداولة 200,000'},
+    parsed:{text:'الإيرادات 2,000,000 1,800,000\nالأصول المتداولة 400,000\nالالتزامات المتداولة 200,000'},
     primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
   });
   expect(d.values.revenue).toBeUndefined();
@@ -74,7 +74,7 @@ describe('financial-analysis dated columns - source anchored comparisons',()=>{
  });
  test('PDF dated column header expires rather than binding unrelated later figures',()=>{
   const lines=['البيان 2025 2024', ...Array(42).fill('ملاحظات'), 'الإيرادات 200 100'];
-  const d=extractFinancialFields({parsed:{text:lines.join('\\n')},primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  const d=extractFinancialFields({parsed:{text:lines.join('\n')},primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
   expect(d.values.revenue).toBeUndefined();
   expect(d.fields.find(x=>x.field==='revenue').status).toBe('conflict');
  });
