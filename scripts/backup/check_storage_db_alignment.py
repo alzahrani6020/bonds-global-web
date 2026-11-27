@@ -10,11 +10,16 @@ from pathlib import Path
 import sys
 import tarfile
 
+import verify_storage_restored as archive_verifier
+
 PROJECT = "hutxsqzplyuqgnghsrcs"
 LIMIT = 100000
 
 
 def compare(archive_path, db_rows_path):
+    # Refuse to compare an unverified or modified archive. The verifier checks
+    # every blob and rejects unexpected tar entries before reading identities.
+    archive_verifier.verify(archive_path)
     with tarfile.open(archive_path, "r:") as archive:
         members = archive.getmembers()
         if not members or members[0].name != "manifest.json":
