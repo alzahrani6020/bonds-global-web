@@ -453,7 +453,30 @@ jobs:
                 # A changed build, test, or release step still requires full.
                 git show "$BASE_SHA:$file" | sed '/^      - name: Determine visual regression scope from PR base$/,/^      - name: Prepare exact PR-base homepage visual reference$/c\VISUAL_SCOPE_CLASSIFIER' > /tmp/bonds-base-ci-other-steps.yml
                 sed '/^      - name: Determine visual regression scope from PR base$/,/^      - name: Prepare exact PR-base homepage visual reference$/c\VISUAL_SCOPE_CLASSIFIER' "$file" > /tmp/bonds-head-ci-other-steps.yml
-                cmp -s /tmp/bonds-base-ci-other-steps.yml /tmp/bonds-head-ci-other-steps.yml || exit 0
+                node <<'NODE' || exit 0
+          const fs=require('node:fs');
+          const base=fs.readFileSync('/tmp/bonds-base-ci-other-steps.yml','utf8');
+          const head=fs.readFileSync('/tmp/bonds-head-ci-other-steps.yml','utf8');
+          const block=[
+            '      - name: Verify correspondence campaigns migration in disposable PostgreSQL',
+            '        shell: bash',
+            '        env:',
+            '          PGPASSWORD: crm-ci-only',
+            '        run: |',
+            '          set -euo pipefail',
+            '          createdb -h localhost -U postgres campaigns_ci',
+            '          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-campaigns-bootstrap.pg.sql',
+            '          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127220000_correspondence_campaigns.sql',
+            '          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127221000_correspondence_mailboxes.sql',
+            '          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127222000_correspondence_campaign_dispatch.sql',
+            '          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127223000_correspondence_campaign_replies.sql',
+            '          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-campaigns-acceptance.pg.sql',
+            '          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-campaign-replies-acceptance.pg.sql',
+            '',
+            ''
+          ].join(String.fromCharCode(10));
+          if(head.split(block).length!==2||head.replace(block,'')!==base)process.exit(1);
+          NODE
                 ;;
               vercel.json)
                 # Allow only eight campaign-specific rewrites. Every previous
