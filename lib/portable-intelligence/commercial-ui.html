@@ -47,7 +47,15 @@ table{border-collapse:collapse;width:100%}td,th{padding:9px;border-bottom:1px so
 </section>
 <section class="panel"><h2>قاعدة البيانات — البحث والاسترجاع</h2>
 <form id="searchForm" class="controls"><label>بحث<input id="searchTerm" placeholder="اسم أو بريد أو هاتف"></label><button type="submit">بحث</button><button id="reload" type="button" class="secondary">عرض جميع السجلات</button></form>
-<div id="recordsOutput" role="region" aria-label="السجلات المعتمدة"></div></section>
+<div id="recordsOutput" role="region" aria-label="السجلات المعتمدة"></div>
+<div id="editPanel" hidden><h3>تعديل السجل المعتمد</h3><form id="editForm">
+<div class="grid">
+<label>الاسم<input id="editName" required></label>
+<label>البريد<input id="editEmail" type="email"></label>
+<label>الهاتف<input id="editPhone"></label>
+<label>المدينة<input id="editCity"></label>
+</div><div class="controls"><button type="submit">حفظ التعديل</button><button id="archive" type="button" class="secondary">أرشفة السجل بعد التأكيد</button><button id="cancelEdit" type="button" class="secondary">إلغاء</button></div></form></div>
+</section>
 <section class="panel"><h2>تصدير السجلات المعتمدة حسب الصلاحية</h2><p>ينشئ طلب تكامل فقط؛ لا يرسل رسائل ولا ينشئ موظفين.</p>
 <form id="exportForm" class="controls"><label>الوجهة<select id="target"><option value="crm">CRM</option><option value="correspondence">المراسلات</option><option value="hr">HR</option></select></label><label>معرّفات السجلات (مفصولة بفاصلة)<input id="recordIds" placeholder="1,2" required></label><button type="submit">إنشاء حزمة التصدير المصرح بها</button></form>
 <pre id="exportOutput"></pre></section>
