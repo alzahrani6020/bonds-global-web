@@ -62,6 +62,18 @@ class ArchiveTests(unittest.TestCase):
                 module.archive(self.source, self.out_dir)
         self.assertFalse((self.out_dir/self.source.name).exists())
         self.assertFalse((self.out_dir/(self.source.name+'.sha256.json')).exists())
+    def test_competing_destination_is_never_deleted(self):
+        target = self.out_dir / self.source.name
+        original_open = Path.open
+        def competing_open(path, *args, **kwargs):
+            if path == target and args and args[0] == 'xb':
+                target.write_bytes(b'CONCURRENT-COPY')
+                raise FileExistsError('competing writer')
+            return original_open(path, *args, **kwargs)
+        with mock.patch.object(Path, 'open', autospec=True, side_effect=competing_open):
+            with self.assertRaises(FileExistsError):
+                module.archive(self.source, self.out_dir)
+        self.assertEqual(target.read_bytes(), b'CONCURRENT-COPY')
     def test_symlink_rejected(self):
         link = self.src_dir / 'production-45814509070.dump.age'
         try:
