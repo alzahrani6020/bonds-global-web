@@ -91,6 +91,9 @@ describe('guided financial intake fields',()=>{
   expect(run({field_key:'analysis_period',label_ar:'الفترة محل التحليل'},'ar','feasibility_studies')).toBeNull();
  });
  test('supports actionable financial candidates and guarded derived suggestions',()=>{
+  expect(source).toContain('selections:collectIntakeSelections()');
+  expect(source).toContain('input.dataset.candidateIndex=select.value');
+  expect(source).toContain('delete input.dataset.candidateIndex');
   expect(source).toContain('data-intake-candidate=');
   expect(source).toContain('data-intake-suggest=');
   expect(source).toContain("currencies.some(v=>!v)");
