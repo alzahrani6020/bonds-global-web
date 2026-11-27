@@ -45,15 +45,19 @@ def archive(source: Path, destination_dir: Path, run_id: str = None) -> dict:
     if dest.exists() or dest.is_symlink() or manifest.exists() or manifest.is_symlink():
         raise FileExistsError('refusing overwrite of prior custody copy or manifest')
     source_sha = checksum(source)
+    dest_created = False
     try:
-        with source.open('rb') as inp, dest.open('xb') as out:
-            if os.name != 'nt':
-                os.fchmod(out.fileno(), stat.S_IRUSR | stat.S_IWUSR)
-            shutil.copyfileobj(inp, out, length=1024 * 1024)
-            out.flush()
-            os.fsync(out.fileno())
+        with source.open('rb') as inp:
+            with dest.open('xb') as out:
+                dest_created = True
+                if os.name != 'nt':
+                    os.fchmod(out.fileno(), stat.S_IRUSR | stat.S_IWUSR)
+                shutil.copyfileobj(inp, out, length=1024 * 1024)
+                out.flush()
+                os.fsync(out.fileno())
     except Exception:
-        dest.unlink(missing_ok=True)
+        if dest_created:
+            dest.unlink(missing_ok=True)
         raise
     dest_sha = checksum(dest)
     if source_sha != dest_sha or source.stat().st_size != dest.stat().st_size:
@@ -63,8 +67,10 @@ def archive(source: Path, destination_dir: Path, run_id: str = None) -> dict:
               'sha256': dest_sha, 'source_sha256': source_sha,
               'verified_at_utc': datetime.now(timezone.utc).isoformat(),
               'status': 'COPY_SHA256_PASS'}
+    manifest_created = False
     try:
         with manifest.open('x', encoding='utf-8') as f:
+            manifest_created = True
             if os.name != 'nt':
                 os.fchmod(f.fileno(), stat.S_IRUSR | stat.S_IWUSR)
             json.dump(output, f, indent=2)
@@ -72,7 +78,8 @@ def archive(source: Path, destination_dir: Path, run_id: str = None) -> dict:
             f.flush()
             os.fsync(f.fileno())
     except Exception:
-        manifest.unlink(missing_ok=True)
+        if manifest_created:
+            manifest.unlink(missing_ok=True)
         dest.unlink(missing_ok=True)
         raise
     return output
