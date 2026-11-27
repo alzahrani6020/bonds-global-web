@@ -56,6 +56,25 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
   expect(ambiguous.values.revenue).toBeUndefined();
   expect(ambiguous.validation.valid).toBe(false);
  });
+ test('Arabic comparative text carries year and SAR table heading into extracted candidates',()=>{
+  const parsed={text:[
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'ريال سعودي',
+   '100 200 مجموع الالتزامات',
+   '300 400 مجموع الموجودات',
+   '200 200 مجموع حقوق الملكية',
+   '500 1000 الإيرادات'
+  ].join('\\n')};
+  const x=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(x.values.total_liabilities).toBe(200);
+  expect(x.values.total_assets).toBe(400);
+  expect(x.values.revenue).toBe(1000);
+  expect(x.values.prior_revenue).toBe(500);
+  const revenue=x.fields.find(f=>f.field==='revenue');
+  expect(revenue.period).toBe('2026');
+  expect(revenue.currency).toBe('SAR');
+  expect(revenue.candidates.map(c=>c.period)).toEqual(expect.arrayContaining(['2025','2026']));
+ });
  test('traditional interest coverage requires EBIT, not only EBITDA',()=>{
   const report=financialAnalysis({ebitda:250000,interest_expense:50000},{serviceCode:'interest_coverage_analysis'});
   expect(report.executed).toBe(false);
