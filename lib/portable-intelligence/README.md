@@ -13,10 +13,10 @@ Commercial module independent from the BONDS production database and corresponde
 `analyzeFile({file:{filename,buffer},workspaceId,defaultType,ocr})` returns pending candidates. Only a separately authorized tenant-specific adapter may persist confirmed records.
 
 ## Supported foundation
-- XLSX/CSV: structured rows and bilingual field aliases.
+- XLSX/CSV: structured rows and bilingual field aliases; original source row numbers are retained and XLSX items include sheet names. More than 20 sheets or 1000 rows fails closed (not silently truncated).
 - PDF/DOCX: extracted text, non-authoritative email/phone candidates only.
 - Business card image: pluggable OCR; throws `OCR_ADAPTER_REQUIRED` without one.
-- PDF tables, multi-sheet provenance, offline OCR, installers, key management, licensing and local database migrations: **not implemented**.
+- PDF tables, offline OCR, installers, key management, licensing and local database migrations: **not implemented**. Sheet-name/row-number provenance does not yet represent cell-level evidence.
 
 ## Installation readiness
 This is source-level modularization, **not an installable customer release**. Packaging, reproducible container image, offline license verification, deployment scripts, signed updates and tenant E2E acceptance must pass separately.
