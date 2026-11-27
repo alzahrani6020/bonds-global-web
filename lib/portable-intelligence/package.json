@@ -24,7 +24,8 @@
     "local-pdf-ocr.js",
     "tenant-authorization.js",
     "approved-directory-export.js",
-    "commercial-workflow.js"
+    "commercial-workflow.js",
+    "licensed-commercial-workflow.js"
   ],
   "engines": {
     "node": ">=22"
