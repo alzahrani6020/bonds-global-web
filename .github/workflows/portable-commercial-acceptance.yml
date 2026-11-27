@@ -42,6 +42,10 @@ jobs:
         run: npx playwright install chromium
       - name: Verify real Arabic UI on Windows Chromium
         run: node --test tests/intelligence/portable-commercial-browser.acceptance.cjs
+      - name: Install pinned native encrypted SQLite driver for isolated acceptance
+        run: npm install --no-save --package-lock=false better-sqlite3-multiple-ciphers@13.2.0
+      - name: Verify whole database ciphertext, key rejection and reopen on Windows
+        run: node --test tests/intelligence/portable-full-database.acceptance.cjs
       - name: Assemble independent Windows test-only runtime bundle
         shell: pwsh
         run: |
