@@ -699,6 +699,9 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
   const corrections = body.corrections && typeof body.corrections === 'object' && !Array.isArray(body.corrections)
     ? body.corrections
     : {};
+  const selections = body.selections && typeof body.selections === 'object' && !Array.isArray(body.selections)
+    ? body.selections
+    : {};
   const reviewed = { ...(dataset.reviewed_values || {}) };
   const fields = Array.isArray(dataset.field_provenance?.fields)
     ? dataset.field_provenance.fields.map(field => ({ ...field, source: Array.isArray(field.source) ? [...field.source] : [] }))
@@ -719,6 +722,19 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
       delete reviewed[field];
       continue;
     }
+    const selectedIndex = selections[field];
+    let selectedCandidate = null;
+    if (selectedIndex !== undefined) {
+      const sourceField = fieldMap.get(field);
+      const candidateRows = Array.isArray(sourceField?.candidates) ? sourceField.candidates : [];
+      if (!Number.isInteger(selectedIndex) || selectedIndex < 0 || selectedIndex >= candidateRows.length) {
+        return sendJson(res, 422, { ok:false, error:{ code:'FINANCIAL_CANDIDATE_INDEX_INVALID', field } });
+      }
+      selectedCandidate = candidateRows[selectedIndex];
+      if (!selectedCandidate || parseNumeric(selectedCandidate.value) !== value) {
+        return sendJson(res, 422, { ok:false, error:{ code:'FINANCIAL_CANDIDATE_VALUE_MISMATCH', field } });
+      }
+    }
     const previous = Object.prototype.hasOwnProperty.call(reviewed, field) ? reviewed[field] : null;
     reviewed[field] = value;
     if (JSON.stringify(previous) !== JSON.stringify(value)) {
@@ -738,10 +754,20 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
       field, value:null, status:'missing', candidates:[], currency:null, period:null, confidence:0, source:[]
     };
     current.value = value;
-    current.status = 'corrected';
+    current.status = selectedCandidate ? 'selected_from_source' : 'corrected';
+    if (selectedCandidate) {
+      current.period = selectedCandidate.period || null;
+      current.currency = selectedCandidate.currency || current.currency || null;
+    }
+    current.confidence = selectedCandidate ? 0.85 : 1;
+    current.source = [...current.source, {
+      extraction_method: selectedCandidate ? 'candidate_selection' : 'manual_review',
+      candidate_index: selectedCandidate ? selectedIndex : undefined,
+      period: selectedCandidate?.period || null,
+      provenance: selectedCandidate?.source || null,
+      at:now
+    }];
     current.candidates = [];
-    current.confidence = 1;
-    current.source = [...current.source, { extraction_method: 'manual_review', at: now }];
     if (!fieldMap.has(field)) {
       fields.push(current);
       fieldMap.set(field, current);
@@ -760,6 +786,14 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
     values: reviewed,
     fields
   });
+  const selectedPeriods = [...new Set(fields.filter(row=>row.status==='selected_from_source' && row.period).map(row=>String(row.period)))];
+  const otherCurrentPeriods = [...new Set(fields.filter(row=>row.status!=='selected_from_source' && row.period && !['prior_revenue','prior_net_income'].includes(row.field)).map(row=>String(row.period)))];
+  if (dataset.service_code==='financial_analysis' && selectedPeriods.length &&
+      (selectedPeriods.length>1 || otherCurrentPeriods.some(period=>!selectedPeriods.includes(period)))) {
+    validation.errors.push({code:'FINANCIAL_SELECTED_PERIOD_MISMATCH', selected_periods:selectedPeriods, other_periods:otherCurrentPeriods});
+    validation.valid=false;
+    validation.quality_gate='FAIL_CLOSED';
+  }
   const status = validation.valid ? 'validated' : 'reviewed';
   const approvalStatus = validation.valid ? 'approved' : 'reviewed';
   const confidence = fieldConfidenceMap(fields);
