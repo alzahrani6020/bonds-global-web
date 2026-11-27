@@ -34,6 +34,21 @@ test('review gate to SQLite: two companies remain isolated after closing and reo
   reopened.close();
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+test('CSV file bytes to explicit review to SQLite readback',async()=>{
+ const {analyzeFile}=require('../../lib/portable-intelligence/file-adapters');
+ const {store,dir,authorize}=setup();
+ try{
+  const parsed=await analyzeFile({file:{filename:'organizations.csv',buffer:Buffer.from('type,name,email\norganization,Example Factory,info@example.org\n')},workspaceId:A});
+  assert.equal(parsed.items.length,1);
+  assert.equal(parsed.auto_saved,false);
+  assert.equal((await store.list({workspaceId:A,actorId:'alice'})).length,0);
+  await commitReviewedProposals({proposal:parsed,workspaceId:A,actorId:'alice',approvedIndices:[0],authorize,commit:store.commit});
+  const saved=await store.list({workspaceId:A,actorId:'alice'});
+  assert.deepEqual(saved.map(x=>x.record.name),['Example Factory']);
+  assert.equal(saved[0].source.filename,'organizations.csv');
+  store.close();
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
 test('invalid import batch rejects all inserts and creates no audit row',async()=>{
  const {store,dir}=setup();
  try{
