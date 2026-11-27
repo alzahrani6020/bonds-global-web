@@ -102,6 +102,36 @@ describe('durable financial report contract',()=>{
   expect(res.json().error.code).toBe('FINANCIAL_REPORT_NOT_GENERATED');
   expect(h.getWrites()).toBe(0);
  });
+ test('corrupted stored HTML is rejected on GET and POST without rewriting data',async()=>{
+  const h=harness();
+  expect((await h.call()).statusCode).toBe(200);
+  const original=h.row.execution_result.report_artifact;
+  h.row.execution_result.report_artifact={...original,html:original.html+'<p>tampered</p>'};
+  const readsBefore=h.getWrites();
+  for(const method of ['GET','POST']){
+   const response=await h.call(method);
+   expect(response.statusCode).toBe(409);
+   expect(response.json().error.code).toBe('FINANCIAL_REPORT_INTEGRITY_FAILED');
+  }
+  expect(h.getWrites()).toBe(readsBefore);
+ });
+ test('stale artifact version is rejected rather than silently reused',async()=>{
+  const h=harness();
+  expect((await h.call()).statusCode).toBe(200);
+  h.row.dataset_version+=1;
+  for(const method of ['GET','POST']){
+   const response=await h.call(method);
+   expect(response.statusCode).toBe(409);
+   expect(response.json().error.code).toBe('FINANCIAL_REPORT_INTEGRITY_FAILED');
+  }
+  expect(h.getWrites()).toBe(1);
+ });
+ test('generation failure is explicitly fail-closed in the execution endpoint',()=>{
+  const fs=require('node:fs');
+  const api=fs.readFileSync('v3/api/services.js','utf8');
+  expect(api).toContain("error:{code:'FINANCIAL_REPORT_GENERATION_FAILED'}");
+  expect(api).toContain("throw new Error('FINANCIAL_REPORT_INVALID_HTML')");
+ });
  test('front-end embeds saved report and offers PDF print only after verified save',()=>{
   const fs=require('node:fs');
   const source=fs.readFileSync('components/service-request.js','utf8');
