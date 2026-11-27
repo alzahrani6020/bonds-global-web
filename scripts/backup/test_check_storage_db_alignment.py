@@ -1,5 +1,6 @@
 """Offline regression tests for database/blob consistency gate."""
 import io
+import hashlib
 import json
 from pathlib import Path
 import tarfile
@@ -16,13 +17,23 @@ PROJECT = "hutxsqzplyuqgnghsrcs"
 def archive(path, items, buckets=None):
     if buckets is None:
         buckets = ["avatars", "empty"]
+    objects = []
+    for i, item in enumerate(items):
+        body = bytes([65 + i % 25]) * item["size"]
+        objects.append({**item, "blob": "blobs/%08d" % i,
+                        "sha256": hashlib.sha256(body).hexdigest()})
     manifest = {"format": "bonds-storage-v1", "project": PROJECT,
-                "run_id": "123", "buckets": buckets, "objects": items}
+                "run_id": "123", "buckets": buckets, "objects": objects}
     with tarfile.open(path, "w") as out:
         data = json.dumps(manifest).encode()
         member = tarfile.TarInfo("manifest.json")
         member.size = len(data)
         out.addfile(member, io.BytesIO(data))
+        for i, item in enumerate(items):
+            body = bytes([65 + i % 25]) * item["size"]
+            member = tarfile.TarInfo("blobs/%08d" % i)
+            member.size = len(body)
+            out.addfile(member, io.BytesIO(body))
 
 
 def db_inventory(path, items, buckets=None):
