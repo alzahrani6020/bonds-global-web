@@ -50,6 +50,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/bonds-auth-2026.js?v=3.1.4" defer></script>
 <script src="/components/institutional-directory-ui.js?v=1" defer></script>
+<script src="/components/institutional-directory-import.js?v=1" defer></script>
 </head>
 <body>
 <header>
@@ -77,7 +78,40 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
  </section>
  <div id="directory-status" class="status" role="status" aria-live="polite">التحقق من الجلسة والصلاحيات...</div>
  <section id="directory-results" class="results" aria-label="نتائج دليل الجهات"></section>
- <p class="capability"><span class="pill">قراءة فقط</span> لا ينفذ هذا القسم إرسال بريد أو استيراد بيانات. تستخدم القوائم سجلات CRM الحالية فقط، وتخضع نتائجها لصلاحيات الشركة.</p>
+ <section class="card" style="margin-top:16px" aria-labelledby="entry-title">
+  <h2 id="entry-title" style="font-size:17px;margin:0 0 10px">إضافة جهة أو استيراد ملف</h2>
+  <p class="capability">الإضافة تتطلب صلاحية تعديل CRM في مساحة الشركة المحددة. تتم معاينة البيانات قبل الحفظ. لا يتم إرسال أي بريد.</p>
+  <form id="institutional-entry-form" class="fields">
+   <div class="field"><label for="institutional-entry-type">نوع الجهة</label><select id="institutional-entry-type"><option value="organization">شركة أو مؤسسة</option><option value="contact">فرد أو جهة اتصال</option></select></div>
+   <div class="field"><label for="institutional-entry-name">الاسم</label><input id="institutional-entry-name" maxlength="240" required autocomplete="off"></div>
+   <div class="field"><label for="institutional-entry-email">البريد الإلكتروني (اختياري)</label><input id="institutional-entry-email" type="email" maxlength="254" autocomplete="off"></div>
+   <div class="field"><label for="institutional-entry-phone">الهاتف (اختياري)</label><input id="institutional-entry-phone" maxlength="40" autocomplete="off"></div>
+   <div class="field" id="institutional-sector-wrap"><label for="institutional-entry-sector">التصنيف</label><select id="institutional-entry-sector">
+    <option value="business">شركة أو مؤسسة تجارية</option>
+    <option value="government">جهة حكومية</option>
+    <option value="factory">مصنع</option>
+    <option value="school">مدرسة</option>
+    <option value="university">جامعة</option>
+    <option value="hospital">مستشفى</option>
+    <option value="clinic">عيادة</option>
+    <option value="nonprofit">جهة غير ربحية</option>
+    <option value="other">أخرى</option>
+   </select></div>
+   <div class="field" id="institutional-city-wrap"><label for="institutional-entry-city">المدينة</label><input id="institutional-entry-city" maxlength="100"></div>
+   <div class="field" id="institutional-country-wrap"><label for="institutional-entry-country">الدولة</label><input id="institutional-entry-country" maxlength="100"></div>
+   <button type="submit" id="institutional-preview-entry">معاينة الإضافة</button>
+  </form>
+  <div class="field" style="margin-top:18px"><label for="institutional-csv">استيراد CSV بحد أقصى 100 سجل و100 كيلوبايت</label><input id="institutional-csv" type="file" accept=".csv,text/csv"></div>
+  <p><a href="/assets/institutional-directory-import-template.csv" download="institutional-directory-import-template.csv">تحميل قالب CSV فارغ</a></p>
+  <p class="capability">الحقول المسموحة: type,name,sector,legal_name,city,country,email,phone,role. والقيم: organization أو contact. يتجاهل النظام التكرار بالاسم ضمن مساحة الشركة فقط.</p>
+  <div class="row" style="display:flex;gap:10px;flex-wrap:wrap">
+   <button type="button" id="institutional-preview-csv">معاينة الملف</button>
+   <button type="button" id="institutional-apply" disabled>تأكيد وحفظ في CRM</button>
+  </div>
+  <div id="institutional-preview" aria-label="معاينة البيانات"></div>
+  <p class="status" id="institutional-entry-status" role="status" aria-live="polite">اختر مساحة الشركة قبل المعاينة.</p>
+ </section>
+ <p class="capability"><span class="pill">دليل الجهات</span> يدعم الدليل الاستعراض والإضافة والاستيراد اليدوي وفق صلاحيات CRM، ولا يرسل رسائل بريد.</p>
 </main>
 </div>
 </body>
