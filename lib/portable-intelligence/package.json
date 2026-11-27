@@ -25,7 +25,8 @@
     "tenant-authorization.js",
     "approved-directory-export.js",
     "commercial-workflow.js",
-    "licensed-commercial-workflow.js"
+    "licensed-commercial-workflow.js",
+    "labeled-entity-list.js"
   ],
   "engines": {
     "node": ">=22"
