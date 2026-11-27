@@ -26,6 +26,11 @@ def verify(path, restore_to=None):
         objects = manifest.get("objects")
         if manifest.get("format") != "bonds-storage-v1" or not isinstance(objects, list):
             raise ValueError("unexpected manifest format")
+        if manifest.get("project") != "hutxsqzplyuqgnghsrcs":
+            raise ValueError("archive belongs to a different project")
+        run_id = manifest.get("run_id")
+        if not isinstance(run_id, str) or not run_id.isdecimal():
+            raise ValueError("invalid archive run identifier")
         buckets = manifest.get("buckets")
         if (not isinstance(buckets, list) or not buckets or
                 any(not isinstance(b, str) or not b or b in (".", "..") or
