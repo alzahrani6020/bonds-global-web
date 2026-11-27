@@ -142,6 +142,25 @@ class StorageInventoryTests(unittest.TestCase):
             self.assertEqual(len(found), 1)
             self.assertEqual(bucket_inventory.call_count, 3)
 
+    def test_bucket_pagination_over_one_hundred(self):
+        first_page = [{"id": "bucket-%03d" % i} for i in range(100)]
+        last_page = [{"id": "bucket-100"}]
+        with patch.object(export, "urlopen", side_effect=[
+                io.BytesIO(json.dumps(first_page).encode()),
+                io.BytesIO(json.dumps(last_page).encode())]) as get:
+            result = export.list_buckets("https://example.invalid", "fake")
+        self.assertEqual(len(result), 101)
+        self.assertEqual(get.call_count, 2)
+        self.assertIn("offset=100", get.call_args_list[1].args[0].full_url)
+
+    def test_duplicate_bucket_across_pages_rejected(self):
+        first_page = [{"id": "bucket-%03d" % i} for i in range(100)]
+        with patch.object(export, "urlopen", side_effect=[
+                io.BytesIO(json.dumps(first_page).encode()),
+                io.BytesIO(b'[{"id":"bucket-099"}]')]):
+            with self.assertRaises(RuntimeError):
+                export.list_buckets("https://example.invalid", "fake")
+
     def test_missing_bucket_listing_rejected(self):
         with patch.object(export, "urlopen") as open_url:
             response = open_url.return_value.__enter__.return_value
