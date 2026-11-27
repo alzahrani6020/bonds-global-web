@@ -9,7 +9,7 @@ describe('portable offline OCR process boundary',()=>{
   expect(opts.shell).toBe(false);
   const p=new EventEmitter();
   p.stdin=new PassThrough();p.stdout=new PassThrough();p.stderr=new PassThrough();
-  p.kill=jest.fn();p.stdin.on('finish',()=>{p.stdout.end('اسم الشركة example.org');p.emit('close',0)});
+  p.kill=jest.fn();p.stdin.on('finish',()=>{p.stdout.write('اسم الشركة example.org');p.stdout.end();process.nextTick(()=>p.emit('close',0))});
   return p;
  }
  test('reads local OCR text without a network client',async()=>{
