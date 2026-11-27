@@ -99,7 +99,10 @@
     nav.append(button(tr('＋  مراسلة جديدة', '＋  New correspondence'), () => {
       if (!activateExisting('corr-new')) openCenter();
     }));
-    nav.append(button(tr('◉  مركز الحملات', '◉  Campaigns'), () => {\n      window.location.assign('/correspondence-campaigns.html');\n    }));\n    nav.append(button(tr('▦  دليل الجهات', '▦  Institutional directory'), () => {
+    nav.append(button(tr('◉  مركز الحملات', '◉  Campaigns'), () => {
+      window.location.assign('/correspondence-campaigns.html');
+    }));
+    nav.append(button(tr('▦  دليل الجهات', '▦  Institutional directory'), () => {
       // The directory must resolve the authorized CRM workspace; never invent a tenant id.
       window.location.assign('/institutional-directory.html');
     }));
