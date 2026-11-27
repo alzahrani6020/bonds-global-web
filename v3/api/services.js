@@ -699,6 +699,9 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
   const corrections = body.corrections && typeof body.corrections === 'object' && !Array.isArray(body.corrections)
     ? body.corrections
     : {};
+  const selections = body.selections && typeof body.selections === 'object' && !Array.isArray(body.selections)
+    ? body.selections
+    : {};
   const reviewed = { ...(dataset.reviewed_values || {}) };
   const fields = Array.isArray(dataset.field_provenance?.fields)
     ? dataset.field_provenance.fields.map(field => ({ ...field, source: Array.isArray(field.source) ? [...field.source] : [] }))
@@ -715,11 +718,54 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
       ? (Array.isArray(rawCorrection) && rawCorrection.length ? rawCorrection : null)
       : parseNumeric(rawCorrection);
     if (value === null) {
-      if (Object.prototype.hasOwnProperty.call(reviewed, field)) valuesChanged = true;
+      if (Object.prototype.hasOwnProperty.call(reviewed, field)) {
+        valuesChanged = true;
+        overrides.push({field,previous_reviewed_value:reviewed[field],corrected_value:null,method:'manual_clear',at:now});
+      }
       delete reviewed[field];
+      const cleared = fieldMap.get(field);
+      if (cleared) {
+        cleared.value = null;
+        cleared.status = 'missing';
+        cleared.confidence = 0;
+        cleared.source = [...cleared.source,{extraction_method:'manual_clear',at:now}];
+      }
       continue;
     }
+    const selectedIndex = selections[field];
+    let selectedCandidate = null;
+    if (selectedIndex !== undefined) {
+      const sourceField = fieldMap.get(field);
+      const candidateRows = Array.isArray(sourceField?.candidates) ? sourceField.candidates : [];
+      if (!Number.isInteger(selectedIndex) || selectedIndex < 0 || selectedIndex >= candidateRows.length) {
+        return sendJson(res, 422, { ok:false, error:{ code:'FINANCIAL_CANDIDATE_INDEX_INVALID', field } });
+      }
+      selectedCandidate = candidateRows[selectedIndex];
+      if (!selectedCandidate || parseNumeric(selectedCandidate.value) !== value) {
+        return sendJson(res, 422, { ok:false, error:{ code:'FINANCIAL_CANDIDATE_VALUE_MISMATCH', field } });
+      }
+    }
     const previous = Object.prototype.hasOwnProperty.call(reviewed, field) ? reviewed[field] : null;
+    const priorField = fieldMap.get(field);
+    if (selectedCandidate && (
+      priorField?.period !== (selectedCandidate.period || null) ||
+      priorField?.currency !== (selectedCandidate.currency || priorField?.currency || null) ||
+      priorField?.status !== 'selected_from_source'
+    )) {
+      valuesChanged = true;
+      overrides.push({
+        field,
+        original_extracted_value: Object.prototype.hasOwnProperty.call(dataset.extracted_values || {}, field)
+          ? dataset.extracted_values[field] : null,
+        previous_reviewed_value:previous,
+        corrected_value:value,
+        method:'candidate_selection',
+        candidate_index:selectedIndex,
+        selected_period:selectedCandidate.period || null,
+        selected_currency:selectedCandidate.currency || priorField?.currency || null,
+        at:now
+      });
+    }
     reviewed[field] = value;
     if (JSON.stringify(previous) !== JSON.stringify(value)) {
       valuesChanged = true;
@@ -738,10 +784,20 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
       field, value:null, status:'missing', candidates:[], currency:null, period:null, confidence:0, source:[]
     };
     current.value = value;
-    current.status = 'corrected';
-    current.candidates = [];
-    current.confidence = 1;
-    current.source = [...current.source, { extraction_method: 'manual_review', at: now }];
+    current.status = selectedCandidate ? 'selected_from_source' : 'corrected';
+    if (selectedCandidate) {
+      current.period = selectedCandidate.period || null;
+      current.currency = selectedCandidate.currency || current.currency || null;
+    }
+    current.confidence = selectedCandidate ? 0.85 : 1;
+    current.source = [...current.source, {
+      extraction_method: selectedCandidate ? 'candidate_selection' : 'manual_review',
+      candidate_index: selectedCandidate ? selectedIndex : undefined,
+      period: selectedCandidate?.period || null,
+      provenance: selectedCandidate?.source || null,
+      at:now
+    }];
+    if (!selectedCandidate) current.candidates = [];
     if (!fieldMap.has(field)) {
       fields.push(current);
       fieldMap.set(field, current);
@@ -760,6 +816,14 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
     values: reviewed,
     fields
   });
+  const selectedPeriods = [...new Set(fields.filter(row=>row.status==='selected_from_source' && row.period).map(row=>String(row.period)))];
+  const otherCurrentPeriods = [...new Set(fields.filter(row=>row.status!=='selected_from_source' && row.period && !['prior_revenue','prior_net_income'].includes(row.field)).map(row=>String(row.period)))];
+  if (dataset.service_code==='financial_analysis' && selectedPeriods.length &&
+      (selectedPeriods.length>1 || otherCurrentPeriods.some(period=>!selectedPeriods.includes(period)))) {
+    validation.errors.push({code:'FINANCIAL_SELECTED_PERIOD_MISMATCH', selected_periods:selectedPeriods, other_periods:otherCurrentPeriods});
+    validation.valid=false;
+    validation.quality_gate='FAIL_CLOSED';
+  }
   const status = validation.valid ? 'validated' : 'reviewed';
   const approvalStatus = validation.valid ? 'approved' : 'reviewed';
   const confidence = fieldConfidenceMap(fields);
@@ -1261,6 +1325,20 @@ async function handleFinancialDatasetExport(req,res,supabase,user,id){
     XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(summaryRows),'Summary');
     XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(metricRows),'Metrics');
     XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(inputRows),'Approved Inputs');
+    const provenanceRows=(Array.isArray(data.field_provenance?.fields)?data.field_provenance.fields:[])
+      .map(row=>({
+        field:row.field||'',value:row.value??'',status:row.status||'',
+        period:row.period||'',currency:row.currency||'',
+        comparison_excluded:row.comparison_excluded===true,
+        source_disclaimer:row.document_disclaimer||'',
+        source_references:JSON.stringify(row.source||[])
+      }));
+    const warningRows=(Array.isArray(data.validation?.warnings)?data.validation.warnings:[])
+      .map(item=>({code:item.code||'',details:JSON.stringify(item)}));
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(
+      provenanceRows.length?provenanceRows:[{field:'',value:'',status:'No provenance available'}]),'Field Provenance');
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(
+      warningRows.length?warningRows:[{code:'NONE',details:'No recorded warnings'}]),'Validation Warnings');
     const bytes=XLSX.write(workbook,{type:'buffer',bookType:'xlsx'});
     return sendBinary(res,200,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','financial-analysis-'+id+'.xlsx',bytes);
   }

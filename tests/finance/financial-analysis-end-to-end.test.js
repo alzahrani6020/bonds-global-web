@@ -56,6 +56,133 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
   expect(ambiguous.values.revenue).toBeUndefined();
   expect(ambiguous.validation.valid).toBe(false);
  });
+ test('Arabic comparative text carries year and SAR table heading into extracted candidates',()=>{
+  const parsed={text:[
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'ريال سعودي',
+   '100 200 مجموع الالتزامات',
+   '300 400 مجموع الموجودات',
+   '200 200 مجموع حقوق الملكية',
+   '500 1000 الإيرادات'
+  ].join('\n')};
+  const x=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(x.values.total_liabilities).toBe(200);
+  expect(x.values.total_assets).toBe(400);
+  expect(x.values.revenue).toBe(1000);
+  expect(x.values.prior_revenue).toBe(500);
+  const revenue=x.fields.find(f=>f.field==='revenue');
+  expect(revenue.period).toBe('2026');
+  expect(revenue.currency).toBe('SAR');
+  expect(revenue.candidates.map(c=>c.period)).toEqual(expect.arrayContaining(['2025','2026']));
+ });
+ test('three-statement Arabic PDF-shaped text preserves subtotals, evidence and incompatible comparison',()=>{
+  const {qualityStatus}=require('../../lib/finance/financial-data-intake');
+  const parsed={text:[
+   'قائمة المركز المالي',
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'ريال سعودي',
+   '1000 2250 مجموع الموجودات',
+   '120 900 مجموع الالتزامات',
+   '880 1350 مجموع حقوق الملكية',
+   'قائمة الدخل والدخل الشامل',
+   'عن فترة التسعة أشهر المنتهية في 30 سبتمبر 2026 مقارنة بالسنة المنتهية في 31 ديسمبر 2025',
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'ريال سعودي',
+   '3737 4668 الإيرادات',
+   '2160 3600 تكلفة الإيرادات',
+   '550 390 المصروفات العمومية والإدارية',
+   '560 415 مجموع المصروفات العمومية والإدارية',
+   '995 636 صافي الربح بعد الزكاة',
+   'قائمة التدفقات النقدية',
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'ريال سعودي',
+   '995 636 صافي ربح السنة / الفترة بعد الزكاة',
+   'أرقام عام 2026 مبنية على افتراضات غير مثبتة ولا تمثل قوائم مالية معتمدة'
+  ].join('\n')};
+  const result=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(result.values.revenue).toBe(4668);
+  expect(result.values.operating_expenses).toBe(415);
+  expect(result.values.net_income).toBe(636);
+  expect(result.values.cash_flow_net_income).toBe(636);
+  expect(result.values.prior_revenue).toBeUndefined();
+  expect(result.values.prior_net_income).toBeUndefined();
+  expect(result.fields.find(f=>f.field==='prior_revenue')).toMatchObject({
+   status:'not_comparable',period:'2025',comparison_excluded:true
+  });
+  expect(result.validation.warnings.map(w=>w.code)).toEqual(expect.arrayContaining([
+   'FINANCIAL_SOURCE_UNVERIFIED','COMPARATIVE_PERIOD_DURATION_MISMATCH'
+  ]));
+  expect(qualityStatus({validation:{valid:true,missing:[],unresolved:[]},
+   fields:result.fields,reviewed:true,serviceCode:'financial_analysis',values:result.values})).toBe('unverified');
+  expect(result.fields.find(f=>f.field==='revenue').currency).toBe('SAR');
+ });
+ test('currency and thousand-unit Excel headings scale amounts exactly once',()=>{
+  const parsed={sheets:[{name:'Financials',rows:[
+   ['البيان','2025','2026'],
+   ['العملة','ريال سعودي','ريال سعودي'],
+   ['وحدة العرض','بالألف','بالألف'],
+   ['الإيرادات',100,200],
+   ['مجموع الموجودات',300,400],
+   ['مجموع الالتزامات',100,150],
+   ['مجموع حقوق الملكية',200,250]
+  ]}]};
+  const r=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(r.values.revenue).toBe(200000);
+  expect(r.values.total_assets).toBe(400000);
+  expect(r.fields.find(f=>f.field==='revenue').currency).toBe('SAR');
+  expect(r.fields.find(f=>f.field==='revenue').period).toBe('2026');
+ });
+ test('PDF text heading with explicit thousands scales its rows once',()=>{
+  const parsed={text:[
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'المبالغ بالألف ريال سعودي',
+   '100 200 الإيرادات',
+   '200 400 مجموع الموجودات'
+  ].join('\n')};
+  const r=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(r.values.revenue).toBe(200000);
+  expect(r.values.total_assets).toBe(400000);
+  expect(r.fields.find(f=>f.field==='revenue').currency).toBe('SAR');
+ });
+ test('Arabic الفترة cannot create an implicit thousand multiplier',()=>{
+  const parsed={text:[
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'ريال سعودي',
+   '100 200 النقد وما في حكمه أول الفترة',
+   '30 45 صافي ربح السنة / الفترة بعد الزكاة',
+   'قائمة التدفقات النقدية',
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   '30 45 صافي ربح السنة / الفترة بعد الزكاة'
+  ].join('\n')};
+  const r=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(r.values.opening_balance).toBe(200);
+  expect(r.values.cash_flow_net_income).toBe(45);
+ });
+ test('RTL-reversed comparative headers keep annual and interim figures incomparable',()=>{
+  const text=[
+   'قائمة الدخل',
+   '2025 ديسمبر 31 في المنتهية بالسنة مقارنة 2026 سبتمبر 30 في المنتهية أشهر التسعة فترة عن',
+   'البيان',
+   '30 2026 سبتمبر',
+   '31 2025 ديسمبر',
+   'سعودي ريال',
+   'الإيرادات',
+   '4668',
+   '3737',
+   'معتمدة مالية قوائم تمثل لا ، المنشأة بدفاتر مثبتة غير افتراضات على مبنية 2026 عام أرقام'
+  ].join('\n');
+  const parsed={text};
+  const x=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(x.values.revenue).toBe(4668);
+  expect(x.values.prior_revenue).toBeUndefined();
+  expect(x.fields.find(item=>item.field==='revenue').currency).toBe('SAR');
+  expect(x.fields.find(item=>item.field==='prior_revenue')).toMatchObject({
+   period:'2025',status:'not_comparable',comparison_excluded:true
+  });
+  expect(x.validation.warnings.map(item=>item.code)).toEqual(expect.arrayContaining([
+   'FINANCIAL_SOURCE_UNVERIFIED','COMPARATIVE_PERIOD_DURATION_MISMATCH'
+  ]));
+ });
  test('traditional interest coverage requires EBIT, not only EBITDA',()=>{
   const report=financialAnalysis({ebitda:250000,interest_expense:50000},{serviceCode:'interest_coverage_analysis'});
   expect(report.executed).toBe(false);
@@ -83,6 +210,16 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
   expect(html).toContain('&lt;svg onload=alert(1)&gt;');
   expect(html).not.toContain('<svg onload=alert(1)>');
   expect(html).toContain('تم التحقق من حفظ النتائج');
+  p.dataset.field_provenance=[{
+   field:'revenue',value:1000000,document_disclaimer:'source_figures_unverified',
+   source:[{sheet:'Statement',row:4}]
+  },{
+   field:'prior_revenue',value:800000,comparison_excluded:true,
+   comparison_reason:'unequal_reporting_duration',source:[{sheet:'Statement',row:4}]
+  }];
+  const cautioned=render(p,'ar');
+  expect(cautioned).toContain('الأرقام مبنية على افتراضات');
+  expect(cautioned).toContain('فترة التقرير تسعة أشهر');
   const english=render(p,'en');
   expect(english).toContain('Financial Analysis Report');
   p.dataset_persistence={status:'unverified'};
