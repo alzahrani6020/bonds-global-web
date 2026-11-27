@@ -7,6 +7,8 @@ Commercial module independent from the BONDS production database and corresponde
 - `file-adapters.js`: XLSX/CSV parser, PDF text extraction; images require an injected OCR implementation.
 - `integration-contract.js`: CRM and correspondence reviewed-directory intent envelopes only; HR employee creation fails closed until authenticated employment linking is implemented. No email is sent.
 - `local-ocr.js`: optional offline Tesseract subprocess adapter for images. Tesseract with Arabic and English trained data must be installed separately; the adapter has no cloud fallback and is not a Windows installer.
+- `encrypted-backup.js`: shutdown-only AES-256-GCM encrypted export and restore to a NEW SQLite file; requires user-supplied passphrase and independent restore verification. Does not encrypt the LIVE database or cover online backups.
+- `license-verifier.js`: Ed25519 offline customer license signature, scope and expiry validation only. No issuance server, commercial billing, activation, revocation or feature enforcement.
 - `sqlite-store.js`: optional on-device SQLite adapter (Node 22+ experimental built-in API) providing transactional reviewed imports, audit records, workspace-filtered reads, and reopen persistence. Requires trusted host authorization; it is not encrypted at rest and is NOT production-ready for customer data.
 - `review-gate.js`: fail-closed review boundary requiring selected proposals, a trusted host authorization callback, and a single atomic host commit callback. Workspace IDs supplied by a caller are NOT proof of membership.
 - The engine **never writes** to Supabase/PostgreSQL or sends mail. The host product must enforce authenticated tenant permission, review, persistence, duplicate checks and audit log.
@@ -46,3 +48,7 @@ No records are persisted by this command. Run it only in a restricted account or
 ## Isolated local persistence acceptance
 
 Run `node --test tests/intelligence/portable-sqlite-acceptance.cjs` from the repository root. The test writes only temporary SQLite fixtures, verifies a review-approved import, closes/reopens the database, checks two different workspace IDs cannot read each other's records, and verifies a rejected import is not partially persisted. This is NOT evidence of production authentication, encryption, SaaS RLS, disaster recovery, or a completed installer.
+
+## Local acceptance for backup and license verifier
+
+Run `node --test tests/intelligence/portable-backup-license.acceptance.cjs` from repository root. This covers encrypted SQLite backup/readback, wrong password, tampering, overwrite refusal, and tenant-scoped signed license validation. These are isolated fixtures only. The live SQLite database remains unencrypted, the backup process requires complete shutdown, and the verifier is not a full licensing platform.
