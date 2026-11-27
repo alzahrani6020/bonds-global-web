@@ -173,6 +173,81 @@ describe('guided financial intake fields',()=>{
   expect(source).toContain("storage_path:prior.source_storage_path");
   expect(source).toContain("renderIntakeReview(payload)");
  });
+ test('last executed financial dataset is rendered from owner-scoped persisted metrics',async()=>{
+  const vm=require('node:vm');
+  const start=source.indexOf('async function restoreSavedFinancialResult(');
+  const end=source.indexOf('async function reprocessLatestSavedFinancialFile(',start);
+  expect(start).toBeGreaterThan(0);
+  expect(end).toBeGreaterThan(start);
+  const filters=[];
+  const row={
+   id:'saved-dataset',dataset_version:3,source_file_name:'balance.pdf',
+   quality_status:'unverified',
+   status:'executed',approval_status:'approved',
+   reviewed_values:{revenue:1200},
+   field_provenance:{fields:[{field:'revenue',value:1200}]},
+   validation:{valid:true},
+   execution_result:{executed:true,metrics:{gross_margin_pct:22.89},
+    dataset:{inputs_used:{revenue:1200}}}
+  };
+  const query={
+   select(){return this;},eq(k,v){filters.push(['eq',k,v]);return this;},
+   is(k,v){filters.push(['is',k,v]);return this;},
+   order(){return this;},limit(){return this;},
+   async maybeSingle(){return {data:row,error:null};}
+  };
+  const resultHeading={insertAdjacentHTML:jest.fn()};
+  const resultNode={setAttribute:jest.fn(),querySelector:()=>resultHeading,scrollIntoView:jest.fn()};
+  const button={disabled:false};
+  let rendered=null;
+  const ctx={
+   serviceCode:'financial_analysis',intakeDatasetId:null,lang:'ar',T:{login:'login'},
+   params:{get:()=>null},
+   window:{BondsAuth:{
+    ensureEnv:async()=>{},getUser:async()=>({data:{user:{id:'user-1'}}}),
+    getSupabase:()=>({from:()=>query})
+   }},
+   '
+  expect(source).toContain("if(serviceCode==='financial_analysis'){");
+  expect(source).toContain("document.body.classList.add('financial-review-wide')");
+  expect(source).toContain('body.financial-review-wide .sr-grid{grid-template-columns:minmax(0,1fr)}');
+ });
+ test('review groups preserve source, candidate, and correction field rendering',()=>{
+  expect(source).toContain('renderIntakeReviewField(field,fields)');
+  expect(source).toContain('data-intake-field=');
+  expect(source).toContain('sr-review-group');
+  expect(source).toContain('confirmed.map(field=>renderIntakeReviewField(field,fields))');
+  expect(source).toContain('critical.map(field=>renderIntakeReviewField(field,fields))');
+  expect(source).toContain('supplemental.map(field=>renderIntakeReviewField(field,fields))');
+  expect(source).toContain('المطلوب لإكمال التحليل');
+ });
+});
+
+}
+:selector=>selector==='#srShowSavedFinancialResult'?button:resultNode,
+   renderExecutionResult:value=>{rendered=value;},
+   escapeHtml:value=>String(value),showStatus:jest.fn()
+  };
+  vm.createContext(ctx);
+  vm.runInContext(source.slice(start,end),ctx);
+  expect(await ctx.restoreSavedFinancialResult({scroll:true})).toBe(true);
+  expect(filters).toEqual(expect.arrayContaining([
+   ['eq','user_id','user-1'],['eq','service_code','financial_analysis'],
+   ['eq','status','executed'],['eq','approval_status','approved'],
+   ['is','project_id',null],['is','client_id',null]
+  ]));
+  expect(rendered.metrics.gross_margin_pct).toBe(22.89);
+  expect(rendered.dataset.dataset_id).toBe('saved-dataset');
+  expect(rendered.dataset_persistence.status).toBe('saved');
+  expect(resultNode.scrollIntoView).toHaveBeenCalled();
+  expect(button.disabled).toBe(false);
+ });
+ test('saved report UI does not fabricate a missing report',()=>{
+  expect(source).toContain('restoreSavedFinancialResult({silent:true})');
+  expect(source).toContain("$('#srRequestForm').insertAdjacentElement('beforebegin',box)");
+  expect(source).toContain('id="srShowSavedFinancialResult"');
+  expect(source).toContain('stored?.executed!==true');
+ });
  test('financial analysis uses a full-width review without altering other workspaces',()=>{
   expect(source).toContain("if(serviceCode==='financial_analysis'){");
   expect(source).toContain("document.body.classList.add('financial-review-wide')");
