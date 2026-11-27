@@ -322,10 +322,10 @@ jobs:
                 cmp -s /tmp/bonds-base-ci-other-steps.yml /tmp/bonds-head-ci-other-steps.yml || exit 0
                 ;;
               vercel.json)
-                # HR adds only these four API rewrites, before existing routes.
-                # Any unrelated change still invokes the full screenshot gate.
+                # Verify exact non-visual PDF worker packaging change against PR base.
+                # All other config edits still force the full screenshot gate.
                 git show "$BASE_SHA:vercel.json" > /tmp/bonds-base-vercel.json
-                node -e 'const fs=require("fs");const base=JSON.parse(fs.readFileSync("/tmp/bonds-base-vercel.json","utf8"));const head=JSON.parse(fs.readFileSync("vercel.json","utf8"));const expected=[{source:"/api/company-programs",destination:"/api/payments"},{source:"/api/company-programs/",destination:"/api/payments"},{source:"/api/hr-calculations",destination:"/api/platform"},{source:"/api/hr-calculations/",destination:"/api/platform"}];if(JSON.stringify(head.rewrites?.slice(0,4))!==JSON.stringify(expected))process.exit(1);head.rewrites=head.rewrites.slice(4);if(JSON.stringify(head)!==JSON.stringify(base))process.exit(1)' || exit 0
+                node -e 'const fs=require("fs");const base=JSON.parse(fs.readFileSync("/tmp/bonds-base-vercel.json","utf8"));const head=JSON.parse(fs.readFileSync("vercel.json","utf8"));const path="node_modules/pdf-parse/dist/pdf-parse/cjs/pdf.worker.mjs";const v3=base.functions?.["api/v3/index.js"];if(v3?.maxDuration!==300||Object.hasOwn(v3,"includeFiles"))process.exit(1);v3.includeFiles=path;if(JSON.stringify(head)!==JSON.stringify(base))process.exit(1)' || exit 0
                 ;;
               sw.js)
                 # The feasibility workspace can bump its service-request URL
