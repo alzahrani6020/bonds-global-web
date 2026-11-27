@@ -30,3 +30,17 @@ The exporter uses ephemeral plaintext blob and tar files on a GitHub-hosted runn
 - `UNKNOWN`: current production object inventory or secret status cannot be verified.
 
 The existing PostgreSQL backup schedule must remain unaffected; the Storage workflow intentionally has **no schedule** until evidence of successful production recovery. See [DR master issue #1283](https://github.com/alzahrani6020/bonds-global-web/issues/1283).
+
+## Security review gate (not equivalent to CI success)
+
+- [x] Source-code gate: secrets are scoped only to the credential-guard and export steps, never job-global; no secret values printed by intended code paths.
+- [x] Source-code gate: bucket enumeration is dynamic; omitted/invalid bucket inventory fails closed.
+- [x] Source-code gate: encrypted artifact is the only declared upload path; archival source data never deliberately uploaded as a plain artifact.
+- [x] Source-code gate: isolated restoration checks SHA-256 of each actual written file, rejects unsafe bucket/object names, duplicates, unexpected tar members, and existing destination paths; counts and declared bytes are bounded.
+- [ ] Operational gate: verify GitHub secret exists, is the correct credential for the production project, and is not exposed to untrusted branch code. Restrict Actions workflow editing and dispatch permissions; require reviewed commit and change approvals before sensitive export.
+- [ ] Operational gate: review service-role breadth and choose appropriately scoped read-only credentials where supported. A Supabase service-role key is NOT least-privilege; do not describe it as such.
+- [ ] Operational gate: approve GitHub-hosted ephemeral plaintext processing, ephemeral runner lifecycle, storage retention limits, logging restrictions and cost; alternatively use a controlled trusted runner.
+- [ ] Operational gate: verify actual encrypted export, manifest coverage, immutable off-platform custody, isolated USB restoration and file-level hashes.
+- [ ] Operational gate: verify PostgreSQL/Storage bounded-window consistency, tested alerts and measured RPO/RTO before enabling scheduling.
+
+Security disposition: **PARTIAL / NOT APPROVED FOR PRODUCTION** until every unchecked operational gate is independently evidenced. CI does not prove service-role scope or runner trust. Keep this PR as Draft; do not merge or enable automatic scheduling based solely on tests.
