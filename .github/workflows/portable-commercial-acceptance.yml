@@ -1,0 +1,38 @@
+name: Portable Commercial Intelligence — Windows Isolated Acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'lib/portable-intelligence/**'
+      - 'tests/intelligence/portable-**'
+      - '.github/workflows/portable-commercial-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portable-commercial-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  portable-windows-isolated:
+    name: Portable engine Windows isolated acceptance
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout immutable candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Setup Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate customer-owned SQLite import, tenant isolation and reopened data
+        run: node --test tests/intelligence/portable-sqlite-acceptance.cjs
+      - name: Verify encrypted backup recovery and signed license boundaries
+        run: node --test tests/intelligence/portable-backup-license.acceptance.cjs
+      - name: Test reviewed extraction, role gates, cross-company export, duplicate races and per-operation licensing
+        run: npx jest tests/intelligence/portable-commercial-engine.test.js tests/intelligence/portable-integration-contract.test.js tests/intelligence/portable-commercial-workflow.test.js tests/intelligence/portable-approved-directory-export.test.js tests/intelligence/portable-tenant-authorization.test.js tests/intelligence/portable-entity-intelligence.test.js tests/intelligence/portable-licensed-workflow.test.js --runInBand --no-coverage
