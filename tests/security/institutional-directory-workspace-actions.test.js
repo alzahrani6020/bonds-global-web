@@ -32,7 +32,7 @@ describe('BONDS institutional directory and CRM workspace action wiring',()=>{
   expect(directory).toContain("english ? '/en/my-bonds/crm/' : '/my-bonds/crm/'");
   expect(crm).toContain("get('workspace_id')");
   expect(crm).toContain("spaces.find(w=>w.id===requestedWorkspaceId.toLowerCase())");
-  expect(crm).toContain("encodeURIComponent(workspace.id)");
+  expect(crm).toContain("encodeURIComponent(activeId)");
   expect(crm).toContain("directoryLink.addEventListener('click'");
   expect(crm).toContain("acceptedWorkspaceId)||requestedWorkspace||");
  });
