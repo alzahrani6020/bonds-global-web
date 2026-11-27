@@ -85,5 +85,10 @@ jobs:
           recovered="$(psql -h 127.0.0.1 -U postgres -d bonds_recovered_probe -Atc "SELECT (SELECT count(*) FROM storage.buckets)::text || ':' || (SELECT count(*) FROM storage.objects)::text;")"
           test "$original" = "$recovered"
           test "$recovered" = '2:1'
+          inventory_sql="SELECT jsonb_build_object('buckets', (SELECT jsonb_agg(id ORDER BY id) FROM storage.buckets), 'objects', (SELECT jsonb_agg(jsonb_build_object('bucket',bucket_id,'name',name,'id',id::text,'size',(metadata->>'size')::bigint) ORDER BY bucket_id,name,id) FROM storage.objects))::text;"
+          source_inventory="$(psql -h 127.0.0.1 -U postgres -d bonds_restore_gate -Atc "$inventory_sql")"
+          recovered_inventory="$(psql -h 127.0.0.1 -U postgres -d bonds_recovered_probe -Atc "$inventory_sql")"
+          test -n "$source_inventory"
+          test "$source_inventory" = "$recovered_inventory"
           rm "$work/decrypted.dump"
-          echo 'PASS: disposable pg_dump -> AGE -> decrypt -> pg_restore --exit-on-error -> inventory counts'
+          echo 'PASS: disposable pg_dump -> AGE -> decrypt -> pg_restore --exit-on-error -> exact Storage identity inventory'
