@@ -125,6 +125,9 @@ jobs:
       - name: Run Assistant End-to-End CI Journeys
         run: npm run test:assistant:e2e-ci
 
+      - name: Verify portable local SQLite save/reopen/tenant isolation
+        run: node --test tests/intelligence/portable-sqlite-acceptance.cjs
+
       - name: Run Unit and Integration Tests
         run: npm test
 
@@ -329,7 +332,7 @@ jobs:
           if(after.replace(helper,'').replace(route,'')!==before)process.exit(1);
           NODE
                 ;;
-              lib/portable-intelligence/*|tests/intelligence/portable-commercial-engine.test.js|tests/intelligence/portable-offline-ocr.test.js|tests/intelligence/portable-integration-contract.test.js|scripts/site-audit.js)
+              lib/portable-intelligence/*|tests/intelligence/portable-commercial-engine.test.js|tests/intelligence/portable-offline-ocr.test.js|tests/intelligence/portable-integration-contract.test.js|tests/intelligence/portable-sqlite-acceptance.cjs|scripts/site-audit.js)
                 # Portable backend-only core and its tests never load on the homepage.
                 # Their changes still run the full unit, integration and security gates.
                 ;;
