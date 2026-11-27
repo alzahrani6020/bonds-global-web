@@ -61,3 +61,29 @@ jobs:
           RUN_DISPOSABLE_PG_INTEGRATION: '1'
           ISOLATED_TEST_DATABASE_URL: postgresql://postgres:test-password-only@127.0.0.1:5432/bonds_restore_gate
         run: python3 -m unittest discover -s scripts/backup -p 'test_*.py' -v
+      - name: Encrypt PostgreSQL dump, decrypt and restore in second isolated database
+        env:
+          PGPASSWORD: test-password-only
+        run: |
+          set -euo pipefail
+          umask 077
+          work="$RUNNER_TEMP/bonds-disposable-dr"
+          mkdir -p "$work"
+          pg_dump -h 127.0.0.1 -U postgres -d bonds_restore_gate -Fc -f "$work/source.dump"
+          test -s "$work/source.dump"
+          pg_restore --list "$work/source.dump" > "$work/toc.txt"
+          age-keygen -o "$work/test-identity.txt" >/dev/null 2>&1
+          recipient="$(sed -n 's/^# public key: //p' "$work/test-identity.txt")"
+          test -n "$recipient"
+          age -r "$recipient" -o "$work/source.dump.age" "$work/source.dump"
+          test -s "$work/source.dump.age"
+          rm "$work/source.dump"
+          age -d -i "$work/test-identity.txt" -o "$work/decrypted.dump" "$work/source.dump.age"
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE bonds_recovered_probe;'
+          pg_restore -h 127.0.0.1 -U postgres -d bonds_recovered_probe --exit-on-error --no-owner --no-acl "$work/decrypted.dump"
+          original="$(psql -h 127.0.0.1 -U postgres -d bonds_restore_gate -Atc "SELECT (SELECT count(*) FROM storage.buckets)::text || ':' || (SELECT count(*) FROM storage.objects)::text;")"
+          recovered="$(psql -h 127.0.0.1 -U postgres -d bonds_recovered_probe -Atc "SELECT (SELECT count(*) FROM storage.buckets)::text || ':' || (SELECT count(*) FROM storage.objects)::text;")"
+          test "$original" = "$recovered"
+          test "$recovered" = '2:1'
+          rm "$work/decrypted.dump"
+          echo 'PASS: disposable pg_dump -> AGE -> decrypt -> pg_restore --exit-on-error -> inventory counts'
