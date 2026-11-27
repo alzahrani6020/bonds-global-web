@@ -10,6 +10,7 @@
   "files": [
     "core.js",
     "file-adapters.js",
+    "review-gate.js",
     "cli.js",
     "README.md"
   ],
