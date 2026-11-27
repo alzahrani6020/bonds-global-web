@@ -718,8 +718,18 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
       ? (Array.isArray(rawCorrection) && rawCorrection.length ? rawCorrection : null)
       : parseNumeric(rawCorrection);
     if (value === null) {
-      if (Object.prototype.hasOwnProperty.call(reviewed, field)) valuesChanged = true;
+      if (Object.prototype.hasOwnProperty.call(reviewed, field)) {
+        valuesChanged = true;
+        overrides.push({field,previous_reviewed_value:reviewed[field],corrected_value:null,method:'manual_clear',at:now});
+      }
       delete reviewed[field];
+      const cleared = fieldMap.get(field);
+      if (cleared) {
+        cleared.value = null;
+        cleared.status = 'missing';
+        cleared.confidence = 0;
+        cleared.source = [...cleared.source,{extraction_method:'manual_clear',at:now}];
+      }
       continue;
     }
     const selectedIndex = selections[field];
@@ -787,7 +797,7 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
       provenance: selectedCandidate?.source || null,
       at:now
     }];
-    current.candidates = [];
+    if (!selectedCandidate) current.candidates = [];
     if (!fieldMap.has(field)) {
       fields.push(current);
       fieldMap.set(field, current);
