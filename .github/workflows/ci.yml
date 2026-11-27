@@ -245,16 +245,16 @@ jobs:
                 cmp -s /tmp/bonds-main-correspondence-file /tmp/bonds-merge-correspondence-file || exit 0
                 ;;
               .github/workflows/bonds-backup-freshness-watchdog.yml)
-                # Non-visual schedule-only change: require exact PR-base parity.
-                # Any other change falls back to the full visual snapshot gate.
-                git show "$BASE_SHA:$file" > /tmp/bonds-base-watchdog-workflow.yml || exit 0
+                # Only the exact reviewed schedule-proof block is non-visual.
+                # Any further changes retain the existing full visual gate.
+                git show "$BASE_SHA:$file" > /tmp/bonds-base-watchdog.yml || exit 0
                 python3 - <<'PY' || exit 0
           from pathlib import Path
-          base = Path('/tmp/bonds-base-watchdog-workflow.yml').read_text()
+          base = Path('/tmp/bonds-base-watchdog.yml').read_text()
           head = Path('.github/workflows/bonds-backup-freshness-watchdog.yml').read_text()
-          old = "# Every 3 hours at minute 15 UTC; does not start production backups.\n    - cron: '15 0,3,6,9,12,15,18,21 * * *'"
-          new = "# Every 3 hours at minute 35 UTC; gives the 00:07 UTC daily backup time to finish.\n    - cron: '35 0,3,6,9,12,15,18,21 * * *'"
-          if base.count(old) != 1 or head != base.replace(old, new):
+          marker = "          artifact_name=\"bonds-production-encrypted-backup-$run_id\""
+          addition = "          # Independently prove that a scheduled, successful backup exists.\n          # Manual successes remain valid for emergency recovery but must never\n          # conceal a broken daily GitHub schedule.\n          scheduled=\"$(gh api -X GET \"repos/$GH_REPO/actions/workflows/$workflow/runs?branch=main&event=schedule&status=success&per_page=1\")\"\n          scheduled_id=\"$(jq -r '.workflow_runs[0].id // empty' <<< \"$scheduled\")\"\n          scheduled_completed=\"$(jq -r '.workflow_runs[0].updated_at // empty' <<< \"$scheduled\")\"\n          if [[ -z \"$scheduled_id\" || -z \"$scheduled_completed\" ]]; then\n            # The first post-rollout scheduled backup is due 2026-11-28 00:07 UTC.\n            # Give GitHub scheduling and the isolated restore a two-hour grace.\n            # Before that instant, report PENDING rather than a false failure.\n            first_due_epoch=\"$(date -u -d '2026-11-28T02:07:00Z' +%s)\"\n            if (( now < first_due_epoch )); then\n              echo \"PENDING: first post-rollout scheduled backup not yet due (grace through 2026-11-28T02:07Z).\"\n            else\n              open_alert \"[BONDS Backup Watchdog] No successful scheduled backup\" \\\n                \"No successful event=schedule backup was recorded by the initial grace deadline. A manual backup does not satisfy the daily schedule gate. Check $source_url and tracking issue #1273.\"\n            fi\n          else\n            scheduled_epoch=\"$(date -u -d \"$scheduled_completed\" +%s)\"\n            scheduled_age=\"$((now - scheduled_epoch))\"\n            if (( scheduled_age < 0 )); then\n              echo \"FAIL: scheduled backup completion timestamp is in the future\"\n              exit 1\n            fi\n            if (( scheduled_age > max_age_seconds )); then\n              open_alert \"[BONDS Backup Watchdog] Scheduled backup overdue\" \\\n                \"Latest successful scheduled backup is older than 26h: run $scheduled_id, completed $scheduled_completed UTC. Manual successes do not resolve schedule freshness.\"\n            else\n              echo \"PASS: successful event=schedule backup $scheduled_id is within 26h.\"\n            fi\n          fi\n\n"
+          if base.count(marker) != 1 or head != base.replace(marker, addition + marker):
               raise SystemExit(1)
           PY
                 ;;
