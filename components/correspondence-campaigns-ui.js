@@ -186,6 +186,11 @@
   async function openCampaign(id){
     const result=await api('?id='+encodeURIComponent(id));
     activeCampaign=result.campaign;$('detail-title').textContent=result.campaign.title;
+    const letterLink=$('campaign-letterhead-link');
+    if(letterLink&&UUID.test(result.campaign.workspace_id)){
+      const prefix=location.pathname.startsWith('/en/')?'/en/letterhead.html':'/letterhead.html';
+      letterLink.href=prefix+'?workspace=correspondence&campaign_workspace_id='+encodeURIComponent(result.campaign.workspace_id);
+    }
     renderRecipients(result.recipients||[]);updateActions();
     await refreshDispatchStatus();
     status('تم تحميل الحملة من قاعدة البيانات: '+(labels[activeCampaign.status]||activeCampaign.status));
