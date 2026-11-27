@@ -19,6 +19,12 @@ describe('portable commercial intelligence engine',()=>{
   expect(result.candidates.email).toBe('info@example.org');
   expect(result.records).toEqual([]);
  });
+ test('explicit company and person labels remain review-only OCR candidates',()=>{
+  const candidate=proposeFromText('اسم الشركة: مصنع المثال\nالاسم: أحمد\ninfo@example.org',{kind:'image'});
+  expect(candidate.candidates).toMatchObject({organization_name:'مصنع المثال',person_name:'أحمد'});
+  expect(candidate.records).toEqual([]);
+  expect(candidate.requires_manual_identification).toBe(true);
+ });
  test('images require an explicit local or authorized OCR adapter',async()=>await expect(analyzeFile({file:{filename:'card.png',buffer:Buffer.from('image')},workspaceId:A})).rejects.toThrow('OCR_ADAPTER_REQUIRED'));
  test('rejects malformed records rather than inventing data',()=>{
   const r=normalizeRows({rows:[{name:'Missing type'}],workspaceId:A,source:{filename:'a.csv'}});
