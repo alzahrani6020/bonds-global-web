@@ -90,8 +90,16 @@ jobs:
           scheduled_id="$(jq -r '.workflow_runs[0].id // empty' <<< "$scheduled")"
           scheduled_completed="$(jq -r '.workflow_runs[0].updated_at // empty' <<< "$scheduled")"
           if [[ -z "$scheduled_id" || -z "$scheduled_completed" ]]; then
-            open_alert "[BONDS Backup Watchdog] No successful scheduled backup" \
-              "No successful event=schedule backup has been recorded on main. A manual backup does not satisfy the daily schedule gate. Check $source_url and tracking issue #1273."
+            # The first post-rollout scheduled backup is due 2026-11-28 00:07 UTC.
+            # Give GitHub scheduling and the isolated restore a two-hour grace.
+            # Before that instant, report PENDING rather than a false failure.
+            first_due_epoch="$(date -u -d '2026-11-28T02:07:00Z' +%s)"
+            if (( now < first_due_epoch )); then
+              echo "PENDING: first post-rollout scheduled backup not yet due (grace through 2026-11-28T02:07Z)."
+            else
+              open_alert "[BONDS Backup Watchdog] No successful scheduled backup" \
+                "No successful event=schedule backup was recorded by the initial grace deadline. A manual backup does not satisfy the daily schedule gate. Check $source_url and tracking issue #1273."
+            fi
           else
             scheduled_epoch="$(date -u -d "$scheduled_completed" +%s)"
             scheduled_age="$((now - scheduled_epoch))"
