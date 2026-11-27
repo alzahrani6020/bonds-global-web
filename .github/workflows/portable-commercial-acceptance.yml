@@ -41,4 +41,4 @@ jobs:
       - name: Install Chromium for isolated local UI acceptance
         run: npx playwright install chromium
       - name: Verify real Arabic UI on Windows Chromium
-        run: node --test tests/intelligence/portable-commercial-browser.test.js
+        run: node --test tests/intelligence/portable-commercial-browser.acceptance.cjs
