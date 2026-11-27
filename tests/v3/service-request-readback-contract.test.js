@@ -30,6 +30,12 @@ describe('service request persistence and readback contracts', () => {
     expect(client).toContain('await finalizeServiceRequestCreation(d,values,headers)');
   });
 
+  test('approved Excel exports retain field provenance and comparability warnings',()=>{
+    expect(api).toContain("'Field Provenance'");
+    expect(api).toContain("'Validation Warnings'");
+    expect(api).toContain('comparison_excluded:row.comparison_excluded===true');
+    expect(api).toContain('source_disclaimer:row.document_disclaimer||');
+  });
   test('service discovery preserves vetted workflow context during workspace routing', () => {
     const discovery = read('components/service-discovery.js');
     for (const key of ['project_id','deal_id','opportunity_id','company_id','client_id','funding_case_id','request_id','return_to']) {
