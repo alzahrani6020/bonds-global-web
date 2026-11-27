@@ -15,7 +15,7 @@ import verify_storage_restored as verifier
 
 
 def tar_with_objects(items, contents):
-    manifest = {"format": "bonds-storage-v1", "objects": []}
+    manifest = {"format": "bonds-storage-v1", "buckets": sorted({b for b, _ in items}), "objects": []}
     stream = io.BytesIO()
     for index, ((bucket, path), raw) in enumerate(zip(items, contents)):
         manifest["objects"].append({
@@ -44,6 +44,23 @@ class ArchiveVerificationTests(unittest.TestCase):
                  ("avatars", "nested/file.png")],
                 [b"document", b"avatar"]))
             with patch("builtins.print"):
+                verifier.verify(path)
+
+    def test_duplicate_object_identity_rejected(self):
+        raw = tar_with_objects([("avatars", "same"), ("avatars", "same")],
+                               [b"A", b"B"])
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "duplicate.tar"
+            path.write_bytes(raw)
+            with self.assertRaises(ValueError):
+                verifier.verify(path)
+
+    def test_unsafe_object_path_rejected(self):
+        raw = tar_with_objects([("avatars", "../escape")], [b"A"])
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "unsafe.tar"
+            path.write_bytes(raw)
+            with self.assertRaises(ValueError):
                 verifier.verify(path)
 
     def test_tampered_blob_is_rejected(self):
