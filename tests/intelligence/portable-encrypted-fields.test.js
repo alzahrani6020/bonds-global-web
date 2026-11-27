@@ -22,7 +22,7 @@ describe('AES-256-GCM encrypted commercial fields, keyed names, and recovery beh
    await expect(reopened.approve({workspaceId:A,actorId:'owner',proposal,approvedIndices:[0]})).rejects.toThrow('DUPLICATE_REVIEW_REQUIRED');
    reopened.close();
    expect(()=>createCommercialWorkflow({filename,getMembership,encryptionKey:crypto.randomBytes(32)})).toThrow('RECORD_INTEGRITY_FAILED');
-   expect(()=>createCommercialWorkflow({filename,getMembership,encryptionKey:null})).not.toThrow();
+   expect(()=>createCommercialWorkflow({filename,getMembership,encryptionKey:null})).toThrow('ENCRYPTION_KEY_REQUIRED');
   }finally{try{wf?.close()}catch{}fs.rmSync(dir,{recursive:true,force:true})}
  });
  test('plaintext imported data cannot silently become encrypted without explicit migration',async()=>{
