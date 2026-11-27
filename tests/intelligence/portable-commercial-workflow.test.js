@@ -93,6 +93,23 @@ describe('complete portable commercial workflow from source to destination inten
    expect(await workflow.list({workspaceId:A,actorId:'alice'})).toHaveLength(2);
   }finally{cleanup()}
  });
+ test('approved record archives atomically, disappears from searches, and remains audited',async()=>{
+  const {workflow,cleanup}=setup();
+  try{
+   const analysis=await workflow.analyze({workspaceId:A,actorId:'alice',file:{filename:'archive.html',buffer:html('شركة الأفق')}});
+   const proposal=workflow.prepareEntityReview({workspaceId:A,analysis,identity:{type:'organization',name:'شركة الأفق'}});
+   const saved=await workflow.approve({workspaceId:A,actorId:'alice',proposal,approvedIndices:[0]});
+   const id=saved.result.ids[0];
+   await expect(workflow.archive({workspaceId:A,actorId:'viewer',id})).rejects.toThrow('TENANT_ACCESS_DENIED');
+   await expect(workflow.archive({workspaceId:B,actorId:'bob',id})).rejects.toThrow('RECORD_NOT_FOUND');
+   const result=await workflow.archive({workspaceId:A,actorId:'alice',id});
+   expect(result.archived).toBe(true);
+   expect(await workflow.list({workspaceId:A,actorId:'alice'})).toHaveLength(0);
+   expect(await workflow.search({workspaceId:A,actorId:'alice',query:'الأفق'})).toHaveLength(0);
+   await expect(workflow.archive({workspaceId:A,actorId:'alice',id})).rejects.toThrow('RECORD_NOT_FOUND');
+   expect((await workflow.audit({workspaceId:A,actorId:'alice'})).at(-1).action).toBe('records.archive');
+  }finally{cleanup()}
+ });
  test('identical entity requires duplicate decision before second save',async()=>{
   const {workflow,cleanup}=setup();
   try{
