@@ -49,7 +49,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 <script src="/api/env" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/bonds-auth-2026.js?v=3.1.4" defer></script>
-<script src="/components/institutional-directory-ui.js?v=1" defer></script>
+<script src="/components/institutional-directory-ui.js?v=2" defer></script>
 <script src="/components/institutional-directory-import.js?v=1" defer></script>
 </head>
 <body>
@@ -73,8 +73,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
    <div class="field"><label for="workspace-select">مساحة الشركة</label><select id="workspace-select" required><option value="">تحميل المساحات...</option></select></div>
    <div class="field"><label for="entity-type">نوع السجلات</label><select id="entity-type"><option value="organizations">الشركات والمؤسسات</option><option value="contacts">جهات الاتصال والأفراد</option></select></div>
    <div class="field"><label for="directory-query">البحث بالاسم</label><input id="directory-query" type="search" maxlength="80" placeholder="اكتب اسم الجهة أو الشخص" autocomplete="off"></div>
-   <button type="submit" id="search-directory">بحث</button>
+   <button type="submit" id="search-directory" disabled>بحث</button>
   </form>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+    <a id="crm-workspace-link" href="/my-bonds/crm/">فتح مساحة العمل في CRM</a>
+    <button type="button" id="directory-refresh-workspaces">تحديث مساحات العمل</button>
+    <a id="directory-signin-link" href="/my-bonds/?redirect=%2Finstitutional-directory.html" hidden>تسجيل الدخول إلى BONDS</a>
+  </div>
  </section>
  <div id="directory-status" class="status" role="status" aria-live="polite">التحقق من الجلسة والصلاحيات...</div>
  <section id="directory-results" class="results" aria-label="نتائج دليل الجهات"></section>
@@ -99,13 +104,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
    </select></div>
    <div class="field" id="institutional-city-wrap"><label for="institutional-entry-city">المدينة</label><input id="institutional-entry-city" maxlength="100"></div>
    <div class="field" id="institutional-country-wrap"><label for="institutional-entry-country">الدولة</label><input id="institutional-entry-country" maxlength="100"></div>
-   <button type="submit" id="institutional-preview-entry">معاينة الإضافة</button>
+   <button type="submit" id="institutional-preview-entry" disabled>معاينة الإضافة</button>
   </form>
   <div class="field" style="margin-top:18px"><label for="institutional-csv">استيراد CSV بحد أقصى 100 سجل و100 كيلوبايت</label><input id="institutional-csv" type="file" accept=".csv,text/csv"></div>
   <p><a href="/assets/institutional-directory-import-template.csv" download="institutional-directory-import-template.csv">تحميل قالب CSV فارغ</a></p>
   <p class="capability">الحقول المسموحة: type,name,sector,legal_name,city,country,email,phone,role. والقيم: organization أو contact. يتجاهل النظام التكرار بالاسم ضمن مساحة الشركة فقط.</p>
   <div class="row" style="display:flex;gap:10px;flex-wrap:wrap">
-   <button type="button" id="institutional-preview-csv">معاينة الملف</button>
+   <button type="button" id="institutional-preview-csv" disabled>معاينة الملف</button>
    <button type="button" id="institutional-apply" disabled>تأكيد وحفظ في CRM</button>
   </div>
   <div id="institutional-preview" aria-label="معاينة البيانات"></div>

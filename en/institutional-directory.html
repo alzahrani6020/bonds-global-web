@@ -49,7 +49,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 <script src="/api/env" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/bonds-auth-2026.js?v=3.1.4" defer></script>
-<script src="/components/institutional-directory-ui.js?v=1" defer></script>
+<script src="/components/institutional-directory-ui.js?v=2" defer></script>
 <script src="/components/institutional-directory-import.js?v=1" defer></script>
 </head>
 <body>
@@ -73,8 +73,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
    <div class="field"><label for="workspace-select">Company Workspace</label><select id="workspace-select" required><option value="">Loading workspaces...</option></select></div>
    <div class="field"><label for="entity-type">Record Type</label><select id="entity-type"><option value="organizations">Organizations</option><option value="contacts">Contacts</option></select></div>
    <div class="field"><label for="directory-query">Search by Name</label><input id="directory-query" type="search" maxlength="80" placeholder="Enter an organization or contact name" autocomplete="off"></div>
-   <button type="submit" id="search-directory">Search</button>
+   <button type="submit" id="search-directory" disabled>Search</button>
   </form>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+    <a id="crm-workspace-link" href="/en/my-bonds/crm/">Open this workspace in CRM</a>
+    <button type="button" id="directory-refresh-workspaces">Refresh workspaces</button>
+    <a id="directory-signin-link" href="/my-bonds/?redirect=%2Fen%2Finstitutional-directory.html" hidden>Sign in to BONDS</a>
+  </div>
  </section>
  <div id="directory-status" class="status" role="status" aria-live="polite">Checking session and permissions...</div>
  <section id="directory-results" class="results" aria-label="Directory results"></section>
@@ -99,13 +104,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
    </select></div>
    <div class="field" id="institutional-city-wrap"><label for="institutional-entry-city">City</label><input id="institutional-entry-city" maxlength="100"></div>
    <div class="field" id="institutional-country-wrap"><label for="institutional-entry-country">Country</label><input id="institutional-entry-country" maxlength="100"></div>
-   <button type="submit" id="institutional-preview-entry">Preview entry</button>
+   <button type="submit" id="institutional-preview-entry" disabled>Preview entry</button>
   </form>
   <div class="field" style="margin-top:18px"><label for="institutional-csv">Import CSV: up to 100 rows and 100 KB</label><input id="institutional-csv" type="file" accept=".csv,text/csv"></div>
   <p><a href="/assets/institutional-directory-import-template.csv" download="institutional-directory-import-template.csv">Download blank CSV template</a></p>
   <p class="capability">Allowed columns: type,name,sector,legal_name,city,country,email,phone,role. Types: organization or contact. Duplicate names within the same company workspace are skipped.</p>
   <div class="row" style="display:flex;gap:10px;flex-wrap:wrap">
-   <button type="button" id="institutional-preview-csv">Preview CSV</button>
+   <button type="button" id="institutional-preview-csv" disabled>Preview CSV</button>
    <button type="button" id="institutional-apply" disabled>Confirm and save to CRM</button>
   </div>
   <div id="institutional-preview" aria-label="Data preview"></div>

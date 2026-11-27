@@ -11,6 +11,22 @@
   if (!status || !results || !select || !form || !submit) return;
   let sb = null;
   let busy = false;
+  let loadingWorkspaces = false;
+  const requestedWorkspace = new URLSearchParams(window.location.search).get('workspace_id');
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const controls = ['search-directory', 'institutional-preview-entry', 'institutional-preview-csv'];
+  function setWorkspaceReady(ready) {
+    controls.forEach(id => { const button = $(id); if (button) button.disabled = !ready; });
+    const importButton = $('institutional-apply');
+    if (!ready && importButton) importButton.disabled = true;
+    const crmLink = $('crm-workspace-link');
+    if (crmLink) {
+      crmLink.href = ready && uuid.test(select.value)
+        ? (english ? '/en/my-bonds/crm/' : '/my-bonds/crm/') + '?workspace_id=' + encodeURIComponent(select.value)
+        : (english ? '/en/my-bonds/crm/' : '/my-bonds/crm/');
+    }
+  }
+  setWorkspaceReady(false);
 
   function say(message) { status.textContent = message; }
   function element(tag, className, value) {
@@ -52,7 +68,7 @@
     return token;
   }
   async function loadResults() {
-    if (busy || !sb) return;
+    if (busy || !sb || loadingWorkspaces) return;
     const workspace = select.value;
     const type = $('entity-type').value;
     const q = $('directory-query').value.trim();
@@ -91,33 +107,68 @@
     }
   }
   form.addEventListener('submit', event => { event.preventDefault(); void loadResults(); });
-  select.addEventListener('change', () => { void loadResults(); });
+  select.addEventListener('change', () => {
+    setWorkspaceReady(Boolean(select.value));
+    void loadResults();
+  });
   $('entity-type').addEventListener('change', () => { void loadResults(); });
 
-  try {
-    if (!window.BondsAuth?.ensureEnv || !window.BondsAuth?.getSupabase) throw new Error('AUTH_UNAVAILABLE');
-    await window.BondsAuth.ensureEnv();
-    sb = window.BondsAuth.getSupabase();
-    if (!sb) throw new Error('AUTH_UNAVAILABLE');
-    await authenticatedSession();
-    // CRM's RLS-protected existing workspace selector; server rechecks owner/
-    // active membership for the actual directory request.
-    const {data:spaces,error} = await sb.from('crm_app_workspaces')
-      .select('id,name').order('created_at',{ascending:true}).limit(100);
-    if (error) throw error;
-    select.replaceChildren();
-    if (!spaces?.length) {
-      select.append(new Option(tr('لا توجد مساحات CRM مصرح بها','No authorized CRM workspaces'),''));
-      say(tr('لا توجد مساحة CRM متاحة لهذا الحساب. يمكنك فتح CRM لإنشاء مساحة إذا كانت لديك الصلاحية.','No CRM workspace is available. Open CRM to create one if authorized.'));
-      return;
+  async function initialize() {
+    loadingWorkspaces = true;
+    setWorkspaceReady(false);
+    say(tr('جارٍ التحقق من الجلسة ومساحات العمل...', 'Checking session and workspaces...'));
+    try {
+      if (!window.BondsAuth?.ensureEnv || !window.BondsAuth?.getSupabase) throw new Error('AUTH_UNAVAILABLE');
+      await window.BondsAuth.ensureEnv();
+      sb = window.BondsAuth.getSupabase();
+      if (!sb) throw new Error('AUTH_UNAVAILABLE');
+      const { data: userResult, error: userError } = await sb.auth.getUser();
+      if (userError || !userResult?.user || userResult.user.is_anonymous) throw new Error('AUTH_REQUIRED');
+      await authenticatedSession();
+      // CRM workspaces are RLS-scoped to this authenticated user.
+      const { data: spaces, error } = await sb.from('crm_app_workspaces')
+        .select('id,name,owner_user_id').order('created_at',{ascending:true}).limit(100);
+      if (error) throw error;
+      select.replaceChildren();
+      if (!spaces?.length) {
+        select.append(new Option(tr('لا توجد مساحات CRM مصرح بها','No authorized CRM workspaces'), ''));
+        say(tr('لا توجد مساحة CRM متاحة. افتح CRM واختر أو أنشئ مساحة بصلاحيتك الحالية.',
+          'No CRM workspace is available. Open CRM and select or create a workspace under your current account.'));
+        return;
+      }
+      const requested = uuid.test(requestedWorkspace || '') ? requestedWorkspace.toLowerCase() : null;
+      const matched = requested && spaces.find(w => w.id === requested);
+      for (const space of spaces) {
+        select.append(new Option(space.name || tr('مساحة بلا اسم','Unnamed workspace'), space.id));
+      }
+      // The caller may request a workspace, but it must already be visible via RLS.
+      if (requested && !matched) {
+        select.value = '';
+        say(tr('مساحة العمل المطلوبة غير مرتبطة بحسابك. اختر مساحة أخرى من القائمة.',
+          'The requested workspace is not linked to your account. Select an authorized workspace.'));
+        return;
+      }
+      const currentUserId = userResult.user.id;
+      const chosen = matched || spaces.find(w => w.owner_user_id === currentUserId) || spaces[0];
+      select.value = chosen.id;
+      setWorkspaceReady(true);
+      const loginLink = $('directory-signin-link');
+      if (loginLink) loginLink.hidden = true;
+      say(tr('مساحة العمل المختارة: ','Selected workspace: ') + chosen.name);
+    } catch (error) {
+      sb = null;
+      select.replaceChildren(new Option(tr('تسجيل الدخول مطلوب','Sign-in required'), ''));
+      const loginLink = $('directory-signin-link');
+      if (loginLink) loginLink.hidden = false;
+      say(tr('تعذر ربط الدليل بجلسة BONDS. افتح تسجيل الدخول ثم أعد المحاولة.',
+        'Unable to connect the directory to your BONDS session. Sign in and retry.'));
+    } finally {
+      loadingWorkspaces = false;
+      setWorkspaceReady(Boolean(sb && select.value));
+      if (sb && select.value) await loadResults();
     }
-    for (const space of spaces) {
-      select.append(new Option(space.name || tr('مساحة بلا اسم','Unnamed workspace'),space.id));
-    }
-    say(tr('تم تحديد مساحة الشركة. يعرض الدليل السجلات الحقيقية المسموح لك بها.','Company selected. Showing only permitted CRM records.'));
-    await loadResults();
-  } catch (_err) {
-    select.replaceChildren(new Option(tr('تسجيل الدخول مطلوب','Sign-in required'),''));
-    say(tr('يلزم تسجيل الدخول إلى BONDS لعرض دليل الجهات. لن تظهر بيانات أي شركة دون جلسة مصرح بها.','Sign in to BONDS to view the directory. Company records require an authorized session.'));
   }
+  const refresh = $('directory-refresh-workspaces');
+  if (refresh) refresh.addEventListener('click', () => { void initialize(); });
+  await initialize();
 })();
