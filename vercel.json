@@ -327,6 +327,14 @@
       "destination": "/api/platform"
     },
     {
+      "source": "/api/campaign-replies",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/campaign-replies/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/campaign-dispatch",
       "destination": "/api/platform"
     },
