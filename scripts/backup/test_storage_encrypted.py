@@ -168,6 +168,16 @@ class StorageInventoryTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 export.list_buckets("https://example.invalid", "fake")
 
+    def test_global_object_count_limit_across_buckets(self):
+        entry_a = {"bucket": "first", "path": "a", "id": "1", "size": 1, "updated_at": None}
+        entry_b = {"bucket": "second", "path": "b", "id": "2", "size": 1, "updated_at": None}
+        with patch.object(export, "MAX_OBJECTS", 1):
+            with patch.object(export, "inventory_bucket",
+                              side_effect=[[entry_a], [entry_b]]):
+                with self.assertRaises(RuntimeError):
+                    export.inventory("https://example.invalid", "fake",
+                                     ["first", "second"])
+
     def test_nested_pagination(self):
         def list_api(url, key, payload):
             prefix, offset = payload["prefix"], payload["offset"]
