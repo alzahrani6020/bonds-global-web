@@ -36,6 +36,7 @@ test('SQLCipher encrypted entire SQLite file persists customer users, records an
   workflow=createCommercialWorkflow({filename,encryptionKey:key,fullDatabaseEncryption:true,getMembership:identity.getMembership});
   const rows=await workflow.search({workspaceId:WID,actorId:user.actor_id,query:'تجريبية'});
   assert.equal(rows.length,1);
-  assert.equal((await workflow.audit({workspaceId:WID,actorId:user.actor_id})).length,1);
+  const audit=await workflow.audit({workspaceId:WID,actorId:user.actor_id});
+  assert.deepEqual(audit.map(event=>event.action),['import.reviewed','database.encrypted_backup']);
  }finally{try{workflow?.close()}catch{}try{identity?.close()}catch{}fs.rmSync(dir,{recursive:true,force:true})}
 });
