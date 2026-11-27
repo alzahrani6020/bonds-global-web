@@ -7,7 +7,7 @@
   function status(message,bad=false){$('status').textContent=message;$('status').classList.toggle('error',bad);}
   function node(tag,content){const el=document.createElement(tag);if(content!==undefined)el.textContent=String(content);return el;}
   function option(value,label){const el=node('option',label);el.value=value;return el;}
-  function setBusy(value){loading=value;for(const id of ['create','refresh','submit','approve','back','cancel','import','bind','connect-mailbox','refresh-mailbox','dispatch','resume-dispatch','refresh-dispatch','preview-import']){$(id).disabled=value;}}
+  function setBusy(value){loading=value;for(const id of ['create','refresh','submit','approve','back','cancel','import','bind','connect-mailbox','refresh-mailbox','dispatch','resume-dispatch','refresh-dispatch','preview-import','sync-replies','refresh-replies']){$(id).disabled=value;}}
   async function session(){
     let auth=window.BondsAuth;
     if(!auth?.getSession){
@@ -120,6 +120,36 @@
     await refreshDispatchStatus();
     status('نتيجة جولة الإرسال: '+accepted+' مؤكدة القبول لدى Zoho؛ '+uncertain+' تحتاج مراجعة. لا يُعاد إرسال الحالات غير المؤكدة تلقائيًا.');
   }
+  async function replyApi(path='',payload){
+    const token=await session();
+    const response=await fetch('/api/campaign-replies'+path,{
+      method:payload?'POST':'GET',cache:'no-store',credentials:'same-origin',
+      headers:{Accept:'application/json',Authorization:'Bearer '+token,...(payload?{'Content-Type':'application/json'}:{})},
+      ...(payload?{body:JSON.stringify(payload)}:{})
+    });
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(result.error||'REPLY_SYNC_UNAVAILABLE');
+    return result;
+  }
+  async function refreshReplies(){
+    if(!activeCampaign)return;
+    try{
+      const result=await replyApi('?campaign_id='+encodeURIComponent(activeCampaign.id));
+      const replies=result.replies||[];
+      $('reply-summary').textContent='ردود مثبتة: '+replies.length+' | مرتبطة بـCRM: '+replies.filter(x=>x.crm_synced_at).length;
+    }catch(e){$('reply-summary').textContent='تعذر تحميل سجل الردود: '+message(e);}
+  }
+  async function synchronizeReplies(){
+    if(!activeCampaign)throw new Error('اختر حملة أولاً');
+    const mailbox_id=$('dispatch-mailbox').value;
+    if(!UUID.test(mailbox_id))throw new Error('اختر صندوق Zoho تابعًا لهذه الشركة');
+    if(!window.confirm('مزامنة الردود الواردة ومطابقتها مع رسائل الحملة الموثقة؟ لن يتم إرسال أي رسالة.'))return;
+    const result=await replyApi('',{action:'sync',campaign_id:activeCampaign.id,mailbox_id});
+    await refreshReplies();
+    status('فُحصت '+(result.scanned||0)+' رسالة؛ ردود متطابقة: '+(result.matched||0)+
+      '؛ محفوظة: '+(result.archived||0)+'؛ مرتبطة بـCRM: '+(result.crm_linked||0)+
+      '؛ تحتاج مراجعة: '+(result.unresolved||0));
+  }
   function message(err){
     const map={AUTH_REQUIRED:'يجب تسجيل الدخول إلى BONDS أولاً.',COMPANY_NOT_FOUND:'ليس لديك وصول لهذه الشركة.',
       CAMPAIGN_BACKEND_NOT_CONFIGURED:'خدمة الحملات غير مهيأة على هذا النشر.',
@@ -145,6 +175,8 @@
     $('dispatch').disabled=loading||state!=='approved'||!UUID.test($('dispatch-mailbox').value);
     $('resume-dispatch').disabled=loading||state!=='running';
     $('refresh-dispatch').disabled=loading||!activeCampaign;
+    $('refresh-replies').disabled=loading||!activeCampaign;
+    $('sync-replies').disabled=loading||!activeCampaign||!UUID.test($('dispatch-mailbox').value);
   }
   async function loadCompanies(){
     const result=await api('?mine=1');
@@ -193,6 +225,7 @@
     }
     renderRecipients(result.recipients||[]);updateActions();
     await refreshDispatchStatus();
+    await refreshReplies();
     status('تم تحميل الحملة من قاعدة البيانات: '+(labels[activeCampaign.status]||activeCampaign.status));
   }
   async function create(){
@@ -273,6 +306,8 @@
     $('dispatch').addEventListener('click',()=>run(startDispatch));
     $('resume-dispatch').addEventListener('click',()=>run(resumeDispatch));
     $('refresh-dispatch').addEventListener('click',()=>run(refreshDispatchStatus));
+    $('refresh-replies').addEventListener('click',()=>run(refreshReplies));
+    $('sync-replies').addEventListener('click',()=>run(synchronizeReplies));
     $('refresh-mailbox').addEventListener('click',()=>run(loadMailboxes));
     $('refresh').addEventListener('click',()=>run(loadCampaigns));
     $('create').addEventListener('click',()=>run(create));
