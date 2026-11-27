@@ -10,14 +10,14 @@ jobs:
   storage:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    env:
-      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
-      BONDS_STORAGE_SERVICE_ROLE_KEY: ${{ secrets.BONDS_STORAGE_SERVICE_ROLE_KEY }}
-      BONDS_BACKUP_AGE_RECIPIENT: ${{ secrets.BONDS_BACKUP_AGE_RECIPIENT }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Guard credentials and project identity without printing
+        env:
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          BONDS_STORAGE_SERVICE_ROLE_KEY: ${{ secrets.BONDS_STORAGE_SERVICE_ROLE_KEY }}
+          BONDS_BACKUP_AGE_RECIPIENT: ${{ secrets.BONDS_BACKUP_AGE_RECIPIENT }}
         shell: bash
         run: |
           set -euo pipefail
@@ -30,6 +30,10 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq age
       - name: Export and encrypt Storage objects
+        env:
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          BONDS_STORAGE_SERVICE_ROLE_KEY: ${{ secrets.BONDS_STORAGE_SERVICE_ROLE_KEY }}
+          BONDS_BACKUP_AGE_RECIPIENT: ${{ secrets.BONDS_BACKUP_AGE_RECIPIENT }}
         run: |
           set -euo pipefail
           umask 077
