@@ -258,6 +258,24 @@ jobs:
               raise SystemExit(1)
           PY
                 ;;
+              docs/BONDS_BACKUP_DISASTER_RECOVERY_ACCEPTANCE.md)
+                # Allow only the reviewed runbook-only architecture block.
+                # Any other edit uses the full visual regression gate.
+                git show "$BASE_SHA:$file" > /tmp/bonds-base-dr-runbook.md || exit 0
+                python3 - <<'PY' || exit 0
+          from pathlib import Path
+          base = Path('/tmp/bonds-base-dr-runbook.md').read_text()
+          head = Path('docs/BONDS_BACKUP_DISASTER_RECOVERY_ACCEPTANCE.md').read_text()
+          marker = '## BONDS production architecture boundaries (verified 2026-11-27)'
+          anchor = '## Read-only operational reference'
+          if marker in base or base.count(anchor) != 1 or head.count(marker) != 1 or head.count(anchor) != 1:
+              raise SystemExit(1)
+          start = head.index(marker)
+          end = head.index(anchor, start)
+          if head != base.replace(anchor, head[start:end] + anchor):
+              raise SystemExit(1)
+          PY
+                ;;
               scripts/backup/archive_encrypted_backup.py|scripts/backup/test_archive_encrypted_backup.py|scripts/backup/check_github_backup_schedule.py|scripts/backup/test_check_github_backup_schedule.py|.github/workflows/bonds-offline-backup-custody-tests.yml|docs/BONDS_BACKUP_DISASTER_RECOVERY_ACCEPTANCE.md)
                 # New disaster-recovery custody-only source, tests, CI and runbook.
                 # This branch does not change any website asset. Enforce these
