@@ -27,11 +27,11 @@ Copy-Item -LiteralPath (Join-Path $package 'package.json') -Destination (Join-Pa
 Copy-Item -LiteralPath $node -Destination (Join-Path $stage 'node.exe')
 Push-Location $stage
 try {
-  & $npm install --omit=dev --ignore-scripts --no-audit --no-fund
+  & $npm install --omit=dev --no-audit --no-fund
   if ($LASTEXITCODE -ne 0) { throw 'DEPENDENCY_INSTALL_FAILED' }
   & (Join-Path $stage 'node.exe') --version
   if ($LASTEXITCODE -ne 0) { throw 'BUNDLED_NODE_FAILED' }
-  & (Join-Path $stage 'node.exe') -e "require('./commercial-server');require('./licensed-commercial-workflow');require('./file-adapters');console.log('LOCAL_MODULE_LOAD_PASS')"
+  & (Join-Path $stage 'node.exe') -e "require('./commercial-server');require('./licensed-commercial-workflow');require('./file-adapters');const db=require('./sqlcipher-driver');if(typeof db.openEncryptedSqlite!=='function')process.exit(3);console.log('LOCAL_MODULE_LOAD_PASS')"
   if ($LASTEXITCODE -ne 0) { throw 'BUNDLED_MODULE_LOAD_FAILED' }
 }
 finally { Pop-Location }
