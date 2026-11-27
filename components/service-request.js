@@ -1821,6 +1821,9 @@ function financialFriendlyField(field, rawLabel, requiredLabel) {
   escapeHtml(isPeriod?(lang==='ar'?'ما الفترة التي تريد تحليلها؟':'Which period do you want to analyze?'):
    (lang==='ar'?'ما الذي تريد معرفته عن الوضع المالي؟':'What do you want to know about the financial position?'))+
   ' <small>('+escapeHtml(requiredLabel)+')</small></label>'+
+  '<select data-financial-choice-for="'+safeKey+'"><option value="">'+escapeHtml(lang==='ar'?'اعرض الخيارات المقترحة':'Browse suggested options')+'</option>'+
+  choices.map(value=>'<option value="'+escapeHtml(value)+'">'+escapeHtml(value)+'</option>').join('')+
+  '<option value="__manual__">'+escapeHtml(lang==='ar'?'إدخال قيمة أخرى يدويًا':'Enter another value manually')+'</option></select>'+
   '<input id="srFriendlyInput_'+safeKey+'" name="'+safeKey+'" list="'+listId+'"'+required+
   ' autocomplete="off" placeholder="'+escapeHtml(isPeriod
     ?(lang==='ar'?'اختر السنة أو اكتب فترة أخرى':'Choose a year or enter another period')
@@ -1882,6 +1885,20 @@ async function renderRequestWorkspaceSelector(){
   select.disabled=true;
   showStatus((lang==='ar'?'تعذر التحقق من مساحات العمل: ':'Cannot verify workspaces: ')+error.message,false);
  }
+}
+function bindFinancialChoiceControls(){
+ const host=$('#srDynamicFields');
+ if(!host)return;
+ host.querySelectorAll('[data-financial-choice-for]').forEach(select=>select.addEventListener('change',()=>{
+  const key=select.dataset.financialChoiceFor;
+  const input=Array.from(host.querySelectorAll('[name]')).find(node=>node.name===key);
+  if(!input)return;
+  if(select.value==='__manual__'){input.focus();return;}
+  if(select.value!==''){
+   input.value=select.value;
+   input.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+ }));
 }
 function renderRequestProfile(){
  const profile=detail?.request_profile;
@@ -1949,6 +1966,7 @@ function render(){
  renderFinancialOperationalInputs();
  renderStudiesOperationalInputs();
  renderFinancialIntake();
+ bindFinancialChoiceControls();
  restoreWorkspaceDraft();
  renderFeasibilityControls();
  bindWorkspaceDraft();
@@ -1976,7 +1994,7 @@ function ensureFinancialGuideStyles(){
  if(document.getElementById('srFinancialGuideStyles'))return;
  const style=document.createElement('style');
  style.id='srFinancialGuideStyles';
- style.textContent="\n/* Guided financial intake: beginner-readable controls without changing field names. */\n.sr-friendly-choice input[list]{width:100%;min-height:48px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice .sr-friendly-help{display:block;margin-top:6px;font-size:.85rem;color:#57657b;line-height:1.6}\n.sr-friendly-notes{padding:12px 14px;border:1px solid #dbe2ec;border-radius:12px;background:#f8fafc}\n.sr-friendly-notes summary{font-weight:700;color:#123050;cursor:pointer}\n.sr-friendly-notes textarea{display:block;width:100%;min-height:88px;margin-top:10px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-review-guide{padding:12px 14px;margin:12px 0;border:1px solid #dbe7f4;border-radius:12px;background:#f5f8fc;line-height:1.8;font-weight:600;color:#18334f}\n.sr-review-group{border:1px solid #d7e0eb;border-radius:14px;margin:12px 0;background:#fff;overflow:hidden}\n.sr-review-group>summary{padding:14px 16px;background:#f8fafc;cursor:pointer;font-weight:800;color:#0d2343}\n.sr-review-group>.sr-intake-table{padding:10px}\n.sr-review-group summary:focus-visible,.sr-friendly-notes summary:focus-visible{outline:3px solid #2563eb;outline-offset:2px}\n@media(max-width:700px){.sr-review-guide{font-size:.88rem}.sr-review-group>.sr-intake-table{padding:6px}}\n";
+ style.textContent="\n/* Guided financial intake: beginner-readable controls without changing field names. */\n.sr-friendly-choice select{width:100%;min-height:48px;margin:8px 0;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice input[list]{width:100%;min-height:48px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice .sr-friendly-help{display:block;margin-top:6px;font-size:.85rem;color:#57657b;line-height:1.6}\n.sr-friendly-notes{padding:12px 14px;border:1px solid #dbe2ec;border-radius:12px;background:#f8fafc}\n.sr-friendly-notes summary{font-weight:700;color:#123050;cursor:pointer}\n.sr-friendly-notes textarea{display:block;width:100%;min-height:88px;margin-top:10px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-review-guide{padding:12px 14px;margin:12px 0;border:1px solid #dbe7f4;border-radius:12px;background:#f5f8fc;line-height:1.8;font-weight:600;color:#18334f}\n.sr-review-group{border:1px solid #d7e0eb;border-radius:14px;margin:12px 0;background:#fff;overflow:hidden}\n.sr-review-group>summary{padding:14px 16px;background:#f8fafc;cursor:pointer;font-weight:800;color:#0d2343}\n.sr-review-group>.sr-intake-table{padding:10px}\n.sr-review-group summary:focus-visible,.sr-friendly-notes summary:focus-visible{outline:3px solid #2563eb;outline-offset:2px}\n@media(max-width:700px){.sr-review-guide{font-size:.88rem}.sr-review-group>.sr-intake-table{padding:6px}}\n";
  document.head.appendChild(style);
 }
 function renderFinancialIntake(){
