@@ -23,7 +23,8 @@
     "table-financial-review.js",
     "local-pdf-ocr.js",
     "tenant-authorization.js",
-    "approved-directory-export.js"
+    "approved-directory-export.js",
+    "commercial-workflow.js"
   ],
   "engines": {
     "node": ">=22"
