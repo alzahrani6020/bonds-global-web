@@ -20,31 +20,31 @@ BEGIN
   has_table_privilege('anon','public.correspondence_campaign_recipients','SELECT') OR
   has_table_privilege('authenticated','public.correspondence_campaign_recipients','SELECT')
  THEN RAISE EXCEPTION 'Campaign table exposed to browser roles'; END IF;
- INSERT INTO public.correspondence_campaigns(id,company_id,created_by,title,kind)
+ INSERT INTO public.correspondence_campaigns(id,workspace_id,created_by,title,kind)
  VALUES(c,a,u,'Clix investor campaign','investment');
- INSERT INTO public.correspondence_campaign_recipients(id,campaign_id,company_id,email,organization)
+ INSERT INTO public.correspondence_campaign_recipients(id,campaign_id,workspace_id,email,organization)
  VALUES(r,c,a,'investor@example.com','Investor');
  IF (SELECT count(*) FROM public.correspondence_campaign_recipients WHERE campaign_id=c)<>1
  THEN RAISE EXCEPTION 'Campaign recipient not persisted'; END IF;
  rejected:=false;
  BEGIN
-  INSERT INTO public.correspondence_campaign_recipients(campaign_id,company_id,email,organization)
+  INSERT INTO public.correspondence_campaign_recipients(campaign_id,workspace_id,email,organization)
   VALUES(c,b,'cross@example.com','Cross tenant');
  EXCEPTION WHEN foreign_key_violation THEN rejected:=true;
  END;
  IF NOT rejected THEN RAISE EXCEPTION 'Cross-company campaign recipient accepted'; END IF;
  rejected:=false;
  BEGIN
-  INSERT INTO public.correspondence_campaign_recipients(campaign_id,company_id,email,organization)
+  INSERT INTO public.correspondence_campaign_recipients(campaign_id,workspace_id,email,organization)
   VALUES(c,a,'INVESTOR@example.com','Duplicate');
  EXCEPTION WHEN unique_violation THEN rejected:=true;
  END;
  IF NOT rejected THEN RAISE EXCEPTION 'Duplicate campaign recipient accepted'; END IF;
  rejected:=false;
  BEGIN
-  INSERT INTO public.correspondence_campaign_recipients(campaign_id,company_id,email,organization,document_id)
+  INSERT INTO public.correspondence_campaign_recipients(campaign_id,workspace_id,email,organization,document_id)
   VALUES(c,a,'other@example.com','Other','44444444-4444-4444-8444-444444444444');
-  INSERT INTO public.correspondence_campaign_recipients(campaign_id,company_id,email,organization,document_id)
+  INSERT INTO public.correspondence_campaign_recipients(campaign_id,workspace_id,email,organization,document_id)
   VALUES(c,a,'second@example.com','Second','44444444-4444-4444-8444-444444444444');
  EXCEPTION WHEN unique_violation THEN rejected:=true;
  END;
@@ -67,28 +67,28 @@ BEGIN
   has_table_privilege('authenticated','public.correspondence_mailboxes','SELECT') OR
   has_table_privilege('anon','public.correspondence_campaign_dispatch_jobs','SELECT')
  THEN RAISE EXCEPTION 'Secrets/queue accessible to browser role'; END IF;
- INSERT INTO public.correspondence_mailboxes(id,company_id,address,account_id,region,encrypted_refresh_token,connected_by)
+ INSERT INTO public.correspondence_mailboxes(id,workspace_id,address,account_id,region,encrypted_refresh_token,connected_by)
  VALUES(m,a,'info@bonds-global.com','123456789','com','encrypted-test-only',u);
  rejected:=false;
  BEGIN
-  INSERT INTO public.correspondence_mailboxes(company_id,address,account_id,region,encrypted_refresh_token,connected_by)
+  INSERT INTO public.correspondence_mailboxes(workspace_id,address,account_id,region,encrypted_refresh_token,connected_by)
   VALUES(b,'INFO@BONDS-GLOBAL.COM','987654321','com','encrypted-test-only',u);
  EXCEPTION WHEN unique_violation THEN rejected:=true;
  END;
  IF NOT rejected THEN RAISE EXCEPTION 'Sender identity shared by two tenants'; END IF;
  INSERT INTO public.correspondence_campaign_dispatch_jobs
- (campaign_id,company_id,recipient_id,document_id,mailbox_id,issued_hash,idempotency_key)
+ (campaign_id,workspace_id,recipient_id,document_id,mailbox_id,issued_hash,idempotency_key)
  VALUES(c,a,r,'44444444-4444-4444-8444-444444444444',m,repeat('a',64),repeat('b',64));
  IF (SELECT count(*) FROM public.correspondence_campaign_dispatch_jobs WHERE campaign_id=c)<>1
  THEN RAISE EXCEPTION 'Dispatch job not persisted'; END IF;
- INSERT INTO public.correspondence_documents(id,company_id,status)
- VALUES('88888888-8888-4888-8888-888888888888',a,'issued');
- INSERT INTO public.correspondence_campaign_recipients(id,campaign_id,company_id,email,organization)
+ INSERT INTO public.correspondence_documents(id,owner_user_id,workspace_context,status)
+ VALUES('88888888-8888-4888-8888-888888888888',u,jsonb_build_object('campaign_workspace_id',a::text),'issued');
+ INSERT INTO public.correspondence_campaign_recipients(id,campaign_id,workspace_id,email,organization)
  VALUES('99999999-9999-4999-8999-999999999999',c,a,'separate@example.com','Separate');
  rejected:=false;
  BEGIN
   INSERT INTO public.correspondence_campaign_dispatch_jobs
-  (campaign_id,company_id,recipient_id,document_id,mailbox_id,issued_hash,idempotency_key)
+  (campaign_id,workspace_id,recipient_id,document_id,mailbox_id,issued_hash,idempotency_key)
   VALUES(c,b,'99999999-9999-4999-8999-999999999999','88888888-8888-4888-8888-888888888888',m,repeat('a',64),repeat('c',64));
  EXCEPTION WHEN foreign_key_violation THEN rejected:=true;
  END;
