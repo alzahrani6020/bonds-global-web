@@ -1784,11 +1784,57 @@ function showStatus(msg,ok){
 }
 function contextQuery(){const p=new URLSearchParams();for(const k of ['country','sector','activity']){const v=params.get(k);if(v)p.set(k,v)}return p.toString()}
 function renderList(id,items,fn){const el=$(id);if(!el)return;el.innerHTML=items.length?'<ul class="sr-list">'+items.map(fn).join('')+'</ul>':'<div class="sr-empty">—</div>'}
+// Use accessible suggestion lists without changing the server field keys or
+// restricting previously entered values. This covers both API form schemas.
+function financialFriendlyField(field, rawLabel, requiredLabel) {
+ if(serviceCode!=='financial_analysis')return null;
+ const key=String(field.field_key||'');
+ const label=String(rawLabel||'');
+ const normalized=label.toLowerCase().replace(/\s+/g,' ').trim();
+ const isPeriod=/(الفترة محل التحليل|سنة التحليل|analysis period|period under analysis|financial period)/i.test(normalized) ||
+  /^(analysis_period|financial_period|period_under_analysis|reporting_period)$/.test(key);
+ const isGoal=/(هدف التحليل|الغرض من التحليل|analysis (goal|objective|purpose)|purpose of analysis)/i.test(normalized) ||
+  /^(analysis_goal|analysis_objective|analysis_purpose|financial_analysis_goal)$/.test(key);
+ const isNotes=/(ملاحظات إضافية|ملاحظات اخرى|additional notes|other notes)/i.test(normalized) ||
+  /^(additional_notes|analysis_notes)$/.test(key);
+ if(!isPeriod&&!isGoal&&!isNotes)return null;
+ const safeKey=escapeHtml(key);
+ const required=field.is_required?' required':'';
+ const desc=(isPeriod
+  ?(lang==='ar'?'اختر السنة أو اكتب الفترة كما تظهر في القوائم المالية.':'Select a year or enter the reporting period as shown in your statements.')
+  :(lang==='ar'?'اختر الهدف الأقرب، ويمكنك كتابة هدف آخر.':'Select a goal or type a different one.'));
+ if(isNotes && !field.is_required){
+  return '<details class="sr-friendly-notes sr-field full"><summary>'+
+   (lang==='ar'?'تفاصيل أو تعليمات إضافية (اختياري)':'Additional details or instructions (optional)')+
+   '</summary><label for="srFriendlyNotes_'+safeKey+'">'+escapeHtml(label)+'</label>'+
+   '<textarea id="srFriendlyNotes_'+safeKey+'" name="'+safeKey+'" rows="3" placeholder="'+
+   escapeHtml(lang==='ar'?'اكتب أي أمر خاص تريد مراعاته في التحليل':'Any special context for the analysis')+
+   '"></textarea></details>';
+ }
+ const choices=isPeriod
+  ?Array.from({length:12},(_,i)=>String(new Date().getFullYear()+1-i))
+  :(lang==='ar'
+   ?['تحليل مالي شامل','تحليل المركز المالي والسيولة','تحليل الإيرادات والأرباح','تحليل التدفقات النقدية','تقييم الملاءة والقدرة على السداد','مقارنة الأداء المالي بين الفترات']
+   :['Comprehensive financial analysis','Financial position and liquidity','Revenue and profitability','Cash flow analysis','Solvency and debt capacity','Period-on-period comparison']);
+ const listId='srFriendlyOptions_'+safeKey;
+ return '<div class="sr-field sr-friendly-choice"><label for="srFriendlyInput_'+safeKey+'">'+
+  escapeHtml(isPeriod?(lang==='ar'?'ما الفترة التي تريد تحليلها؟':'Which period do you want to analyze?'):
+   (lang==='ar'?'ما الذي تريد معرفته عن الوضع المالي؟':'What do you want to know about the financial position?'))+
+  ' <small>('+escapeHtml(requiredLabel)+')</small></label>'+
+  '<input id="srFriendlyInput_'+safeKey+'" name="'+safeKey+'" list="'+listId+'"'+required+
+  ' autocomplete="off" placeholder="'+escapeHtml(isPeriod
+    ?(lang==='ar'?'اختر السنة أو اكتب فترة أخرى':'Choose a year or enter another period')
+    :(lang==='ar'?'اختر من المقترحات أو اكتب هدفك':'Choose a suggestion or enter your goal'))+'">'+
+  '<datalist id="'+listId+'">'+choices.map(value=>'<option value="'+escapeHtml(value)+'"></option>').join('')+
+  '</datalist><small class="sr-friendly-help">'+escapeHtml(desc)+'</small></div>';
+}
 function renderRequestProfileField(field){
  const key=escapeHtml(field.field_key),label=escapeHtml(lang==='ar'?(field.label_ar||field.label_en||field.field_key):(field.label_en||field.label_ar||field.field_key));
  const req=field.is_required?' required':'';
  const reqLabel=field.is_required?T.required:T.optional;
  const placeholder=escapeHtml(lang==='ar'?(field.placeholder_ar||''):(field.placeholder_en||''));
+ const friendly=financialFriendlyField(field,label,reqLabel);
+ if(friendly)return friendly;
  if(field.field_type==='textarea')return '<div class="sr-field full"><label>'+label+' <small>('+reqLabel+')</small></label><textarea name="'+key+'"'+req+' placeholder="'+placeholder+'"></textarea></div>';
  return '<div class="sr-field"><label>'+label+' <small>('+reqLabel+')</small></label><input type="text" name="'+key+'"'+req+' placeholder="'+placeholder+'"></div>';
 }
@@ -1857,6 +1903,8 @@ function renderRequestProfile(){
 
 function renderField(field){
  const key=escapeHtml(field.field_key),label=escapeHtml(text(field,'label_ar','label_en')),req=field.is_required?' required':'',reqLabel=field.is_required?T.required:T.optional;
+ const friendly=financialFriendlyField(field,text(field,'label_ar','label_en'),reqLabel);
+ if(friendly)return friendly;
  if(field.field_type==='section')return '<div class="sr-field full"><h3>'+label+'</h3></div>';
  if(field.field_type==='instruction')return '<div class="sr-field full sr-field-info">'+label+'</div>';
  if(field.field_type==='file'&&!isServiceWorkspace)return '<div class="sr-field full"><label>'+label+'</label><div class="sr-muted">'+(lang==='ar'?'تُطلب المرفقات بعد تقديم الطلب ومراجعته؛ لا يلزم رفعها قبل إرسال البيانات.':'Attachments are requested after the initial intake is reviewed; no upload is required before submitting the form.')+'</div></div>';
