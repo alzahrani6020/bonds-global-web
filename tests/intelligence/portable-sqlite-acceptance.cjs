@@ -49,6 +49,19 @@ test('CSV file bytes to explicit review to SQLite readback',async()=>{
   store.close();
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+test('database-level audit failure rolls back already inserted records',async()=>{
+ const {DatabaseSync}=require('node:sqlite');
+ const {store,filename,dir}=setup();
+ try{
+  const adminDb=new DatabaseSync(filename);
+  adminDb.exec("CREATE TRIGGER reject_import_audit BEFORE INSERT ON import_audit BEGIN SELECT RAISE(ABORT,'AUDIT_BLOCKED'); END;");
+  adminDb.close();
+  await assert.rejects(store.commit({workspaceId:A,actorId:'alice',action:'import.reviewed',entries:[{record:{type:'organization',name:'Must Roll Back'},source:{filename:'x.csv'}}]}),/AUDIT_BLOCKED/);
+  assert.equal((await store.list({workspaceId:A,actorId:'alice'})).length,0);
+  assert.equal((await store.listAudit({workspaceId:A,actorId:'alice'})).length,0);
+  store.close();
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
 test('invalid import batch rejects all inserts and creates no audit row',async()=>{
  const {store,dir}=setup();
  try{
