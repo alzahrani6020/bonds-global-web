@@ -139,4 +139,91 @@ describe('financial-analysis dated columns - source anchored comparisons',()=>{
   expect(d.values).toMatchObject({current_assets:400000,current_liabilities:200000});
   expect(d.requirement_fields).not.toContain('prior_revenue');
  });
+ test('RTL PDF text items split labels and amounts into consecutive lines across three financial statements',()=>{
+  // Synthetic amounts in the same RTL structure as a three-page WeasyPrint statement.
+  const parsed={text:[
+   'البيان','30 2026 سبتمبر','31 2025 ديسمبر',
+   'حكمه في وما النقد','923,456.78','350,000.00',
+   'المتداولة الموجودات مجموع','1,550,000.00','816,000.00',
+   'المتداولة الالتزامات مجموع','700,000.00','53,000.00',
+   'الموجودات مجموع','2,250,000.00','1,650,000.00',
+   'الالتزامات مجموع','900,000.00','120,000.00',
+   'الملكية حقوق مجموع','1,350,000.00','1,530,000.00',
+   '\f','قائمة الدخل',
+   'البيان','30 2026 سبتمبر','31 2025 ديسمبر',
+   'الإيرادات','4,600,000.00','3,700,000.00',
+   'تكلفة الإيرادات',')(3,600,000.00',')(2,100,000.00',
+   'صافي الربح بعد الزكاة','636,000.00','994,000.00',
+   '\f','قائمة التدفقات النقدية',
+   'البيان','30 2026 سبتمبر','31 2025 ديسمبر',
+   'صافي النقد الناتج من الأنشطة التشغيلية','1,001,000.00','627,000.00'
+  ].join('\n')};
+  const result=extractFinancialFields({
+   parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(result.values).toMatchObject({
+   cash:923456.78,current_assets:1550000,current_liabilities:700000,
+   total_assets:2250000,total_liabilities:900000,equity:1350000,
+   revenue:4600000,prior_revenue:3700000,cogs:3600000,
+   net_income:636000,prior_net_income:994000,operating_cash_flow:1001000
+  });
+  expect(result.fields.find(f=>f.field==='revenue')).toMatchObject({
+   status:'extracted_multi_period',period:'2026',
+   period_values:{'2025':3700000,'2026':4600000}
+  });
+  expect(result.fields.find(f=>f.field==='operating_cash_flow').source[0]).toMatchObject({
+   extraction_method:'text_parser',period:'2026'
+  });
+ });
+ test('RTL PDF layout with the description at the far right keeps year-column association',()=>{
+  const parsed={text:[
+   'ديسمبر 31 2025 سبتمبر 30 2026 البيان',
+   '350,000.00 923,456.78 النقد وما في حكمه',
+   '3,700,000.00 4,600,000.00 الإيرادات',
+   '53,000.00 700,000.00 مجموع الالتزامات المتداولة',
+   '816,000.00 1,550,000.00 مجموع الموجودات المتداولة'
+  ].join('\n')};
+  const result=extractFinancialFields({
+   parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(result.values).toMatchObject({
+   cash:923456.78,revenue:4600000,prior_revenue:3700000,
+   current_assets:1550000,current_liabilities:700000
+  });
+  expect(result.fields.find(f=>f.field==='revenue').period_values).toEqual({
+   '2025':3700000,'2026':4600000
+  });
+ });
+ test('PDF text layout without an explicit year header keeps values ambiguous',()=>{
+  const result=extractFinancialFields({
+   parsed:{text:'الإيرادات\n4,600,000.00\n3,700,000.00'},
+   primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(result.values.revenue).toBeUndefined();
+  expect(result.fields.find(f=>f.field==='revenue').status).toBe('conflict');
+ });
+ test('PDF text layout missing the 2026 cell cannot borrow the 2025 amount',()=>{
+  const result=extractFinancialFields({
+   parsed:{text:'البيان\n30 2026 سبتمبر\n31 2025 ديسمبر\nالإيرادات\n—\n3,700,000.00'},
+   primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(result.values.revenue).toBeUndefined();
+ });
+ test('PDF table with field name at the final RTL column retains source years',()=>{
+  const result=extractFinancialFields({
+   parsed:{sheets:[{name:'PDF page 2 table 1',page:2,rows:[
+    ['31 ديسمبر 2025','30 سبتمبر 2026','البيان'],
+    [3700000,4600000,'الإيرادات'],
+    [994000,636000,'صافي الربح بعد الزكاة']
+   ]}]},primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'
+  });
+  expect(result.values).toMatchObject({
+   revenue:4600000,prior_revenue:3700000,
+   net_income:636000,prior_net_income:994000
+  });
+  expect(result.fields.find(f=>f.field==='revenue').source[0]).toMatchObject({
+   sheet:'PDF page 2 table 1',page:2,period:'2026',column:2
+  });
+ });
+
 });
