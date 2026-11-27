@@ -2190,8 +2190,17 @@ function renderIntakeReview(payload){
  };
  const issueText=financialIssues.length?'<div class="sr-intake-warning" role="alert">'+
    financialIssues.map(issue=>escapeHtml(issueNames[issue.code]||issue.code)).join(' ؛ ')+'</div>':'';
+ const warnings=Array.isArray(payload?.validation?.warnings)?payload.validation.warnings:[];
+ const warningNames={
+  FINANCIAL_SOURCE_UNVERIFIED:lang==='ar'?'المصدر يوضح أن الأرقام غير مثبتة أو غير معتمدة؛ التقرير تحليلي وليس تقرير تدقيق.':'The source states figures are unverified or unaudited; analysis is not an audit.',
+  COMPARATIVE_PERIOD_DURATION_MISMATCH:lang==='ar'?'فترة التحليل تسعة أشهر وفترة المقارنة سنة كاملة؛ استُبعد حساب النمو حتى تتوفر فترتان متماثلتان.':'Nine months versus a full year: growth rates are excluded until periods are comparable.',
+  PERIOD_MISMATCH:lang==='ar'?'توجد فترات مختلفة؛ تحقق من تاريخ كل قيمة.':'Different reporting periods detected.',
+  CURRENCY_MISMATCH:lang==='ar'?'توجد عملات مختلفة؛ لا تجمعها دون تحويل موثق.':'Different currencies cannot be combined without documented conversion.'
+ };
+ const warningText=warnings.filter(item=>warningNames[item.code]).map(item=>warningNames[item.code]);
+ const evidenceWarnings=warningText.length?'<div class="sr-intake-warning" role="note">'+warningText.map(escapeHtml).join(' ؛ ')+'</div>':'';
 
- const unresolvedStatus=new Set(['missing','conflict','multi_period']);
+ const unresolvedStatus=new Set(['missing','conflict','multi_period','not_comparable']);
  const confirmed=fields.filter(field=>!unresolvedStatus.has(field.status) && field.value!==null && field.value!==undefined);
  const unresolved=fields.filter(field=>unresolvedStatus.has(field.status) || field.value===null || field.value===undefined);
  const orderedFields=[...confirmed,...unresolved]; // Preserves the original extraction order within each status group.
@@ -2208,7 +2217,7 @@ function renderIntakeReview(payload){
  host.innerHTML='<div class="sr-intake-review-title">'+escapeHtml(T.review)+'</div>'+
    '<p class="sr-muted" role="status">'+escapeHtml(summary)+'</p>'+
    '<p class="sr-muted">'+escapeHtml(note)+'</p>'+
-   issueText+
+   issueText+evidenceWarnings+
    (serviceCode==='financial_analysis'
      ?'<div class="sr-review-guide" role="note">'+escapeHtml(lang==='ar'?'1. ارفع الملف  ·  2. راجع الأرقام التي قرأها النظام  ·  3. تأكد من البنود غير الواضحة  ·  4. أنشئ التقرير':'1. Upload  ·  2. Review extracted figures  ·  3. Resolve uncertain items  ·  4. Generate report')+'</div>'
      :'')+
