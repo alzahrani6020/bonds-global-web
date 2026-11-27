@@ -8,12 +8,15 @@ import io
 import json
 import os
 from pathlib import Path
+from unittest.mock import patch
 import subprocess
 import tarfile
 import tempfile
 import unittest
 
 import check_storage_db_alignment as alignment
+import export_storage_encrypted as storage_export
+import verify_storage_restored as storage_verify
 
 ROOT = Path(__file__).resolve().parents[2]
 SQL = ROOT / "scripts/backup/export_isolated_storage_metadata.sql"
@@ -98,6 +101,52 @@ class DisposablePostgreSQLIntegration(unittest.TestCase):
         build_archive(self.archive, size=len(DATA) + 1)
         with self.assertRaises(ValueError):
             alignment.compare(self.archive, self.inventory)
+
+    def test_full_storage_age_roundtrip_matches_actual_isolated_postgresql(self):
+        """One chained gate: mocked Storage HTTP -> real AGE -> files -> real PG."""
+        identity = Path(self.tmp.name) / "age-identity.txt"
+        subprocess.run(["age-keygen", "-o", str(identity)], check=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        recipient = next(line.split(": ", 1)[1] for line in identity.read_text().splitlines()
+                         if line.startswith("# public key: age1"))
+        ciphertext = Path(self.tmp.name) / "storage.tar.age"
+        plaintext = Path(self.tmp.name) / "storage-decrypted.tar"
+        restored = Path(self.tmp.name) / "restored"
+
+        def fake_urlopen(req, timeout=None):
+            url = req.full_url
+            if "/storage/v1/bucket?" in url:
+                return io.BytesIO(json.dumps([
+                    {"id": "avatars"}, {"id": "empty-bucket"}]).encode())
+            if "/storage/v1/object/list/" in url:
+                prefix = json.loads(req.data.decode())["prefix"]
+                if url.endswith("/avatars"):
+                    if prefix == "":
+                        payload = [{"name": "private", "id": None}]
+                    elif prefix == "private/":
+                        payload = [{"name": "sample.txt", "id": OBJ_ID,
+                                    "metadata": {"size": len(DATA)}}]
+                    else:
+                        raise AssertionError("unexpected folder prefix")
+                elif url.endswith("/empty-bucket"):
+                    payload = []
+                else:
+                    raise AssertionError("unexpected bucket URL")
+                return io.BytesIO(json.dumps(payload).encode())
+            if "/storage/v1/object/authenticated/avatars/private/sample.txt" in url:
+                return io.BytesIO(DATA)
+            raise AssertionError("unknown mock Storage endpoint")
+
+        with patch.object(storage_export, "urlopen", side_effect=fake_urlopen):
+            storage_export.produce("https://mock.invalid", "synthetic-key",
+                                   recipient, ciphertext, "1234")
+        subprocess.run(["age", "-d", "-i", str(identity), "-o",
+                        str(plaintext), str(ciphertext)], check=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        storage_verify.verify(plaintext, restored)
+        self.assertEqual((restored / "avatars/private/sample.txt").read_bytes(), DATA)
+        self.assertEqual(alignment.compare(plaintext, self.inventory),
+                         {"status": "PASS", "buckets": 2, "objects": 1})
 
     def test_sql_export_refuses_other_database(self):
         wrong = self.url.rsplit("/", 1)[0] + "/postgres"
