@@ -2,8 +2,8 @@ name: BONDS Backup Freshness and Retention Watchdog
 
 on:
   schedule:
-    # Every 3 hours at minute 15 UTC; does not start production backups.
-    - cron: '15 0,3,6,9,12,15,18,21 * * *'
+    # Every 3 hours at minute 35 UTC; gives the 00:07 UTC daily backup time to finish.
+    - cron: '35 0,3,6,9,12,15,18,21 * * *'
   workflow_dispatch:
     inputs:
       simulate_missing_backup:
