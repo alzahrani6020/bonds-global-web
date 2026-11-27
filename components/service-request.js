@@ -2141,8 +2141,19 @@ function financialReviewSuggestion(field, fields){
 }
 function renderIntakeReviewField(field, allFields){
  const derived=field.status==='derived';
+ const statusNames=lang==='ar'?{
+  extracted:'مستخرج من الملف',extracted_multi_period:'مستخرج من فترات متعددة',
+  extracted_comparative:'مستخرج من فترة المقارنة',missing:'لم يعثر على قيمة مؤكدة',
+  conflict:'قيم متعارضة تحتاج اختيارًا',multi_period:'فترات متعددة تحتاج تحديدًا',
+  corrected:'معدل يدويًا',selected_from_source:'مختار من الملف',not_comparable:'فترة مقارنة غير متماثلة'
+ }:{
+  extracted:'Extracted',extracted_multi_period:'Comparative figures',
+  extracted_comparative:'Prior period',missing:'Missing',conflict:'Conflicting candidates',
+  multi_period:'Choose reporting period',corrected:'Manually corrected',
+  selected_from_source:'Selected from source',not_comparable:'Incomparable reporting period'
+ };
  const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
-  field.status==='missing'?(intakeMode==='file'?(lang==='ar'?'لم يُستخرج من الملف':'Not extracted from document'):T.missing):(field.status==='conflict'?T.conflict:field.status||'');
+  statusNames[field.status]||field.status||'';
  const current=field.value??'';
  const candidates=(Array.isArray(field.candidates)?field.candidates:[]).map((item,index)=>{
   if(item&&typeof item==='object')return {index,value:item.value,period:item.period||'',currency:item.currency||field.currency||'',source:item.source||''};
@@ -2184,6 +2195,10 @@ function renderIntakeReview(payload){
  const confirmed=fields.filter(field=>!unresolvedStatus.has(field.status) && field.value!==null && field.value!==undefined);
  const unresolved=fields.filter(field=>unresolvedStatus.has(field.status) || field.value===null || field.value===undefined);
  const orderedFields=[...confirmed,...unresolved]; // Preserves the original extraction order within each status group.
+ const mandatory=new Set([...(Array.isArray(payload?.missing_fields)?payload.missing_fields:[]),
+  ...(Array.isArray(payload?.validation?.unresolved)?payload.validation.unresolved.map(item=>item.field):[])]);
+ const critical=unresolved.filter(field=>mandatory.has(field.field));
+ const supplemental=unresolved.filter(field=>!mandatory.has(field.field));
  const summary=(lang==='ar'
    ?'قيم مستخرجة: '+confirmed.length+' | بنود لم يُتحقق منها: '+unresolved.length
    :'Extracted values: '+confirmed.length+' | Unverified fields: '+unresolved.length);
@@ -2199,11 +2214,14 @@ function renderIntakeReview(payload){
      :'')+
    (serviceCode==='financial_analysis'
      ?[
-        '<details class="sr-review-group" open><summary>'+escapeHtml(lang==='ar'?'الأرقام التي تم التعرف عليها':'Recognized figures')+' ('+confirmed.length+')</summary><div class="sr-intake-table">',
-        ...confirmed.map(field=>renderIntakeReviewField(field,fields)),
+        '<details class="sr-review-group"'+(critical.length?' open':'')+'><summary>'+escapeHtml(lang==='ar'?'المطلوب لإكمال التحليل':'Needed to complete the analysis')+' ('+critical.length+')</summary><div class="sr-intake-table">',
+        ...critical.map(field=>renderIntakeReviewField(field,fields)),
         '</div></details>',
-        '<details class="sr-review-group"'+(unresolved.length?' open':'')+'><summary>'+escapeHtml(lang==='ar'?'أرقام تحتاج مراجعتك':'Figures needing your review')+' ('+unresolved.length+')</summary><div class="sr-intake-table">',
-        ...unresolved.map(field=>renderIntakeReviewField(field,fields)),
+        '<details class="sr-review-group"><summary>'+escapeHtml(lang==='ar'?'بيانات إضافية لتحليل أعمق':'Optional advanced-analysis figures')+' ('+supplemental.length+')</summary><div class="sr-intake-table">',
+        ...supplemental.map(field=>renderIntakeReviewField(field,fields)),
+        '</div></details>',
+        '<details class="sr-review-group"><summary>'+escapeHtml(lang==='ar'?'أرقام استخرجت من الملف':'Figures extracted from the file')+' ('+confirmed.length+')</summary><div class="sr-intake-table">',
+        ...confirmed.map(field=>renderIntakeReviewField(field,fields)),
         '</div></details>'
        ].join('')
      :'<div class="sr-intake-table">'+orderedFields.map(field=>renderIntakeReviewField(field,fields)).join('')+'</div>');
