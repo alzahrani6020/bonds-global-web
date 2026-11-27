@@ -52,3 +52,19 @@ Run `node --test tests/intelligence/portable-sqlite-acceptance.cjs` from the rep
 ## Local acceptance for backup and license verifier
 
 Run `node --test tests/intelligence/portable-backup-license.acceptance.cjs` from repository root. This covers encrypted SQLite backup/readback, wrong password, tampering, overwrite refusal, and tenant-scoped signed license validation. These are isolated fixtures only. The live SQLite database remains unencrypted, the backup process requires complete shutdown, and the verifier is not a full licensing platform.
+
+## Integrated commercial workflow (review-only)
+
+`commercial-workflow.js` connects existing components without touching BONDS SaaS:
+`analyze -> prepareEntityReview (unstructured sources) -> duplicates -> approve -> SQLite -> search / update -> exportDirectory`.
+
+- `createCommercialWorkflow({filename,getMembership,ocr})` requires a **trusted, server-side** membership resolver. The caller must authenticate `actorId` outside this library; accepting a client-supplied actor ID would defeat tenant isolation.
+- `analyze({workspaceId,actorId,file,defaultType})` requires `documents.write` and never saves candidates.
+- `prepareEntityReview(...)` prepares a proposed record; fields not supported by extraction require a reviewer's explicit entry. The reviewer must submit the resulting proposal through `approve`.
+- `approve(...)` checks `import.reviewed`, requires selected records, blocks duplicates by default, uses the original review gate and commits records and audit atomically. Duplicate checks are a preflight, **not a concurrency-safe unique database constraint**.
+- `list/search/update` are scoped to a workspace and enforce `records.read` / `records.write`. Every update writes an audit event within the same transaction.
+- `exportDirectory` checks explicit `crm.export`, `correspondence.directory.export` or `hr.directory.export` permission, rechecks every record's workspace, and emits **destination intents only**. It does not deliver email, create HR employees, or write into destination systems.
+- `close()` must be called by the host. The current SQLite DB is **unencrypted** and the host authentication integration is not supplied.
+- These are source-level integration interfaces, **not** an authenticated Windows installer or a complete commercial release. Production authorization, licensing enforcement, encryption at rest, operational backup/restore, destination adapter authorization, and real multi-user E2E remain separate acceptance gates.
+
+Integration contract test: `npx jest tests/intelligence/portable-commercial-workflow.test.js --runInBand` from repository root.
