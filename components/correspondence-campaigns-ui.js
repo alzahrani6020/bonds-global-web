@@ -7,7 +7,7 @@
   function status(message,bad=false){$('status').textContent=message;$('status').classList.toggle('error',bad);}
   function node(tag,content){const el=document.createElement(tag);if(content!==undefined)el.textContent=String(content);return el;}
   function option(value,label){const el=node('option',label);el.value=value;return el;}
-  function setBusy(value){loading=value;for(const id of ['create','refresh','submit','approve','back','cancel','import','bind','connect-mailbox','refresh-mailbox','dispatch','resume-dispatch','refresh-dispatch']){$(id).disabled=value;}}
+  function setBusy(value){loading=value;for(const id of ['create','refresh','submit','approve','back','cancel','import','bind','connect-mailbox','refresh-mailbox','dispatch','resume-dispatch','refresh-dispatch','preview-import']){$(id).disabled=value;}}
   async function session(){
     let auth=window.BondsAuth;
     if(!auth?.getSession){
@@ -195,6 +195,37 @@
     const result=await api('',{action:'create',workspace_id:c,title:$('title').value,kind:$('kind').value,description:$('description').value});
     await loadCampaigns();await openCampaign(result.campaign.id);
   }
+  function fileMime(file){
+    const ext=String(file.name||'').toLowerCase().split('.').pop();
+    return {xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      xls:'application/vnd.ms-excel',csv:'text/csv',pdf:'application/pdf'}[ext]||'';
+  }
+  async function fileBase64(file){
+    return new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onerror=()=>reject(new Error('تعذرت قراءة الملف.'));
+      reader.onload=()=>{const value=String(reader.result||'');const comma=value.indexOf(',');
+        if(comma<0)return reject(new Error('ملف غير صالح'));resolve(value.slice(comma+1));};
+      reader.readAsDataURL(file);
+    });
+  }
+  async function previewImport(){
+    if(!UUID.test($('company').value))throw new Error('اختر مساحة عمل قبل الاستيراد.');
+    const file=$('import-file').files?.[0];
+    if(!file)throw new Error('اختر ملف Excel أو CSV أو PDF.');
+    if(file.size>2*1024*1024||file.size===0)throw new Error('حجم الملف يجب ألا يتجاوز 2 ميجابايت.');
+    const mime=fileMime(file);if(!mime)throw new Error('نوع الملف غير مدعوم.');
+    const file_base64=await fileBase64(file);
+    const result=await api('',{action:'preview_import',workspace_id:$('company').value,mime,filename:file.name,file_base64});
+    const candidates=result.candidates||[];
+    $('import-summary').textContent='تم استخراج '+candidates.length+' جهة للمراجعة. بيانات غير صالحة/مكررة: '+(result.rejected||[]).length+'. يلزم فحص الأسماء والبريد قبل الإضافة.';
+    if(!candidates.length)return;
+    const existing=$('recipient-lines').value.trim();
+    const rows=candidates.map(x=>x.organization+', '+x.email).join('\n');
+    if(existing&&!window.confirm('يوجد محتوى في قائمة المستلمين. هل تريد استبداله بنتائج الملف؟'))return;
+    $('recipient-lines').value=rows;
+    status('عرض معاينة المستلمين فقط. راجع البيانات يدويًا قبل الضغط على إضافة المستلمين.');
+  }
   function parseRecipients(text){
     const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
     if(lines.length<1||lines.length>250)throw new Error('أدخل من 1 إلى 250 مستلمًا في الدفعة');
@@ -241,6 +272,7 @@
     $('refresh').addEventListener('click',()=>run(loadCampaigns));
     $('create').addEventListener('click',()=>run(create));
     $('import').addEventListener('click',()=>run(importRecipients));
+    $('preview-import').addEventListener('click',()=>run(previewImport));
     $('bind').addEventListener('click',()=>run(bind));
     for(const id of ['submit','approve','back','cancel'])$(id).addEventListener('click',()=>run(()=>transition(id==='back'?'return':id)));
     run(async()=>{await loadCompanies();status('المركز جاهز لإنشاء الحملات. الإرسال الجماعي يتطلب ربط بريد موثق.');});
