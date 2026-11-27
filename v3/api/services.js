@@ -736,6 +736,26 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
       }
     }
     const previous = Object.prototype.hasOwnProperty.call(reviewed, field) ? reviewed[field] : null;
+    const priorField = fieldMap.get(field);
+    if (selectedCandidate && (
+      priorField?.period !== (selectedCandidate.period || null) ||
+      priorField?.currency !== (selectedCandidate.currency || priorField?.currency || null) ||
+      priorField?.status !== 'selected_from_source'
+    )) {
+      valuesChanged = true;
+      overrides.push({
+        field,
+        original_extracted_value: Object.prototype.hasOwnProperty.call(dataset.extracted_values || {}, field)
+          ? dataset.extracted_values[field] : null,
+        previous_reviewed_value:previous,
+        corrected_value:value,
+        method:'candidate_selection',
+        candidate_index:selectedIndex,
+        selected_period:selectedCandidate.period || null,
+        selected_currency:selectedCandidate.currency || priorField?.currency || null,
+        at:now
+      });
+    }
     reviewed[field] = value;
     if (JSON.stringify(previous) !== JSON.stringify(value)) {
       valuesChanged = true;
