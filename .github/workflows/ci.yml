@@ -192,7 +192,16 @@ jobs:
           fi
           echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then exit 0; fi
-          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          # GitHub tests the synthetic PR merge; compare it against the actual
+          # current main instead of the stale PR event base when main advanced.
+          # This preserves pixel regression testing against the precise UI base.
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            git fetch --no-tags --depth=1 origin main
+            BASE_SHA="$(git rev-parse FETCH_HEAD)"
+            echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+          else
+            git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          fi
           git diff --name-only "$BASE_SHA" HEAD > /tmp/bonds-pr-changed-files.txt
           cat /tmp/bonds-pr-changed-files.txt
           while IFS= read -r file; do
@@ -319,6 +328,10 @@ jobs:
           if(after.split(route).length!==2)process.exit(1);
           if(after.replace(helper,'').replace(route,'')!==before)process.exit(1);
           NODE
+                ;;
+              lib/portable-intelligence/*|tests/intelligence/portable-commercial-engine.test.js|scripts/site-audit.js)
+                # Portable backend-only core and its tests never load on the homepage.
+                # Their changes still run the full unit, integration and security gates.
                 ;;
               tests/admin/hr-owner-aggregate-overview.test.js|tests/admin/dashboard-correspondence-workspace-link.test.js)
                 # Test-only non-home source; the unit suite runs the link contract.
