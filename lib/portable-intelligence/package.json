@@ -5,7 +5,8 @@
   "private": true,
   "type": "commonjs",
   "bin": {
-    "bonds-document-intelligence": "./cli.js"
+    "bonds-document-intelligence": "./cli.js",
+    "bonds-commercial-local": "./start-local-server.js"
   },
   "files": [
     "core.js",
@@ -29,7 +30,9 @@
     "labeled-entity-list.js",
     "commercial-server.js",
     "commercial-ui.html",
-    "commercial-ui.js"
+    "commercial-ui.js",
+    "local-identity.js",
+    "start-local-server.js"
   ],
   "engines": {
     "node": ">=22"
