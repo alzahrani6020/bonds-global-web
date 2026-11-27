@@ -2,12 +2,12 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  let activeCampaign=null,selectedCompany='',loading=false;
+  let activeCampaign=null,selectedCompany='',loading=false,campaignRecipients=[];
   const labels={draft:'مسودة',review:'قيد المراجعة',approved:'معتمدة',running:'قيد الإرسال',paused:'متوقفة',completed:'مكتملة',cancelled:'ملغاة'};
   function status(message,bad=false){$('status').textContent=message;$('status').classList.toggle('error',bad);}
   function node(tag,content){const el=document.createElement(tag);if(content!==undefined)el.textContent=String(content);return el;}
   function option(value,label){const el=node('option',label);el.value=value;return el;}
-  function setBusy(value){loading=value;for(const id of ['create','refresh','submit','approve','back','cancel','import','bind','connect-mailbox','refresh-mailbox','dispatch','resume-dispatch','refresh-dispatch','preview-import','sync-replies','refresh-replies']){$(id).disabled=value;}}
+  function setBusy(value){loading=value;for(const id of ['create','refresh','submit','approve','back','cancel','import','bind','connect-mailbox','refresh-mailbox','dispatch','resume-dispatch','refresh-dispatch','preview-import','sync-replies','refresh-replies','save-template','prepare-drafts']){$(id).disabled=value;}}
   async function session(){
     let auth=window.BondsAuth;
     if(!auth?.getSession){
@@ -171,6 +171,8 @@
     $('submit').hidden=state!=='draft';$('approve').hidden=state!=='review';$('back').hidden=state!=='review';
     $('cancel').hidden=!['draft','review','approved'].includes(state);
     $('import').disabled=loading||state!=='draft';
+    $('save-template').disabled=loading||state!=='draft';
+    $('prepare-drafts').disabled=loading||state!=='draft'||!campaignRecipients.some(r=>r.status==='pending');
     $('bind').disabled=loading||!['draft','review','approved'].includes(state);
     $('dispatch').disabled=loading||state!=='approved'||!UUID.test($('dispatch-mailbox').value);
     $('resume-dispatch').disabled=loading||state!=='running';
@@ -206,12 +208,26 @@
     }
   }
   function renderRecipients(items){
+    campaignRecipients=Array.isArray(items)?items:[];
     const body=$('recipients');body.replaceChildren();
     for(const r of items){
-      const tr=node('tr');tr.append(node('td',r.organization||r.name||'-'),node('td',r.email),node('td',r.status),node('td',r.document_id||'—'));
+      const tr=node('tr'), docCell=node('td',r.document_id||'—');
+      if(r.draft_document_id&&!r.document_id){
+        const a=node('a','فتح المسودة');
+        const lang=location.pathname.startsWith('/en/')?'/en/letterhead.html':'/letterhead.html';
+        a.href=lang+'?workspace=correspondence&campaign_workspace_id='+encodeURIComponent(activeCampaign?.workspace_id||'')+'&document='+encodeURIComponent(r.draft_document_id);
+        a.target='_blank';a.rel='noopener';docCell.append(' ',a);
+      }
+      tr.append(node('td',r.organization||r.name||'-'),node('td',r.email),node('td',r.status),docCell);
       const cell=node('td'),button=node('button','اختيار');button.className='secondary';button.type='button';
       button.addEventListener('click',()=>{$('recipient-id').value=r.id;status('تم اختيار مستلم لإسناد خطاب صادر مستقل.')});
-      cell.append(button);tr.append(cell);body.append(tr);
+      cell.append(button);
+      if(r.status==='pending'){
+        const prepare=node('button','إنشاء مسودة');prepare.type='button';prepare.className='secondary';
+        prepare.addEventListener('click',()=>run(()=>prepareDraft(r.id)));
+        cell.append(prepare);
+      }
+      tr.append(cell);body.append(tr);
     }
     if(!items.length){const tr=node('tr'),td=node('td','لم تُضف جهات للحملة بعد.');td.colSpan=5;tr.append(td);body.append(tr);}
   }
@@ -223,10 +239,44 @@
       const prefix=location.pathname.startsWith('/en/')?'/en/letterhead.html':'/letterhead.html';
       letterLink.href=prefix+'?workspace=correspondence&campaign_workspace_id='+encodeURIComponent(result.campaign.workspace_id);
     }
+    $('subject-template').value=result.campaign.subject_template||'';
+    $('body-template').value=result.campaign.body_template||'';
     renderRecipients(result.recipients||[]);updateActions();
     await refreshDispatchStatus();
     await refreshReplies();
     status('تم تحميل الحملة من قاعدة البيانات: '+(labels[activeCampaign.status]||activeCampaign.status));
+  }
+  async function saveTemplate(){
+    if(!activeCampaign||activeCampaign.status!=='draft')throw new Error('القالب قابل للتعديل في حالة المسودة فقط');
+    const subject_template=$('subject-template').value.trim();
+    const body_template=$('body-template').value.trim();
+    if(subject_template.length<5||subject_template.length>200||body_template.length<40||body_template.length>12000)
+      throw new Error('أدخل موضوعًا ونص خطاب واضحًا لا يقل عن 40 حرفًا.');
+    const result=await api('',{action:'update',id:activeCampaign.id,
+      title:activeCampaign.title,description:activeCampaign.description,
+      subject_template,body_template});
+    activeCampaign=result.campaign;status('حُفظ قالب الحملة. إنشاء مسودات منفصلة لا يعني الموافقة أو الختم.');
+  }
+  async function prepareDraft(recipientId){
+    if(!activeCampaign||activeCampaign.status!=='draft')throw new Error('الحملة ليست في المسودة.');
+    const result=await api('',{action:'prepare_draft',id:activeCampaign.id,recipient_id:recipientId});
+    await openCampaign(activeCampaign.id);
+    status('أُنشئت مسودة خطاب مستقلة للمستلم ويمكن فتحها للمراجعة والختم قبل الإرسال.');
+    return result;
+  }
+  async function prepareAllDrafts(){
+    if(!activeCampaign||activeCampaign.status!=='draft')throw new Error('الحملة ليست في المسودة.');
+    const pending=campaignRecipients.filter(r=>r.status==='pending');
+    if(!pending.length)throw new Error('لا توجد جهات تنتظر مسودات.');
+    if(!window.confirm('إنشاء '+pending.length+' مسودة مستقلة دون ختم أو إرسال، باستخدام قالب الحملة المحفوظ؟'))return;
+    let completed=0;
+    for(const recipient of pending){
+      await api('',{action:'prepare_draft',id:activeCampaign.id,recipient_id:recipient.id});
+      completed++;
+      $('draft-progress').textContent='مسودات جاهزة للمراجعة: '+completed+' / '+pending.length;
+    }
+    await openCampaign(activeCampaign.id);
+    status('أُعدّت '+completed+' مسودة مستقلة. يلزم اعتماد كل خطاب وتثبيت PDF/QR قبل الإرسال.');
   }
   async function create(){
     const c=$('company').value;if(!UUID.test(c))throw new Error('اختر الشركة المالكة للحملة');
@@ -311,6 +361,8 @@
     $('refresh-mailbox').addEventListener('click',()=>run(loadMailboxes));
     $('refresh').addEventListener('click',()=>run(loadCampaigns));
     $('create').addEventListener('click',()=>run(create));
+    $('save-template').addEventListener('click',()=>run(saveTemplate));
+    $('prepare-drafts').addEventListener('click',()=>run(prepareAllDrafts));
     $('import').addEventListener('click',()=>run(importRecipients));
     $('preview-import').addEventListener('click',()=>run(previewImport));
     $('bind').addEventListener('click',()=>run(bind));
