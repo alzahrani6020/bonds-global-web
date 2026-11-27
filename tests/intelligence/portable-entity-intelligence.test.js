@@ -18,5 +18,13 @@ describe('tenant-neutral commercial entity extraction',()=>{
   const r=possibleDuplicates({type:'organization',name:'شركة أحمد',email:'info@test.com'},[{id:1,type:'organization',name:'شركة احمد'},{id:2,type:'contact',name:'شركة أحمد',email:'info@test.com'}]);
   expect(r).toEqual([{id:1,reasons:['name']}]);
  });
+ test('HTML labels remain separate and do not merge entity fields',async()=>{
+  const {htmlToEvidenceText}=require('../../lib/portable-intelligence/entity-intelligence');
+  const text=htmlToEvidenceText('<p>اسم الشركة: شركة الأفق للخدمات</p><p>المدينة: جدة</p><p>info@afaq.example</p>');
+  const r=analyzeEntities(text);
+  expect(r.candidates.organization_name).toBe('شركة الأفق للخدمات');
+  expect(r.candidates.city).toBe('جدة');
+  expect(r.candidates.email).toBe('info@afaq.example');
+ });
  test('bounded input',()=>expect(()=>analyzeEntities('a'.repeat(120001))).toThrow('ENTITY_TEXT_LIMIT'));
 });
