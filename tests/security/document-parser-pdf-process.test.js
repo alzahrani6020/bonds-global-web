@@ -33,6 +33,18 @@ const {
   parseDocument
 } = require('../../lib/api/document-parser');
 
+describe('Vercel PDF worker packaging contract', () => {
+  test('bundles the PDF.js worker in the V3 serverless function', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const config = JSON.parse(fs.readFileSync(path.join(__dirname, '../../vercel.json'), 'utf8'));
+    const includeFiles = config.functions?.['api/v3/index.js']?.includeFiles;
+    expect(includeFiles).toBe('node_modules/pdf-parse/dist/pdf-parse/cjs/pdf.worker.mjs');
+    const worker = path.join(__dirname, '../../', includeFiles);
+    expect(fs.existsSync(worker)).toBe(true);
+  });
+});
+
 describe('PDF parser Node bootstrap order', () => {
   test('loads CanvasFactory before PDFParse inside the isolated parser', () => {
     const fs = require('fs');

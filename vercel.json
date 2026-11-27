@@ -1144,7 +1144,8 @@
   },
   "functions": {
     "api/v3/index.js": {
-      "maxDuration": 300
+      "maxDuration": 300,
+      "includeFiles": "node_modules/pdf-parse/dist/pdf-parse/cjs/pdf.worker.mjs"
     }
   }
 }
