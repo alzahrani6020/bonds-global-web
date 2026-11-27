@@ -6,7 +6,7 @@ This runbook covers encrypted PostgreSQL backup custody, audit evidence and isol
 
 ## BONDS production architecture boundaries (verified 2026-11-27)
 
-- **Vercel** hosts the BONDS web application and API. Confirmed linked Vercel project: `bonds-global-web` (project `prj_djffUO1KXbGKtumZBWsziWxqJ6Qk`, team `DR Talal`). The Vercel response reported `live=false`, no domains in the project response, and a most recent deployment with `READY`; **do not infer which public production domain is live from this alone**.
+- **Vercel** hosts the BONDS web application and API. Confirmed linked Vercel project: `bonds-global-web` (project `prj_djffUO1KXbGKtumZBWsziWxqJ6Qk`, team `DR Talal`). `get_project` reported `live=false` and an empty domains list, but the independent authenticated `get_deployment` lookup by hostname `bonds-global.com` resolved production deployment `dpl_4EvHvBSqqoTsPr85BwnWUfXz7hbv` to that same project with `READY`, commit `8decb184b3dac25fe8152a68f071c76f8a863f52` (PR #1282). This establishes the production deployment association at the time of inspection, **not** complete functional or cron acceptance.
 - **Supabase** holds BONDS production data: project reference `hutxsqzplyuqgnghsrcs`. Do not point recovery tests or temporary databases at production.
 - **GitHub** owns source, CI, approved encrypted backup/isolated restore workflow and watchdog. Only an actual `event=schedule` execution satisfies schedule acceptance; manual runs and merged commits cannot substitute.
 - **Independent encrypted custody** is a separate recovery storage failure domain selected and approved explicitly; no backup or private key may be copied to an unrelated application workspace by default.
