@@ -48,6 +48,27 @@ describe('portable commercial intelligence engine',()=>{
   expect(result.items[0].record._sheet).toBeUndefined();
   expect(result.auto_saved).toBe(false);
  });
+ test('review gate rejects cross-workspace proposals before storage',async()=>{
+  const {commitReviewedProposals}=require('../../lib/portable-intelligence/review-gate');
+  const other='12345678-1234-4123-8123-1234567890ac';
+  const proposal=normalizeRows({rows:[{type:'organization',name:'Factory'}],workspaceId:A,source:{filename:'a.csv'}});
+  const persist=jest.fn(),authorize=jest.fn().mockResolvedValue(true),audit=jest.fn();
+  await expect(commitReviewedProposals({proposal,workspaceId:other,actorId:'actor',approvedIndices:[0],authorize,persist,audit})).rejects.toThrow('WORKSPACE_MISMATCH');
+  expect(authorize).not.toHaveBeenCalled();expect(persist).not.toHaveBeenCalled();
+ });
+ test('review gate requires permission and explicit selected records',async()=>{
+  const {commitReviewedProposals}=require('../../lib/portable-intelligence/review-gate');
+  const proposal=normalizeRows({rows:[{type:'organization',name:'Factory'}],workspaceId:A,source:{filename:'a.csv'}});
+  const persist=jest.fn(),audit=jest.fn(),authorize=jest.fn().mockResolvedValue(false);
+  const input={proposal,workspaceId:A,actorId:'actor',approvedIndices:[0],authorize,persist,audit};
+  await expect(commitReviewedProposals(input)).rejects.toThrow('IMPORT_NOT_AUTHORIZED');
+  expect(persist).not.toHaveBeenCalled();
+  await expect(commitReviewedProposals({...input,approvedIndices:[]})).rejects.toThrow('INVALID_APPROVAL_SELECTION');
+  authorize.mockResolvedValue(true);persist.mockResolvedValue({ids:['record-1']});audit.mockResolvedValue();
+  await expect(commitReviewedProposals(input)).resolves.toMatchObject({saved:1});
+  expect(persist).toHaveBeenCalledWith(expect.objectContaining({workspaceId:A,entries:[expect.objectContaining({record:expect.objectContaining({name:'Factory'})})]}));
+  expect(audit).toHaveBeenCalledTimes(1);
+ });
  test('CSV quoted comma is preserved',async()=>{
   const result=await analyzeFile({file:{filename:'org.csv',buffer:Buffer.from('type,name,city\norganization,"Company, Ltd",Jeddah\n')},workspaceId:A});
   expect(result.items[0].record.name).toBe('Company, Ltd');
