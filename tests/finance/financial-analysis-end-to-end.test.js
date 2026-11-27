@@ -64,7 +64,7 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
    '300 400 مجموع الموجودات',
    '200 200 مجموع حقوق الملكية',
    '500 1000 الإيرادات'
-  ].join('\\n')};
+  ].join('\n')};
   const x=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
   expect(x.values.total_liabilities).toBe(200);
   expect(x.values.total_assets).toBe(400);
