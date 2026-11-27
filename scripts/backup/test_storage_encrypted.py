@@ -135,10 +135,10 @@ class StorageInventoryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             dest = Path(tmp) / "output.age"
             with patch.object(export, "list_buckets", return_value=["avatars"]):
-              with patch.object(export, "inventory", side_effect=[originals, changed]):
-                  with patch.object(export, "download", return_value=(1, hashlib.sha256(b"a").hexdigest())):
-                    with self.assertRaises(RuntimeError):
-                        export.produce("https://example.invalid", "fake",
+                with patch.object(export, "inventory", side_effect=[originals, changed]):
+                    with patch.object(export, "download", return_value=(1, hashlib.sha256(b"a").hexdigest())):
+                        with self.assertRaises(RuntimeError):
+                            export.produce("https://example.invalid", "fake",
                                        "age1recipient", dest, "123")
             self.assertFalse(dest.exists())
 
