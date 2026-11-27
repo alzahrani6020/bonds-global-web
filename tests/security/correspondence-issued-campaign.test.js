@@ -60,6 +60,7 @@ describe('Clix issued campaign preflight - fail closed', () => {
   });
   test('no mail provider, database or queue dependency is imported',()=>{
     const src=require('node:fs').readFileSync(require('node:path').resolve(__dirname,'../../lib/api/correspondence-issued-campaign.js'),'utf8');
-    expect(src).not.toMatch(/sendEmail|fetch\\(|supabase|process\\.env/);
+    expect(src).not.toMatch(/sendEmail|supabase|process[.]env/);
+    expect(src).not.toContain('fetch(');
   });
 });
