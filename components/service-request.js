@@ -2431,7 +2431,7 @@ async function restoreSavedFinancialResult({scroll=false,silent=false}={}){
    validation:data.validation||{}
   },dataset_persistence:{status:'saved',dataset_id:data.id,verified:true}};
   renderExecutionResult(payload);
-  await ensureSavedFinancialReport(data.id,scroll);
+  const reportReady=await ensureSavedFinancialReport(data.id,scroll);
   const result=$('#srExecutionResult');
   if(result){
    result.setAttribute('aria-label',lang==='ar'?'التحليل المالي المحفوظ':'Saved financial analysis');
@@ -2442,7 +2442,8 @@ async function restoreSavedFinancialResult({scroll=false,silent=false}={}){
    )+'</p>');
    if(scroll)result.scrollIntoView({behavior:'smooth',block:'start'});
   }
-  return true;
+  // Loading metrics alone is not proof that the durable report exists.
+  return reportReady;
  }catch(error){
   if(!silent)showStatus(String(error?.message||error),false);
   return false;
