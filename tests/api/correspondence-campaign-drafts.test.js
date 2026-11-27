@@ -26,7 +26,7 @@ function database(owner){
   const filters=[],rows=tables[table];
   const q={
    eq(k,v){filters.push(x=>x[k]===v);return q;},
-   is(k,v){filters.push(x=>x[k]===v);return q;},
+   is(k,v){filters.push(x=>v===null?x[k]==null:x[k]===v);return q;},
    contains(k,v){filters.push(x=>Object.entries(v).every(([key,value])=>x[k]?.[key]===value));return q;},
    order(){return q;},limit(){return q;},select(){return q;},
    single(){const r=execute();return Promise.resolve({data:r.data[0]||null,error:r.error});},
