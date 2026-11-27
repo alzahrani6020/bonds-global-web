@@ -375,7 +375,11 @@
    // RLS makes owned and assigned workspaces visible; never trust browser role claims.
    const spaces=must(await sb.from('crm_app_workspaces').select('id,name,owner_user_id').order('created_at',{ascending:true}).limit(100));
    availableWorkspaces=spaces;
-   const chosen=spaces.find(w=>w.id===acceptedWorkspaceId)||spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
+   const requestedWorkspaceId=new URLSearchParams(window.location.search).get('workspace_id');
+   const validWorkspaceId=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestedWorkspaceId||'');
+   const requestedWorkspace=validWorkspaceId?spaces.find(w=>w.id===requestedWorkspaceId.toLowerCase()):null;
+   // The requested workspace is honored only if visible via CRM's authenticated RLS query.
+   const chosen=spaces.find(w=>w.id===acceptedWorkspaceId)||requestedWorkspace||spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
    $('workspace-select').innerHTML=spaces.map(w=>'<option value="'+escape(w.id)+'">'+escape(w.name)+'</option>').join('');
    $('workspace-switch-label').hidden=spaces.length===0;
    $('workspace-create-open').hidden=false;
@@ -414,6 +418,16 @@
    await activateWorkspace(workspace);notify(english?'Workspace created successfully':'أُنشئت مساحة العمل');
   }catch(e){notify('تعذر إنشاء مساحة العمل: '+e.message,true);}finally{button.disabled=false;}
  });
+ const directoryLink=$('crm-directory-link');
+ if(directoryLink){
+  const syncDirectoryLink=()=>{
+   const base=english?'/en/institutional-directory.html':'/institutional-directory.html';
+   directoryLink.href=workspace?.id?base+'?workspace_id='+encodeURIComponent(workspace.id):base;
+  };
+  $('workspace-select').addEventListener('change',syncDirectoryLink);
+  document.addEventListener('bonds-crm-workspace-initialized',syncDirectoryLink);
+  directoryLink.addEventListener('click',syncDirectoryLink);
+ }
  $('crm-nav').addEventListener('click',e=>{const n=e.target.closest('[data-section]');if(n&&workspace)showSection(n.dataset.section);});
  $('refresh').addEventListener('click',()=>refresh().then(()=>notify('تم تحديث السجلات')).catch(e=>notify(e.message,true)));
  $('search').addEventListener('input',()=>{clearTimeout(searchTimer);page=0;searchTimer=setTimeout(()=>loadPage().catch(e=>notify(e.message,true)),250);});
