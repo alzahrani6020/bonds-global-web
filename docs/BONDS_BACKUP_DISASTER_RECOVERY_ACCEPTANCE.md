@@ -18,9 +18,9 @@ This runbook covers encrypted PostgreSQL backup custody, audit evidence and isol
 2. Select an independent mounted destination with enough free capacity, proper access restrictions and backup retention arrangements. The destination **must not** be the source directory or a folder mirrored to the same single storage failure domain.
 3. Run the following with the correct paths after confirming the destination drive and access rights:
 
-   `python3 scripts/backup/archive_encrypted_backup.py --source /secure/source/production-45814509069.dump.age --destination-dir /offline/independent/custody`
+   `python3 scripts/backup/archive_encrypted_backup.py --source /mnt/v/BONDS-Recovery/production-45814509069/production.dump.age --run-id 45814509069 --destination-dir /offline/independent/custody`
 
-4. Require output status `COPY_SHA256_PASS` and matching source/destination SHA-256. The tool refuses to overwrite an existing copy or manifest; it does not delete the original.
+4. Require output status `COPY_SHA256_PASS` and matching source/destination SHA-256. The tool stores the existing production.dump.age under the unique production-<run-id>.dump.age name without renaming the source. It refuses to overwrite an existing copy or manifest; it does not delete the original.
 5. Separately protect the AGE identity and any wrapping passphrase, avoiding co-location with the only backup copy. Keep a second controlled recovery route as organizational policy allows.
 6. Record custody evidence in a restricted audit register: workflow run ID, source location, destination custody owner, UTC timestamp, hash, verified reader, media identification, retention deadline. **Do not** record private keys or passwords.
 7. Periodically decrypt a copy of the encrypted file in a dedicated isolated environment, perform full `pg_restore --exit-on-error` and data invariants checks. SHA-256 alone proves byte equality, **not** that a backup can actually be restored.
