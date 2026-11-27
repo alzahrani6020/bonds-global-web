@@ -2058,12 +2058,24 @@ function renderIntakeReview(payload){
  const issueText=financialIssues.length?'<div class="sr-intake-warning" role="alert">'+
    financialIssues.map(issue=>escapeHtml(issueNames[issue.code]||issue.code)).join(' ؛ ')+'</div>':'';
 
+ const unresolvedStatus=new Set(['missing','conflict','multi_period']);
+ const confirmed=fields.filter(field=>!unresolvedStatus.has(field.status) && field.value!==null && field.value!==undefined);
+ const unresolved=fields.filter(field=>unresolvedStatus.has(field.status) || field.value===null || field.value===undefined);
+ const orderedFields=[...confirmed,...unresolved];
+ const summary=(lang==='ar'
+   ?'قيم مستخرجة: '+confirmed.length+' | بنود لم يُتحقق منها: '+unresolved.length
+   :'Extracted values: '+confirmed.length+' | Unverified fields: '+unresolved.length);
+ const note=lang==='ar'
+   ?'البنود غير المستخرجة لا تعني أن ملفك ناقص. راجع قيمها من المستند قبل الاعتماد؛ لا يملأ النظام أي مبلغ افتراضي.'
+   :'Unextracted fields do not mean the document is incomplete. Check the source before approval; no values are invented.';
  host.innerHTML='<div class="sr-intake-review-title">'+escapeHtml(T.review)+'</div>'+
+   '<p class="sr-muted" role="status">'+escapeHtml(summary)+'</p>'+
+   '<p class="sr-muted">'+escapeHtml(note)+'</p>'+
    issueText+
-   '<div class="sr-intake-table">'+fields.map(field=>{
+   '<div class="sr-intake-table">'+orderedFields.map(field=>{
      const derived=field.status==='derived';
     const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
-      field.status==='missing'?T.missing:(field.status==='conflict'?T.conflict:field.status||'');
+      field.status==='missing'?(intakeMode==='file'?(lang==='ar'?'لم يُستخرج من الملف':'Not extracted from document'):T.missing):(field.status==='conflict'?T.conflict:field.status||'');
      const current=field.value??'';
      const candidates=Array.isArray(field.candidates)&&field.candidates.length?' ['+field.candidates.join(' / ')+']':'';
      return '<div class="sr-intake-row">'+
