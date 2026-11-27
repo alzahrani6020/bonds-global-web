@@ -118,6 +118,8 @@ def inventory(base, key, buckets):
     objects = []
     for bucket in buckets:
         objects.extend(inventory_bucket(base, key, bucket))
+        if len(objects) > MAX_OBJECTS:
+            raise RuntimeError("global object inventory limit exceeded")
     objects.sort(key=lambda x: (x["bucket"], x["path"]))
     if not objects:
         raise RuntimeError("empty storage inventory: refuse incomplete backup")
