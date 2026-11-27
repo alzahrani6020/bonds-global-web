@@ -2223,7 +2223,10 @@ function renderIntakeReview(payload){
  }));
  host.querySelectorAll('[data-intake-suggest]').forEach(button=>button.addEventListener('click',()=>{
   const input=Array.from(host.querySelectorAll('[data-intake-field]')).find(item=>item.dataset.intakeField===button.dataset.intakeSuggest);
-  if(input&&!input.readOnly)input.value=button.dataset.suggestValue;
+  if(input&&!input.readOnly){
+   input.value=button.dataset.suggestValue;
+   input.dispatchEvent(new Event('input',{bubbles:true}));
+  }
  }));
  $('#srSubmit').textContent=T.approveExecute;
 }
@@ -2236,9 +2239,21 @@ function collectIntakeSelections(){
 }
 function collectIntakeCorrections(){
  const out={};
+ const original=new Map((Array.isArray(intakeReview?.fields)?intakeReview.fields:[]).map(row=>[row.field,row]));
  document.querySelectorAll('[data-intake-field]').forEach(input=>{
    if(input.dataset.derived==='true')return;
-   if(input.value!=='')out[input.dataset.intakeField]=input.value;
+   const key=input.dataset.intakeField;
+   const previous=original.get(key)?.value;
+   const selected=input.dataset.candidateIndex!==undefined;
+   const raw=input.value.trim();
+   if(!raw){
+     if(previous!==null&&previous!==undefined&&previous!=='')out[key]=null;
+     return;
+   }
+   const amount=Number(raw);
+   if(!Number.isFinite(amount))return;
+   if(selected||previous===null||previous===undefined||previous===''||Number(previous)!==amount)
+     out[key]=raw;
  });
  return out;
 }
