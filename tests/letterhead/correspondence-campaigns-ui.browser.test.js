@@ -90,6 +90,7 @@ describe('BONDS campaign visual browser acceptance (mock isolated)',()=>{
     expect(await page.locator('#dispatch').isDisabled()).toBe(true);
     expect(await page.locator('#detail').isVisible()).toBe(true);
     expect(await page.locator('#dispatch-status').textContent()).toContain('معلقة:');
+    await page.waitForFunction(()=>document.querySelector('#reply-summary')?.textContent.includes('ردود مثبتة: 0'));
     expect(await page.locator('#reply-summary').textContent()).toContain('ردود مثبتة: 0');
     expect(await page.locator('#sync-replies').isDisabled()).toBe(true);
   }finally{await page.close();}
