@@ -12,7 +12,7 @@
   if(!status||!workspace||!file||!window.BondsAuth)return;
 
   const message=s=>{status.textContent=s;};
-  const trim=(v,max=240)=>String(v==null?'':v).trim().slice(0,max);
+  const trim=(v,max=240)=>{const raw=String(v==null?'':v).trim();if(raw.length>max||/[\u0000-\u001f\u007f]/.test(raw))throw Error('INVALID_FIELD');return raw;};
   function clearPending(){
     state.pending=[];state.workspaceId=null;
     $('institutional-apply').disabled=true;
@@ -55,7 +55,7 @@
     if(typeof record.name!=='string'||record.name.trim().length<1||record.name.trim().length>240)throw Error('INVALID_NAME');
     const name=trim(record.name,240);
     const email=trim(record.email,254).toLowerCase();
-    if(record.email&&(!/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(email)||/[\r\n]/.test(email)))throw Error('INVALID_EMAIL');
+    if(record.email&&!/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(email))throw Error('INVALID_EMAIL');
     const phone=trim(record.phone,40);
     if(record.phone&&(!/^[+()0-9 .-]{3,40}$/.test(phone)))throw Error('INVALID_PHONE');
     if(type==='organization'){
@@ -170,5 +170,9 @@
         tr(' — راجع الدليل قبل إعادة المحاولة.',' — check the directory before retrying.'));
     }finally{state.busy=false;$('institutional-apply').disabled=true;}
   });
-  window.BONDS_INSTITUTIONAL_IMPORT_TEST={parseCsv,validate};
+  // Pure parser exports only in Jest's sandbox, never an authenticated user
+  // token, API client, or CRM data.
+  if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') {
+    window.BONDS_INSTITUTIONAL_IMPORT_TEST={parseCsv,validate};
+  }
 })();
