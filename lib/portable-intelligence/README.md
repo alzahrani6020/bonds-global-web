@@ -5,13 +5,13 @@ Commercial module independent from the BONDS production database and corresponde
 ## Architecture
 - `core.js`: dependency-free structured normalization; proposals only; explicit workspace context.
 - `file-adapters.js`: XLSX/CSV parser, PDF text extraction; images require an injected OCR implementation.
-- `review-gate.js`: fail-closed review boundary requiring selected proposals, a trusted host authorization callback, and explicit persistence/audit callbacks. Workspace IDs supplied by a caller are NOT proof of membership.
+- `review-gate.js`: fail-closed review boundary requiring selected proposals, a trusted host authorization callback, and a single atomic host commit callback. Workspace IDs supplied by a caller are NOT proof of membership.
 - The engine **never writes** to Supabase/PostgreSQL or sends mail. The host product must enforce authenticated tenant permission, review, persistence, duplicate checks and audit log.
 - Each customer deployment must supply its **own** storage, identity, encryption keys and backup policy. Never bundle BONDS production credentials or datasets.
 - Proposals are not verified facts. PDF/text/image candidates require identifying the entity and explicit human review before any insert.
 
 ## Integration contract
-`analyzeFile({file:{filename,buffer},workspaceId,defaultType,ocr})` returns pending candidates. Only a separately authorized tenant-specific adapter may persist confirmed records. `commitReviewedProposals({proposal,workspaceId,actorId,approvedIndices,authorize,persist,audit})` provides the application boundary; the host MUST verify user identity, enforce tenant access again in persistence, and make the write plus audit record atomic in its own transaction. This module does not supply those guarantees by itself.
+`analyzeFile({file:{filename,buffer},workspaceId,defaultType,ocr})` returns pending candidates. Only a separately authorized tenant-specific adapter may persist confirmed records. `commitReviewedProposals({proposal,workspaceId,actorId,approvedIndices,authorize,commit})` provides the application boundary; the host MUST verify user identity, enforce tenant access again in persistence, and make the write plus audit record atomic inside the single commit callback. This module does not supply those guarantees by itself.
 
 ## Supported foundation
 - XLSX/CSV: structured rows and bilingual field aliases; original source row numbers are retained and XLSX items include sheet names. More than 20 sheets or 1000 rows fails closed (not silently truncated).
