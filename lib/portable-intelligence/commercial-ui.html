@@ -57,7 +57,7 @@ table{border-collapse:collapse;width:100%}td,th{padding:9px;border-bottom:1px so
 </div><div class="controls"><button type="submit">حفظ التعديل</button><button id="archive" type="button" class="secondary">أرشفة السجل بعد التأكيد</button><button id="cancelEdit" type="button" class="secondary">إلغاء</button></div></form></div>
 </section>
 <section class="panel"><h2>تصدير السجلات المعتمدة حسب الصلاحية</h2><p>ينشئ طلب تكامل فقط؛ لا يرسل رسائل ولا ينشئ موظفين.</p>
-<form id="exportForm" class="controls"><label>الوجهة<select id="target"><option value="crm">CRM</option><option value="correspondence">المراسلات</option><option value="hr">HR</option></select></label><label>معرّفات السجلات (مفصولة بفاصلة)<input id="recordIds" placeholder="1,2" required></label><button type="submit">إنشاء حزمة التصدير المصرح بها</button></form>
+<form id="exportForm" class="controls"><label>الوجهة<select id="target"><option value="crm">CRM</option><option value="correspondence">المراسلات</option><option value="hr">HR</option></select></label><label>معرّفات السجلات (مفصولة بفاصلة)<input id="recordIds" placeholder="1,2" required></label><button type="submit">إنشاء حزمة التصدير المصرح بها</button><button type="button" id="deliver" class="secondary">تسليم إلى نظام مصرح به (يتطلب ربطًا مفعّلًا)</button></form>
 <pre id="exportOutput"></pre></section>
 <section class="panel"><h2>نسخة احتياطية مشفرة — صلاحية المالك</h2>
 <p>يُنشئ النظام لقطة SQLite متسقة ويُشفرها بكلمة مرور منفصلة. يجب حفظ الملف الناتج والمفتاح في مكانين آمنين.</p>
