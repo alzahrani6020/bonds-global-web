@@ -11,6 +11,7 @@
     "core.js",
     "file-adapters.js",
     "review-gate.js",
+    "sqlite-store.js",
     "integration-contract.js",
     "local-ocr.js",
     "cli.js",
