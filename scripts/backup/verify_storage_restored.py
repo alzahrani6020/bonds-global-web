@@ -24,6 +24,26 @@ def verify(path):
         objects = manifest.get("objects")
         if manifest.get("format") != "bonds-storage-v1" or not isinstance(objects, list):
             raise ValueError("unexpected manifest format")
+        buckets = manifest.get("buckets")
+        if (not isinstance(buckets, list) or not buckets or
+                any(not isinstance(b, str) or not b or "/" in b for b in buckets) or
+                len(buckets) != len(set(buckets))):
+            raise ValueError("invalid bucket coverage manifest")
+        if not objects:
+            raise ValueError("empty object manifest")
+        seen_paths = set()
+        for item in objects:
+            if not isinstance(item, dict):
+                raise ValueError("invalid object entry")
+            bucket, object_path = item.get("bucket"), item.get("path")
+            if (bucket not in buckets or not isinstance(object_path, str) or
+                    not object_path or object_path.startswith("/") or
+                    "\\x00" in object_path or any(p in ("", ".", "..") for p in object_path.split("/"))):
+                raise ValueError("invalid bucket/object path")
+            pair = (bucket, object_path)
+            if pair in seen_paths:
+                raise ValueError("duplicate object path")
+            seen_paths.add(pair)
         expected = {"manifest.json"}
         for index, item in enumerate(objects):
             blob = "blobs/%08d" % index
