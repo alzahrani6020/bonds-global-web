@@ -17,6 +17,8 @@ create table if not exists public.correspondence_mailboxes (
 );
 create unique index if not exists correspondence_mailboxes_company_address_uidx
  on public.correspondence_mailboxes(company_id,lower(trim(address)));
+create unique index if not exists correspondence_mailboxes_sender_global_uidx
+ on public.correspondence_mailboxes(lower(trim(address)));
 create table if not exists public.correspondence_mailbox_oauth_states (
  id uuid primary key default gen_random_uuid(),
  state_hash char(64) not null unique,
