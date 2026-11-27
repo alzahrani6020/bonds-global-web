@@ -21,7 +21,6 @@
     "README.md",
     "entity-intelligence.js",
     "html-table-review.js",
-    "table-financial-review.js",
     "local-pdf-ocr.js",
     "tenant-authorization.js",
     "approved-directory-export.js",
