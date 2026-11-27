@@ -59,7 +59,9 @@ jobs:
           psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127220000_correspondence_campaigns.sql
           psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127221000_correspondence_mailboxes.sql
           psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127222000_correspondence_campaign_dispatch.sql
+          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127223000_correspondence_campaign_replies.sql
           psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-campaigns-acceptance.pg.sql
+          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-campaign-replies-acceptance.pg.sql
 
       - name: Verify owner-authorized invitation server and failure handling
         run: node --test tests/crm/invite-handler-contract.cjs
