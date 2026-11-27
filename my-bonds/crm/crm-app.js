@@ -422,7 +422,10 @@
  if(directoryLink){
   const syncDirectoryLink=()=>{
    const base=english?'/en/institutional-directory.html':'/institutional-directory.html';
-   directoryLink.href=workspace?.id?base+'?workspace_id='+encodeURIComponent(workspace.id):base;
+   const selectedId=$('workspace-select')?.value;
+   const allowed=availableWorkspaces.some(w=>w.id===selectedId);
+   const activeId=allowed?selectedId:workspace?.id;
+   directoryLink.href=activeId?base+'?workspace_id='+encodeURIComponent(activeId):base;
   };
   $('workspace-select').addEventListener('change',syncDirectoryLink);
   document.addEventListener('bonds-crm-workspace-initialized',syncDirectoryLink);
