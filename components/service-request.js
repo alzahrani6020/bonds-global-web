@@ -2126,12 +2126,12 @@ function renderIntakeReviewField(field, allFields){
  const status=derived?(lang==='ar'?'مستنتج حسابيًا: ':'Derived: ')+(field.formula||'') :
   field.status==='missing'?(intakeMode==='file'?(lang==='ar'?'لم يُستخرج من الملف':'Not extracted from document'):T.missing):(field.status==='conflict'?T.conflict:field.status||'');
  const current=field.value??'';
- const candidates=(Array.isArray(field.candidates)?field.candidates:[]).map(item=>{
-  if(item&&typeof item==='object')return {value:item.value,period:item.period||'',currency:item.currency||field.currency||'',source:item.source||''};
-  return {value:item,period:'',currency:field.currency||'',source:''};
+ const candidates=(Array.isArray(field.candidates)?field.candidates:[]).map((item,index)=>{
+  if(item&&typeof item==='object')return {index,value:item.value,period:item.period||'',currency:item.currency||field.currency||'',source:item.source||''};
+  return {index,value:item,period:'',currency:field.currency||'',source:''};
  }).filter(item=>item.value!==null&&item.value!==undefined&&item.value!==''&&Number.isFinite(Number(item.value)));
  const suggestion=(!derived&&(field.status==='missing'||field.status==='conflict'||field.status==='multi_period'||current===''))?financialReviewSuggestion(field,allFields||[]):null;
- const options=candidates.length&&!derived?'<label>'+escapeHtml(lang==='ar'?'اختر قيمة من الملف':'Select a document value')+'</label><select data-intake-candidate="'+escapeHtml(field.field)+'"><option value="">'+escapeHtml(lang==='ar'?'اختر قيمة أو أدخل يدويًا':'Choose a value or enter manually')+'</option>'+candidates.map((item,index)=>'<option value="'+index+'">'+escapeHtml(String(item.value)+(item.period?' · '+item.period:'')+(item.currency?' · '+item.currency:''))+'</option>').join('')+'</select>':'';
+ const options=candidates.length&&!derived?'<label>'+escapeHtml(lang==='ar'?'اختر قيمة من الملف':'Select a document value')+'</label><select data-intake-candidate="'+escapeHtml(field.field)+'"><option value="">'+escapeHtml(lang==='ar'?'اختر قيمة أو أدخل يدويًا':'Choose a value or enter manually')+'</option>'+candidates.map(item=>'<option value="'+item.index+'">'+escapeHtml(String(item.value)+(item.period?' · '+item.period:'')+(item.currency?' · '+item.currency:''))+'</option>').join('')+'</select>':'';
  const formula=suggestion&&!derived?'<button type="button" class="sr-secondary" data-intake-suggest="'+escapeHtml(field.field)+'" data-suggest-value="'+escapeHtml(String(suggestion.value))+'">'+escapeHtml(lang==='ar'?'استخدام احتساب مقترح: ':'Use suggested calculation: ')+escapeHtml(String(suggestion.value))+'</button><small>'+escapeHtml(suggestion.formula)+'</small>':'';
  const missing=field.status==='missing'||field.status==='conflict'||field.status==='multi_period'||current==='';
  return '<div class="sr-intake-row">'+
@@ -2212,7 +2212,7 @@ function renderIntakeReview(payload){
 function collectIntakeSelections(){
  const selections={};
  document.querySelectorAll('[data-intake-field][data-candidate-index]').forEach(input=>{
-  if(!input.readOnly && /^\\d+$/.test(input.dataset.candidateIndex))selections[input.dataset.intakeField]=Number(input.dataset.candidateIndex);
+  if(!input.readOnly && /^\d+$/.test(input.dataset.candidateIndex))selections[input.dataset.intakeField]=Number(input.dataset.candidateIndex);
  });
  return selections;
 }
