@@ -58,8 +58,12 @@ jobs:
           if (!$archive) { throw 'TEST_BUNDLE_MISSING' }
           $extract = Join-Path $env:RUNNER_TEMP 'bonds-commercial-acceptance-extracted'
           Expand-Archive -LiteralPath $archive.FullName -DestinationPath $extract
-          & (Join-Path $extract 'node.exe') -e "require('./commercial-server');require('./licensed-commercial-workflow');require('./file-adapters');console.log('EXTRACTED_RUNTIME_PASS')"
-          if ($LASTEXITCODE -ne 0) { throw 'EXTRACTED_RUNTIME_FAILED' }
+          Push-Location $extract
+          try {
+            & (Join-Path $extract 'node.exe') -e "require('./commercial-server');require('./licensed-commercial-workflow');require('./file-adapters');console.log('EXTRACTED_RUNTIME_PASS')"
+            if ($LASTEXITCODE -ne 0) { throw 'EXTRACTED_RUNTIME_FAILED' }
+          }
+          finally { Pop-Location }
       - name: Upload isolated portable package evidence (not customer release)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
