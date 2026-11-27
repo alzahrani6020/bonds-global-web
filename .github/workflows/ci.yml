@@ -207,17 +207,21 @@ jobs:
                 test -s "$file" || exit 0
                 ;;
               letterhead.html)
-                # Accept only loading the new assets on the existing document,
-                # with every other byte identical to this PR's base.
+                # Scope-limited cache-bust: only the two existing workspace
+                # asset references may move from v1 to v2. Compare all other
+                # HTML bytes to this PR's actual base (no snapshot bypass).
                 git show "$BASE_SHA:letterhead.html" > /tmp/bonds-base-letterhead.html
                 node <<'NODE'
           const fs=require('node:fs');
           const base=fs.readFileSync('/tmp/bonds-base-letterhead.html','utf8');
           const head=fs.readFileSync('letterhead.html','utf8');
-          const css='  <link rel="stylesheet" href="/components/correspondence-workspace-ui.css?v=1" />\n';
-          const js='  <script src="/components/correspondence-workspace-ui.js?v=1"></script>\n';
-          if(head.split(css).length!==2||head.split(js).length!==2)process.exit(1);
-          if(head.replace(css,'').replace(js,'')!==base)process.exit(1);
+          const oldCss='/components/correspondence-workspace-ui.css?v=1';
+          const oldJs='/components/correspondence-workspace-ui.js?v=1';
+          const newCss='/components/correspondence-workspace-ui.css?v=2';
+          const newJs='/components/correspondence-workspace-ui.js?v=2';
+          if(base.split(oldCss).length!==2||base.split(oldJs).length!==2)process.exit(1);
+          if(head.split(newCss).length!==2||head.split(newJs).length!==2)process.exit(1);
+          if(head.replace(newCss,oldCss).replace(newJs,oldJs)!==base)process.exit(1);
           NODE
                 ;;
               site-layout.js)
