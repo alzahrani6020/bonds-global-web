@@ -9,8 +9,8 @@ const core = fs.readFileSync(path.join(root, 'components/letterhead-corresponden
 
 describe('Correspondence institutional UI integration', () => {
   test('preserves governed editor and loads layout assets only once', () => {
-    expect(page.match(/components\/correspondence-workspace-ui\.css\?v=1/g)).toHaveLength(1);
-    expect(page.match(/components\/correspondence-workspace-ui\.js\?v=1/g)).toHaveLength(1);
+    expect(page.match(/components\/correspondence-workspace-ui\.css\?v=2/g)).toHaveLength(1);
+    expect(page.match(/components\/correspondence-workspace-ui\.js\?v=2/g)).toHaveLength(1);
     expect(page).toContain('id="letterhead-toolbar"');
     expect(page).toContain('id="pages-container"');
     expect(page).toContain('/components/letterhead-correspondence.js?v=6');
@@ -33,6 +33,10 @@ describe('Correspondence institutional UI integration', () => {
     expect(styles).toContain('@media print');
     expect(styles).toContain('@media(max-width:780px)');
     expect(styles).toContain('.bx-document-area .sheet');
-    expect(styles).toContain('.bx-editor:not(.bx-show-tools) #letterhead-toolbar .toolbar-row');
+    expect(styles).toContain('.bx-editor #letterhead-toolbar .toolbar-row{display:flex');
+    expect(styles).toContain('.bx-editor.bx-hide-tools #letterhead-toolbar .toolbar-row{display:none}');
+    expect(script).toContain("action.style.display === 'none'");
+    expect(script).toContain("activateExisting('corr-submit')");
+    expect(script).toContain("window.toggleInbox");
   });
 });

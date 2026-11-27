@@ -39,9 +39,13 @@ describe('Correspondence UI real browser layout', () => {
       expect(await page.locator('.bx-metric strong').first().textContent()).toBe('—');
 
       const toggle = page.locator('.bx-advanced-toggle');
-      expect(await toggle.getAttribute('aria-expanded')).toBe('false');
-      await toggle.click();
+      // The original 75-action toolbar must not disappear when the workspace mounts.
       expect(await toggle.getAttribute('aria-expanded')).toBe('true');
+      expect(await page.locator('.toolbar-row').isVisible()).toBe(true);
+      await toggle.click();
+      expect(await toggle.getAttribute('aria-expanded')).toBe('false');
+      expect(await page.locator('.toolbar-row').isVisible()).toBe(false);
+      await toggle.click();
       expect(await page.locator('.toolbar-row').isVisible()).toBe(true);
 
       // Simulate governance bar rendered later by the existing engine.
@@ -52,6 +56,34 @@ describe('Correspondence UI real browser layout', () => {
         document.getElementById('pages-container').before(bar);
       });
       await page.waitForFunction(() => document.querySelector('.bx-editor > #correspondence-governance'));
+    } finally { await page.close(); }
+  }, 30000);
+
+  test('workflow actions respect canonical inline visibility and choose saved draft submission', async () => {
+    const page = await open(1440, 900);
+    try {
+      await page.evaluate(() => {
+        window.__actions = [];
+        for (const id of ['corr-save','corr-save-submit','corr-submit']) {
+          const b = document.createElement('button');
+          b.id = id;
+          b.type = 'button';
+          b.textContent = id;
+          b.addEventListener('click', () => window.__actions.push(id));
+          document.body.append(b);
+        }
+        // The canonical engine hides save-submit for an already-saved draft.
+        document.getElementById('corr-save-submit').style.display = 'none';
+      });
+      await page.getByRole('button', { name: 'إرسال للمراجعة' }).click();
+      expect(await page.evaluate(() => window.__actions)).toEqual(['corr-submit']);
+      // A fresh draft must use save-submit instead.
+      await page.evaluate(() => {
+        document.getElementById('corr-save-submit').style.display = '';
+        document.getElementById('corr-submit').style.display = 'none';
+      });
+      await page.getByRole('button', { name: 'إرسال للمراجعة' }).click();
+      expect(await page.evaluate(() => window.__actions)).toEqual(['corr-submit', 'corr-save-submit']);
     } finally { await page.close(); }
   }, 30000);
 
