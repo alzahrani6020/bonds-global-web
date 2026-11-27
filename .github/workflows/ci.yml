@@ -48,6 +48,17 @@ jobs:
           CRM_TEST_DATABASE_URL: postgres://postgres:crm-ci-only@localhost:5432/postgres
         run: node tests/crm/isolated-postgres-acceptance.js
 
+      - name: Verify correspondence campaigns migration in disposable PostgreSQL
+        shell: bash
+        env:
+          PGPASSWORD: crm-ci-only
+        run: |
+          set -euo pipefail
+          createdb -h localhost -U postgres campaigns_ci
+          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-campaigns-bootstrap.pg.sql
+          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127220000_correspondence_campaigns.sql
+          psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-campaigns-acceptance.pg.sql
+
       - name: Verify owner-authorized invitation server and failure handling
         run: node --test tests/crm/invite-handler-contract.cjs
 
