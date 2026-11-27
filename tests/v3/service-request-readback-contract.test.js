@@ -107,7 +107,7 @@ describe('guided financial intake fields',()=>{
   expect(source).toContain('data-intake-suggest=');
   expect(source).toContain("currencies.some(v=>!v)");
   expect(source).toContain("periods.some(v=>!v)");
-  expect(source).toContain("if(input&&!input.readOnly&&select.value!=='')input.value=select.value");
+  expect(source).toContain('const candidate=Array.isArray(record?.candidates)?record.candidates[Number(select.value)]:null');
   expect(source).toContain("total_expenses:lang==='ar'?'إجمالي المصروفات'");
   expect(source).toContain("payables:lang==='ar'?'الذمم الدائنة'");
  });
