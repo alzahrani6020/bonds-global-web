@@ -2,7 +2,7 @@
 -- All access is through authenticated, tenant-scoped server APIs using the service role.
 create table if not exists public.correspondence_campaigns (
   id uuid primary key default gen_random_uuid(),
-  company_id uuid not null references public.companies(id) on delete restrict,
+  workspace_id uuid not null references public.crm_app_workspaces(id) on delete restrict,
   created_by uuid not null references auth.users(id) on delete restrict,
   title text not null check (char_length(title) between 3 and 180),
   kind text not null check (kind in ('investment','partnership','institutional','customer','supplier','other')),
@@ -12,14 +12,14 @@ create table if not exists public.correspondence_campaigns (
   approved_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (id, company_id)
+  unique (id, workspace_id)
 );
 create index if not exists correspondence_campaigns_company_idx
-  on public.correspondence_campaigns (company_id, created_at desc);
+  on public.correspondence_campaigns (workspace_id, created_at desc);
 create table if not exists public.correspondence_campaign_recipients (
   id uuid primary key default gen_random_uuid(),
   campaign_id uuid not null,
-  company_id uuid not null,
+  workspace_id uuid not null,
   organization text not null default '',
   name text not null default '',
   email text not null check (char_length(email) between 5 and 320),
@@ -29,7 +29,7 @@ create table if not exists public.correspondence_campaign_recipients (
   provider_message_id text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  foreign key (campaign_id, company_id) references public.correspondence_campaigns(id,company_id) on delete restrict
+  foreign key (campaign_id, workspace_id) references public.correspondence_campaigns(id,workspace_id) on delete restrict
 );
 create unique index if not exists correspondence_campaign_recipients_unique
   on public.correspondence_campaign_recipients (campaign_id, lower(trim(email)));
