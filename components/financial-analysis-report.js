@@ -63,6 +63,18 @@
   // mislabel an available input as an unavailable ratio in the PDF.
   const missing=Object.keys(metricNames).filter(key=>!numeric(metrics[key])&&!numeric(inputs[key]));
   const fieldSources=Array.isArray(evidence.field_provenance)?evidence.field_provenance:[];
+  const sourceProvisional=fieldSources.some(field=>field?.document_disclaimer==='source_figures_unverified');
+  const comparisonExcluded=fieldSources.some(field=>field?.comparison_excluded===true);
+  const sourceNotices=[
+   ...(sourceProvisional?[tr(
+     'تنبيه مصدر: يوضح الملف الأصلي أن بعض الأرقام مبنية على افتراضات وغير مثبتة بالدفاتر؛ هذا التحليل لا يحولها إلى قوائم مالية معتمدة.',
+     'Source disclosure: original figures include unverified assumptions; this analysis does not certify or audit them.'
+   )]:[]),
+   ...(comparisonExcluded?[tr(
+     'حد المقارنة: فترة التقرير تسعة أشهر بينما الفترة المرجعية سنة كاملة؛ تم استبعاد نسب نمو الإيرادات والأرباح غير القابلة للمقارنة.',
+     'Comparability limit: the reporting period is nine months against a full prior year; misleading revenue and earnings growth rates were excluded.'
+   )]:[])
+  ];
   const heading=tr('BONDS Global — تقرير التحليل المالي','BONDS Global — Financial Analysis Report');
   const state=stored?tr('تم التحقق من حفظ النتائج واسترجاعها','Persistence verified by readback'):
     tr('الحفظ غير مؤكد — نسخة نتائج للمراجعة','Persistence not verified — review copy');
@@ -183,6 +195,8 @@
     '<header><small>BONDS Global · '+escape(tr('تحليل مالي موثق بالمدخلات','Input-attributed financial analysis'))+'</small><h1>'+escape(heading)+'</h1></header>'+
     '<p class="notice">'+escape(state)+'</p>'+
     section(tr('هوية الدراسة والتوثيق','Study identity and evidence'),'<table>'+tableRows(summary)+'</table>')+
+    (sourceNotices.length?section(tr('تنبيهات سلامة المصدر والمقارنة','Source assurance and comparability notices'),
+      sourceNotices.map(notice=>'<p class="notice">'+escape(notice)+'</p>').join('')):'')+
     section(tr('مستوى اكتمال التحليل','Analysis completeness'),'<table>'+tableRows(coverage)+'</table>')+
     section(tr('مقتطف القوائم المالية','Financial statement excerpt'),sourceStatement)+
     section(tr('مطابقة القوائم','Statement reconciliation'),'<table>'+tableRows(reconciliation)+'</table>')+
