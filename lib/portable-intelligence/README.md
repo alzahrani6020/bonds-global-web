@@ -7,6 +7,7 @@ Commercial module independent from the BONDS production database and corresponde
 - `file-adapters.js`: XLSX/CSV parser, PDF text extraction; images require an injected OCR implementation.
 - `integration-contract.js`: CRM and correspondence reviewed-directory intent envelopes only; HR employee creation fails closed until authenticated employment linking is implemented. No email is sent.
 - `local-ocr.js`: optional offline Tesseract subprocess adapter for images. Tesseract with Arabic and English trained data must be installed separately; the adapter has no cloud fallback and is not a Windows installer.
+- `sqlite-store.js`: optional on-device SQLite adapter (Node 22+ experimental built-in API) providing transactional reviewed imports, audit records, workspace-filtered reads, and reopen persistence. Requires trusted host authorization; it is not encrypted at rest and is NOT production-ready for customer data.
 - `review-gate.js`: fail-closed review boundary requiring selected proposals, a trusted host authorization callback, and a single atomic host commit callback. Workspace IDs supplied by a caller are NOT proof of membership.
 - The engine **never writes** to Supabase/PostgreSQL or sends mail. The host product must enforce authenticated tenant permission, review, persistence, duplicate checks and audit log.
 - Each customer deployment must supply its **own** storage, identity, encryption keys and backup policy. Never bundle BONDS production credentials or datasets.
@@ -41,3 +42,7 @@ node cli.js card.png --workspace-id 12345678-1234-4123-8123-1234567890ab --type 
 ```
 
 No records are persisted by this command. Run it only in a restricted account or sandbox with trusted/virus-scanned files. The separate Tesseract binary and its licenses must be included and validated by the future commercial installer.
+
+## Isolated local persistence acceptance
+
+Run `node --test tests/intelligence/portable-sqlite-acceptance.cjs` from the repository root. The test writes only temporary SQLite fixtures, verifies a review-approved import, closes/reopens the database, checks two different workspace IDs cannot read each other's records, and verifies a rejected import is not partially persisted. This is NOT evidence of production authentication, encryption, SaaS RLS, disaster recovery, or a completed installer.
