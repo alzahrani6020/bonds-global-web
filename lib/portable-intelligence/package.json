@@ -12,6 +12,8 @@
     "file-adapters.js",
     "review-gate.js",
     "sqlite-store.js",
+    "license-verifier.js",
+    "encrypted-backup.js",
     "integration-contract.js",
     "local-ocr.js",
     "cli.js",
