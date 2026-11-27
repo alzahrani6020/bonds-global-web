@@ -2102,9 +2102,10 @@ function inferFinancialMime(file){
 function intakeSourceLabel(field){
  const sources=Array.isArray(field?.source)?field.source:[];
  if(!sources.length)return intakeReview?.source?.file_name||T.manual;
- const src=sources[0]||{};
+ const src=sources.find(item=>field?.period&&item?.period===field.period)||sources[0]||{};
  const parts=[];
  if(intakeReview?.source?.file_name)parts.push(intakeReview.source.file_name);
+ if(src.page)parts.push((lang==='ar'?'صفحة ':'Page ')+src.page);
  if(src.sheet)parts.push((lang==='ar'?'ورقة ':'Sheet ')+src.sheet);
  if(src.row)parts.push((lang==='ar'?'صف ':'Row ')+src.row);
  if(src.column)parts.push((lang==='ar'?'عمود ':'Column ')+src.column);
@@ -2160,15 +2161,18 @@ function renderIntakeReviewField(field, allFields){
   return {index,value:item,period:'',currency:field.currency||'',source:''};
  }).filter(item=>item.value!==null&&item.value!==undefined&&item.value!==''&&Number.isFinite(Number(item.value)));
  const suggestion=(!derived&&(field.status==='missing'||field.status==='conflict'||field.status==='multi_period'||current===''))?financialReviewSuggestion(field,allFields||[]):null;
- const options=candidates.length&&!derived?'<label>'+escapeHtml(lang==='ar'?'اختر قيمة من الملف':'Select a document value')+'</label><select data-intake-candidate="'+escapeHtml(field.field)+'"><option value="">'+escapeHtml(lang==='ar'?'اختر قيمة أو أدخل يدويًا':'Choose a value or enter manually')+'</option>'+candidates.map(item=>'<option value="'+item.index+'">'+escapeHtml(String(item.value)+(item.period?' · '+item.period:'')+(item.currency?' · '+item.currency:''))+'</option>').join('')+'</select>':'';
+ const candidatePrompt=current!==''?
+  (lang==='ar'?'القيمة الحالية: ':'Current value: ')+String(current)+(field.period?' · '+field.period:'')+(lang==='ar'?' — اختر لتعديلها':' — select to change'):
+  (lang==='ar'?'اختر قيمة أو أدخل يدويًا':'Choose a value or enter manually');
+ const options=candidates.length&&!derived?'<label>'+escapeHtml(lang==='ar'?'اختر قيمة من الملف':'Select a document value')+'</label><select data-intake-candidate="'+escapeHtml(field.field)+'"><option value="">'+escapeHtml(candidatePrompt)+'</option>'+candidates.map(item=>'<option value="'+item.index+'">'+escapeHtml(String(item.value)+(item.period?' · '+item.period:'')+(item.currency?' · '+item.currency:''))+'</option>').join('')+'</select>':'';
  const formula=suggestion&&!derived?'<button type="button" class="sr-secondary" data-intake-suggest="'+escapeHtml(field.field)+'" data-suggest-value="'+escapeHtml(String(suggestion.value))+'">'+escapeHtml(lang==='ar'?'استخدام احتساب مقترح: ':'Use suggested calculation: ')+escapeHtml(String(suggestion.value))+'</button><small>'+escapeHtml(suggestion.formula)+'</small>':'';
  const missing=field.status==='missing'||field.status==='conflict'||field.status==='multi_period'||current==='';
  return '<div class="sr-intake-row">'+
   '<div><strong>'+escapeHtml(humanizeKey(field.field))+'</strong><small>'+escapeHtml(status)+'</small></div>'+
   '<div>'+options+'<label>'+escapeHtml(derived?(lang==='ar'?'قيمة مستنتجة':'Derived value'):(lang==='ar'?'القيمة المعتمدة أو الإدخال اليدوي':'Confirmed value or manual entry'))+'</label><input type="number" step="any" data-intake-field="'+escapeHtml(field.field)+'" value="'+escapeHtml(String(current))+'"'+(derived?' data-derived="true" readonly':'')+'>'+formula+(missing?'<small>'+escapeHtml(lang==='ar'?'إن لم توجد قيمة موثقة، اترك الحقل فارغًا.':'Leave blank when there is no supported value.')+'</small>':'')+'</div>'+
-  '<div><label>'+escapeHtml(T.currency)+'</label><span>'+escapeHtml(field.currency||'—')+'</span></div>'+
-  '<div><label>'+escapeHtml(T.period)+'</label><span>'+escapeHtml(field.period||'—')+'</span></div>'+
-  '<div class="sr-intake-source"><label>'+escapeHtml(T.source)+'</label><span>'+escapeHtml(intakeSourceLabel(field))+'</span></div>'+
+  '<div><label>'+escapeHtml(T.currency)+'</label><span data-intake-currency>'+escapeHtml(field.currency||'—')+'</span></div>'+
+  '<div><label>'+escapeHtml(T.period)+'</label><span data-intake-period>'+escapeHtml(field.period||'—')+'</span></div>'+
+  '<div class="sr-intake-source"><label>'+escapeHtml(T.source)+'</label><span data-intake-source>'+escapeHtml(intakeSourceLabel(field))+'</span></div>'+
  '</div>';
 }
 function renderIntakeReview(payload){
@@ -2241,6 +2245,21 @@ function renderIntakeReview(payload){
   if(input&&!input.readOnly&&select.value!==''&&candidate&&Number.isFinite(Number(candidate.value))){
    input.value=String(candidate.value);
    input.dataset.candidateIndex=select.value;
+   const row=input.closest('.sr-intake-row');
+   const period=row?.querySelector('[data-intake-period]');
+   const currency=row?.querySelector('[data-intake-currency]');
+   const source=row?.querySelector('[data-intake-source]');
+   if(period)period.textContent=candidate.period||'—';
+   if(currency)currency.textContent=candidate.currency||'—';
+   if(source&&candidate.source&&typeof candidate.source==='object'){
+    const location=candidate.source;
+    source.textContent=[intakeReview?.source?.file_name,
+      location.page?(lang==='ar'?'صفحة ':'Page ')+location.page:null,
+      location.sheet?(lang==='ar'?'ورقة ':'Sheet ')+location.sheet:null,
+      location.row?(lang==='ar'?'صف ':'Row ')+location.row:null,
+      location.line?(lang==='ar'?'سطر ':'Line ')+location.line:null
+    ].filter(Boolean).join(' · ')||source.textContent;
+   }
   }else if(input){delete input.dataset.candidateIndex;}
  }));
  host.querySelectorAll('[data-intake-field]').forEach(input=>input.addEventListener('input',()=>{
