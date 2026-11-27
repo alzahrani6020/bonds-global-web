@@ -69,6 +69,8 @@ describe('guided financial intake fields',()=>{
   const html=run({field_key:'analysis_period',field_type:'text',label_ar:'الفترة محل التحليل',is_required:true});
   expect(html).toContain('name="analysis_period"');
   expect(html).toContain('<datalist ');
+  expect(html).toContain('data-financial-choice-for="analysis_period"');
+  expect(html).toContain('إدخال قيمة أخرى يدويًا');
   expect(html).toContain('required');
   expect(html).toContain('ما الفترة التي تريد تحليلها؟');
  });
@@ -76,6 +78,7 @@ describe('guided financial intake fields',()=>{
   const html=run({field_key:'analysis_objective',label_ar:'هدف التحليل',is_required:true});
   expect(html).toContain('name="analysis_objective"');
   expect(html).toContain('تحليل مالي شامل');
+  expect(html).toContain('data-financial-choice-for="analysis_objective"');
   expect(html).toContain('list="srFriendlyOptions_analysis_objective"');
   const en=run({field_key:'analysis_objective',label_en:'Analysis objective'},'en');
   expect(en).toContain('Comprehensive financial analysis');
