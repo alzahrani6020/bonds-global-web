@@ -116,6 +116,36 @@ describe('BONDS governed financial analysis end-to-end boundaries',()=>{
    fields:result.fields,reviewed:true,serviceCode:'financial_analysis',values:result.values})).toBe('unverified');
   expect(result.fields.find(f=>f.field==='revenue').currency).toBe('SAR');
  });
+ test('currency and thousand-unit Excel headings scale amounts exactly once',()=>{
+  const parsed={sheets:[{name:'Financials',rows:[
+   ['البيان','2025','2026'],
+   ['العملة','ريال سعودي','ريال سعودي'],
+   ['وحدة العرض','بالألف','بالألف'],
+   ['الإيرادات',100,200],
+   ['مجموع الموجودات',300,400],
+   ['مجموع الالتزامات',100,150],
+   ['مجموع حقوق الملكية',200,250]
+  ]}]};
+  const r=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(r.values.revenue).toBe(200000);
+  expect(r.values.total_assets).toBe(400000);
+  expect(r.fields.find(f=>f.field==='revenue').currency).toBe('SAR');
+  expect(r.fields.find(f=>f.field==='revenue').period).toBe('2026');
+ });
+ test('Arabic الفترة cannot create an implicit thousand multiplier',()=>{
+  const parsed={text:[
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   'ريال سعودي',
+   '100 200 النقد وما في حكمه أول الفترة',
+   '30 45 صافي ربح السنة / الفترة بعد الزكاة',
+   'قائمة التدفقات النقدية',
+   'البيان ديسمبر 2025 سبتمبر 2026',
+   '30 45 صافي ربح السنة / الفترة بعد الزكاة'
+  ].join('\n')};
+  const r=extractFinancialFields({parsed,primaryAction:'financial_analysis_run',serviceCode:'financial_analysis'});
+  expect(r.values.opening_balance).toBe(200);
+  expect(r.values.cash_flow_net_income).toBe(45);
+ });
  test('traditional interest coverage requires EBIT, not only EBITDA',()=>{
   const report=financialAnalysis({ebitda:250000,interest_expense:50000},{serviceCode:'interest_coverage_analysis'});
   expect(report.executed).toBe(false);
