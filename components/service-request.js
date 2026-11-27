@@ -2130,7 +2130,7 @@ function renderIntakeReviewField(field, allFields){
   if(item&&typeof item==='object')return {value:item.value,period:item.period||'',currency:item.currency||field.currency||'',source:item.source||''};
   return {value:item,period:'',currency:field.currency||'',source:''};
  }).filter(item=>item.value!==null&&item.value!==undefined&&item.value!==''&&Number.isFinite(Number(item.value)));
- const suggestion=financialReviewSuggestion(field,allFields||[]);
+ const suggestion=(!derived&&(field.status==='missing'||field.status==='conflict'||field.status==='multi_period'||current===''))?financialReviewSuggestion(field,allFields||[]):null;
  const options=candidates.length&&!derived?'<label>'+escapeHtml(lang==='ar'?'اختر قيمة من الملف':'Select a document value')+'</label><select data-intake-candidate="'+escapeHtml(field.field)+'"><option value="">'+escapeHtml(lang==='ar'?'اختر قيمة أو أدخل يدويًا':'Choose a value or enter manually')+'</option>'+candidates.map(item=>'<option value="'+escapeHtml(String(item.value))+'">'+escapeHtml(String(item.value)+(item.period?' · '+item.period:'')+(item.currency?' · '+item.currency:''))+'</option>').join('')+'</select>':'';
  const formula=suggestion&&!derived?'<button type="button" class="sr-secondary" data-intake-suggest="'+escapeHtml(field.field)+'" data-suggest-value="'+escapeHtml(String(suggestion.value))+'">'+escapeHtml(lang==='ar'?'استخدام احتساب مقترح: ':'Use suggested calculation: ')+escapeHtml(String(suggestion.value))+'</button><small>'+escapeHtml(suggestion.formula)+'</small>':'';
  const missing=field.status==='missing'||field.status==='conflict'||field.status==='multi_period'||current==='';
