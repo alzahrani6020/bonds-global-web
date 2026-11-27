@@ -50,3 +50,43 @@ BEGIN
  END;
  IF NOT rejected THEN RAISE EXCEPTION 'Official document reused across two recipients'; END IF;
 END $$;
+
+DO $$
+DECLARE a uuid='22222222-2222-4222-8222-222222222222'; b uuid='33333333-3333-4333-8333-333333333333';
+ u uuid='11111111-1111-4111-8111-111111111111';
+ c uuid='55555555-5555-4555-8555-555555555555';
+ r uuid='66666666-6666-4666-8666-666666666666';
+ m uuid='77777777-7777-4777-8777-777777777777';
+ rejected boolean;
+BEGIN
+ IF EXISTS(SELECT 1 FROM pg_class x JOIN pg_namespace n ON n.oid=x.relnamespace
+  WHERE n.nspname='public' AND x.relname IN
+  ('correspondence_mailboxes','correspondence_mailbox_oauth_states','correspondence_campaign_dispatch_jobs')
+  AND NOT x.relrowsecurity) THEN RAISE EXCEPTION 'Mailbox/queue RLS missing'; END IF;
+ IF has_table_privilege('anon','public.correspondence_mailboxes','SELECT') OR
+  has_table_privilege('authenticated','public.correspondence_mailboxes','SELECT') OR
+  has_table_privilege('anon','public.correspondence_campaign_dispatch_jobs','SELECT')
+ THEN RAISE EXCEPTION 'Secrets/queue accessible to browser role'; END IF;
+ INSERT INTO public.correspondence_mailboxes(id,company_id,address,account_id,region,encrypted_refresh_token,connected_by)
+ VALUES(m,a,'info@bonds-global.com','123456789','com','encrypted-test-only',u);
+ rejected:=false;
+ BEGIN
+  INSERT INTO public.correspondence_mailboxes(company_id,address,account_id,region,encrypted_refresh_token,connected_by)
+  VALUES(b,'INFO@BONDS-GLOBAL.COM','987654321','com','encrypted-test-only',u);
+ EXCEPTION WHEN unique_violation THEN rejected:=true;
+ END;
+ IF NOT rejected THEN RAISE EXCEPTION 'Sender identity shared by two tenants'; END IF;
+ INSERT INTO public.correspondence_campaign_dispatch_jobs
+ (campaign_id,company_id,recipient_id,document_id,mailbox_id,issued_hash,idempotency_key)
+ VALUES(c,a,r,'44444444-4444-4444-8444-444444444444',m,repeat('a',64),repeat('b',64));
+ IF (SELECT count(*) FROM public.correspondence_campaign_dispatch_jobs WHERE campaign_id=c)<>1
+ THEN RAISE EXCEPTION 'Dispatch job not persisted'; END IF;
+ rejected:=false;
+ BEGIN
+  INSERT INTO public.correspondence_campaign_dispatch_jobs
+  (campaign_id,company_id,recipient_id,document_id,mailbox_id,issued_hash,idempotency_key)
+  VALUES(c,b,r,'44444444-4444-4444-8444-444444444444',m,repeat('a',64),repeat('c',64));
+ EXCEPTION WHEN foreign_key_violation THEN rejected:=true;
+ END;
+ IF NOT rejected THEN RAISE EXCEPTION 'Cross-tenant dispatch job accepted'; END IF;
+END $$;
