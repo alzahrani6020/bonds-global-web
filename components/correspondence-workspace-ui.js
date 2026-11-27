@@ -99,6 +99,9 @@
     nav.append(button(tr('＋  مراسلة جديدة', '＋  New correspondence'), () => {
       if (!activateExisting('corr-new')) openCenter();
     }));
+    nav.append(button(tr('▦  دليل الجهات', '▦  Institutional directory'), () => {
+      window.location.assign('/institutional-directory.html');
+    }));
     nav.append(button(tr('▤  عرض السجل والبحث', '▤  Search register'), () => {
       search.focus();
       panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
