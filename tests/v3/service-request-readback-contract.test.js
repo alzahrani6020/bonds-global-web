@@ -90,6 +90,15 @@ describe('guided financial intake fields',()=>{
   expect(run({field_key:'company_name',label_ar:'اسم الشركة'})).toBeNull();
   expect(run({field_key:'analysis_period',label_ar:'الفترة محل التحليل'},'ar','feasibility_studies')).toBeNull();
  });
+ test('supports actionable financial candidates and guarded derived suggestions',()=>{
+  expect(source).toContain('data-intake-candidate=');
+  expect(source).toContain('data-intake-suggest=');
+  expect(source).toContain("currencies.some(v=>!v)");
+  expect(source).toContain("periods.some(v=>!v)");
+  expect(source).toContain("if(input&&!input.readOnly&&select.value!=='')input.value=select.value");
+  expect(source).toContain("total_expenses:lang==='ar'?'إجمالي المصروفات'");
+  expect(source).toContain("payables:lang==='ar'?'الذمم الدائنة'");
+ });
  test('review groups preserve source, candidate, and correction field rendering',()=>{
   expect(source).toContain('renderIntakeReviewField(field,fields)');
   expect(source).toContain('data-intake-field=');
