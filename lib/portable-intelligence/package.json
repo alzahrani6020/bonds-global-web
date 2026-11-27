@@ -31,7 +31,8 @@
     "commercial-ui.html",
     "commercial-ui.js",
     "local-identity.js",
-    "start-local-server.js"
+    "start-local-server.js",
+    "destination-delivery.js"
   ],
   "engines": {
     "node": ">=22"
