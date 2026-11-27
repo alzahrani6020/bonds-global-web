@@ -7,7 +7,7 @@
   function status(message,bad=false){$('status').textContent=message;$('status').classList.toggle('error',bad);}
   function node(tag,content){const el=document.createElement(tag);if(content!==undefined)el.textContent=String(content);return el;}
   function option(value,label){const el=node('option',label);el.value=value;return el;}
-  function setBusy(value){loading=value;for(const id of ['create','refresh','submit','approve','back','cancel','import','bind','connect-mailbox','refresh-mailbox']){$(id).disabled=value;}}
+  function setBusy(value){loading=value;for(const id of ['create','refresh','submit','approve','back','cancel','import','bind','connect-mailbox','refresh-mailbox','dispatch','resume-dispatch','refresh-dispatch']){$(id).disabled=value;}}
   async function session(){
     let auth=window.BondsAuth;
     if(!auth?.getSession){
@@ -42,6 +42,8 @@
   async function loadMailboxes(){
     const list=$('mailbox-list');
     list.replaceChildren();
+    const sender=$('dispatch-mailbox');
+    sender.replaceChildren(option('','اختر صندوق Zoho موثقًا'));
     if(!UUID.test($('company').value)){
       list.textContent='اختر الشركة لعرض صناديق بريدها.';return;
     }
@@ -51,7 +53,9 @@
       for(const mailbox of data.mailboxes){
         const row=node('p',(mailbox.address||'')+' — '+(mailbox.enabled?'متصل ومتحقق منه':'معطل'));
         list.append(row);
+        if(mailbox.enabled&&mailbox.verified_at)sender.append(option(mailbox.id,mailbox.address));
       }
+      updateActions();
     }catch(e){
       list.textContent=e.message==='MAILBOX_PERMISSION_DENIED'
         ? 'إدارة صناديق البريد متاحة لمالك الشركة ومسؤولها فقط.'
@@ -69,6 +73,52 @@
     if(authorization.protocol!=='https:'||!/^(accounts\.zoho\.(com|eu|in|com\.au|jp|com\.cn)|accounts\.zohocloud\.ca)$/.test(authorization.hostname))
       throw new Error('رابط تفويض Zoho غير صالح');
     window.location.assign(authorization.href);
+  }
+  async function dispatchApi(path='',payload){
+    const token=await session();
+    const response=await fetch('/api/campaign-dispatch'+path,{
+      method:payload?'POST':'GET',cache:'no-store',credentials:'same-origin',
+      headers:{Accept:'application/json',Authorization:'Bearer '+token,...(payload?{'Content-Type':'application/json'}:{})},
+      ...(payload?{body:JSON.stringify(payload)}:{})
+    });
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(result.error||'DISPATCH_UNAVAILABLE');
+    return result;
+  }
+  async function refreshDispatchStatus(){
+    if(!activeCampaign)return;
+    const label=$('dispatch-status');
+    try{
+      const report=await dispatchApi('?campaign_id='+encodeURIComponent(activeCampaign.id));
+      const counts=report.counts||{};
+      label.textContent='معلقة: '+(counts.ready||0)+' | قيد المعالجة: '+(counts.sending||0)+
+        ' | قبلها مزود البريد: '+(counts.accepted||0)+' | غير مؤكدة: '+(counts.unknown||0)+
+        ' | فشلت: '+(counts.failed||0);
+    }catch(e){label.textContent='حالة الإرسال غير متاحة: '+message(e);}
+  }
+  async function startDispatch(){
+    if(!activeCampaign||activeCampaign.status!=='approved')throw new Error('يجب اعتماد الحملة أولاً');
+    const mailbox_id=$('dispatch-mailbox').value;
+    if(!UUID.test(mailbox_id))throw new Error('حدد بريد Zoho موثقًا لهذه الشركة');
+    if(!window.confirm('تفويض صريح: هل تبدأ إرسال الخطابات الصادرة الموثقة إلى مستلمي هذه الحملة بصورة منفصلة من البريد المحدد؟'))return;
+    await dispatchApi('',{action:'start',campaign_id:activeCampaign.id,mailbox_id});
+    await openCampaign(activeCampaign.id);
+    status('تم اعتماد بدء الإرسال. يستخدم النظام مهام محفوظة تمنع تكرار الرسائل.');
+    await resumeDispatch();
+  }
+  async function resumeDispatch(){
+    if(!activeCampaign||activeCampaign.status!=='running')throw new Error('الحملة ليست قيد الإرسال');
+    let accepted=0,uncertain=0,attempts=0;
+    while(attempts<250){
+      const result=await dispatchApi('',{action:'next',campaign_id:activeCampaign.id});
+      if(!result.pending||result.claimed_elsewhere)break;
+      attempts++;
+      if(result.accepted)accepted++;
+      if(result.uncertain)uncertain++;
+      $('dispatch-status').textContent='دفعة التنفيذ: '+attempts+' | قبلها Zoho: '+accepted+' | غير مؤكدة: '+uncertain;
+    }
+    await refreshDispatchStatus();
+    status('نتيجة جولة الإرسال: '+accepted+' مؤكدة القبول لدى Zoho؛ '+uncertain+' تحتاج مراجعة. لا يُعاد إرسال الحالات غير المؤكدة تلقائيًا.');
   }
   function message(err){
     const map={AUTH_REQUIRED:'يجب تسجيل الدخول إلى BONDS أولاً.',COMPANY_NOT_FOUND:'ليس لديك وصول لهذه الشركة.',
@@ -92,8 +142,9 @@
     $('cancel').hidden=!['draft','review','approved'].includes(state);
     $('import').disabled=loading||state!=='draft';
     $('bind').disabled=loading||!['draft','review','approved'].includes(state);
-    $('dispatch').disabled=true;
-    $('dispatch').textContent='الإرسال الآلي غير متاح بعد';
+    $('dispatch').disabled=loading||state!=='approved'||!UUID.test($('dispatch-mailbox').value);
+    $('resume-dispatch').disabled=loading||state!=='running';
+    $('refresh-dispatch').disabled=loading||!activeCampaign;
   }
   async function loadCompanies(){
     const result=await api('?mine=1');
@@ -136,6 +187,7 @@
     const result=await api('?id='+encodeURIComponent(id));
     activeCampaign=result.campaign;$('detail-title').textContent=result.campaign.title;
     renderRecipients(result.recipients||[]);updateActions();
+    await refreshDispatchStatus();
     status('تم تحميل الحملة من قاعدة البيانات: '+(labels[activeCampaign.status]||activeCampaign.status));
   }
   async function create(){
@@ -181,6 +233,10 @@
   window.addEventListener('DOMContentLoaded',()=>{
     $('company').addEventListener('change',()=>run(loadCampaigns));
     $('connect-mailbox').addEventListener('click',()=>run(connectMailbox));
+    $('dispatch-mailbox').addEventListener('change',updateActions);
+    $('dispatch').addEventListener('click',()=>run(startDispatch));
+    $('resume-dispatch').addEventListener('click',()=>run(resumeDispatch));
+    $('refresh-dispatch').addEventListener('click',()=>run(refreshDispatchStatus));
     $('refresh-mailbox').addEventListener('click',()=>run(loadMailboxes));
     $('refresh').addEventListener('click',()=>run(loadCampaigns));
     $('create').addEventListener('click',()=>run(create));
