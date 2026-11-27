@@ -50,6 +50,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/bonds-auth-2026.js?v=3.1.4" defer></script>
 <script src="/components/institutional-directory-ui.js?v=1" defer></script>
+<script src="/components/institutional-directory-import.js?v=1" defer></script>
 </head>
 <body>
 <header>
@@ -77,7 +78,39 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
  </section>
  <div id="directory-status" class="status" role="status" aria-live="polite">Checking session and permissions...</div>
  <section id="directory-results" class="results" aria-label="Directory results"></section>
- <p class="capability"><span class="pill">Read Only</span> This page does not send mail or import data. It reads existing CRM records subject to company permissions.</p>
+ <section class="card" style="margin-top:16px" aria-labelledby="entry-title">
+  <h2 id="entry-title" style="font-size:17px;margin:0 0 10px">Add organization or import file</h2>
+  <p class="capability">Requires CRM edit access to the selected company workspace. Review data before saving. No emails are sent.</p>
+  <form id="institutional-entry-form" class="fields">
+   <div class="field"><label for="institutional-entry-type">Record type</label><select id="institutional-entry-type"><option value="organization">Organization</option><option value="contact">Contact</option></select></div>
+   <div class="field"><label for="institutional-entry-name">Name</label><input id="institutional-entry-name" maxlength="240" required autocomplete="off"></div>
+   <div class="field"><label for="institutional-entry-email">Email (optional)</label><input id="institutional-entry-email" type="email" maxlength="254" autocomplete="off"></div>
+   <div class="field"><label for="institutional-entry-phone">Phone (optional)</label><input id="institutional-entry-phone" maxlength="40" autocomplete="off"></div>
+   <div class="field" id="institutional-sector-wrap"><label for="institutional-entry-sector">Category</label><select id="institutional-entry-sector">
+    <option value="business">Business</option>
+    <option value="government">Government</option>
+    <option value="factory">Factory</option>
+    <option value="school">School</option>
+    <option value="university">University</option>
+    <option value="hospital">Hospital</option>
+    <option value="clinic">Clinic</option>
+    <option value="nonprofit">Nonprofit</option>
+    <option value="other">Other</option>
+   </select></div>
+   <div class="field" id="institutional-city-wrap"><label for="institutional-entry-city">City</label><input id="institutional-entry-city" maxlength="100"></div>
+   <div class="field" id="institutional-country-wrap"><label for="institutional-entry-country">Country</label><input id="institutional-entry-country" maxlength="100"></div>
+   <button type="submit" id="institutional-preview-entry">Preview entry</button>
+  </form>
+  <div class="field" style="margin-top:18px"><label for="institutional-csv">Import CSV: up to 100 rows and 100 KB</label><input id="institutional-csv" type="file" accept=".csv,text/csv"></div>
+  <p class="capability">Allowed columns: type,name,sector,legal_name,city,country,email,phone,role. Types: organization or contact. Duplicate names within the same company workspace are skipped.</p>
+  <div class="row" style="display:flex;gap:10px;flex-wrap:wrap">
+   <button type="button" id="institutional-preview-csv">Preview CSV</button>
+   <button type="button" id="institutional-apply" disabled>Confirm and save to CRM</button>
+  </div>
+  <div id="institutional-preview" aria-label="Data preview"></div>
+  <p class="status" id="institutional-entry-status" role="status" aria-live="polite">Select a company workspace before previewing.</p>
+ </section>
+ <p class="capability"><span class="pill">Directory</span> The directory supports viewing and explicit manual entry/import under CRM access controls; it does not send emails.</p>
 </main>
 </div>
 </body>
