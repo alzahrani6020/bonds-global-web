@@ -42,9 +42,9 @@ describe('service request persistence and readback contracts', () => {
 
   test('both language and workspace routes use the same cache-busted client', () => {
     for (const route of ['service-request.html','en/service-request.html','my-bonds/workspace/index.html','en/my-bonds/workspace/index.html']) {
-      expect(read(route)).toContain('/components/service-request.js?v=49');
+      expect(read(route)).toContain('/components/service-request.js?v=50');
     }
-    expect(read('sw.js')).toContain("'/components/service-request.js?v=49'");
+    expect(read('sw.js')).toContain("'/components/service-request.js?v=50'");
   });
 });
 
@@ -91,11 +91,11 @@ describe('guided financial intake fields',()=>{
   expect(run({field_key:'analysis_period',label_ar:'الفترة محل التحليل'},'ar','feasibility_studies')).toBeNull();
  });
  test('review groups preserve source, candidate, and correction field rendering',()=>{
-  expect(source).toContain('renderIntakeReviewField(field)');
+  expect(source).toContain('renderIntakeReviewField(field,fields)');
   expect(source).toContain('data-intake-field=');
   expect(source).toContain('sr-review-group');
-  expect(source).toContain('confirmed.map(field=>renderIntakeReviewField(field))');
-  expect(source).toContain('unresolved.map(field=>renderIntakeReviewField(field))');
+  expect(source).toContain('confirmed.map(field=>renderIntakeReviewField(field,fields))');
+  expect(source).toContain('unresolved.map(field=>renderIntakeReviewField(field,fields))');
  });
 });
 
