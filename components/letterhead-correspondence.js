@@ -129,7 +129,7 @@
     const inherited = state.document?.workspace_context && typeof state.document.workspace_context === 'object'
       ? state.document.workspace_context
       : (state.workspaceContext && typeof state.workspaceContext === 'object' ? state.workspaceContext : {});
-    const keys = ['service', 'workspace', 'company_id', 'project_id', 'client_id', 'funding_case_id', 'request_id', 'return_to'];
+    const keys = ['service', 'workspace', 'company_id', 'project_id', 'client_id', 'funding_case_id', 'request_id', 'return_to', 'campaign_workspace_id'];
     const ctx = {};
     keys.forEach(k => {
       const value = p.get(k) || inherited[k] || '';
