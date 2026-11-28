@@ -47,6 +47,6 @@ describe('service request rollback history and transactional tenant-isolation re
    expect(read(file)).toContain('/components/service-request.js?v=58');
   }
   // The assistant runtime changed in this candidate and requires a cache bump.
-  expect(read('sw.js')).toContain("const CACHE_VERSION = 'v3.0.357';");
+  expect(read('sw.js')).toContain("const CACHE_VERSION = 'v3.0.358';");
  });
 });
