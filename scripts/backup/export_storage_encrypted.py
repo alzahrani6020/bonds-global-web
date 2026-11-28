@@ -28,7 +28,7 @@ PAGE_SIZE = 100
 def request_json(url, key, payload):
     body = json.dumps(payload).encode("utf-8")
     req = Request(url, data=body, method="POST", headers={
-        "apikey": key, "Authorization": "Bearer " + key,
+        "apikey": key,
         "Content-Type": "application/json",
     })
     with urlopen(req, timeout=45) as response:
@@ -44,7 +44,7 @@ def list_buckets(base, key):
                            "sortColumn": "name", "sortOrder": "asc"})
         req = Request(base + "/storage/v1/bucket?" + query,
                       method="GET", headers={
-                          "apikey": key, "Authorization": "Bearer " + key
+                          "apikey": key
                       })
         with urlopen(req, timeout=45) as response:
             entries = json.load(response)
@@ -132,7 +132,7 @@ def download(base, key, bucket, path, target):
     url = (base + "/storage/v1/object/authenticated/" +
            quote(bucket, safe="") + "/" + quote(path, safe="/"))
     req = Request(url, method="GET", headers={
-        "apikey": key, "Authorization": "Bearer " + key
+        "apikey": key
     })
     digest = hashlib.sha256()
     count = 0
