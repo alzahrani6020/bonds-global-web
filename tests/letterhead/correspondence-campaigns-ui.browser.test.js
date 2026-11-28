@@ -127,7 +127,7 @@ describe('BONDS campaign visual browser acceptance (mock isolated)',()=>{
     await page.locator('#body-template').fill('يسرنا بحث الفرص الاستثمارية والتعاون المؤسسي وفق المعلومات المعتمدة، مع مراجعة كل خطاب قبل إصداره أو إرساله.');
     await page.locator('#save-template').click();
     const lines=Array.from({length:27},(_,i)=>'Test Organization '+String(i+1).padStart(2,'0')+', clix-test-'+String(i+1).padStart(2,'0')+'@example.test');
-    await page.locator('#recipient-lines').fill(lines.join('\\n'));
+    await page.locator('#recipient-lines').fill(lines.join('\n'));
     await page.locator('#import').click();
     await page.waitForFunction(()=>document.querySelectorAll('#recipients tr').length===27);
     expect(state.recipients).toHaveLength(27);
