@@ -311,6 +311,22 @@
       "destination": "/api/platform"
     },
     {
+      "source": "/api/commercial-directory-import",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/commercial-directory-import/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/commercial-directory-hr",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/commercial-directory-hr/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/institutional-directory",
       "destination": "/api/platform"
     },

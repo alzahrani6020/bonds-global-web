@@ -6,6 +6,8 @@
 const getSupabase = require('../lib/api/supabase');
 const crmInviteHandler = require('../lib/api/crm-invite');
 const institutionalDirectoryHandler = require('../lib/api/institutional-directory');
+const commercialPortableDirectoryReceiver = require('../lib/api/commercial-portable-destination').createCommercialDirectoryReceiver();
+const commercialHrDirectoryHandler = require('../lib/api/commercial-directory-hr').createHrCommercialDirectory();
 const hrInviteHandler = require('../lib/api/hr-invite');
 const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
@@ -2363,6 +2365,19 @@ module.exports = async function handler(req, res) {
       req.query = req.query || {}; req.query.action = 'send-letter';
       if (await checkRateLimit('auth', req, res)) return;
       return siteHandler(req, res);
+    }
+
+    // Portable commercial data: authenticated owner/editor write with RLS.
+    // No independent Vercel function; stay within the Hobby 12-function cap.
+    if (pathname === '/api/commercial-directory-import' || pathname === '/api/commercial-directory-import/') {
+      if (await checkRateLimit('auth', req, res)) return;
+      return commercialPortableDirectoryReceiver(req, res);
+    }
+
+    // Read-only institutional directory for an HR-entitled owner.
+    if (pathname === '/api/commercial-directory-hr' || pathname === '/api/commercial-directory-hr/') {
+      if (await checkRateLimit('admin_read', req, res)) return;
+      return commercialHrDirectoryHandler(req, res);
     }
 
     // Authenticated, tenant-scoped and read-only CRM organization/contact directory.

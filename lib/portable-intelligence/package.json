@@ -1,0 +1,47 @@
+{
+  "name": "@bonds-global/document-intelligence-core",
+  "version": "0.1.0",
+  "description": "BONDS offline-first review-only extraction foundation",
+  "private": true,
+  "type": "commonjs",
+  "bin": {
+    "bonds-document-intelligence": "./cli.js",
+    "bonds-commercial-local": "./start-local-server.js"
+  },
+  "files": [
+    "core.js",
+    "file-adapters.js",
+    "review-gate.js",
+    "sqlite-store.js",
+    "license-verifier.js",
+    "encrypted-backup.js",
+    "integration-contract.js",
+    "local-ocr.js",
+    "cli.js",
+    "README.md",
+    "entity-intelligence.js",
+    "html-table-review.js",
+    "local-pdf-ocr.js",
+    "tenant-authorization.js",
+    "approved-directory-export.js",
+    "commercial-workflow.js",
+    "licensed-commercial-workflow.js",
+    "labeled-entity-list.js",
+    "commercial-server.js",
+    "commercial-ui.html",
+    "commercial-ui.js",
+    "local-identity.js",
+    "start-local-server.js",
+    "destination-delivery.js",
+    "sqlcipher-driver.js"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "mammoth": "1.12.0",
+    "pdf-parse": "2.4.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "better-sqlite3-multiple-ciphers": "13.2.0"
+  }
+}

@@ -125,6 +125,12 @@ jobs:
       - name: Run Assistant End-to-End CI Journeys
         run: npm run test:assistant:e2e-ci
 
+      - name: Verify portable local SQLite save/reopen/tenant isolation
+        run: node --test tests/intelligence/portable-sqlite-acceptance.cjs
+
+      - name: Verify portable encrypted backup and license signing
+        run: node --test tests/intelligence/portable-backup-license.acceptance.cjs
+
       - name: Run Unit and Integration Tests
         run: npm test
 
@@ -192,6 +198,15 @@ jobs:
           fi
           echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then exit 0; fi
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            # Preserve an actual byte/pixel comparison against current main.
+            # The legacy mobile homepage reference predates its approved redesign.
+            git fetch --no-tags --depth=1 origin main
+            BASE_SHA="$(git rev-parse FETCH_HEAD)"
+            echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+            echo "scope=base-compare" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           git fetch --no-tags --depth=1 origin "$BASE_SHA"
           git diff --name-only "$BASE_SHA" HEAD > /tmp/bonds-pr-changed-files.txt
           cat /tmp/bonds-pr-changed-files.txt
