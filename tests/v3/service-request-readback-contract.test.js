@@ -48,9 +48,9 @@ describe('service request persistence and readback contracts', () => {
 
   test('both language and workspace routes use the same cache-busted client', () => {
     for (const route of ['service-request.html','en/service-request.html','my-bonds/workspace/index.html','en/my-bonds/workspace/index.html']) {
-      expect(read(route)).toContain('/components/service-request.js?v=57');
+      expect(read(route)).toContain('/components/service-request.js?v=58');
     }
-    expect(read('sw.js')).toContain("'/components/service-request.js?v=57'");
+    expect(read('sw.js')).toContain("'/components/service-request.js?v=58'");
   });
 });
 
@@ -185,7 +185,9 @@ describe('guided financial intake fields',()=>{
   expect(source).toContain('stored?.executed!==true');
   expect(source).toContain('renderExecutionResult(payload)');
   expect(source).toContain("$('#srRequestForm').insertAdjacentElement('beforebegin',box)");
-  expect(source).toContain('restoreSavedFinancialResult({silent:true})');
+  expect(source).not.toContain('restoreSavedFinancialResult({silent:true})');
+  expect(source).toContain("panel.querySelector('#srShowSavedFinancialResult')?.addEventListener('click'");
+  expect(source).toContain("el.querySelector('#srWelcomeWorks').addEventListener('click'");
  });
  test('financial analysis uses a full-width review without altering other workspaces',()=>{
   expect(source).toContain("if(serviceCode==='financial_analysis'){");

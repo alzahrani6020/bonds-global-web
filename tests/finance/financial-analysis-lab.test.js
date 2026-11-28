@@ -71,7 +71,9 @@ describe('BONDS financial analysis lab: synthetic and isolated from client data'
   const end=api.indexOf("if (path === '/services' ||",start);
   const handler=api.slice(start,end);
   expect(handler).toContain("req.method!=='GET'");
-  expect(handler).toContain('scenarioResult(scenario)');
+  expect(handler).toContain('scenarioResult(scenario,adjustments)');
+   expect(handler).toContain('UNKNOWN_DEMO_PARAMETER');
+   expect(handler).toContain('INVALID_DEMO_ADJUSTMENT');
   expect(handler).not.toMatch(/\.from\(|\.insert\(|\.update\(|executeService\(/);
   const client=read('components/financial-analysis-lab.js');
   expect(client).toContain("method:'GET'");
@@ -84,6 +86,6 @@ describe('BONDS financial analysis lab: synthetic and isolated from client data'
   expect(client).toContain('srFinanceLabClear');
   const workspace=read('components/service-request.js');
   expect(workspace).toContain("if(serviceCode==='financial_analysis')");
-  expect(workspace).toContain('BondsFinancialAnalysisLab?.mount(lab,lang)');
+  expect(workspace).toContain('BondsFinancialAnalysisLab?.mount(host,lang)');
  });
 });

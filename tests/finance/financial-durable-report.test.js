@@ -110,7 +110,7 @@ describe('durable financial report contract',()=>{
     'my-bonds/workspace/index.html','en/my-bonds/workspace/index.html']){
     const html=fs.readFileSync(path,'utf8');
     expect(html).toContain('/components/service-request.css?v=3');
-    expect(html).toContain('/components/service-request.js?v=57');
+    expect(html).toContain('/components/service-request.js?v=58');
   }
  });
  test('owner is mandatory; other owner cannot create or read the report',async()=>{

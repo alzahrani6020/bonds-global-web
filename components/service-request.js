@@ -1967,7 +1967,7 @@ function render(){
  renderFinancialOperationalInputs();
  renderStudiesOperationalInputs();
  renderFinancialIntake();
- if(serviceCode==='financial_analysis')restoreSavedFinancialResult({silent:true});
+ // The welcome must never query or expose the owner's previous financial report automatically.
  bindFinancialChoiceControls();
  restoreWorkspaceDraft();
  renderFeasibilityControls();
@@ -1998,6 +1998,70 @@ function ensureFinancialGuideStyles(){
  style.id='srFinancialGuideStyles';
  style.textContent="\n/* Guided financial intake: beginner-readable controls without changing field names. */\nbody.financial-review-wide .sr-grid{grid-template-columns:minmax(0,1fr)}\nbody.financial-review-wide .sr-grid>aside{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}\nbody.financial-review-wide .sr-grid>aside .sr-card{margin:0;min-width:0}\n@media(max-width:700px){body.financial-review-wide .sr-grid>aside{grid-template-columns:1fr}}\n.sr-saved-reanalysis{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}\n.sr-saved-reanalysis small{color:#64748b;line-height:1.6}\n.sr-saved-reanalysis button:disabled{opacity:.65;cursor:wait}\n.sr-intake-row select[data-intake-candidate]{width:100%;min-width:0;min-height:46px;padding:9px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#10233f;font:inherit}\n.sr-intake-row [data-intake-suggest]{width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere;text-align:start;justify-content:flex-start;cursor:pointer}\n.sr-intake-row [data-intake-field]{min-width:0;min-height:44px}\n.sr-intake-row>div{min-width:0}\n.sr-friendly-choice select{width:100%;min-height:48px;margin:8px 0;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice input[list]{width:100%;min-height:48px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice .sr-friendly-help{display:block;margin-top:6px;font-size:.85rem;color:#57657b;line-height:1.6}\n.sr-friendly-notes{padding:12px 14px;border:1px solid #dbe2ec;border-radius:12px;background:#f8fafc}\n.sr-friendly-notes summary{font-weight:700;color:#123050;cursor:pointer}\n.sr-friendly-notes textarea{display:block;width:100%;min-height:88px;margin-top:10px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-review-guide{padding:12px 14px;margin:12px 0;border:1px solid #dbe7f4;border-radius:12px;background:#f5f8fc;line-height:1.8;font-weight:600;color:#18334f}\n.sr-review-group{border:1px solid #d7e0eb;border-radius:14px;margin:12px 0;background:#fff;overflow:hidden}\n.sr-review-group>summary{padding:14px 16px;background:#f8fafc;cursor:pointer;font-weight:800;color:#0d2343}\n.sr-review-group>.sr-intake-table{padding:10px}\n.sr-review-group summary:focus-visible,.sr-friendly-notes summary:focus-visible{outline:3px solid #2563eb;outline-offset:2px}\n@media(max-width:700px){.sr-review-guide{font-size:.88rem}.sr-review-group>.sr-intake-table{padding:6px}}\n";
  document.head.appendChild(style);
+}
+function renderFinancialWelcome(){
+ if(serviceCode!=='financial_analysis'||document.getElementById('srFinancialWelcome'))return;
+ const form=document.getElementById('srRequestForm');
+ if(!form)return;
+ const isAr=lang==='ar';
+ const tr=(ar,en)=>isAr?ar:en;
+ const el=document.createElement('section');
+ el.id='srFinancialWelcome';
+ el.className='sr-financial-welcome';
+ el.setAttribute('aria-label',tr('مركز التحليل المالي','Financial analysis center'));
+ const style=document.createElement('style');
+ style.id='srFinancialWelcomeStyle';
+ style.textContent=[
+ '.sr-financial-welcome{max-width:900px;margin:22px auto;padding:clamp(20px,4vw,40px);border:1px solid #dae2ed;border-radius:22px;background:var(--surface,#fff);box-shadow:0 14px 48px rgba(20,39,69,.07);text-align:center;direction:inherit}',
+ '.sr-financial-welcome h2{font-size:clamp(1.4rem,3vw,2.2rem);line-height:1.35;margin:12px 0}',
+ '.sr-financial-welcome p{max-width:660px;margin:12px auto;color:var(--muted,#57677b);line-height:1.85}',
+ '.sr-financial-welcome .sr-financial-welcome-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:24px 0}',
+ '.sr-financial-welcome .sr-financial-welcome-actions button{min-height:48px;min-width:min(100%,220px);padding:10px 18px;border-radius:10px}',
+ '.sr-financial-welcome .sr-financial-demo-warning{font-size:.86rem;color:#6b5530}',
+ '.sr-financial-welcome .sr-financial-help{text-align:start;background:#f5f8fc;border-radius:12px;padding:16px;margin-top:18px}',
+ '.sr-financial-welcome #srFinancialWelcomeLab{text-align:start;margin-top:20px}',
+ '.sr-financial-welcome .sr-financial-back{margin:12px 0}',
+ '@media(max-width:550px){.sr-financial-welcome .sr-financial-welcome-actions{flex-direction:column}.sr-financial-welcome .sr-financial-welcome-actions button{width:100%}}'
+ ].join('');
+ if(!document.getElementById(style.id))document.head.appendChild(style);
+ el.innerHTML='<div class="sr-financial-welcome-main">'+
+ '<small>BONDS Global · '+escapeHtml(tr('مركز التحليل المالي','Financial analysis center'))+'</small>'+
+ '<h2>'+escapeHtml(tr('مرحبًا بك في مركز التحليل المالي','Welcome to the financial analysis center'))+'</h2>'+
+ '<p>'+escapeHtml(tr('حوّل القوائم المالية إلى مؤشرات وتحليلات تساعدك على فهم أداء المنشأة وتقييم السيولة والربحية والمخاطر.','Turn financial statements into indicators and insights on liquidity, profitability and risk.'))+'</p>'+
+ '<div class="sr-financial-welcome-actions"><button type="button" id="srWelcomeNew">'+escapeHtml(tr('ابدأ تحليلًا جديدًا','Start a new analysis'))+'</button>'+
+ '<button type="button" id="srWelcomeDemo" class="sr-secondary">'+escapeHtml(tr('جرّب التحليل المالي','Try financial analysis'))+'</button></div>'+
+ '<p class="sr-financial-demo-warning">'+escapeHtml(tr('التجربة الافتراضية للتعلم فقط، ولا تستخدم بيانات أي عميل.','The demo uses synthetic data only, never customer data.'))+'</p>'+
+ '<div class="sr-financial-help"><strong>'+escapeHtml(tr('جديد على التحليل المالي؟','New to financial analysis?'))+'</strong><p>'+escapeHtml(tr('ابدأ بالتجربة الافتراضية لتتعرف على القوائم والمؤشرات والتوصيات قبل إجراء تحليل حقيقي.','Explore the synthetic statements, ratios and recommendations before using your own data.'))+'</p></div>'+
+ '<p><button type="button" id="srWelcomeWorks" class="sr-secondary">'+escapeHtml(tr('أعمالي — تقاريري المحفوظة','My work — saved reports'))+'</button></p></div>'+
+ '<div id="srFinancialWelcomeDemo" hidden><button type="button" id="srWelcomeBack" class="sr-secondary sr-financial-back">'+escapeHtml(tr('العودة إلى الترحيب','Back to welcome'))+'</button><p class="sr-financial-demo-warning">'+escapeHtml(tr('بيانات تجريبية — غير معتمدة','Demo data — not approved'))+'</p><div id="srFinancialWelcomeLab"></div></div>';
+ form.parentNode.insertBefore(el,form);
+ const main=el.querySelector('.sr-financial-welcome-main');
+ const demo=el.querySelector('#srFinancialWelcomeDemo');
+ const showWelcome=()=>{form.hidden=true;form.style.display='none';el.hidden=false;main.hidden=false;demo.hidden=true;};
+ const showForm=()=>{el.hidden=true;form.hidden=false;form.style.display='';};
+ el.querySelector('#srWelcomeNew').addEventListener('click',()=>{
+  showForm();startNewFinancialReport();
+ });
+ el.querySelector('#srWelcomeWorks').addEventListener('click',()=>{
+  showForm();
+  loadFinancialReportHistory();
+  document.getElementById('srFinancialReportHistory')?.scrollIntoView({behavior:'smooth',block:'start'});
+ });
+ el.querySelector('#srWelcomeDemo').addEventListener('click',()=>{
+  main.hidden=true;demo.hidden=false;
+  const host=el.querySelector('#srFinancialWelcomeLab');
+  const mount=()=>window.BondsFinancialAnalysisLab?.mount(host,lang);
+  if(window.BondsFinancialAnalysisLab)mount();
+  else {
+   const script=document.createElement('script');
+   script.src='/components/financial-analysis-lab.js?v=2';
+   script.onload=mount;
+   script.onerror=()=>{host.textContent=tr('تعذر تحميل التجربة الافتراضية.','Could not load the synthetic demo.');};
+   document.head.appendChild(script);
+  }
+ });
+ el.querySelector('#srWelcomeBack').addEventListener('click',showWelcome);
+ showWelcome();
 }
 function renderFinancialIntake(){
  if(!isFinancialIntakeService())return;
@@ -2071,18 +2135,8 @@ function renderFinancialIntake(){
  }
  host.prepend(panel);
  if(serviceCode==='financial_analysis'){
-  const lab=document.createElement('div');
-  lab.id='srFinancialAnalysisLab';
-  panel.appendChild(lab);
-  const attach=()=>window.BondsFinancialAnalysisLab?.mount(lab,lang);
-  if(window.BondsFinancialAnalysisLab){attach();}
-  else{
-   const script=document.createElement('script');
-   script.src='/components/financial-analysis-lab.js?v=1';
-   script.onload=attach;
-   script.onerror=()=>{lab.textContent=lang==='ar'?'تعذر تحميل مختبر التحليل المالي.':'Financial lab failed to load.';};
-   document.head.appendChild(script);
-  }
+  // The synthetic lab is lazy-mounted only after an explicit demo choice.
+  renderFinancialWelcome();
  }
  panel.querySelector('#srStartNewFinancialReport')?.addEventListener('click',startNewFinancialReport);
  panel.querySelector('#srShowSavedFinancialResult')?.addEventListener('click',()=>restoreSavedFinancialResult({scroll:true}));

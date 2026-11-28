@@ -111,6 +111,11 @@ function mount(host,lang){
   '<p>'+escape(tr('تجربة منفصلة عن الطلبات والحسابات والملفات والحفظ والمدفوعات. تستخدم المحرك المالي نفسه مع ثلاثة أعوام اصطناعية.',
   'Isolated from requests, accounts, uploaded files, saving and payment. Runs the same financial engine on three synthetic periods.',en))+'</p>'+
   '<div class="sr-field"><label for="srFinanceLabScenario">'+escape(tr('حالة التجربة','Scenario',en))+'</label><select id="srFinanceLabScenario">'+options+'</select></div>'+
+  '<fieldset id="srFinanceLabAdjustments" style="border:1px solid #d9e1eb;border-radius:12px;padding:12px;margin:16px 0"><legend>'+escape(tr('تغيير افتراضات عام 2026 — تعليمي فقط','2026 synthetic assumptions only',en))+'</legend><div class="sr-intake-table">'+
+  [['revenue','الإيرادات','Revenue'],['cogs','تكلفة المبيعات','Cost of sales'],['operating_expenses','المصروفات التشغيلية','Operating expenses'],['total_debt','إجمالي الدين','Total debt']].map(([key,ar,label])=>
+   '<label class="sr-field"><span>'+escape(tr(ar,label,en))+'</span><select data-demo-adjust="'+key+'">'+
+    [-20,-15,-10,-5,0,5,10,15,20].map(n=>'<option value="'+n+'"'+(n===0?' selected':'')+'>'+((n>0?'+':'')+n)+'%</option>').join('')+
+   '</select></label>').join('')+'</div><small>'+escape(tr('تُحسب التغييرات على بيانات افتراضية فقط؛ قد تظهر تسويات مرفوضة عند تغيير الافتراضات.','Synthetic data only; accounting reconciliations may reject inconsistent assumptions.',en))+'</small></fieldset>'+
   '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0">'+
   '<button type="button" id="srFinanceLabRun">'+escape(tr('جرّب التحليل المالي','Run financial-analysis demo',en))+'</button>'+
   '<button type="button" id="srFinanceLabPrint" hidden>'+escape(tr('عرض التقرير التجريبي / حفظ PDF','Print synthetic report / PDF',en))+'</button>'+
@@ -123,12 +128,14 @@ function mount(host,lang){
  const msg=host.querySelector('#srFinanceLabMessage'),result=host.querySelector('#srFinanceLabResults');
  let data=null;
  choose.addEventListener('change',()=>{data=null;result.replaceChildren();result.hidden=true;print.hidden=true;msg.textContent='';});
- clear.addEventListener('click',()=>{data=null;choose.value='healthy';result.replaceChildren();result.hidden=true;print.hidden=true;msg.textContent=tr('تم مسح العرض التجريبي محليًا؛ لم يُنشأ سجل أو تقرير محفوظ.','Demo cleared locally; no saved record or report was created.',en);});
+ clear.addEventListener('click',()=>{host.querySelectorAll('[data-demo-adjust]').forEach(el=>{el.value='0';});data=null;choose.value='healthy';result.replaceChildren();result.hidden=true;print.hidden=true;msg.textContent=tr('تم مسح العرض التجريبي محليًا؛ لم يُنشأ سجل أو تقرير محفوظ.','Demo cleared locally; no saved record or report was created.',en);});
  run.addEventListener('click',async()=>{
   data=null;print.hidden=true;result.hidden=true;
   run.disabled=true;msg.textContent=tr('جاري فحص القوائم والمحرك المالي...','Checking the statements and financial engine...',en);
   try{
-   const response=await fetch('/api/v3/services/financial-analysis/demo?scenario='+encodeURIComponent(choose.value),{
+   const parameters=new URLSearchParams({scenario:choose.value});
+   host.querySelectorAll('[data-demo-adjust]').forEach(control=>{if(Number(control.value)!==0)parameters.set(control.dataset.demoAdjust,control.value);});
+   const response=await fetch('/api/v3/services/financial-analysis/demo?'+parameters.toString(),{
     method:'GET',credentials:'omit',cache:'no-store',redirect:'error',
     headers:{'Accept':'application/json'}
    });
