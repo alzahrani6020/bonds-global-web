@@ -112,3 +112,92 @@ BEGIN
  END;
  IF NOT rejected THEN RAISE EXCEPTION 'Multiple personalized drafts created for same campaign recipient'; END IF;
 END $$;
+
+
+-- Operational persistence fixture: 27 separate tenant-A recipients and draft
+-- documents, plus a genuine second tenant owner. Synthetic IDs and addresses
+-- only; never copy the confidential Clix contact list into CI logs or Git.
+DO $$
+DECLARE
+ a uuid='22222222-2222-4222-8222-222222222222';
+ b uuid='33333333-3333-4333-8333-333333333333';
+ ua uuid='11111111-1111-4111-8111-111111111111';
+ ub uuid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+ ca uuid='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ cb uuid='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+ rid uuid;
+ did uuid;
+ i integer;
+BEGIN
+ IF (SELECT owner_user_id FROM public.crm_app_workspaces WHERE id=a) IS DISTINCT FROM ua
+    OR (SELECT owner_user_id FROM public.crm_app_workspaces WHERE id=b) IS DISTINCT FROM ub
+    OR ua=ub THEN
+   RAISE EXCEPTION 'Companies are not controlled by two independent identities';
+ END IF;
+
+ INSERT INTO public.correspondence_campaigns
+ (id,workspace_id,created_by,title,kind,subject_template,body_template)
+ VALUES
+ (ca,a,ua,'Clix 27-recipient acceptance','investment',
+  'Institutional correspondence {{organization}}','An individual reviewed letter'),
+ (cb,b,ub,'Separate company acceptance','institutional',
+  'Company B internal','Separate tenant');
+
+ FOR i IN 1..27 LOOP
+   rid:=md5('clix-acceptance-recipient-'||i)::uuid;
+   did:=md5('clix-acceptance-draft-'||i)::uuid;
+   INSERT INTO public.correspondence_campaign_recipients
+   (id,campaign_id,workspace_id,email,organization,status)
+   VALUES(rid,ca,a,
+    'acceptance-'||lpad(i::text,2,'0')||'@example.test',
+    'Synthetic Institution '||lpad(i::text,2,'0'),'pending');
+   INSERT INTO public.correspondence_documents
+   (id,owner_user_id,workspace_context,status)
+   VALUES(did,ua,jsonb_build_object(
+    'workspace','correspondence',
+    'campaign_workspace_id',a::text,
+    'campaign_recipient_id',rid::text),'draft');
+   UPDATE public.correspondence_campaign_recipients
+   SET draft_document_id=did,status='prepared'
+   WHERE id=rid AND campaign_id=ca AND workspace_id=a;
+ END LOOP;
+
+ IF (SELECT count(*) FROM public.correspondence_campaign_recipients
+     WHERE campaign_id=ca AND workspace_id=a AND status='prepared'
+     AND draft_document_id IS NOT NULL) <> 27 THEN
+   RAISE EXCEPTION '27 draft bindings not persisted';
+ END IF;
+ IF (SELECT count(DISTINCT draft_document_id)
+     FROM public.correspondence_campaign_recipients WHERE campaign_id=ca) <> 27 THEN
+   RAISE EXCEPTION 'Individual draft identifiers are not unique';
+ END IF;
+ IF (SELECT count(*) FROM public.correspondence_documents d
+     JOIN public.correspondence_campaign_recipients r
+       ON r.draft_document_id=d.id
+     WHERE r.campaign_id=ca AND r.workspace_id=a
+       AND d.owner_user_id=ua
+       AND d.workspace_context->>'campaign_workspace_id'=a::text
+       AND d.workspace_context->>'campaign_recipient_id'=r.id::text) <> 27 THEN
+   RAISE EXCEPTION '27 draft-to-recipient tenant bindings invalid';
+ END IF;
+ IF EXISTS(SELECT 1 FROM public.correspondence_campaign_recipients
+      WHERE campaign_id=ca AND workspace_id<>a)
+   OR EXISTS(SELECT 1 FROM public.correspondence_campaign_recipients
+      WHERE campaign_id=cb) THEN
+   RAISE EXCEPTION 'Cross-tenant campaign recipients leaked';
+ END IF;
+
+ -- A second company may independently create correspondence, but cannot
+ -- attach a recipient from A to its campaign due to the composite FK.
+ INSERT INTO public.correspondence_campaign_recipients
+ (campaign_id,workspace_id,email,organization)
+ VALUES(cb,b,'separate-company@example.test','Company B Only');
+BEGIN
+ INSERT INTO public.correspondence_campaign_recipients
+ (campaign_id,workspace_id,email,organization)
+ VALUES(ca,b,'cross-tenant@example.test','Forbidden');
+ RAISE EXCEPTION 'Cross-tenant recipient unexpectedly accepted';
+EXCEPTION WHEN foreign_key_violation THEN NULL;
+END;
+
+END $$;
