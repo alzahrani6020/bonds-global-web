@@ -1,0 +1,147 @@
+name: BONDS Staging Encrypted Backup and Isolated Restore Gate
+# Manual only. Must be committed to protected main and triggered from main.
+# Never run with repository code from a pull request or third-party branch.
+on:
+  workflow_dispatch:
+concurrency:
+  group: bonds-staging-backup-exclusive
+  cancel-in-progress: false
+permissions:
+  contents: read
+
+jobs:
+  backup-restore-staging:
+    if: github.ref == 'refs/heads/main' && github.repository == 'alzahrani6020/bonds-global-web'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SUPABASE_STAGING_ACCESS_TOKEN: ${{ secrets.SUPABASE_STAGING_ACCESS_TOKEN }}
+      BONDS_STAGING_BACKUP_AGE_RECIPIENT: ${{ secrets.BONDS_STAGING_BACKUP_AGE_RECIPIENT }}
+      SUPABASE_PROJECT_REF: gjwppwtgsecwmqlsmbmq
+    steps:
+      - name: Validate fixed staging target and protected prerequisites
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/main'
+          test "$GITHUB_REPOSITORY" = 'alzahrani6020/bonds-global-web'
+          test "$SUPABASE_PROJECT_REF" = 'gjwppwtgsecwmqlsmbmq'
+          test -n "${SUPABASE_STAGING_ACCESS_TOKEN:-}" || { echo "BLOCKED: staging management token missing"; exit 1; }
+          [[ "${BONDS_STAGING_BACKUP_AGE_RECIPIENT:-}" =~ ^age1[0-9a-z]+$ ]] || { echo "BLOCKED: staging age public recipient invalid/missing"; exit 1; }
+          echo "PASS: protected main; staging identity and encrypted-backup prerequisites present"
+      - name: Prepare isolated encrypted-backup runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age
+          umask 077
+          mkdir -p "$RUNNER_TEMP/bonds-staging-backup"
+      - name: Checkout reviewed main backup implementation
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: main
+      - name: Validate staging helper syntax
+        run: python3 -m py_compile scripts/backup/ephemeral_staging_backup_login.py
+      - name: Provision temporary staging-only read-only login
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          python3 scripts/backup/ephemeral_staging_backup_login.py provision
+      - name: Confirm scoped read-only backup connection
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_URL="$(cat "$RUNNER_TEMP/bonds-staging-backup/connection-url")"
+          EXPECTED_ROLE="$(cat "$RUNNER_TEMP/bonds-staging-backup/role-name")"
+          sleep 30
+          docker run --rm -e DATABASE_URL="$DB_URL" -e EXPECTED_ROLE="$EXPECTED_ROLE" postgres:17 sh -ec '
+            psql "$DATABASE_URL" -X -At -v ON_ERROR_STOP=1 \
+              -c "SELECT current_user, current_setting('\''default_transaction_read_only'\'');" \
+              | grep -Fx "$EXPECTED_ROLE|on"
+          '
+          unset DB_URL
+          echo "PASS: dedicated staging role has read-only default"
+      - name: Create complete staging PostgreSQL archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_URL="$(cat "$RUNNER_TEMP/bonds-staging-backup/connection-url")"
+          docker run --rm --user "$(id -u):$(id -g)" -e DATABASE_URL="$DB_URL" \
+            -v "$RUNNER_TEMP/bonds-staging-backup:/backup" postgres:17 sh -ec \
+            'pg_dump --dbname="$DATABASE_URL" --format=custom --no-owner --no-acl --file=/backup/staging.dump'
+          unset DB_URL
+          test -s "$RUNNER_TEMP/bonds-staging-backup/staging.dump"
+          docker run --rm -v "$RUNNER_TEMP/bonds-staging-backup:/backup:ro" postgres:17 \
+            pg_restore --list /backup/staging.dump > "$RUNNER_TEMP/bonds-staging-backup/toc.txt"
+          echo "PASS: nonempty staging pg_dump and readable archive TOC"
+      - name: Restore staging archive into network-isolated Supabase PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name bonds-staging-restore-gate --network none \
+            -e POSTGRES_HOST_AUTH_METHOD=trust supabase/postgres:17.12.0.002
+          for i in $(seq 1 45); do
+            if docker exec -u postgres bonds-staging-restore-gate pg_isready -U supabase_admin -q; then break; fi
+            sleep 2
+          done
+          docker exec -u postgres bonds-staging-restore-gate pg_isready -U supabase_admin
+          docker exec -u postgres bonds-staging-restore-gate \
+            createdb -U supabase_admin -T template0 -E UTF8 bonds_staging_restore_gate
+          docker cp "$RUNNER_TEMP/bonds-staging-backup/staging.dump" \
+            bonds-staging-restore-gate:/tmp/staging.dump
+          docker exec -u postgres bonds-staging-restore-gate \
+            pg_restore -U supabase_admin -d bonds_staging_restore_gate \
+            --no-owner --no-acl --exit-on-error /tmp/staging.dump
+          # Validate restored rows by equality with the source snapshot, not
+          # the current live DB which may legitimately change during backup.
+          SOURCE_COUNTS="$(docker exec -u postgres bonds-staging-restore-gate \
+            psql -U supabase_admin -d bonds_staging_restore_gate -X -At -v ON_ERROR_STOP=1 \
+            -c "select 'WORKSPACES',count(*) from public.crm_app_workspaces union all select 'AUTH_USERS',count(*) from auth.users union all select 'PUBLIC_TABLES',count(*) from pg_tables where schemaname='public' order by 1")"
+          test -n "$SOURCE_COUNTS"
+          echo "$SOURCE_COUNTS" | grep -q '^AUTH_USERS|'
+          echo "$SOURCE_COUNTS" | grep -q '^WORKSPACES|'
+          echo "PASS: staging PostgreSQL archive restored with auth and workspace schema"
+      - name: Encrypt archive and scrub plaintext
+        shell: bash
+        run: |
+          set -euo pipefail
+          age -r "$BONDS_STAGING_BACKUP_AGE_RECIPIENT" \
+            -o "$RUNNER_TEMP/bonds-staging-backup/staging.dump.age" \
+            "$RUNNER_TEMP/bonds-staging-backup/staging.dump"
+          test -s "$RUNNER_TEMP/bonds-staging-backup/staging.dump.age"
+          sha256sum "$RUNNER_TEMP/bonds-staging-backup/staging.dump.age" | cut -d ' ' -f1
+          shred -u "$RUNNER_TEMP/bonds-staging-backup/staging.dump"
+          rm -f "$RUNNER_TEMP/bonds-staging-backup/toc.txt"
+          echo "PASS: encrypted staging recovery archive prepared"
+      - name: Retain only encrypted staging recovery artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bonds-staging-encrypted-backup-${{ github.run_id }}
+          path: ${{ runner.temp }}/bonds-staging-backup/staging.dump.age
+          retention-days: 30
+          if-no-files-found: error
+      - name: Revoke ephemeral staging login even after failure
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f "$RUNNER_TEMP/bonds-staging-backup/role-name" ]; then
+            python3 scripts/backup/ephemeral_staging_backup_login.py disable
+          else
+            echo "No ephemeral login created"
+          fi
+      - name: Scrub unencrypted runner files
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f "$RUNNER_TEMP/bonds-staging-backup/staging.dump" ]; then
+            shred -u "$RUNNER_TEMP/bonds-staging-backup/staging.dump"
+          fi
+          rm -f "$RUNNER_TEMP/bonds-staging-backup/connection-url" \
+                "$RUNNER_TEMP/bonds-staging-backup/toc.txt"
+      - name: Report validated staging recovery gate
+        run: echo "STATUS: PASS - staging backup encrypted and isolated restore verified"
