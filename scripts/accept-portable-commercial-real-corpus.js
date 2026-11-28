@@ -36,7 +36,7 @@ async function main(){
   const full=resolveCorpusFile(root,entry.file);
   if(!EXTENSIONS[entry.kind].includes(path.extname(full).toLowerCase()))fail('CORPUS_EXTENSION_MISMATCH');
   if(typeof entry.sha256!=='string'||!/^[0-9a-f]{64}$/i.test(entry.sha256))fail('CORPUS_HASH_REQUIRED');
-  if(!Array.isArray(entry.expected_names)||!entry.expected_names.length||entry.expected_names.some(x=>typeof x!=='string'||!x.trim()))fail('CORPUS_GROUND_TRUTH_REQUIRED');
+  if(!Array.isArray(entry.expected_entities)||!entry.expected_entities.length||entry.expected_entities.some(x=>!x||!['organization','contact'].includes(x.type)||typeof x.name!=='string'||!x.name.trim()))fail('CORPUS_GROUND_TRUTH_REQUIRED');
   const data=fs.readFileSync(full);
   const hash=crypto.createHash('sha256').update(data).digest('hex');
   if(hash!==entry.sha256.toLowerCase())fail('CORPUS_HASH_MISMATCH');
@@ -44,13 +44,13 @@ async function main(){
   const result=await analyzeFile({file:{filename:entry.file,buffer:data},workspaceId:WID,ocr});
   if(result.auto_saved!==false||result.requires_manual_approval!==true)fail('UNREVIEWED_AUTO_SAVE');
   if(entry.kind==='pdf_scanned'&&result.source?.extraction?.mode!=='local-ocr')fail('SCANNED_PDF_NOT_OCR_VERIFIED');
-  const names=[
-   ...(result.items||[]).map(x=>x.record?.name),
-   ...(result.entity_suggestions?.items||[]).map(x=>x.name)
-  ].filter(Boolean);
-  const missing=entry.expected_names.filter(n=>!names.some(x=>String(x).trim()===n.trim()));
-  if(missing.length)fail('CORPUS_NAME_RECALL_FAILED');
-  evidence.push({kind:entry.kind,sha256:hash,recognized_names:names.length,expected_names:entry.expected_names.length,review_only:true,ocr_mode:result.source?.extraction?.mode||null});
+  const entities=[
+   ...(result.items||[]).map(x=>x.record),
+   ...(result.entity_suggestions?.items||[])
+  ].filter(x=>x&&typeof x.name==='string'&&['organization','contact'].includes(x.type));
+  const missing=entry.expected_entities.filter(e=>!entities.some(x=>x.type===e.type&&x.name.trim()===e.name.trim()));
+  if(missing.length)fail('CORPUS_ENTITY_RECALL_FAILED');
+  evidence.push({kind:entry.kind,sha256:hash,recognized_entities:entities.length,expected_entities:entry.expected_entities.length,review_only:true,ocr_mode:result.source?.extraction?.mode||null});
  }
  if(REQUIRED.some(k=>!seen.has(k)))fail('CORPUS_FORMAT_COVERAGE_INCOMPLETE');
  process.stdout.write(JSON.stringify({status:'PASS',scope:'real-file extraction and pending-review only',cases:evidence,limits:['manual correction and database readback not tested here','no SaaS destination readback','no installer signature verification']})+'\n');
