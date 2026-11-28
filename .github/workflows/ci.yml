@@ -102,6 +102,9 @@ jobs:
       - name: Install Playwright Browser
         run: npx playwright install chromium
 
+      - name: Financial two-report HTML and PDF browser acceptance (synthetic, isolated)
+        run: node tests/finance/financial-two-report-browser.acceptance.cjs
+
       - name: Verify feasibility PDF generation
         run: npm run verify:feasibility-pdf
 
