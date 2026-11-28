@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Institutional Campaigns | BONDS Global</title>
+<meta name="description" content="BONDS Global institutional campaigns: prepare, approve, issue and track official correspondence with per-company permissions.">
+<meta property="og:title" content="Institutional Campaigns | BONDS Global">
+<meta property="og:description" content="Campaigns, contacts and official correspondence with tenant isolation.">
+<meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.webp?v=2026">
+<meta property="og:url" content="https://bonds-global.com/en/correspondence-campaigns">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Institutional Campaigns | BONDS Global">
+<meta name="twitter:description" content="Manage institutional campaigns and partnerships in BONDS Global.">
+<meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.webp?v=2026">
+<link rel="canonical" href="https://bonds-global.com/en/correspondence-campaigns">
+<meta name="theme-color" content="#0c2140">
+<style>
+:root{font:15px/1.65 Tahoma,Arial,sans-serif;color:#132e4c;background:#f3f6fa}
+*{box-sizing:border-box}body{margin:0}a{color:#0b477e}
+header{background:#0c2140;color:white;padding:18px clamp(14px,4vw,44px);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header a{color:#fff;text-decoration:none}.brand{font-size:20px;font-weight:800;letter-spacing:.7px}
+main{max-width:1240px;margin:auto;padding:22px 16px 40px}
+h1{font-size:clamp(23px,3vw,31px);margin:0 0 6px}h2{font-size:19px;margin:0 0 14px}
+.muted{color:#60748a}.intro{margin:0 0 22px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.panel{background:#fff;border:1px solid #d9e1eb;border-radius:14px;padding:20px;min-width:0}
+label{display:block;font-weight:bold;font-size:13px;margin:9px 0 5px}input,textarea,select,button{font:inherit}
+input,textarea,select{display:block;width:100%;padding:11px;border:1px solid #bbcadb;border-radius:9px;min-height:44px;background:#fff;color:#123;max-width:100%}
+button{padding:10px 17px;margin:8px 0 0;border:0;border-radius:9px;background:#0c315f;color:#fff;cursor:pointer;font-weight:bold}
+button:disabled{opacity:.48;cursor:not-allowed}
+button.secondary{background:#e8eff8;color:#173b62}button.warn{background:#8c5117}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #d4a659;outline-offset:2px}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+th,td{text-align:right;padding:11px 8px;border-bottom:1px solid #e0e6ee;overflow-wrap:anywhere}th{color:#49627b}
+table button{padding:6px 10px;font-size:12px}
+.alert{padding:12px;background:#fff6e4;border:1px solid #efd397;border-radius:9px;color:#66491e;margin-bottom:15px}
+#status{padding:12px;border-radius:10px;background:#e5eef8;margin:14px 0;white-space:pre-wrap}
+#status.error{background:#fee8e8;color:#902d2d}
+.actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.pill{display:inline-block;border-radius:6px;padding:2px 9px;background:#e8eef6;font-size:12px}
+[hidden]{display:none!important}.wide{grid-column:1/-1}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.panel{padding:15px}table{font-size:12px}th,td{padding:7px 5px}header{padding:14px}}
+</style>
+<script src="/api/env" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="/bonds-auth-2026.js?v=3.1.4" defer></script>
+<script src="/components/correspondence-campaigns-ui.js?v=1" defer></script>
+</head>
+<body>
+<header><a href="/" class="brand">BONDS GLOBAL</a><nav><a href="/en/letterhead.html?workspace=correspondence">Official correspondence</a> &nbsp;|&nbsp; <a href="/institutional-directory.html">Directory</a> &nbsp;|&nbsp; <a href="/admin/dashboard">Dashboard</a></nav></header>
+<main>
+<section class="intro"><h1>Institutional Campaigns & Correspondence</h1><p class="muted">Create campaigns, manage contacts and bind verified issued correspondence with company separation and approval controls.</p></section>
+<div class="alert" role="note"><strong>Delivery control:</strong> Bulk messages require verified company mailboxes, issued documents and explicit dispatch approval. No background sending occurs without these prerequisites.</div>
+<div id="status" role="status" aria-live="polite">Checking your BONDS session...</div>
+<div class="grid">
+<section class="panel"><h2>New campaign</h2>
+<label for="company">Owning company</label><select id="company"><option value="">Loading authorized companies...</option></select>
+<label for="kind">Campaign type</label><select id="kind"><option value="investment">Investment outreach</option><option value="partnership">Partnerships</option><option value="institutional">Institutional correspondence</option><option value="customer">Customers</option><option value="supplier">Suppliers</option><option value="other">Other</option></select>
+<label for="title">Campaign title</label><input id="title" maxlength="180" placeholder="مثال: جولة Investment outreach — كليكس">
+<label for="description">Objective</label><textarea id="description" rows="3" maxlength="2000" placeholder="Partnership type, objective and sector"></textarea>
+<button id="create" type="button" disabled>Create and save campaign</button>
+</section>
+<section class="panel"><h2>Saved campaigns</h2>
+<div class="actions"><button id="refresh" class="secondary" type="button" disabled>Refresh list</button></div>
+<div id="campaign-list" class="muted">Select a company to view its campaigns.</div>
+</section>
+<section class="panel wide" id="mailbox-panel">
+<h2>Connect official Zoho Mail account</h2>
+<p class="muted">Account owner OAuth consent is required. Refresh tokens are encrypted server-side and each mailbox is bound to one company only.</p>
+<div class="grid">
+<div><label for="mailbox-address">Company email address</label><input id="mailbox-address" type="email" placeholder="info@bonds-global.com" autocomplete="email"></div>
+<div><label for="mailbox-region">Zoho account region</label><select id="mailbox-region"><option value="com">United States / .com</option><option value="eu">Europe / .eu</option><option value="in">India / .in</option><option value="comau">Australia / .com.au</option><option value="jp">Japan / .jp</option><option value="ca">Canada / .ca</option><option value="sa">Saudi Arabia / .sa</option><option value="ae">United Arab Emirates / .ae</option><option value="comcn">China / .com.cn</option></select></div>
+</div>
+<div class="actions"><button type="button" id="connect-mailbox" disabled>Authorize Zoho connection</button><button type="button" id="refresh-mailbox" class="secondary" disabled>Refresh connection status</button></div>
+<div id="mailbox-list" role="status" aria-live="polite" class="muted">Select a company to see authorized mailboxes.</div>
+</section>
+<section class="panel wide" id="detail" hidden>
+<h2 id="detail-title">Campaign details</h2><div class="actions"><span class="pill" id="detail-state"></span>
+<button id="submit" class="secondary" type="button">Submit for review</button>
+<button id="approve" type="button">Approve campaign</button>
+<button id="back" class="secondary" type="button">Return to draft</button>
+<button id="cancel" class="warn" type="button">Cancel campaign</button>
+<label for="dispatch-mailbox">Sending mailbox</label><select id="dispatch-mailbox" style="max-width:270px"><option value="">Choose a verified Zoho mailbox</option></select>
+<button id="dispatch" disabled type="button">Approve dispatch start</button>
+<button id="resume-dispatch" class="secondary" disabled type="button">Continue dispatch</button>
+<button id="refresh-dispatch" class="secondary" disabled type="button">Refresh results</button>
+</div>
+<p id="dispatch-status" class="muted" role="status" aria-live="polite">No dispatch has started.</p>
+<div class="actions"><button id="sync-replies" type="button" class="secondary" disabled>Match Zoho inbox replies</button><button id="refresh-replies" type="button" class="secondary" disabled>Refresh reply register</button></div>
+<p id="reply-summary" role="status" aria-live="polite" class="muted">No verified replies recorded yet.</p>
+<div class="panel" style="margin-top:16px;background:#f7f9fc"><h2>Reusable campaign letter template</h2>
+<p class="muted">The system prepares one separately addressed draft for each recipient. It does not approve, stamp or send letters.</p>
+<label for="subject-template">Letter subject</label><input id="subject-template" maxlength="200" placeholder="Invitation to discuss cooperation">
+<label for="body-template">Letter body (use {{organization}} or {{name}} to personalize)</label>
+<textarea id="body-template" rows="6" maxlength="12000" placeholder="Describe the purpose without invented investment amounts or promises."></textarea>
+<div class="actions"><button id="save-template" type="button" class="secondary">Save template</button>
+<button id="prepare-drafts" type="button">Prepare separate drafts for all recipients</button></div>
+<p id="draft-progress" class="muted" role="status" aria-live="polite">Drafts require separate official approval.</p></div>
+<div class="grid" style="margin-top:18px">
+<div>
+<h2>Add recipients</h2>
+<p class="muted">Enter one organization per line as: Organization, email address. Review addresses before import.</p>
+<label for="import-file">Import investor/contact file for review</label><input id="import-file" type="file" accept=".xlsx,.xls,.csv,.pdf,application/pdf,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+<button id="preview-import" type="button" class="secondary">Preview extracted contacts</button>
+<p id="import-summary" class="muted" aria-live="polite">No file selected. PDF extraction may require manual correction.</p>
+<label for="recipient-lines">Recipients</label>
+<textarea id="recipient-lines" rows="7" placeholder="Example Company, contact@example.com"></textarea>
+<button id="import" type="button">مراجعة وAdd recipients</button>
+</div>
+<div>
+<h2>Issued letters</h2>
+<p class="muted">Issue a separate approved, stamped, verified PDF for each recipient, then bind the document ID to this campaign.</p>
+<p><a id="campaign-letterhead-link" href="/letterhead.html?workspace=correspondence" target="_blank" rel="noopener">Open official letterhead</a></p>
+<label for="recipient-id">Recipient identifier</label><input id="recipient-id" placeholder="UUID" readonly>
+<label for="document-id">Issued document identifier</label><input id="document-id" placeholder="UUID">
+<button id="bind" type="button">Verify and bind document</button>
+</div>
+</div>
+<div style="overflow-x:auto;margin-top:20px"><table aria-label="المستلمون"><thead><tr><th>Organization</th><th>Email</th><th>Status</th><th>Letter</th><th>Select</th></tr></thead><tbody id="recipients"></tbody></table></div>
+</section>
+</div>
+</main>
+</body>
+</html>

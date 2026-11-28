@@ -188,6 +188,11 @@ def produce(base, key, recipient, destination, run_id):
                     name = "%08d" % i
                     tar.add(tmpdir / "blobs" / name, arcname="blobs/" + name,
                             recursive=False)
+            # Prove actual Storage bytes restore safely into a new isolated folder
+            # and match their manifest hashes before sealing the archive.
+            # The temporary folder is destroyed with the runner workspace.
+            from verify_storage_restored import verify
+            verify(archive, tmpdir / "restored-probe")
             # Write to a temporary encrypted path; rename only after age succeeds.
             encrypted_temp = destination.with_name(destination.name + ".partial")
             if encrypted_temp.exists():

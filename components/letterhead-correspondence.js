@@ -129,7 +129,7 @@
     const inherited = state.document?.workspace_context && typeof state.document.workspace_context === 'object'
       ? state.document.workspace_context
       : (state.workspaceContext && typeof state.workspaceContext === 'object' ? state.workspaceContext : {});
-    const keys = ['service', 'workspace', 'company_id', 'project_id', 'client_id', 'funding_case_id', 'request_id', 'return_to'];
+    const keys = ['service', 'workspace', 'company_id', 'project_id', 'client_id', 'funding_case_id', 'request_id', 'return_to', 'campaign_workspace_id'];
     const ctx = {};
     keys.forEach(k => {
       const value = p.get(k) || inherited[k] || '';
@@ -1973,6 +1973,44 @@
     await refreshInboxDynamic();
   }
 
+  // The official correspondence ledger is deliberately owner-only. A tenant
+  // owner denied here may use the separately authorized company campaign UI.
+  // Never infer tenant membership from URL, JWT user_metadata, or client input.
+  async function offerTenantCampaignAccess(screen) {
+    try {
+      const auth = window.BondsAuth;
+      const session = await auth?.getSession?.();
+      const token = session?.data?.session?.access_token;
+      if (!token) return;
+      const response = await fetch('/api/campaigns?mine=1', {
+        method: 'GET', cache: 'no-store', credentials: 'same-origin',
+        headers: { Accept: 'application/json', Authorization: 'Bearer ' + token }
+      });
+      if (!response.ok) return;
+      const payload = await response.json();
+      const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      const allowed = new Set(['owner','admin','manager','editor']);
+      const companies = (Array.isArray(payload.workspaces) ? payload.workspaces : [])
+        .filter(c => c && uuid.test(c.id) && allowed.has(c.role))
+        .slice(0, 100);
+      if (!companies.length) return;
+      const explanation = document.createElement('p');
+      explanation.textContent = isEn
+        ? 'Your company correspondence campaigns are available separately. Official platform correspondence remains restricted.'
+        : 'يمكنك فتح حملات مراسلات شركتك بصورة منفصلة. يبقى سجل المراسلات الرسمي للمنصة محميًا.';
+      screen.append(explanation);
+      for (const company of companies) {
+        const link = document.createElement('a');
+        link.textContent = (isEn ? 'Company campaigns: ' : 'حملات الشركة: ') + String(company.name || company.id).slice(0, 180);
+        link.href = (isEn ? '/en/' : '/') + 'correspondence-campaigns.html?workspace_id=' + encodeURIComponent(company.id);
+        link.style.cssText = 'display:block;margin:8px auto;padding:10px 16px;border:1px solid #b7c3d4;border-radius:8px;max-width:400px;color:#0f172a;';
+        screen.append(link);
+      }
+    } catch (_) {
+      // Fail closed: the owner-only screen remains when auth/API is unavailable.
+    }
+  }
+
   async function initialize() {
     // Fail closed before rendering correspondence records, editing tools or
     // download/print controls. The server verifies the immutable owner user ID.
@@ -1986,6 +2024,7 @@
         ? (isEn ? 'Correspondence access requires explicit owner authorization.' : 'الوصول إلى المراسلات يتطلب تصريحًا صريحًا من المالك.')
         : (isEn ? 'Correspondence access could not be verified. Please sign in or try again.' : 'تعذر التحقق من صلاحية الوصول إلى المراسلات. سجل الدخول أو حاول لاحقًا.');
       document.body.replaceChildren(screen);
+      if (error.status === 403) await offerTenantCampaignAccess(screen);
       return;
     }
     installGovernedMutationGuards();

@@ -14,25 +14,43 @@
   }
 
   function openCenter(searchTerm) {
-    if (!activateExisting('corr-command-open')) {
-      window.alert(tr('مركز المراسلات غير جاهز بعد.', 'Correspondence center is not ready yet.'));
-      return;
+    const opened = activateExisting('corr-command-open');
+    const input = document.getElementById('corr-command-search');
+    const action = document.getElementById('corr-command-search-btn');
+    // Search only through the governed command-center action. Hidden or
+    // disabled actions must never be dispatched by the presentation shell.
+    if (typeof searchTerm === 'string' && input && action) {
+      input.value = searchTerm;
+      if (activateExisting('corr-command-search-btn')) return;
     }
-    if (typeof searchTerm === 'string') {
-      const input = document.getElementById('corr-command-search');
-      if (input) {
-        input.value = searchTerm;
-        activateExisting('corr-command-search-btn');
-      }
+    if (!opened) {
+      window.alert(tr('مركز المراسلات غير جاهز بعد.', 'Correspondence center is not ready yet.'));
     }
   }
 
   function searchRegister(term) {
     const field = document.getElementById('corr-command-search');
-    const action = document.getElementById('corr-command-search-btn');
-    if (!field || !action) return openCenter(term);
-    field.value = term;
-    action.click();
+    if (!field || !activateExisting('corr-command-open')) {
+      // An already-open center may hide its open button; only the governed
+      // search action is authoritative for whether searching is allowed.
+      if (!field) return openCenter(term);
+    }
+    if (field) field.value = term;
+    if (!activateExisting('corr-command-search-btn')) {
+      window.alert(tr('البحث غير متاح في حالة المركز الحالية.', 'Search is unavailable in the current center state.'));
+    }
+  }
+
+  function correspondencePage(name) {
+    const prefix = isEnglish ? '/en/' : '/';
+    const url = new URL(prefix + name + '.html', window.location.origin);
+    const workspaceId = new URLSearchParams(window.location.search).get('workspace_id');
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(workspaceId || '')) {
+      // This only preserves navigation context; the destination API still
+      // independently authorizes membership and every company-scoped action.
+      url.searchParams.set('workspace_id', workspaceId);
+    }
+    return url.pathname + url.search;
   }
 
   function create(tag, className, label) {
@@ -99,9 +117,12 @@
     nav.append(button(tr('＋  مراسلة جديدة', '＋  New correspondence'), () => {
       if (!activateExisting('corr-new')) openCenter();
     }));
+    nav.append(button(tr('◉  مركز الحملات', '◉  Campaigns'), () => {
+      window.location.assign(correspondencePage('correspondence-campaigns'));
+    }));
     nav.append(button(tr('▦  دليل الجهات', '▦  Institutional directory'), () => {
       // The directory must resolve the authorized CRM workspace; never invent a tenant id.
-      window.location.assign('/institutional-directory.html');
+      window.location.assign(correspondencePage('institutional-directory'));
     }));
     nav.append(button(tr('▤  عرض السجل والبحث', '▤  Search register'), () => {
       search.focus();

@@ -311,6 +311,38 @@
       "destination": "/api/platform"
     },
     {
+      "source": "/api/campaigns",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/campaigns/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/campaign-mailboxes",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/campaign-mailboxes/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/campaign-replies",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/campaign-replies/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/campaign-dispatch",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/campaign-dispatch/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/commercial-directory-import",
       "destination": "/api/platform"
     },

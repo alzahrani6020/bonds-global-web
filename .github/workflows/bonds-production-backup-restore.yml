@@ -1,7 +1,7 @@
 name: BONDS Production Encrypted Backup and Restore Gate
 on:
   push:
-    branches: [integration/hr-current-main-20261121, fix/backup-ephemeral-auth-20261124]
+    branches: [integration/hr-current-main-20261121, fix/backup-ephemeral-auth-20261124, feat/clix-investor-campaign-issuance-gate-20261127]
     paths: ['.github/workflows/bonds-production-backup-restore.yml']
   workflow_dispatch:
   schedule:
@@ -84,6 +84,30 @@ jobs:
           docker exec -u postgres bonds-restore-gate pg_restore -U supabase_admin -d bonds_restore_gate --no-owner --no-acl --exit-on-error /tmp/production.dump
           docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -Atc "SELECT 'PUBLIC_TABLES',count(*) FROM pg_tables WHERE schemaname='public' UNION ALL SELECT 'AUTH_USERS',count(*) FROM auth.users UNION ALL SELECT 'STORAGE_OBJECTS',count(*) FROM storage.objects;"
           echo "PASS: complete isolated pg_restore --exit-on-error"
+      - name: Verify BONDS campaign migrations on isolated restored production
+        shell: bash
+        run: |
+          set -euo pipefail
+          for migration in \
+            20261127220000_correspondence_campaigns.sql \
+            20261127221000_correspondence_mailboxes.sql \
+            20261127222000_correspondence_campaign_dispatch.sql \
+            20261127223000_correspondence_campaign_replies.sql; do
+            docker cp "supabase/migrations/$migration" "bonds-restore-gate:/tmp/$migration"
+          done
+          BASELINE_SQL="SELECT 'auth.users',count(*) FROM auth.users UNION ALL SELECT 'crm_app_workspaces',count(*) FROM public.crm_app_workspaces UNION ALL SELECT 'crm_app_members',count(*) FROM public.crm_app_members UNION ALL SELECT 'correspondence_documents',count(*) FROM public.correspondence_documents UNION ALL SELECT 'storage.objects',count(*) FROM storage.objects ORDER BY 1"
+          docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "$BASELINE_SQL" > "$RUNNER_TEMP/bonds-backup/campaign-count-before.txt"
+          docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -v ON_ERROR_STOP=1 -1 \
+            -f /tmp/20261127220000_correspondence_campaigns.sql \
+            -f /tmp/20261127221000_correspondence_mailboxes.sql \
+            -f /tmp/20261127222000_correspondence_campaign_dispatch.sql \
+            -f /tmp/20261127223000_correspondence_campaign_replies.sql >/dev/null
+          docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "$BASELINE_SQL" > "$RUNNER_TEMP/bonds-backup/campaign-count-after.txt"
+          cmp -s "$RUNNER_TEMP/bonds-backup/campaign-count-before.txt" "$RUNNER_TEMP/bonds-backup/campaign-count-after.txt" || { echo "FAIL: production-clone original record counts changed"; exit 1; }
+          docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT 1 / CASE WHEN (SELECT count(*) FROM pg_tables WHERE schemaname='public' AND tablename IN ('correspondence_campaigns','correspondence_campaign_recipients','correspondence_campaign_events','correspondence_mailboxes','correspondence_mailbox_oauth_states','correspondence_campaign_dispatch_jobs','correspondence_campaign_replies') AND rowsecurity)=7 THEN 1 ELSE 0 END;" | grep -Fx 1
+          docker exec -u postgres bonds-restore-gate psql -U supabase_admin -d bonds_restore_gate -X -At -v ON_ERROR_STOP=1 -c "SELECT 1 / CASE WHEN NOT has_table_privilege('authenticated','public.correspondence_mailboxes','SELECT') AND NOT has_table_privilege('anon','public.correspondence_campaign_replies','SELECT') AND NOT has_table_privilege('authenticated','public.correspondence_campaign_dispatch_jobs','SELECT') THEN 1 ELSE 0 END;" | grep -Fx 1
+          rm -f "$RUNNER_TEMP/bonds-backup/campaign-count-before.txt" "$RUNNER_TEMP/bonds-backup/campaign-count-after.txt"
+          echo "PASS: four campaign migrations on isolated production restore; unchanged originals and enforced private RLS"
       - name: Encrypt and store only encrypted archive
         shell: bash
         run: |
