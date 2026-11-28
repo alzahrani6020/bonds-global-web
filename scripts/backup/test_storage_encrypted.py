@@ -194,6 +194,26 @@ class RealAgeRoundTripTests(unittest.TestCase):
                              ["GET", "POST", "GET", "GET", "POST"])
 
 
+class StorageSecretKeyHeaderTests(unittest.TestCase):
+    def test_secret_key_is_apikey_not_bearer_jwt(self):
+        """Opaque sb_secret keys must not masquerade as a user JWT."""
+        from urllib.request import Request
+        import inspect
+        source = inspect.getsource(export)
+        self.assertNotIn('"Authorization": "Bearer " + key', source)
+        self.assertIn('"apikey": key', source)
+
+    def test_listing_request_uses_apikey_only(self):
+        with patch.object(export, "urlopen") as open_url:
+            response = open_url.return_value.__enter__.return_value
+            response.read.return_value = b'[{"id":"docs"}]'
+            export.list_buckets("https://example.invalid", "sb_secret_fake")
+            request = open_url.call_args.args[0]
+            headers = {k.lower(): v for k, v in request.header_items()}
+            self.assertEqual(headers.get("apikey"), "sb_secret_fake")
+            self.assertNotIn("authorization", headers)
+
+
 class StorageInventoryTests(unittest.TestCase):
     def test_discover_all_buckets_including_empty(self):
         payload = [{"id": "avatars"}, {"id": "new-empty"}, {"id": "documents"}]
