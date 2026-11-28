@@ -13,6 +13,7 @@ jobs:
   backup-restore-staging:
     if: github.ref == 'refs/heads/main' && github.repository == 'alzahrani6020/bonds-global-web'
     runs-on: ubuntu-latest
+    environment: bonds-staging-backup
     timeout-minutes: 45
     env:
       SUPABASE_STAGING_ACCESS_TOKEN: ${{ secrets.SUPABASE_STAGING_ACCESS_TOKEN }}
