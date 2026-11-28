@@ -25,7 +25,9 @@ jobs:
     if: >-
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
+      (github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure')
+    # The smoke script independently verifies the deployed SHA before any authenticated writes.
+    # A failed release can coexist with a separately verified production deployment.
     runs-on: ubuntu-24.04
     environment: production
     timeout-minutes: 15

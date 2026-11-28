@@ -699,6 +699,9 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
   const corrections = body.corrections && typeof body.corrections === 'object' && !Array.isArray(body.corrections)
     ? body.corrections
     : {};
+  const selections = body.selections && typeof body.selections === 'object' && !Array.isArray(body.selections)
+    ? body.selections
+    : {};
   const reviewed = { ...(dataset.reviewed_values || {}) };
   const fields = Array.isArray(dataset.field_provenance?.fields)
     ? dataset.field_provenance.fields.map(field => ({ ...field, source: Array.isArray(field.source) ? [...field.source] : [] }))
@@ -715,11 +718,54 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
       ? (Array.isArray(rawCorrection) && rawCorrection.length ? rawCorrection : null)
       : parseNumeric(rawCorrection);
     if (value === null) {
-      if (Object.prototype.hasOwnProperty.call(reviewed, field)) valuesChanged = true;
+      if (Object.prototype.hasOwnProperty.call(reviewed, field)) {
+        valuesChanged = true;
+        overrides.push({field,previous_reviewed_value:reviewed[field],corrected_value:null,method:'manual_clear',at:now});
+      }
       delete reviewed[field];
+      const cleared = fieldMap.get(field);
+      if (cleared) {
+        cleared.value = null;
+        cleared.status = 'missing';
+        cleared.confidence = 0;
+        cleared.source = [...cleared.source,{extraction_method:'manual_clear',at:now}];
+      }
       continue;
     }
+    const selectedIndex = selections[field];
+    let selectedCandidate = null;
+    if (selectedIndex !== undefined) {
+      const sourceField = fieldMap.get(field);
+      const candidateRows = Array.isArray(sourceField?.candidates) ? sourceField.candidates : [];
+      if (!Number.isInteger(selectedIndex) || selectedIndex < 0 || selectedIndex >= candidateRows.length) {
+        return sendJson(res, 422, { ok:false, error:{ code:'FINANCIAL_CANDIDATE_INDEX_INVALID', field } });
+      }
+      selectedCandidate = candidateRows[selectedIndex];
+      if (!selectedCandidate || parseNumeric(selectedCandidate.value) !== value) {
+        return sendJson(res, 422, { ok:false, error:{ code:'FINANCIAL_CANDIDATE_VALUE_MISMATCH', field } });
+      }
+    }
     const previous = Object.prototype.hasOwnProperty.call(reviewed, field) ? reviewed[field] : null;
+    const priorField = fieldMap.get(field);
+    if (selectedCandidate && (
+      priorField?.period !== (selectedCandidate.period || null) ||
+      priorField?.currency !== (selectedCandidate.currency || priorField?.currency || null) ||
+      priorField?.status !== 'selected_from_source'
+    )) {
+      valuesChanged = true;
+      overrides.push({
+        field,
+        original_extracted_value: Object.prototype.hasOwnProperty.call(dataset.extracted_values || {}, field)
+          ? dataset.extracted_values[field] : null,
+        previous_reviewed_value:previous,
+        corrected_value:value,
+        method:'candidate_selection',
+        candidate_index:selectedIndex,
+        selected_period:selectedCandidate.period || null,
+        selected_currency:selectedCandidate.currency || priorField?.currency || null,
+        at:now
+      });
+    }
     reviewed[field] = value;
     if (JSON.stringify(previous) !== JSON.stringify(value)) {
       valuesChanged = true;
@@ -738,10 +784,20 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
       field, value:null, status:'missing', candidates:[], currency:null, period:null, confidence:0, source:[]
     };
     current.value = value;
-    current.status = 'corrected';
-    current.candidates = [];
-    current.confidence = 1;
-    current.source = [...current.source, { extraction_method: 'manual_review', at: now }];
+    current.status = selectedCandidate ? 'selected_from_source' : 'corrected';
+    if (selectedCandidate) {
+      current.period = selectedCandidate.period || null;
+      current.currency = selectedCandidate.currency || current.currency || null;
+    }
+    current.confidence = selectedCandidate ? 0.85 : 1;
+    current.source = [...current.source, {
+      extraction_method: selectedCandidate ? 'candidate_selection' : 'manual_review',
+      candidate_index: selectedCandidate ? selectedIndex : undefined,
+      period: selectedCandidate?.period || null,
+      provenance: selectedCandidate?.source || null,
+      at:now
+    }];
+    if (!selectedCandidate) current.candidates = [];
     if (!fieldMap.has(field)) {
       fields.push(current);
       fieldMap.set(field, current);
@@ -760,6 +816,14 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
     values: reviewed,
     fields
   });
+  const selectedPeriods = [...new Set(fields.filter(row=>row.status==='selected_from_source' && row.period).map(row=>String(row.period)))];
+  const otherCurrentPeriods = [...new Set(fields.filter(row=>row.status!=='selected_from_source' && row.period && !['prior_revenue','prior_net_income'].includes(row.field)).map(row=>String(row.period)))];
+  if (dataset.service_code==='financial_analysis' && selectedPeriods.length &&
+      (selectedPeriods.length>1 || otherCurrentPeriods.some(period=>!selectedPeriods.includes(period)))) {
+    validation.errors.push({code:'FINANCIAL_SELECTED_PERIOD_MISMATCH', selected_periods:selectedPeriods, other_periods:otherCurrentPeriods});
+    validation.valid=false;
+    validation.quality_gate='FAIL_CLOSED';
+  }
   const status = validation.valid ? 'validated' : 'reviewed';
   const approvalStatus = validation.valid ? 'approved' : 'reviewed';
   const confidence = fieldConfidenceMap(fields);
@@ -1074,6 +1138,30 @@ async function handleServiceExecute(req, res, supabase, user) {
         recorded_at:now
       };
 
+      // Generate the durable report as part of the same execution record write.
+      // Older executed datasets can be backfilled through the authenticated /report endpoint.
+      let executionToPersist=result.body||{};
+      if(successful&&serviceCode==='financial_analysis'){
+        try{
+          const {render}=require('../../components/financial-analysis-report');
+          const html=render({...result.body,dataset:evidence,
+            dataset_persistence:{status:'saved',verified:true,dataset_id:dataset.id}},'ar');
+          if(typeof html!=='string'||!html.startsWith('<!doctype html>')||html.length<=1000)
+            throw new Error('FINANCIAL_REPORT_INVALID_HTML');
+          {
+            executionToPersist={...result.body,report_artifact:{
+              format:'html',html,
+              sha256:crypto.createHash('sha256').update(html,'utf8').digest('hex'),
+              dataset_id:dataset.id,dataset_version:dataset.dataset_version||1,
+              generated_at:now
+            }};
+          }
+        }catch(reportError){
+          console.error('[services/execute] report generation blocked:',reportError.message);
+          return sendJson(res,422,{ok:false,executed:false,service_code:serviceCode,
+            error:{code:'FINANCIAL_REPORT_GENERATION_FAILED'}});
+        }
+      }
       // Do not report a completed financial-analysis archive until the exact
       // dataset is updated AND read back. A computation can succeed when its
       // persistence fails; preserve the input snapshot for operator recovery.
@@ -1083,7 +1171,7 @@ async function handleServiceExecute(req, res, supabase, user) {
           .from('financial_datasets')
           .update({
             status: successful ? 'executed' : 'validated',
-            execution_result: result.body || {},
+            execution_result: executionToPersist,
             execution_history:history,
             input_snapshot:inputSnapshot,
             derived_metrics:metrics,
@@ -1105,14 +1193,15 @@ async function handleServiceExecute(req, res, supabase, user) {
         }
         const {data:readback,error:readbackError}=await supabase
           .from('financial_datasets')
-          .select('id,user_id,status,input_hash,derived_metrics')
+          .select('id,user_id,status,input_hash,derived_metrics,execution_result')
           .eq('id',dataset.id)
           .eq('user_id',user.id)
           .maybeSingle();
         if(readbackError || !readback || readback.user_id!==user.id ||
            readback.status!==(successful?'executed':'validated') ||
            readback.input_hash!==inputHash ||
-           !require('node:util').isDeepStrictEqual(readback.derived_metrics,JSON.parse(JSON.stringify(metrics)))){
+           !require('node:util').isDeepStrictEqual(readback.derived_metrics,JSON.parse(JSON.stringify(metrics))) ||
+           (executionToPersist.report_artifact && readback.execution_result?.report_artifact?.sha256!==executionToPersist.report_artifact.sha256)){
           throw readbackError || new Error('FINANCIAL_DATASET_READBACK_MISMATCH');
         }
         datasetPersistence={status:'saved',dataset_id:dataset.id,verified:true};
@@ -1221,6 +1310,79 @@ async function handleFinancialDatasetGet(req,res,supabase,user,id){
   return sendJson(res,200,{ok:true,dataset:data});
 }
 
+
+// An actual, source-attributed HTML report is generated from the persisted
+// execution snapshot, never by rerunning the engine or trusting client metrics.
+// The report is stored inside the existing financial_datasets JSONB record,
+// avoiding a schema change and preserving original immutable input provenance.
+async function handleFinancialDatasetReport(req,res,supabase,user,id){
+ if(!user)return sendJson(res,401,{ok:false,error:{code:'UNAUTHORIZED'}});
+ if(req.method!=='GET'&&req.method!=='POST')return sendJson(res,405,{ok:false,error:{code:'METHOD_NOT_ALLOWED'}});
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
+  return sendJson(res,400,{ok:false,error:{code:'INVALID_DATASET_ID'}});
+ const {data,error}=await supabase.from('financial_datasets')
+  .select('id,user_id,client_id,project_id,service_code,status,approval_status,quality_status,dataset_version,execution_result,reviewed_values,field_provenance,validation,source_file_name,input_hash,is_stale')
+  .eq('id',id).eq('user_id',user.id).is('deleted_at',null).maybeSingle();
+ if(error||!data)return sendJson(res,404,{ok:false,error:{code:'FINANCIAL_DATASET_NOT_FOUND'}});
+ const execution=data.execution_result;
+ if(data.service_code!=='financial_analysis'||data.status!=='executed'||data.approval_status!=='approved'||
+    data.is_stale===true||execution?.executed!==true||
+    !execution?.metrics||!Object.values(execution.metrics).some(v=>typeof v==='number'&&Number.isFinite(v)))
+  return sendJson(res,409,{ok:false,error:{code:'FINANCIAL_REPORT_REQUIRES_VERIFIED_EXECUTION'}});
+ const report=execution.report_artifact;
+ // Every response must validate the stored artifact before returning or reusing it.
+ if(report){
+  const valid=report.format==='html'&&report.dataset_id===id&&
+   report.dataset_version===data.dataset_version&&typeof report.html==='string'&&
+   report.html.startsWith('<!doctype html>')&&report.html.length>1000&&
+   /^[0-9a-f]{64}$/.test(report.sha256||'')&&
+   crypto.createHash('sha256').update(report.html,'utf8').digest('hex')===report.sha256;
+  if(!valid)return sendJson(res,409,{ok:false,error:{code:'FINANCIAL_REPORT_INTEGRITY_FAILED'}});
+ }
+ if(req.method==='GET'){
+  if(!report?.html||report.format!=='html'||report.dataset_id!==id)
+   return sendJson(res,404,{ok:false,error:{code:'FINANCIAL_REPORT_NOT_GENERATED'}});
+  res.setHeader('Cache-Control','private, no-store');
+  return sendJson(res,200,{ok:true,report:{html:report.html,sha256:report.sha256,generated_at:report.generated_at,format:report.format,dataset_id:id,dataset_version:data.dataset_version,source_quality:data.quality_status}});
+ }
+ // Repeated calls are idempotent; never fabricate or overwrite a prior report.
+ if(report?.html&&report.format==='html'&&report.dataset_id===id)
+  return sendJson(res,200,{ok:true,report:{html:report.html,sha256:report.sha256,generated_at:report.generated_at,format:'html',dataset_id:id,dataset_version:data.dataset_version,source_quality:data.quality_status},reused:true});
+ let html;
+ try {
+  const {render}=require('../../components/financial-analysis-report');
+  const evidence=execution.dataset||{};
+  html=render({...execution,
+   dataset:{...evidence,dataset_id:id,dataset_version:data.dataset_version,
+    inputs_used:evidence.inputs_used||data.reviewed_values||{},
+    field_provenance:evidence.field_provenance||data.field_provenance?.fields||[]},
+   dataset_persistence:{status:'saved',verified:true,dataset_id:id}
+  },'ar');
+ }catch(err){
+  console.error('[services/intake/report] render error:',err.message);
+  return sendJson(res,422,{ok:false,error:{code:'FINANCIAL_REPORT_RENDER_FAILED'}});
+ }
+ if(!html.startsWith('<!doctype html>')||html.length<1000)
+  return sendJson(res,422,{ok:false,error:{code:'FINANCIAL_REPORT_INVALID_HTML'}});
+ const sha256=crypto.createHash('sha256').update(html,'utf8').digest('hex');
+ const generated_at=new Date().toISOString();
+ const artifact={format:'html',html,sha256,dataset_id:id,dataset_version:data.dataset_version,generated_at};
+ const nextExecution={...execution,report_artifact:artifact};
+ let query=supabase.from('financial_datasets').update({execution_result:nextExecution,updated_at:generated_at})
+  .eq('id',id).eq('user_id',user.id).eq('status','executed').eq('approval_status','approved').is('deleted_at',null);
+ if(data.input_hash)query=query.eq('input_hash',data.input_hash);
+ const {data:saved,error:saveError}=await query.select('id').maybeSingle();
+ if(saveError||!saved)return sendJson(res,409,{ok:false,error:{code:'FINANCIAL_REPORT_SAVE_FAILED'}});
+ const {data:check,error:checkError}=await supabase.from('financial_datasets')
+  .select('id,execution_result').eq('id',id).eq('user_id',user.id).maybeSingle();
+ if(checkError||check?.execution_result?.report_artifact?.sha256!==sha256||
+    check?.execution_result?.report_artifact?.html!==html||
+    crypto.createHash('sha256').update(check.execution_result.report_artifact.html,'utf8').digest('hex')!==sha256)
+  return sendJson(res,409,{ok:false,error:{code:'FINANCIAL_REPORT_READBACK_UNVERIFIED'}});
+ res.setHeader('Cache-Control','private, no-store');
+ return sendJson(res,200,{ok:true,report:{html,sha256,generated_at,format:'html',dataset_id:id,dataset_version:data.dataset_version,source_quality:data.quality_status},saved:true});
+}
+
 async function handleFinancialDatasetExport(req,res,supabase,user,id){
   if(req.method!=='GET') return sendJson(res,405,{error:'Method not allowed'});
   if(!user) return sendJson(res,401,{error:'Unauthorized'});
@@ -1261,6 +1423,20 @@ async function handleFinancialDatasetExport(req,res,supabase,user,id){
     XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(summaryRows),'Summary');
     XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(metricRows),'Metrics');
     XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(inputRows),'Approved Inputs');
+    const provenanceRows=(Array.isArray(data.field_provenance?.fields)?data.field_provenance.fields:[])
+      .map(row=>({
+        field:row.field||'',value:row.value??'',status:row.status||'',
+        period:row.period||'',currency:row.currency||'',
+        comparison_excluded:row.comparison_excluded===true,
+        source_disclaimer:row.document_disclaimer||'',
+        source_references:JSON.stringify(row.source||[])
+      }));
+    const warningRows=(Array.isArray(data.validation?.warnings)?data.validation.warnings:[])
+      .map(item=>({code:item.code||'',details:JSON.stringify(item)}));
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(
+      provenanceRows.length?provenanceRows:[{field:'',value:'',status:'No provenance available'}]),'Field Provenance');
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(
+      warningRows.length?warningRows:[{code:'NONE',details:'No recorded warnings'}]),'Validation Warnings');
     const bytes=XLSX.write(workbook,{type:'buffer',bookType:'xlsx'});
     return sendBinary(res,200,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','financial-analysis-'+id+'.xlsx',bytes);
   }
@@ -1917,6 +2093,8 @@ async function servicesRouter(req, res, path, supabase, user) {
   if (path === '/services/intake/prepare') return handleFinancialIntakePrepare(req, res, supabase, user);
   if (path === '/services/intake/approve') return handleFinancialIntakeApprove(req, res, supabase, user);
   if (path === '/services/intake/portfolio') return handleFinancialPortfolio(req, res, supabase, user);
+  const datasetReportMatch=path.match(/^\/services\/intake\/datasets\/([^/]+)\/report$/);
+  if(datasetReportMatch)return handleFinancialDatasetReport(req,res,supabase,user,decodeURIComponent(datasetReportMatch[1]));
   const datasetExportMatch=path.match(/^\/services\/intake\/datasets\/([^/]+)\/export$/);
   if(datasetExportMatch) return handleFinancialDatasetExport(req,res,supabase,user,decodeURIComponent(datasetExportMatch[1]));
   const datasetMatch=path.match(/^\/services\/intake\/datasets\/([^/]+)$/);

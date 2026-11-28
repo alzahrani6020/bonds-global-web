@@ -16,6 +16,13 @@ describe('Production Authenticated Smoke workflow', () => {
     expect(source).toContain("needs: smoke");
     expect(source).toContain("PERSON_LOOKUP_SMOKE_ONLY: 'true'");
     expect(source).toContain("github.event_name != 'push'");
+    // Release failure must not hide a separately deployed commit; the runtime
+    // itself fails closed unless /api/health reports the exact expected SHA.
+    expect(source).toContain("github.event.workflow_run.conclusion == 'failure'");
+    expect(source).toContain("github.event.workflow_run.conclusion == 'success'");
+    const smoke = fs.readFileSync(path.join(__dirname, '../../scripts/post-deploy-smoke.js'), 'utf8');
+    expect(smoke).toContain('await waitForMatchingProduction()');
+    expect(smoke).toContain('Production deployment READY for commit');
     expect(source).toContain("needs: [smoke, person-identity-smoke]");
   });
 });
