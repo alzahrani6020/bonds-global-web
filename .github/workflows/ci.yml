@@ -89,7 +89,9 @@ jobs:
           psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127222000_correspondence_campaign_dispatch.sql
           psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127223000_correspondence_campaign_replies.sql
           psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -c "SELECT 1 / CASE WHEN (SELECT COUNT(*) FROM pg_tables WHERE schemaname='public' AND tablename IN ('correspondence_documents','correspondence_issues','correspondence_campaigns','correspondence_campaign_recipients','correspondence_mailboxes','correspondence_campaign_dispatch_jobs','correspondence_campaign_replies') AND rowsecurity) = 7 THEN 1 ELSE 0 END;"
-          echo "PASS: real original correspondence migration chain + campaigns in isolated PostgreSQL"
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-full-operational-acceptance.pg.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-full-operational-readback.pg.sql
+          echo "PASS: full original correspondence schema, 27 stored versions, and independent tenant readback"
 
       - name: Verify owner-authorized invitation server and failure handling
         run: node --test tests/crm/invite-handler-contract.cjs
