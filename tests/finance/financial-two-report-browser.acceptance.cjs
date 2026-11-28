@@ -1,5 +1,5 @@
 /**
- * Isolated financial two-report browser acceptance: no credentials or DB access.
+ * Isolated financial three-report browser acceptance: no credentials or DB access.
  * Exercises the actual browser report/history functions with synthetic rows.
  */
 'use strict';
@@ -18,13 +18,15 @@ const productionFunctions=[
  extract('async function restoreSavedFinancialResult(', 'async function loadFinancialReportHistory('),
  extract('async function loadFinancialReportHistory(', 'async function reprocessLatestSavedFinancialFile(')
 ].join('\n');
-const A='11111111-1111-4111-8111-111111111111',B='33333333-3333-4333-8333-333333333333';
+const A='11111111-1111-4111-8111-111111111111',B='33333333-3333-4333-8333-333333333333',C='55555555-5555-4555-8555-555555555555';
 const OWNER='22222222-2222-4222-8222-222222222222',OTHER='99999999-9999-4999-8999-999999999999';
 const rows=[
  {id:A,user_id:OWNER,service_code:'financial_analysis',status:'executed',approval_status:'approved',project_id:null,client_id:null,deleted_at:null,dataset_version:1,source_file_name:'synthetic-A.csv',last_executed_at:'2026-11-20T09:00:00Z',quality_status:'unverified',execution_result:{executed:true,metrics:{revenue:120000},dataset:{}},reviewed_values:{revenue:120000}},
- {id:B,user_id:OWNER,service_code:'financial_analysis',status:'executed',approval_status:'approved',project_id:null,client_id:null,deleted_at:null,dataset_version:2,source_file_name:'synthetic-B.csv',last_executed_at:'2026-11-21T09:00:00Z',quality_status:'unverified',execution_result:{executed:true,metrics:{revenue:240000},dataset:{}},reviewed_values:{revenue:240000}}
+ {id:B,user_id:OWNER,service_code:'financial_analysis',status:'executed',approval_status:'approved',project_id:null,client_id:null,deleted_at:null,dataset_version:2,source_file_name:'synthetic-B.csv',last_executed_at:'2026-11-21T09:00:00Z',quality_status:'unverified',execution_result:{executed:true,metrics:{revenue:240000},dataset:{}},reviewed_values:{revenue:240000}},
+ // Third independent synthetic report deliberately changes the input values and output.
+ {id:C,user_id:OWNER,service_code:'financial_analysis',status:'executed',approval_status:'approved',project_id:null,client_id:null,deleted_at:null,dataset_version:1,source_file_name:'synthetic-C-different-inputs.csv',last_executed_at:'2026-11-22T09:00:00Z',quality_status:'unverified',execution_result:{executed:true,metrics:{revenue:975321},dataset:{}},reviewed_values:{revenue:975321}}
 ];
-const htmlFor=id=>'<html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body><h1>تقرير اختبار اصطناعي غير معتمد</h1><p>DATASET='+id+'</p><p>REVENUE='+(id===A?120000:240000)+'</p></body></html>';
+const htmlFor=id=>'<html lang="ar" dir="rtl"><head><meta charset="utf-8"></head><body><h1>تقرير اختبار اصطناعي غير معتمد</h1><p>DATASET='+id+'</p><p>REVENUE='+(id===A?120000:id===B?240000:975321)+'</p></body></html>';
 const fixtureSetup=[
  "const $=s=>document.querySelector(s),lang='ar',serviceCode='financial_analysis',params=new URLSearchParams(),T={login:'LOGIN_REQUIRED'};",
  "let financialNewReportGeneration=0,intakeDatasetId=null;",
@@ -46,7 +48,7 @@ const fixtureSetup=[
 ].join('\n');
 async function prepare(page,who=OWNER){
  await page.setContent('<html lang="ar"><body><button id="srBrowseFinancialReports">سجل التقارير المالية</button><div id="srFinancialReportHistory"></div><div id="srStatus"></div></body></html>');
- await page.evaluate(data=>{window.__rows=data.rows;window.__userId=data.who;window.__reportHtml=data.html;},{rows,who,html:{[A]:htmlFor(A),[B]:htmlFor(B)}});
+ await page.evaluate(data=>{window.__rows=data.rows;window.__userId=data.who;window.__reportHtml=data.html;},{rows,who,html:{[A]:htmlFor(A),[B]:htmlFor(B),[C]:htmlFor(C)}});
  await page.addScriptTag({content:fixtureSetup+'\n'+productionFunctions+"\ndocument.querySelector('#srBrowseFinancialReports').addEventListener('click',loadFinancialReportHistory);"});
  await page.locator('#srBrowseFinancialReports').click();
 }
@@ -76,21 +78,24 @@ async function check(page,id,revenue){
  try{
   const page=await browser.newPage({acceptDownloads:true});
   await prepare(page);
-  assert.equal(await page.locator('#srFinancialReportHistorySelect option').count(),2);
+  assert.equal(await page.locator('#srFinancialReportHistorySelect option').count(),3);
+  // Open different inputs first, then previous records: no history item may be replaced.
+  const newest=await check(page,C,975321);
   const first=await check(page,B,240000),second=await check(page,A,120000);
   const log=await page.evaluate(()=>window.__requestLog);
-  assert.deepEqual(log.map(x=>x.id),[B,A]);
+  assert.deepEqual(log.map(x=>x.id),[C,B,A]);
   assert(log.every(x=>x.method==='POST'&&x.authorization==='Bearer SYNTHETIC_TOKEN'));
   await page.close();
   // Fresh document and JS context: proves history can reopen after a new visit.
   const reopened=await browser.newPage({acceptDownloads:true});
   await prepare(reopened);
-  const third=await check(reopened,A,120000),fourth=await check(reopened,B,240000);
+  assert.equal(await reopened.locator('#srFinancialReportHistorySelect option').count(),3);
+  const third=await check(reopened,A,120000),fourth=await check(reopened,B,240000),fifth=await check(reopened,C,975321);
   await reopened.close();
   const other=await browser.newPage();await prepare(other,OTHER);
   await other.getByText('لا توجد تقارير مالية محفوظة في مساحة العمل الحالية.').waitFor();
   assert.equal(await other.locator('#srFinancialReportHistorySelect').count(),0);
   await other.close();
-  console.log('PASS SYNTHETIC_TWO_REPORT_BROWSER',JSON.stringify({first,second,third,fourth,otherTenant:'isolated',productionWrites:0}));
+  console.log('PASS SYNTHETIC_THREE_REPORT_BROWSER',JSON.stringify({newest,first,second,third,fourth,fifth,otherTenant:'isolated',productionWrites:0}));
  }finally{await browser.close();}
-})().catch(e=>{console.error('FAIL SYNTHETIC_TWO_REPORT_BROWSER',e);process.exitCode=1;});
+})().catch(e=>{console.error('FAIL SYNTHETIC_THREE_REPORT_BROWSER',e);process.exitCode=1;});
