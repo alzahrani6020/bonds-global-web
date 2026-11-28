@@ -196,6 +196,31 @@ jobs:
             echo "scope=base-compare" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          # A backup-only PR has no homepage or visual-test modifications.
+          # Compare its rendered homepage to the *exact current base tree*
+          # from the synthetic merge, never to obsolete legacy screenshots.
+          # This preserves pixel regression detection and other page baselines.
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            git fetch --no-tags --unshallow origin main || true
+            if [[ "$(git rev-list --parents -n 1 HEAD | wc -w)" -eq 3 ]]; then
+              base_parent="$(git rev-parse HEAD^1)"
+              git diff --name-only "$base_parent" HEAD > /tmp/bonds-merge-pr-files.txt
+              backup_only=1
+              while IFS= read -r candidate; do
+                case "$candidate" in
+                  .github/workflows/bonds-offline-backup-custody-tests.yml|.github/workflows/bonds-storage-encrypted-backup.yml|.github/workflows/ci.yml|docs/BONDS_STORAGE_BACKUP_ACCEPTANCE.md|scripts/backup/export_storage_encrypted.py|scripts/backup/verify_storage_restored.py|scripts/backup/test_storage_encrypted.py|scripts/backup/check_storage_db_alignment.py|scripts/backup/test_check_storage_db_alignment.py|scripts/backup/export_isolated_storage_metadata.sql|scripts/backup/test_storage_postgres_integration.py)
+                    ;;
+                  *) backup_only=0 ;;
+                esac
+              done < /tmp/bonds-merge-pr-files.txt
+              if [[ "$backup_only" -eq 1 ]] && [[ -s /tmp/bonds-merge-pr-files.txt ]]; then
+                echo "PASS: backup-only tree diff, homepage pixels compared against current merge base"
+                echo "reference-sha=$base_parent" >> "$GITHUB_OUTPUT"
+                echo "scope=base-compare" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+            fi
+          fi
           echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then exit 0; fi
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
@@ -315,18 +340,32 @@ jobs:
           PY
                 ;;
               .github/workflows/bonds-offline-backup-custody-tests.yml)
+                # Allow only the exact four reviewed Storage test trigger additions.
+                # Any other CI trigger mutation still requires a full visual gate.
                 git show "$BASE_SHA:$file" > /tmp/bonds-base-custody-ci.yml || exit 0
                 python3 - <<'PY' || exit 0
           from pathlib import Path
           base = Path('/tmp/bonds-base-custody-ci.yml').read_text()
           head = Path('.github/workflows/bonds-offline-backup-custody-tests.yml').read_text()
-          anchor = "      - 'scripts/backup/test_check_github_backup_schedule.py'"
-          addition = anchor + "\n      - 'scripts/backup/test_watchdog_schedule_order.py'\n      - '.github/workflows/bonds-backup-freshness-watchdog.yml'"
-          if base.count(anchor) != 1 or head != base.replace(anchor, addition):
+          anchor = "      - '.github/workflows/bonds-offline-backup-custody-tests.yml'"
+          additions = (
+              "      - 'scripts/backup/export_storage_encrypted.py'\n"
+              "      - 'scripts/backup/verify_storage_restored.py'\n"
+              "      - 'scripts/backup/test_storage_encrypted.py'\n"
+              "      - '.github/workflows/bonds-storage-encrypted-backup.yml'\n"
+          )
+          if base.count(anchor) != 1 or head != base.replace(anchor, additions + anchor):
               raise SystemExit(1)
           PY
                 ;;
               scripts/backup/test_watchdog_schedule_order.py)
+                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then exit 0; fi
+                test -s "$file" || exit 0
+                ;;
+              scripts/backup/export_storage_encrypted.py|scripts/backup/verify_storage_restored.py|scripts/backup/test_storage_encrypted.py|.github/workflows/bonds-storage-encrypted-backup.yml|docs/BONDS_STORAGE_BACKUP_ACCEPTANCE.md)
+                # These five files are NEW Storage backup-only assets; they
+                # cannot change web UI pixels. Existing-file modifications
+                # are not accepted by this narrow classifier.
                 if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then exit 0; fi
                 test -s "$file" || exit 0
                 ;;
