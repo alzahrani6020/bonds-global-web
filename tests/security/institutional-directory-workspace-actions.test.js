@@ -57,7 +57,11 @@ describe('BONDS institutional directory and CRM workspace action wiring',()=>{
   expect(shell).toContain("document.querySelector('.bx-work-list')?.scrollIntoView");
   expect(shell).toContain("document.getElementById('corr-issue-ledger')?.scrollIntoView");
   expect(shell).toContain('search.focus();');
-  expect(shell).toContain("window.location.assign('/institutional-directory.html')");
+  expect(shell).toContain("window.location.assign(correspondencePage('institutional-directory'))");
+  expect(shell).toContain("window.location.assign(correspondencePage('correspondence-campaigns'))");
+  expect(shell).toContain("url.searchParams.set('workspace_id', workspaceId)");
+  expect(shell).toContain("const prefix = isEnglish ? '/en/' : '/'");
+  expect(shell).not.toContain("window.location.assign('/institutional-directory.html')");
  });
  test('partial CSV import explains the failing record without silently retrying writes',()=>{
   expect(importer).toContain('failedAt=index+1');
