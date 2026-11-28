@@ -21,6 +21,13 @@ describe('service workspace UI contract',()=>{
     expect(en).toContain('id="srRequestForm"');
   });
 
+  test('catalog lookup errors are not mislabeled as missing financial services',()=>{
+    expect(api).toContain("if (error) {");
+    expect(api).toContain("SERVICE_CATALOG_UNAVAILABLE");
+    expect(api).toContain("Service catalog temporarily unavailable");
+    expect(api).toContain("if (!service) return sendJson(res, 404, { error: 'Service not found' });");
+  });
+
   test('catalog exposes execution profile and resolved workspace',()=>{
     expect(api).toContain("execution_profile: executionProfile");
     expect(api).toContain("workspace: resolveServiceWorkspace(row, executionProfile)");

@@ -1863,7 +1863,11 @@ async function handleServiceDetail(req, res, supabase, code) {
     .eq('status', 'published')
     .eq('is_active', true)
     .maybeSingle();
-  if (error || !service) return sendJson(res, 404, { error: 'Service not found' });
+  if (error) {
+    console.error('[services/detail] Catalog lookup unavailable:', error.code || 'DATABASE_ERROR');
+    return sendJson(res, 503, { error: 'Service catalog temporarily unavailable', code: 'SERVICE_CATALOG_UNAVAILABLE' });
+  }
+  if (!service) return sendJson(res, 404, { error: 'Service not found' });
 
   let activityId = null;
   if (filters.activity) {
