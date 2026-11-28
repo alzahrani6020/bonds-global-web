@@ -144,4 +144,5 @@ jobs:
           rm -f "$RUNNER_TEMP/bonds-staging-backup/connection-url" \
                 "$RUNNER_TEMP/bonds-staging-backup/toc.txt"
       - name: Report validated staging recovery gate
-        run: echo "STATUS: PASS - staging backup encrypted and isolated restore verified"
+        run: |
+          echo "STATUS: PASS - staging backup encrypted and isolated restore verified"
