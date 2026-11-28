@@ -65,3 +65,72 @@ test('Windows Chromium: local login -> source review -> approved SQLite -> edit 
   identity.close();fs.rmSync(dir,{recursive:true,force:true});
  }
 });
+
+
+test('Windows Chromium: independent authenticated company sessions keep approved records and cookies isolated',async()=>{
+ const A='12345678-1234-4123-8123-1234567890ab',B='12345678-1234-4123-8123-1234567890ac';
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bonds-two-tenants-browser-'));
+ const instances=[];
+ let browser;
+ async function startTenant(workspaceId,username,password){
+  const filename=path.join(dir,workspaceId+'.sqlite');
+  const identity=createLocalIdentityStore({filename});
+  identity.createUser({username,password,workspaceId,role:'owner'});
+  const {privateKey,publicKey}=crypto.generateKeyPairSync('ed25519');
+  const raw=Buffer.from(JSON.stringify({version:1,workspace_id:workspaceId,expires_at:Math.floor(Date.now()/1000)+1800,features:['document-intelligence','crm.export']}));
+  const licenseToken=raw.toString('base64url')+'.'+crypto.sign(null,raw,privateKey).toString('base64url');
+  const server=createCommercialServer({workspaceId,databasePath:filename,licenseToken,licensePublicKey:publicKey.export({format:'pem',type:'spki'}),getMembership:identity.getMembership,verifyCredentials:identity.verifyCredentials,encryptionKey:crypto.randomBytes(32)});
+  instances.push({identity,server});
+  return {url:await server.listen(),workspaceId,username,password};
+ }
+ try{
+  const a=await startTenant(A,'owner-company-a','isolated-company-a-password-2026');
+  const b=await startTenant(B,'owner-company-b','isolated-company-b-password-2026');
+  browser=await chromium.launch({headless:true});
+  const contextA=await browser.newContext({viewport:{width:1280,height:800},locale:'ar-SA'});
+  const contextB=await browser.newContext({viewport:{width:390,height:844},locale:'ar-SA'});
+  const pageA=await contextA.newPage(),pageB=await contextB.newPage();
+  async function saveReviewed(page,tenant,name){
+   await page.goto(tenant.url+'/');
+   await page.locator('#username').fill(tenant.username);
+   await page.locator('#password').fill(tenant.password);
+   await page.locator('#loginForm button[type="submit"]').click();
+   await page.locator('#workspace').waitFor({state:'visible'});
+   const data='<p>اسم الشركة: '+name+'</p>';
+   await page.locator('#file').setInputFiles({name:'reviewed-company.html',mimeType:'text/html',buffer:Buffer.from(data)});
+   await page.locator('#uploadForm button[type="submit"]').click();
+   await page.locator('#reviewPanel').waitFor({state:'visible'});
+   await page.locator('#reviewForm button[type="submit"]').click();
+   await page.locator('#approve:enabled').waitFor();
+   await page.locator('#approve').click();
+   await page.getByText(name,{exact:true}).waitFor();
+   await page.reload();
+   await page.locator('#workspace').waitFor({state:'visible'});
+   await page.getByText(name,{exact:true}).waitFor();
+  }
+  await saveReviewed(pageA,a,'شركة ألف المعزولة');
+  await saveReviewed(pageB,b,'شركة باء المعزولة');
+  assert.equal((await pageA.locator('#recordsOutput').innerText()).includes('شركة باء المعزولة'),false);
+  assert.equal((await pageB.locator('#recordsOutput').innerText()).includes('شركة ألف المعزولة'),false);
+  const cookiesA=await contextA.cookies(a.url),cookiesB=await contextB.cookies(b.url);
+  const cookieA=cookiesA.find(x=>x.name==='bondscommercial');
+  const cookieB=cookiesB.find(x=>x.name==='bondscommercial');
+  assert.ok(cookieA&&cookieB);
+  assert.notEqual(cookieA.value,cookieB.value);
+  const crossover=await fetch(b.url+'/records',{headers:{Cookie:'bondscommercial='+cookieA.value}});
+  assert.equal(crossover.status,401,'company A session must not authenticate at company B');
+  const reverse=await fetch(a.url+'/records',{headers:{Cookie:'bondscommercial='+cookieB.value}});
+  assert.equal(reverse.status,401,'company B session must not authenticate at company A');
+  const authorizedA=await pageA.request.get(a.url+'/records');
+  const authorizedB=await pageB.request.get(b.url+'/records');
+  assert.equal(authorizedA.status(),200);
+  assert.equal(authorizedB.status(),200);
+  assert.deepEqual((await authorizedA.json()).items.map(x=>x.record.name),['شركة ألف المعزولة']);
+  assert.deepEqual((await authorizedB.json()).items.map(x=>x.record.name),['شركة باء المعزولة']);
+  await contextA.close();await contextB.close();
+ }finally{
+  await browser?.close();
+  for(const x of instances.reverse()){await x.server.close();x.identity.close();}
+  fs.rmSync(dir,{recursive:true,force:true});
+ }
+});

@@ -96,11 +96,12 @@ describe('commercial installed-loopback API acceptance',()=>{
  test('authenticated remote delivery requires server destination policy and token, not browser credentials',async()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bonds-destination-http-'));
   const filename=path.join(dir,'customer.sqlite');
+  let verifyReadback=true;
   const destinationFetch=jest.fn(async(_url,request)=>{
    const payload=JSON.parse(request.body);
    expect(request.headers.Authorization).toBe('Bearer pinned-server-token-1234567890123456');
    expect(payload).toMatchObject({workspace_id:A,target:'crm',approved:true,send_mail:false,create_hr_employee:false});
-   return {status:200,ok:true,headers:{get:()=> 'application/json'},json:async()=>({accepted:true,workspace_id:A,target:'crm',accepted_count:1,receipt_id:'verified-external-receipt-1234'})};
+   return {status:verifyReadback?200:202,ok:true,headers:{get:()=> 'application/json'},json:async()=>({accepted:true,verified:verifyReadback,workspace_id:A,target:'crm',accepted_count:1,receipt_id:'verified-external-receipt-1234'})};
   });
   const identity=async({workspaceId,actorId})=>({workspace_id:workspaceId,actor_id:actorId,active:true,role:'owner'});
   const app=createCommercialServer({workspaceId:A,databasePath:filename,...licensedToken(),getMembership:identity,verifyCredentials:async({password})=>password==='fixture-remote-auth'?'owner':null,
@@ -123,6 +124,11 @@ describe('commercial installed-loopback API acceptance',()=>{
    expect(sent.status).toBe(200);
    const receipt=await sent.json();expect(receipt).toMatchObject({verified_destination_ack:true,delivered:true,send_mail:false});
    expect(destinationFetch).toHaveBeenCalledTimes(1);
+   verifyReadback=false;
+   const pending=await send('/deliver',cookie,{target:'crm',recordIds:committed.ids});
+   expect(pending.status).toBe(202);
+   expect(await pending.json()).toMatchObject({delivered:false,accepted:true,requires_reconciliation:true,verified_destination_ack:false});
+   expect(destinationFetch).toHaveBeenCalledTimes(2);
   }finally{await app.close();fs.rmSync(dir,{recursive:true,force:true})}
  });
  test('server refuses non-loopback host and invalid signatures',()=>{

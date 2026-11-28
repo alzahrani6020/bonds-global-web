@@ -14,11 +14,23 @@ describe('real transport contract, without access to SaaS production',()=>{
    expect(payload).toMatchObject({workspace_id:A,approved:true,send_mail:false,create_hr_employee:false});
    expect(options.redirect).toBe('manual');
    expect(options.headers.Authorization).toMatch(/^Bearer /);
-   return {ok:true,status:200,headers,json:async()=>({accepted:true,workspace_id:A,target:'crm',accepted_count:1,receipt_id:'receipt-verified-0001'})};
+   return {ok:true,status:200,headers,json:async()=>({accepted:true,workspace_id:A,target:'crm',accepted_count:1,receipt_id:'receipt-verified-0001',verified:true})};
   });
   const r=await deliverReviewedDirectory({...args,fetchImpl});
   expect(r).toMatchObject({delivered:true,verified_destination_ack:true,send_mail:false,create_hr_employee:false});
   expect(fetchImpl).toHaveBeenCalledTimes(1);
+ });
+ test('remote committed 202 without readback never reports delivered and must be reconciled',async()=>{
+  const args=setup();
+  const fetchImpl=jest.fn(async()=>({ok:true,status:202,headers,json:async()=>({accepted:true,verified:false,workspace_id:A,target:'crm',accepted_count:1,receipt_id:'receipt-unverified-0001'})}));
+  const result=await deliverReviewedDirectory({...args,fetchImpl});
+  expect(result).toMatchObject({delivered:false,accepted:true,requires_reconciliation:true,verified_destination_ack:false,receipt_id:'receipt-unverified-0001'});
+  expect(fetchImpl).toHaveBeenCalledTimes(1);
+ });
+ test('legacy 200 receipt without independent readback is rejected',async()=>{
+  const args=setup();
+  const fetchImpl=jest.fn(async()=>({ok:true,status:200,headers,json:async()=>({accepted:true,workspace_id:A,target:'crm',accepted_count:1,receipt_id:'receipt-legacy-0001'})}));
+  await expect(deliverReviewedDirectory({...args,fetchImpl})).rejects.toThrow('DESTINATION_READBACK_UNVERIFIED');
  });
  test('rejects non-pinned domains and HTTP without exporting records',async()=>{
   const args=setup();
