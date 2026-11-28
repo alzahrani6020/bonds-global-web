@@ -2017,9 +2017,10 @@ function renderFinancialIntake(){
    '</div>'+
    (serviceCode==='financial_analysis'?'<div class="sr-saved-reanalysis"><button type="button" id="srStartNewFinancialReport" class="sr-secondary">'+escapeHtml(lang==='ar'?'إنشاء تقرير مالي جديد':'Create new financial report')+'</button></div>':'')+
    '<div id="srIntakeFileWrap"><input id="srIntakeFile" type="file" accept=".pdf,.xlsx,.xls,.csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"><div class="sr-muted">'+escapeHtml(T.chooseFile)+'</div>'+
-    (serviceCode==='financial_analysis'?'<div class="sr-saved-reanalysis"><button type="button" id="srShowSavedFinancialResult" class="sr-secondary">'+escapeHtml(lang==='ar'?'عرض آخر تحليل مالي محفوظ':'View latest saved financial analysis')+'</button><button type="button" id="srReprocessSavedFile" class="sr-secondary">'+escapeHtml(lang==='ar'?'إعادة تحليل آخر ملف محفوظ':'Reanalyze latest saved document')+'</button><small>'+escapeHtml(lang==='ar'?'يمكن عرض التقرير المحفوظ دون إعادة رفع الملف أو تشغيل الحسابات.':'View your saved report without uploading or recalculating.')+'</small></div>':'')+
+    (serviceCode==='financial_analysis'?'<div class="sr-saved-reanalysis"><button type="button" id="srShowSavedFinancialResult" class="sr-secondary">'+escapeHtml(lang==='ar'?'عرض آخر تحليل مالي محفوظ':'View latest saved financial analysis')+'</button><button type="button" id="srBrowseFinancialReports" class="sr-secondary">'+escapeHtml(lang==='ar'?'سجل التقارير المالية':'Financial report history')+'</button><button type="button" id="srReprocessSavedFile" class="sr-secondary">'+escapeHtml(lang==='ar'?'إعادة تحليل آخر ملف محفوظ':'Reanalyze latest saved document')+'</button><small>'+escapeHtml(lang==='ar'?'يمكن عرض التقرير المحفوظ دون إعادة رفع الملف أو تشغيل الحسابات.':'View your saved report without uploading or recalculating.')+'</small></div>':'')+
    '</div>'+
-   '<div id="srIntakeReview"></div>';
+   '<div id="srIntakeReview"></div>'+
+   (serviceCode==='financial_analysis'?'<div id="srFinancialReportHistory" role="region" aria-label="'+escapeHtml(lang==='ar'?'سجل التقارير المالية':'Financial report history')+'"></div>':'');
  if(serviceCode==='financial_analysis'){
   const manualFields=[
    ['revenue','الإيرادات','Revenue'],
@@ -2085,6 +2086,7 @@ function renderFinancialIntake(){
  }
  panel.querySelector('#srStartNewFinancialReport')?.addEventListener('click',startNewFinancialReport);
  panel.querySelector('#srShowSavedFinancialResult')?.addEventListener('click',()=>restoreSavedFinancialResult({scroll:true}));
+ panel.querySelector('#srBrowseFinancialReports')?.addEventListener('click',loadFinancialReportHistory);
  panel.querySelector('#srReprocessSavedFile')?.addEventListener('click',reprocessLatestSavedFinancialFile);
  panel.querySelectorAll('input[name="__intake_mode"]').forEach(radio=>radio.addEventListener('change',()=>{
    intakeMode=radio.value;
@@ -2424,9 +2426,9 @@ async function ensureSavedFinancialReport(datasetId,scroll=false,generation=fina
   return false;
  }
 }
-async function restoreSavedFinancialResult({scroll=false,silent=false}={}){
+async function restoreSavedFinancialResult({scroll=false,silent=false,datasetId=null}={}){
  if(serviceCode!=='financial_analysis'||(silent&&intakeDatasetId))return false;
- const generation=financialNewReportGeneration;
+ const generation=datasetId?++financialNewReportGeneration:financialNewReportGeneration;
  const button=$('#srShowSavedFinancialResult');
  if(button)button.disabled=true;
  try{
@@ -2445,6 +2447,7 @@ async function restoreSavedFinancialResult({scroll=false,silent=false}={}){
    .is('deleted_at',null);
   query=projectId?query.eq('project_id',projectId):query.is('project_id',null);
   query=clientId?query.eq('client_id',clientId):query.is('client_id',null);
+  if(datasetId)query=query.eq('id',datasetId);
   const {data,error}=await query.order('last_executed_at',{ascending:false}).limit(1).maybeSingle();
   if(error)throw new Error(lang==='ar'?'تعذر قراءة نتائج التحليل المحفوظ من حسابك.':'Could not read your saved analysis.');
   if(generation!==financialNewReportGeneration)return false;
@@ -2482,6 +2485,64 @@ async function restoreSavedFinancialResult({scroll=false,silent=false}={}){
   if(!silent)showStatus(String(error?.message||error),false);
   return false;
  }finally{if(button)button.disabled=false;}
+}
+async function loadFinancialReportHistory(){
+ if(serviceCode!=='financial_analysis')return;
+ const host=$('#srFinancialReportHistory');
+ const button=$('#srBrowseFinancialReports');
+ if(!host||!button)return;
+ button.disabled=true;
+ host.textContent=lang==='ar'?'جاري قراءة سجل التقارير المحفوظة...':'Loading saved reports...';
+ try{
+  await window.BondsAuth.ensureEnv();
+  const user=(await window.BondsAuth.getUser()).data?.user;
+  if(!user)throw new Error(T.login);
+  const sb=window.BondsAuth.getSupabase();
+  const projectId=params.get('project_id')||null;
+  const clientId=params.get('client_id')||null;
+  // Apply the same owner/workspace constraints as the existing latest-report reader.
+  let query=sb.from('financial_datasets')
+   .select('id,dataset_version,source_file_name,last_executed_at')
+   .eq('user_id',user.id)
+   .eq('service_code','financial_analysis')
+   .eq('status','executed')
+   .eq('approval_status','approved')
+   .is('deleted_at',null);
+  query=projectId?query.eq('project_id',projectId):query.is('project_id',null);
+  query=clientId?query.eq('client_id',clientId):query.is('client_id',null);
+  const {data,error}=await query.order('last_executed_at',{ascending:false}).limit(30);
+  if(error)throw new Error(lang==='ar'?'تعذر قراءة سجل تقاريرك المالية.':'Could not read saved report history.');
+  host.replaceChildren();
+  const rows=Array.isArray(data)?data:[];
+  if(!rows.length){
+   host.textContent=lang==='ar'?'لا توجد تقارير مالية محفوظة في مساحة العمل الحالية.':'No saved reports in this workspace.';
+   return;
+  }
+  const label=document.createElement('label');
+  label.textContent=lang==='ar'?'اختر التقرير المالي المحفوظ':'Choose a saved financial report';
+  const select=document.createElement('select');
+  select.id='srFinancialReportHistorySelect';
+  const validRows=rows.filter(row=>typeof row.id==='string'&&/^[0-9a-f-]{36}$/i.test(row.id));
+  for(const row of validRows){
+   const option=document.createElement('option');
+   option.value=row.id;
+   const when=row.last_executed_at?new Date(row.last_executed_at):null;
+   const date=when&&!Number.isNaN(when.getTime())?when.toLocaleString(lang==='ar'?'ar-SA':'en-US'):'';
+   option.textContent=[row.source_file_name||'—',row.dataset_version!=null?(lang==='ar'?'الإصدار ':'Version ')+row.dataset_version:null,date].filter(Boolean).join(' · ');
+   select.append(option);
+  }
+  if(!validRows.length){host.textContent=lang==='ar'?'لا توجد تقارير صالحة للعرض.':'No valid reports to display.';return;}
+  label.append(select);
+  const open=document.createElement('button');
+  open.type='button';
+  open.className='sr-secondary';
+  open.textContent=lang==='ar'?'فتح التقرير المحدد':'Open selected report';
+  open.addEventListener('click',()=>restoreSavedFinancialResult({scroll:true,datasetId:select.value}));
+  host.append(label,open);
+ }catch(error){
+  host.textContent=String(error?.message||error);
+  host.setAttribute('role','alert');
+ }finally{button.disabled=false;}
 }
 async function reprocessLatestSavedFinancialFile(){
  if(serviceCode!=='financial_analysis'||submitting)return;
