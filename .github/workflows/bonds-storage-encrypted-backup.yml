@@ -1,6 +1,11 @@
 name: BONDS Storage Encrypted Backup (Manual Gate)
 on:
   workflow_dispatch:
+  push:
+    branches: [feat/clix-investor-campaign-issuance-gate-20261127]
+    paths:
+      - 'scripts/backup/export_storage_encrypted.py'
+      - '.github/workflows/bonds-storage-encrypted-backup.yml'
 permissions:
   contents: read
 concurrency:
