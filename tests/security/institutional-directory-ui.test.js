@@ -8,7 +8,9 @@ const english=fs.readFileSync(path.join(root,'en/institutional-directory.html'),
 const correspondence=fs.readFileSync(path.join(root,'components/correspondence-workspace-ui.js'),'utf8');
 describe('Institutional directory presentation cannot bypass tenant API',()=>{
  test('is discoverable from correspondence without replacing its governed actions',()=>{
-  expect(correspondence).toContain("window.location.assign('/institutional-directory.html')");
+  expect(correspondence).toContain("window.location.assign(correspondencePage('institutional-directory'))");
+  expect(correspondence).toContain("const prefix = isEnglish ? '/en/' : '/'");
+  expect(correspondence).toContain("url.searchParams.set('workspace_id', workspaceId)");
   expect(page).toContain('id="workspace-select"');
   expect(page).toContain('id="entity-type"');
   expect(page).toContain('id="directory-results"');
