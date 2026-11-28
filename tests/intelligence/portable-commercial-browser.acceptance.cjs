@@ -134,3 +134,72 @@ test('Windows Chromium: independent authenticated company sessions keep approved
   fs.rmSync(dir,{recursive:true,force:true});
  }
 });
+
+
+test('Windows Chromium: remote 202 unverified receipt displays reconciliation warning, not delivery success',async()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bonds-delivery-ui-browser-'));
+ const filename=path.join(dir,'customer.sqlite');
+ const identity=createLocalIdentityStore({filename});
+ identity.createUser({username:'local-owner',password:'isolated-browser-passphrase-2026',workspaceId:WID,role:'owner'});
+ const {privateKey,publicKey}=crypto.generateKeyPairSync('ed25519');
+ const raw=Buffer.from(JSON.stringify({version:1,workspace_id:WID,expires_at:Math.floor(Date.now()/1000)+1800,features:['document-intelligence','crm.export']}));
+ const token=raw.toString('base64url')+'.'+crypto.sign(null,raw,privateKey).toString('base64url');
+ let verified=false;
+ const fakeFetch=async(_url,opts)=>{
+  const payload=JSON.parse(opts.body);
+  assert.equal(payload.workspace_id,WID);
+  assert.equal(payload.send_mail,false);
+  return {ok:true,status:verified?200:202,headers:{get:()=> 'application/json'},json:async()=>({
+   accepted:true,verified,workspace_id:WID,target:'crm',accepted_count:1,receipt_id:'browser-test-receipt-123456'
+  })};
+ };
+ const server=createCommercialServer({
+  workspaceId:WID,databasePath:filename,licenseToken:token,licensePublicKey:publicKey.export({format:'pem',type:'spki'}),
+  getMembership:identity.getMembership,verifyCredentials:identity.verifyCredentials,encryptionKey:crypto.randomBytes(32),
+  destinationConfig:{crm:{endpoint:'https://reviewed.example.org/import',allowedOrigin:'https://reviewed.example.org'}},
+  getDestinationToken:async()=> 'test-destination-token-1234567890123456',
+  destinationFetch:fakeFetch
+ });
+ let browser;
+ try{
+  const url=await server.listen();
+  browser=await chromium.launch({headless:true});
+  const context=await browser.newContext({viewport:{width:390,height:844},locale:'ar-SA'});
+  const page=await context.newPage();
+  await page.goto(url+'/');
+  await page.locator('#username').fill('local-owner');
+  await page.locator('#password').fill('isolated-browser-passphrase-2026');
+  await page.locator('#loginForm button[type="submit"]').click();
+  await page.locator('#workspace').waitFor({state:'visible'});
+  await page.locator('#file').setInputFiles({name:'source.html',mimeType:'text/html',buffer:Buffer.from('<p>اسم الشركة: مؤسسة أطلس</p>')});
+  await page.locator('#uploadForm button[type="submit"]').click();
+  await page.locator('#reviewPanel').waitFor({state:'visible'});
+  await page.locator('#reviewForm button[type="submit"]').click();
+  await page.locator('#approve:enabled').waitFor();
+  await page.locator('#approve').click();
+  await page.getByText('مؤسسة أطلس',{exact:true}).waitFor();
+  const id=await page.locator('#recordsOutput tr').nth(1).locator('td').first().innerText();
+  await page.locator('#recordIds').fill(id);
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#deliver').click();
+  await page.locator('#notice').getByText('الحالة تتطلب مصالحة يدوية',{exact:false}).waitFor();
+  const pending=JSON.parse(await page.locator('#exportOutput').innerText());
+  assert.equal(pending.delivered,false);
+  assert.equal(pending.verified_destination_ack,false);
+  assert.equal(pending.requires_reconciliation,true);
+  assert.equal((await page.locator('#notice').innerText()).includes('تم تأكيد التسليم'),false);
+  verified=true;
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#deliver').click();
+  await page.locator('#notice').getByText('تم تأكيد التسليم وإعادة القراءة',{exact:false}).waitFor();
+  const receipt=JSON.parse(await page.locator('#exportOutput').innerText());
+  assert.equal(receipt.delivered,true);
+  assert.equal(receipt.verified_destination_ack,true);
+  await context.close();
+ }finally{
+  await browser?.close();
+  await server.close();
+  identity.close();
+  fs.rmSync(dir,{recursive:true,force:true});
+ }
+});
