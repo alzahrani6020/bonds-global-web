@@ -71,3 +71,55 @@ test('invalid import batch rejects all inserts and creates no audit row',async()
   store.close();
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('real XLSX bytes: deliberate approval -> closed/reopened SQLite -> tenant isolation -> audit',async()=>{
+ const XLSX=require('xlsx');
+ const {analyzeFile}=require('../../lib/portable-intelligence/file-adapters');
+ const {store,dir,filename,authorize}=setup();
+ let reopened;
+ try{
+  const book=XLSX.utils.book_new();
+  const sheet=XLSX.utils.aoa_to_sheet([
+   ['نوع','الاسم','البريد الإلكتروني','المدينة'],
+   ['organization','مصنع جدة التجريبي','factory@example.org','جدة'],
+   ['organization','مؤسسة الرياض التجريبية','office@example.org','الرياض']
+  ]);
+  XLSX.utils.book_append_sheet(book,sheet,'دليل الشركات');
+  const bytes=XLSX.write(book,{type:'buffer',bookType:'xlsx'});
+  const parsed=await analyzeFile({file:{filename:'synthetic-companies.xlsx',buffer:bytes},workspaceId:A});
+  assert.equal(parsed.auto_saved,false);
+  assert.equal(parsed.requires_manual_approval,true);
+  assert.deepEqual(parsed.items.map(x=>x.record.name),['مصنع جدة التجريبي','مؤسسة الرياض التجريبية']);
+  assert.deepEqual(parsed.items.map(x=>x.source.sheet),['دليل الشركات','دليل الشركات']);
+  assert.deepEqual(parsed.items.map(x=>x.source.row),[2,3]);
+  assert.equal((await store.list({workspaceId:A,actorId:'alice'})).length,0,'extraction must not save');
+
+  await assert.rejects(
+   commitReviewedProposals({proposal:parsed,workspaceId:A,actorId:'bob',approvedIndices:[0],authorize,commit:store.commit}),
+   /IMPORT_NOT_AUTHORIZED/
+  );
+  assert.equal((await store.list({workspaceId:A,actorId:'alice'})).length,0);
+  const saved=await commitReviewedProposals({proposal:parsed,workspaceId:A,actorId:'alice',approvedIndices:[0,1],authorize,commit:store.commit});
+  assert.equal(saved.saved,2);
+  assert.equal((await store.listAudit({workspaceId:A,actorId:'alice'})).length,1);
+  store.close();
+  reopened=createSqliteTenantStore({filename,authorize});
+  const records=await reopened.list({workspaceId:A,actorId:'alice'});
+  assert.deepEqual(records.map(x=>({name:x.record.name,city:x.record.city,email:x.record.email})),[
+   {name:'مصنع جدة التجريبي',city:'جدة',email:'factory@example.org'},
+   {name:'مؤسسة الرياض التجريبية',city:'الرياض',email:'office@example.org'}
+  ]);
+  assert.deepEqual(records.map(x=>x.source.row),[2,3]);
+  assert.deepEqual((await reopened.listAudit({workspaceId:A,actorId:'alice'})).map(x=>x.action),['import.reviewed']);
+  await assert.rejects(reopened.list({workspaceId:A,actorId:'bob'}),/TENANT_ACCESS_DENIED/);
+  assert.deepEqual(await reopened.list({workspaceId:B,actorId:'bob'}),[]);
+  await assert.rejects(
+   commitReviewedProposals({proposal:parsed,workspaceId:A,actorId:'bob',approvedIndices:[0],authorize,commit:reopened.commit}),
+   /IMPORT_NOT_AUTHORIZED/
+  );
+ }finally{
+  try{reopened?.close()}catch{}
+  try{store.close()}catch{}
+  fs.rmSync(dir,{recursive:true,force:true});
+ }
+});
