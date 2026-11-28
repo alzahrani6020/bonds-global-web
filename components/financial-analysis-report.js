@@ -92,9 +92,34 @@
   const values=existing.map(([key,value])=>[ar?(metricNames[key]||key.replace(/_/g,' ')):key.replace(/_/g,' '),fmt(value)]);
   const inputsTable=Object.entries(inputs).filter(([,v])=>typeof v==='string'||numeric(v))
     .map(([k,v])=>[ar?(metricNames[k]||k.replace(/_/g,' ')):k.replace(/_/g,' '),numeric(v)?fmt(v):v]);
+  // Render readable source evidence while preserving raw values and provenance in storage.
+  const sourceStatuses={
+   extracted_multi_period:tr('مستخرج من فترات متعددة','Extracted from multiple periods'),
+   extracted:tr('مستخرج من المستند','Extracted from document'),
+   not_comparable:tr('فترة غير قابلة للمقارنة المباشرة','Period not directly comparable'),
+   manually_verified:tr('مُراجع يدويًا','Manually reviewed'),
+   manually_corrected:tr('مصحح يدويًا','Manually corrected'),
+   manual:tr('إدخال يدوي','Manual entry'),
+   inferred:tr('استنتاج يحتاج مراجعة','Inference requires review'),
+   missing:tr('غير متاح في المستند','Missing from source')
+  };
+  const readableStatus=value=>sourceStatuses[value]||String(value||'—').replace(/_/g,' ');
+  const readableRef=ref=>{
+   if(!ref||typeof ref!=='object')return '—';
+   const pieces=[];
+   if(ref.sheet!==undefined&&ref.sheet!==null&&ref.sheet!=='')pieces.push(tr('الصفحة/الورقة: ','Page/sheet: ')+String(ref.sheet));
+   if(ref.row!==undefined&&ref.row!==null&&ref.row!=='')pieces.push(tr('الصف: ','Row: ')+String(ref.row));
+   if(ref.column!==undefined&&ref.column!==null&&ref.column!=='')pieces.push(tr('العمود: ','Column: ')+String(ref.column));
+   if(ref.line!==undefined&&ref.line!==null&&ref.line!=='')pieces.push(tr('السطر: ','Line: ')+String(ref.line));
+   if(ref.extraction_method){
+    const method=ref.extraction_method==='text_parser'?tr('استخراج نصي','Text extraction'):String(ref.extraction_method).replace(/_/g,' ');
+    pieces.push(tr('طريقة القراءة: ','Extraction: ')+method);
+   }
+   return pieces.join(' — ')||'—';
+  };
   const sourceRows=fieldSources.filter(f=>f&&f.value!==null&&f.value!==undefined)
-    .map(f=>[f.field||'—',f.status||'—',(f.source||[]).map(x=>
-      [x.sheet,x.row,x.column,x.line,x.extraction_method].filter(x=>x!==null&&x!==undefined).join(' / ')).join(' ; ')||'—']);
+    .map(f=>[ar?(metricNames[f.field]||String(f.field||'—').replace(/_/g,' ')):String(f.field||'—').replace(/_/g,' '),
+      readableStatus(f.status),(f.source||[]).map(readableRef).join(' ؛ ')||'—']);
   const provenanceHtml=sourceRows.length?
     '<table><thead><tr><th>'+tr('الحقل','Field')+'</th><th>'+tr('حالة المصدر','Source status')+'</th><th>'+tr('موضع المصدر','Source reference')+'</th></tr></thead><tbody>'+
     sourceRows.map(r=>'<tr>'+r.map(v=>'<td>'+escape(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>':
