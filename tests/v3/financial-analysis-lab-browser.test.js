@@ -36,7 +36,7 @@ async function openLab(mobile=false){
  await page.route('**/api/v3/services/financial-analysis/demo?*',route=>{
   const url=new URL(route.request().url());
   return route.fulfill({status:200,contentType:'application/json',
-   body:JSON.stringify(scenarioResult(url.searchParams.get('scenario')||'healthy'))});
+   body:JSON.stringify(scenarioResult(url.searchParams.get('scenario')||'healthy',Object.fromEntries(['revenue','cogs','operating_expenses','total_debt'].filter(k=>url.searchParams.has(k)).map(k=>[k,Number(url.searchParams.get(k))]))))});
  });
  await page.route('**/api/v3/catalog/countries*',route=>route.fulfill({
   status:200,contentType:'application/json',body:JSON.stringify({countries:[{code:'SA',name_ar:'السعودية',name_en:'Saudi Arabia'}]})
@@ -48,6 +48,8 @@ async function openLab(mobile=false){
   status:200,contentType:'application/json',body:'{"sectors":[],"activities":[]}'
  }));
  await page.goto(new URL('/my-bonds/workspace/?service=financial_analysis&country=SA',baseUrl).toString(),{waitUntil:'domcontentloaded'});
+ await page.locator('#srWelcomeDemo').waitFor({state:'visible',timeout:20000});
+ await page.locator('#srWelcomeDemo').click();
  await page.locator('#srFinanceLabRun').waitFor({state:'visible',timeout:20000});
  return {context,page,writes};
 }
@@ -63,6 +65,21 @@ describe('financial-analysis isolated demo browser acceptance',()=>{
   await page.locator('#srFinanceLabClear').click();
   expect(await page.locator('#srFinanceLabResults').isVisible()).toBe(false);
   expect(writes).toHaveLength(0);
+  await context.close();
+ });
+ test('welcome never exposes saved financial data and demo responds to synthetic edits',async()=>{
+  const {context,page,writes}=await openLab();
+  expect(await page.locator('#srFinancialWelcome .sr-financial-welcome-main').isVisible()).toBe(false);
+  await page.locator('[data-demo-adjust="revenue"]').selectOption('10');
+  await page.locator('#srFinanceLabRun').click();
+  await page.locator('#srFinanceLabResults input[readonly]').first().waitFor({state:'visible'});
+  expect(await page.locator('#srFinanceLabResults input[readonly]').first().inputValue()).toBe('2,090,000');
+  expect(writes).toHaveLength(0);
+  await page.locator('#srWelcomeBack').click();
+  expect(await page.locator('#srWelcomeNew').isVisible()).toBe(true);
+  await page.locator('#srWelcomeNew').click();
+  expect(await page.locator('#srRequestForm').isVisible()).toBe(true);
+  expect(await page.locator('#srFinancialIntake input[type=file]').inputValue()).toBe('');
   await context.close();
  });
  test('mobile contradiction scenario is rejected visibly without saving',async()=>{
