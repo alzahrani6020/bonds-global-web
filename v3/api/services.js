@@ -2075,11 +2075,22 @@ async function servicesRouter(req, res, path, supabase, user) {
   // handles uploaded customer files, or calls paid/production execution.
   if(path==='/services/financial-analysis/demo'){
     if(req.method!=='GET')return sendJson(res,405,{ok:false,error:{code:'METHOD_NOT_ALLOWED'}});
-    const scenario=getQuery(req).searchParams.get('scenario')||'healthy';
+    const query=getQuery(req).searchParams;
+    const scenario=query.get('scenario')||'healthy';
+    const controls=['revenue','cogs','operating_expenses','total_debt'];
+    const allowed=new Set(['scenario',...controls]);
+    if([...query.keys()].some(key=>!allowed.has(key)))return sendJson(res,400,{ok:false,error:{code:'UNKNOWN_DEMO_PARAMETER'}});
+    const adjustments={};
+    for(const key of controls){
+      if(!query.has(key))continue;
+      const raw=query.get(key);
+      if(!/^-?(?:0|5|10|15|20)$/.test(raw))return sendJson(res,400,{ok:false,error:{code:'INVALID_DEMO_ADJUSTMENT'}});
+      adjustments[key]=Number(raw);
+    }
     try{
       const {scenarioResult}=require('../../lib/finance/financial-analysis-lab');
       res.setHeader('Cache-Control','no-store, private');
-      return sendJson(res,200,scenarioResult(scenario));
+      return sendJson(res,200,scenarioResult(scenario,adjustments));
     }catch(error){
       return sendJson(res,400,{ok:false,error:{code:error.code==='UNKNOWN_FINANCIAL_LAB_SCENARIO'?error.code:'DEMO_COMPUTATION_FAILED'}});
     }
