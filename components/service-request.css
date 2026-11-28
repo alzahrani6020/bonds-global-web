@@ -17,3 +17,20 @@
 @media(max-width:700px){.sr-intake-row{grid-template-columns:1fr 1fr}.sr-intake-source{grid-column:1/-1}}
 
 .service-request-page [hidden]{display:none!important}
+
+/* Financial analysis — accessible KPI cards, RTL and responsive results. */
+#srExecutionResult .financial-result-stack{display:grid;gap:18px;min-width:0}
+#srExecutionResult .financial-result-section{min-width:0}
+#srExecutionResult .financial-result-section h3{margin:0 0 14px;font-size:1.17rem;line-height:1.6}
+#srExecutionResult .financial-result-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+#srExecutionResult .financial-result-kpis>div{display:flex;flex-direction:column;justify-content:space-between;gap:9px;min-width:0;padding:16px;border:1px solid #dbe2ec;border-radius:12px;background:#f8fafc}
+#srExecutionResult .financial-result-kpis span{display:block;color:#43546c;line-height:1.65;font-size:.9rem;overflow-wrap:anywhere}
+#srExecutionResult .financial-result-kpis strong{display:block;font-size:1.2rem;color:#152944;line-height:1.5;font-variant-numeric:tabular-nums;unicode-bidi:isolate;direction:ltr;text-align:start;overflow-wrap:anywhere}
+#srExecutionResult .financial-result-table-wrap{overflow-x:auto;max-width:100%}
+#srExecutionResult .financial-result-table{border-collapse:collapse;min-width:540px;width:100%}
+#srExecutionResult .financial-result-table th,#srExecutionResult .financial-result-table td{padding:10px 12px;text-align:start;border-bottom:1px solid #dbe2ec;vertical-align:top}
+#srPersistedFinancialReport{min-width:0;margin-top:20px}
+#srPersistedFinancialReport .sr-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+#srPersistedFinancialReport iframe{display:block;width:100%;max-width:100%}
+@media(max-width:600px){#srExecutionResult .financial-result-kpis{grid-template-columns:1fr 1fr;gap:9px}#srExecutionResult .financial-result-kpis>div{padding:12px}#srExecutionResult .financial-result-kpis strong{font-size:1rem}}
+@media(max-width:400px){#srExecutionResult .financial-result-kpis{grid-template-columns:1fr}}
