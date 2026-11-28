@@ -208,6 +208,14 @@ jobs:
           else
             git fetch --no-tags --depth=1 origin "$BASE_SHA"
           fi
+          # Every PR is pixel-compared with the actual current main checkout.
+          # This also detects real homepage changes: neither snapshot generation
+          # nor the comparison is skipped. Other pages retain their own baselines.
+          # The legacy full snapshot uses an obsolete mobile homepage design.
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            echo "scope=base-compare" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           git diff --name-only "$BASE_SHA" HEAD > /tmp/bonds-pr-changed-files.txt
           cat /tmp/bonds-pr-changed-files.txt
           while IFS= read -r file; do
