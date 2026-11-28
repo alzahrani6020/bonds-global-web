@@ -268,6 +268,34 @@ jobs:
           BONDS_HOME_BASE_URL: http://localhost:3006
         run: npm run test:visual
 
+      - name: Verify homepage visual comparison evidence
+        shell: bash
+        env:
+          VISUAL_SCOPE: ${{ steps.visual-scope.outputs.scope }}
+          GITHUB_EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          # Verify that both languages were actually rendered for every viewport.
+          # In PR-base mode, also require the independently captured base image.
+          for viewport in desktop tablet mobile; do
+            for locale in index-ar index-en; do
+              test -s "tests/visual/snapshots/$viewport/$locale.png" || {
+                echo "::error::Missing candidate screenshot: $viewport/$locale"
+                exit 1
+              }
+              if [[ "$VISUAL_SCOPE" == "base-compare" ]]; then
+                test -s "tests/visual/diffs/pr-base/$viewport/$locale.png" || {
+                  echo "::error::Missing PR-base screenshot: $viewport/$locale"
+                  exit 1
+                }
+              fi
+            done
+          done
+          if [[ "$GITHUB_EVENT" == "pull_request" && "$VISUAL_SCOPE" != "base-compare" ]]; then
+            echo "Full approved baseline gate used for homepage-affecting PR"
+          fi
+          echo "PASS: all Arabic/English homepage screenshot evidence present"
+
       - name: Validate service manifests and token policies
         run: npm run services:check
 
