@@ -105,6 +105,48 @@ describe('Correspondence UI real browser layout', () => {
     } finally { await page.close(); }
   }, 30000);
 
+  test('correspondence navigation keeps Arabic company context without entering CRM', async () => {
+    const companyId='11111111-1111-4111-8111-111111111111';
+    for (const [label,destination] of [
+      ['مركز الحملات','correspondence-campaigns.html'],
+      ['دليل الجهات','institutional-directory.html']
+    ]) {
+      const page=await browser.newPage();
+      try {
+        await page.route('**/letterhead.html*',route=>route.fulfill({status:200,contentType:'text/html',body:fixture}));
+        await page.route('**/'+destination+'*',route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Destination</title>'}));
+        await page.goto('https://bonds-ui-preview.invalid/letterhead.html?workspace=correspondence&workspace_id='+companyId);
+        await page.addStyleTag({content:styles});
+        await page.addScriptTag({content:script});
+        await page.locator('.bx-nav button').filter({hasText:label}).click();
+        await page.waitForURL(u=>u.pathname==='/'+destination);
+        expect(new URL(page.url()).searchParams.get('workspace_id')).toBe(companyId);
+      }finally{await page.close();}
+    }
+  },30000);
+
+  test('register search does not invoke a disabled governed action', async () => {
+    const page=await open(1440,900);
+    try {
+      await page.evaluate(()=>{
+        window.__registerSearches=0;
+        const open=document.createElement('button');open.id='corr-command-open';open.addEventListener('click',()=>{});
+        const search=document.createElement('input');search.id='corr-command-search';
+        const action=document.createElement('button');action.id='corr-command-search-btn';
+        action.disabled=true;action.addEventListener('click',()=>{window.__registerSearches++});
+        document.body.append(open,search,action);
+        window.alert=()=>{};
+      });
+      await page.locator('.bx-search').fill('Test letter');
+      await page.getByRole('button',{name:'البحث في السجل'}).click();
+      expect(await page.evaluate(()=>window.__registerSearches)).toBe(0);
+      await page.evaluate(()=>{document.getElementById('corr-command-search-btn').disabled=false});
+      await page.getByRole('button',{name:'البحث في السجل'}).click();
+      expect(await page.evaluate(()=>window.__registerSearches)).toBe(1);
+      expect(await page.locator('#corr-command-search').inputValue()).toBe('Test letter');
+    }finally{await page.close();}
+  },30000);
+
   test('non-workspace letterhead is unchanged', async () => {
     const page = await browser.newPage();
     try {
