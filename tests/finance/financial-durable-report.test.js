@@ -172,7 +172,7 @@ describe('durable financial report contract',()=>{
   const vm=require('node:vm');
   const source=fs.readFileSync('components/service-request.js','utf8');
   const start=source.indexOf('async function restoreSavedFinancialResult(');
-  const end=source.indexOf('async function reprocessLatestSavedFinancialFile(',start);
+  const end=source.indexOf('async function loadFinancialReportHistory(',start);
   expect(start).toBeGreaterThanOrEqual(0);
   expect(end).toBeGreaterThan(start);
   const query={select(){return this;},eq(){return this;},is(){return this;},
