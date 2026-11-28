@@ -86,6 +86,6 @@ describe('BONDS financial analysis lab: synthetic and isolated from client data'
   expect(client).toContain('srFinanceLabClear');
   const workspace=read('components/service-request.js');
   expect(workspace).toContain("if(serviceCode==='financial_analysis')");
-  expect(workspace).toContain('BondsFinancialAnalysisLab?.mount(lab,lang)');
+  expect(workspace).toContain('BondsFinancialAnalysisLab?.mount(host,lang)');
  });
 });
