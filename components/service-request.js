@@ -2647,6 +2647,36 @@ function formatFinancialValue(value){
 }
 function financialLabel(key){
  const labels={
+  gross_profit:lang==='ar'?'مجمل الربح':'Gross profit',
+  gross_margin_pct:lang==='ar'?'هامش مجمل الربح %':'Gross margin %',
+  net_margin_pct:lang==='ar'?'هامش صافي الربح %':'Net margin %',
+  ebitda:lang==='ar'?'الربح قبل الفوائد والضرائب والإهلاك والإطفاء (EBITDA)':'EBITDA',
+  ebitda_margin_pct:lang==='ar'?'هامش EBITDA %':'EBITDA margin %',
+  operating_margin_pct:lang==='ar'?'هامش الربح التشغيلي %':'Operating margin %',
+  current_ratio:lang==='ar'?'نسبة التداول':'Current ratio',
+  quick_ratio:lang==='ar'?'نسبة السيولة السريعة':'Quick ratio',
+  cash_ratio:lang==='ar'?'نسبة النقدية':'Cash ratio',
+  working_capital:lang==='ar'?'رأس المال العامل':'Working capital',
+  interest_coverage:lang==='ar'?'تغطية الفوائد':'Interest coverage',
+  debt_to_equity:lang==='ar'?'إجمالي الدين إلى حقوق الملكية':'Debt to equity',
+  liabilities_to_equity:lang==='ar'?'الالتزامات إلى حقوق الملكية':'Liabilities to equity',
+  liabilities_to_assets:lang==='ar'?'الالتزامات إلى الأصول':'Liabilities to assets',
+  roa_pct:lang==='ar'?'العائد على الأصول %':'Return on assets %',
+  roe_pct:lang==='ar'?'العائد على حقوق الملكية %':'Return on equity %',
+  asset_turnover:lang==='ar'?'معدل دوران الأصول':'Asset turnover',
+  receivables_turnover:lang==='ar'?'معدل دوران الذمم المدينة':'Receivables turnover',
+  inventory_turnover:lang==='ar'?'معدل دوران المخزون':'Inventory turnover',
+  net_cash_flow:lang==='ar'?'صافي التدفقات النقدية':'Net cash flow',
+  operating_cash_flow:lang==='ar'?'صافي التدفقات التشغيلية':'Operating cash flow',
+  investing_cash_flow:lang==='ar'?'صافي التدفقات الاستثمارية':'Investing cash flow',
+  financing_cash_flow:lang==='ar'?'صافي التدفقات التمويلية':'Financing cash flow',
+  ending_cash_from_flow:lang==='ar'?'النقد الختامي من التدفقات':'Ending cash from cash flow',
+  cash_conversion_cycle_days:lang==='ar'?'دورة التحويل النقدي (يوم)':'Cash conversion cycle (days)',
+  days_sales_outstanding:lang==='ar'?'أيام التحصيل':'Days sales outstanding',
+  days_inventory_outstanding:lang==='ar'?'أيام المخزون':'Days inventory outstanding',
+  days_payables_outstanding:lang==='ar'?'أيام السداد':'Days payables outstanding',
+  dscr:lang==='ar'?'تغطية خدمة الدين':'Debt-service coverage',
+
   period:lang==='ar'?'الفترة':'Period',
   status:lang==='ar'?'الحالة':'Status',
   metric:lang==='ar'?'البند':'Metric',
@@ -2693,7 +2723,7 @@ function renderFinancialObject(title,obj){
  const entries=Object.entries(obj).filter(([,v])=>['string','number','boolean'].includes(typeof v)||v===null);
  if(!entries.length)return '';
  return '<section class="financial-result-section"><h3>'+escapeHtml(title)+'</h3><div class="financial-result-kpis">'+
-  entries.map(([key,value])=>'<div><span>'+escapeHtml(financialLabel(key))+'</span><strong>'+formatFinancialValue(value)+'</strong></div>').join('')+
+  entries.map(([key,value])=>'<div><span>'+escapeHtml(financialLabel(key))+'</span><strong dir="ltr">'+formatFinancialValue(value)+(typeof value==='number'&&/_pct$/.test(key)?' %':'')+'</strong></div>').join('')+
   '</div></section>';
 }
 function renderFinancialExecution(result,metrics){
