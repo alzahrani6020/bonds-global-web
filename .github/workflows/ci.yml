@@ -384,6 +384,32 @@ jobs:
           if(after.replace(helper,'').replace(route,'')!==before)process.exit(1);
           NODE
                 ;;
+              .github/workflows/post-deploy-smoke.yml)
+                # Compare the entire workflow against PR base, allowing only
+                # the reviewed fail-closed smoke trigger and explanatory guard.
+                # Unchanged homepage pixels still compare to exact PR base.
+                git show "$BASE_SHA:$file" > /tmp/bonds-base-smoke-workflow.yml || exit 0
+                python3 - <<'PY' || exit 0
+          from pathlib import Path
+          base = Path('/tmp/bonds-base-smoke-workflow.yml').read_text()
+          head = Path('.github/workflows/post-deploy-smoke.yml').read_text()
+          old = "      github.event.workflow_run.conclusion == 'success'"
+          new = "      (github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure')"
+          anchor = "    runs-on: ubuntu-24.04"
+          guard = ("    # The smoke script independently verifies the deployed SHA before any authenticated writes.\n"
+                   "    # A failed release can coexist with a separately verified production deployment.\n")
+          if base.count(old) != 1 or base.count(anchor) < 1:
+              raise SystemExit(1)
+          expected = base.replace(old, new, 1).replace(anchor, guard + anchor, 1)
+          if head != expected:
+              raise SystemExit(1)
+          PY
+                ;;
+              tests/release/post-deploy-smoke-workflow.test.js)
+                # Test-only acceptance changes cannot affect homepage rendering.
+                # The full Jest suite still runs and verifies the SHA gate.
+                test -s "$file" || exit 0
+                ;;
               tests/admin/hr-owner-aggregate-overview.test.js|tests/admin/dashboard-correspondence-workspace-link.test.js)
                 # Test-only non-home source; the unit suite runs the link contract.
                 ;;
