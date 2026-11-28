@@ -63,6 +63,34 @@ jobs:
           psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-campaigns-acceptance.pg.sql
           psql -h localhost -U postgres -d campaigns_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-campaign-replies-acceptance.pg.sql
 
+      - name: Verify complete original correspondence schema and campaign migrations in disposable PostgreSQL
+        shell: bash
+        env:
+          PGPASSWORD: crm-ci-only
+        run: |
+          set -euo pipefail
+          createdb -h localhost -U postgres correspondence_full_ci
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f tests/security/correspondence-full-baseline-bootstrap.pg.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261111193000_letterhead_dynamic_correspondence.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261111221000_correspondence_final_artifacts.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261111233000_correspondence_command_center.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261112084310_correspondence_integrity_hardening.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261112084442_correspondence_operational_queries.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261112085258_correspondence_fk_index_hardening.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261112085659_correspondence_my_work_assignment_scope.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261112090611_correspondence_company_filter_canonical.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261112123513_correspondence_register_numbers.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261112123621_correspondence_register_immutability.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261112132301_correspondence_issuance_ledger.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261114060000_correspondence_verification_events.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261115030000_correspondence_atomic_successor_activation.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127220000_correspondence_campaigns.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127221000_correspondence_mailboxes.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127222000_correspondence_campaign_dispatch.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -f supabase/migrations/20261127223000_correspondence_campaign_replies.sql
+          psql -h localhost -U postgres -d correspondence_full_ci -v ON_ERROR_STOP=1 -c "SELECT 1 / CASE WHEN (SELECT COUNT(*) FROM pg_tables WHERE schemaname='public' AND tablename IN ('correspondence_documents','correspondence_issues','correspondence_campaigns','correspondence_campaign_recipients','correspondence_mailboxes','correspondence_campaign_dispatch_jobs','correspondence_campaign_replies') AND rowsecurity) = 7 THEN 1 ELSE 0 END;"
+          echo "PASS: real original correspondence migration chain + campaigns in isolated PostgreSQL"
+
       - name: Verify owner-authorized invitation server and failure handling
         run: node --test tests/crm/invite-handler-contract.cjs
 
