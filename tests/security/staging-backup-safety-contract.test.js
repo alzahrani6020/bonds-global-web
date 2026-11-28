@@ -20,6 +20,7 @@ describe('Staging encrypted backup cannot target production or publish plaintext
     expect(workflow).toContain("github.ref == 'refs/heads/main'");
     expect(workflow).toContain("github.repository == 'alzahrani6020/bonds-global-web'");
     expect(workflow).not.toMatch(/^\s+(push|schedule|pull_request):/m);
+    expect(workflow).toContain('environment: bonds-staging-backup');
     expect(workflow).toContain('SUPABASE_PROJECT_REF: gjwppwtgsecwmqlsmbmq');
     expect(workflow).not.toContain('hutxsqzplyuqgnghsrcs');
     expect(workflow).toContain('persist-credentials: false');
