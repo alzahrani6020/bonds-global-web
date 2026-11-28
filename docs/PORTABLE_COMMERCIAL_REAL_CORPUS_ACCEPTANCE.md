@@ -6,16 +6,16 @@ This is a **mandatory customer acceptance gate**, not a synthetic fixture or a p
 
 Prepare one isolated, access-restricted local directory containing `manifest.json` and five real, malware-scanned files consented for this test. No original files, contact names, extracted data, credentials, or plaintext OCR outputs should be committed, uploaded to GitHub Actions, or copied into test artifacts.
 
-Required unique `kind` values: `pdf_text`, `pdf_scanned`, `xlsx`, `docx`, `business_card_image`. For each case, supply its basename-only `file`, locally computed SHA-256 hash, and manually verified `expected_names` list. Example **schema** (replace the placeholder files and hashes; this example is intentionally not valid acceptance evidence):
+Required unique `kind` values: `pdf_text`, `pdf_scanned`, `xlsx`, `docx`, `business_card_image`. For each case, supply its basename-only `file`, locally computed SHA-256 hash, and manually verified `expected_entities` list, each with an entity `type` (`organization` or `contact`) and exact `name`. Example **schema** (replace the placeholder files and hashes; this example is intentionally not valid acceptance evidence):
 
 ```json
 {
   "cases": [
-    {"kind":"pdf_text","file":"text.pdf","sha256":"REPLACE_WITH_64_HEX_CHARACTERS","expected_names":["Verified company name"]},
-    {"kind":"pdf_scanned","file":"scan.pdf","sha256":"REPLACE_WITH_64_HEX_CHARACTERS","expected_names":["Verified company name"]},
-    {"kind":"xlsx","file":"directory.xlsx","sha256":"REPLACE_WITH_64_HEX_CHARACTERS","expected_names":["Verified company name"]},
-    {"kind":"docx","file":"document.docx","sha256":"REPLACE_WITH_64_HEX_CHARACTERS","expected_names":["Verified company name"]},
-    {"kind":"business_card_image","file":"card.png","sha256":"REPLACE_WITH_64_HEX_CHARACTERS","expected_names":["Verified contact name"]}
+    {"kind":"pdf_text","file":"text.pdf","sha256":"REPLACE_WITH_64_HEX_CHARACTERS","expected_entities":[{"type":"organization","name":"Verified company name"}]},
+    {"kind":"pdf_scanned","file":"scan.pdf","sha256":"REPLACE_WITH_64_HEX_CHARACTERS","expected_entities":[{"type":"organization","name":"Verified company name"}]},
+    {"kind":"xlsx","file":"directory.xlsx","sha256":"REPLACE_WITH_64_HEX_CHARACTERS","expected_entities":[{"type":"organization","name":"Verified company name"}]},
+    {"kind":"docx","file":"document.docx","sha256":"REPLACE_WITH_64_HEX_CHARACTERS","expected_entities":[{"type":"organization","name":"Verified company name"}]},
+    {"kind":"business_card_image","file":"card.png","sha256":"REPLACE_WITH_64_HEX_CHARACTERS","expected_entities":[{"type":"contact","name":"Verified contact name"}]}
   ]
 }
 ```
