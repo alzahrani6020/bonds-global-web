@@ -78,6 +78,40 @@ describe('durable financial report contract',()=>{
   expect(reused.json().reused).toBe(true);
   expect(h.getWrites()).toBe(1);
  });
+ test('source provenance displays localized field/status and readable coordinates without changing raw values',async()=>{
+  const h=harness();
+  h.row.execution_result.dataset.field_provenance=[{
+   field:'revenue',value:4668768.78,status:'extracted_multi_period',
+   source:[{sheet:2,row:57,column:1,extraction_method:'text_parser'}]
+  }];
+  const before=JSON.stringify(h.row.reviewed_values);
+  const response=await h.call();
+  expect(response.statusCode).toBe(200);
+  const html=response.json().report.html;
+  expect(html).toContain('مستخرج من فترات متعددة');
+  expect(html).toContain('طريقة القراءة: استخراج نصي');
+  expect(html).toContain('الصفحة/الورقة: 2');
+  expect(html).toContain('الإيرادات');
+  expect(html).not.toContain('extracted_multi_period');
+  expect(html).not.toContain('text_parser');
+  expect(JSON.stringify(h.row.reviewed_values)).toBe(before);
+ });
+ test('financial result uses responsive cards with localized keys and unit markers',()=>{
+  const fs=require('node:fs');
+  const ui=fs.readFileSync('components/service-request.js','utf8');
+  const css=fs.readFileSync('components/service-request.css','utf8');
+  expect(ui).toContain("gross_margin_pct:lang==='ar'?'هامش مجمل الربح %'");
+  expect(ui).toContain("roa_pct:lang==='ar'?'العائد على الأصول %'");
+  expect(ui).toContain("typeof value==='number'&&/_pct$/.test(key)?' %':'')");
+  expect(css).toContain('#srExecutionResult .financial-result-kpis{display:grid');
+  expect(css).toContain('@media(max-width:600px)');
+  for(const path of ['service-request.html','en/service-request.html',
+    'my-bonds/workspace/index.html','en/my-bonds/workspace/index.html']){
+    const html=fs.readFileSync(path,'utf8');
+    expect(html).toContain('/components/service-request.css?v=3');
+    expect(html).toContain('/components/service-request.js?v=55');
+  }
+ });
  test('owner is mandatory; other owner cannot create or read the report',async()=>{
   const h=harness();
   expect((await h.call('POST',null)).statusCode).toBe(401);
