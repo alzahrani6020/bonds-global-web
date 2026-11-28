@@ -211,6 +211,19 @@ jobs:
             echo "scope=base-compare" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          # pull_request checkouts use a synthetic two-parent merge commit.
+          # The event base SHA can lag behind main on re-runs; use the exact
+          # first parent of the checked-out merge for BOTH source classification
+          # and the immutable reference site used for actual pixel comparison.
+          # Refuse the scoped path if this is not a verifiable merge commit.
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            if [[ "$(git rev-list --parents -n 1 HEAD | wc -w)" -ne 3 ]]; then
+              echo "No verifiable two-parent PR merge; full visual gate required"
+              exit 0
+            fi
+            BASE_SHA="$(git rev-parse HEAD^1)"
+            echo "VISUAL_REFERENCE_PR_MERGE_PARENT: $BASE_SHA"
+          fi
           echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then exit 0; fi
           git fetch --no-tags --depth=1 origin "$BASE_SHA"
