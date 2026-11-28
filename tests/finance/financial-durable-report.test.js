@@ -82,7 +82,7 @@ describe('durable financial report contract',()=>{
   const h=harness();
   h.row.execution_result.dataset.field_provenance=[{
    field:'revenue',value:4668768.78,status:'extracted_multi_period',
-   source:[{sheet:2,row:57,column:1,extraction_method:'text_parser'}]
+   source:[{sheet:'text_parser',page:2,row:57,column:1,extraction_method:'text_parser'}]
   }];
   const before=JSON.stringify(h.row.reviewed_values);
   const response=await h.call();
@@ -90,7 +90,8 @@ describe('durable financial report contract',()=>{
   const html=response.json().report.html;
   expect(html).toContain('مستخرج من فترات متعددة');
   expect(html).toContain('طريقة القراءة: استخراج نصي');
-  expect(html).toContain('الصفحة/الورقة: 2');
+  expect(html).toContain('الصفحة: 2');
+  expect(html).toContain('النص المستخرج');
   expect(html).toContain('الإيرادات');
   expect(html).not.toContain('extracted_multi_period');
   expect(html).not.toContain('text_parser');
