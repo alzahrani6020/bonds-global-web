@@ -21,9 +21,9 @@ ROLE = "bonds_staging_backup_" + RUN_ID
 POOLER = "aws-1-eu-central-1.pooler.supabase.com"
 
 def execute_sql(query):
-    token = os.environ.get("SUPABASE_ACCESS_TOKEN", "")
+    token = os.environ.get("SUPABASE_STAGING_ACCESS_TOKEN", "")
     if not token:
-        raise RuntimeError("SUPABASE_ACCESS_TOKEN unavailable")
+        raise RuntimeError("SUPABASE_STAGING_ACCESS_TOKEN unavailable")
     ref = os.environ.get("SUPABASE_PROJECT_REF", "")
     if ref != PROJECT:
         raise RuntimeError("Staging project ref mismatch")
@@ -92,5 +92,5 @@ if __name__ == "__main__":
     except Exception as exc:
         # Restrict exceptions to sanitized program-generated strings.
         print("FAIL: ephemeral backup role operation: " + type(exc).__name__
-              + (": " + str(exc) if str(exc).startswith(("Management SQL failed, HTTP ", "SUPABASE_ACCESS_TOKEN unavailable", "Staging project ref mismatch", "Management SQL returned unexpected status")) else ""), file=sys.stderr)
+              + (": " + str(exc) if str(exc).startswith(("Management SQL failed, HTTP ", "SUPABASE_STAGING_ACCESS_TOKEN unavailable", "Staging project ref mismatch", "Management SQL returned unexpected status")) else ""), file=sys.stderr)
         raise SystemExit(1)
