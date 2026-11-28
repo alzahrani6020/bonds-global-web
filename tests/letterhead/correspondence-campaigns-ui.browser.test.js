@@ -45,14 +45,14 @@ function accountState(){
       return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({campaign:campaigns[0]})});
     }
     if(payload.action==='add_recipients'){
-      const added=payload.recipients.map((r,i)=>({id:'33333333-3333-4333-8333-33333333333'+(i+1),...r,status:'pending'}));
+      const added=payload.recipients.map((r,i)=>({id:'33333333-3333-4333-8333-'+String(i+1).padStart(12,'0'),...r,status:'pending'}));
       recipients.push(...added);
       return route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({recipients:added})});
     }
     if(payload.action==='prepare_draft'){
       const recipient=recipients.find(r=>r.id===payload.recipient_id);
       if(!recipient)return route.fulfill({status:404,body:'Missing recipient'});
-      Object.assign(recipient,{status:'prepared',draft_document_id:'44444444-4444-4444-8444-444444444444'});
+      Object.assign(recipient,{status:'prepared',draft_document_id:'44444444-4444-4444-8444-'+String(recipients.indexOf(recipient)+1).padStart(12,'0')});
       return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({recipient,draft_document_id:recipient.draft_document_id})});
     }
    }
@@ -117,6 +117,34 @@ describe('BONDS campaign visual browser acceptance (mock isolated)',()=>{
     expect(await page.locator('#dispatch').isDisabled()).toBe(true);
   }finally{await page.close();}
  },30000);
+ test('27 reviewed synthetic recipients persist across reload with 27 independent draft ids and no dispatch',async()=>{
+  const {page,state}=await open(1440,900);
+  try{
+    await page.locator('#title').fill('Clix 27-recipient regression');
+    await page.locator('#create').click();
+    await page.locator('#detail').waitFor({state:'visible'});
+    await page.locator('#subject-template').fill('دعوة للتعاون مع {{organization}}');
+    await page.locator('#body-template').fill('يسرنا بحث الفرص الاستثمارية والتعاون المؤسسي وفق المعلومات المعتمدة، مع مراجعة كل خطاب قبل إصداره أو إرساله.');
+    await page.locator('#save-template').click();
+    const lines=Array.from({length:27},(_,i)=>'Test Organization '+String(i+1).padStart(2,'0')+', clix-test-'+String(i+1).padStart(2,'0')+'@example.test');
+    await page.locator('#recipient-lines').fill(lines.join('\\n'));
+    await page.locator('#import').click();
+    await page.waitForFunction(()=>document.querySelectorAll('#recipients tr').length===27);
+    expect(state.recipients).toHaveLength(27);
+    expect(new Set(state.recipients.map(r=>r.id)).size).toBe(27);
+    expect(await page.locator('#dispatch').isDisabled()).toBe(true);
+    await page.locator('#prepare-drafts').click();
+    await page.waitForFunction(()=>document.querySelectorAll('#recipients a').length===27,undefined,{timeout:30000});
+    expect(new Set(state.recipients.map(r=>r.draft_document_id)).size).toBe(27);
+    expect(state.recipients.every(r=>r.status==='prepared')).toBe(true);
+    await page.reload();
+    await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('المركز جاهز'));
+    await page.locator('#campaign-list button').first().click();
+    await page.waitForFunction(()=>document.querySelectorAll('#recipients a').length===27);
+    expect(await page.locator('#recipients tr').count()).toBe(27);
+    expect(await page.locator('#dispatch').isDisabled()).toBe(true);
+  }finally{await page.close();}
+ },45000);
  test('mobile 390px: no horizontal page overflow, accessible form and buttons',async()=>{
   const {page}=await open(390,844);
   try{
