@@ -7,10 +7,10 @@ const crypto=require('node:crypto');
 const {analyzeFile}=require('../lib/portable-intelligence/file-adapters');
 const {createLocalOcr}=require('../lib/portable-intelligence/local-ocr');
 
-const REQUIRED=['pdf_text','pdf_scanned','xlsx','docx','business_card_image'];
+const REQUIRED=['pdf_text','pdf_scanned','xlsx','docx','business_card_image','html_directory'];
 const EXTENSIONS={
  pdf_text:['.pdf'],pdf_scanned:['.pdf'],xlsx:['.xlsx','.xls'],
- docx:['.docx'],business_card_image:['.png','.jpg','.jpeg','.webp']
+ docx:['.docx'],business_card_image:['.png','.jpg','.jpeg','.webp'],html_directory:['.html','.htm']
 };
 const WID='12345678-1234-4123-8123-1234567890ab';
 function fail(code){throw Error(code)}
