@@ -1,8 +1,8 @@
 'use strict';
 const {createCommercialDirectoryReceiver,stableId}=require('../../lib/api/commercial-portable-destination');
 const WID='12345678-1234-4123-8123-1234567890ab',OTHER='12345678-1234-4123-8123-1234567890ac';
-function stub({role='owner',loggedIn=true,dbReject=false,existing=false}={}){
- const inserted=[];
+function stub({role='owner',loggedIn=true,dbReject=false,existing=false,readbackMismatch=false,readbackError=false}={}){
+ const inserted=[]; const reads=[];
  const client={
   auth:{getUser:jest.fn(async()=>loggedIn?{data:{user:{id:'alice',is_anonymous:false}},error:null}:{data:{user:null},error:{message:'unauthed'}})},
   from:jest.fn(table=>{
@@ -12,7 +12,13 @@ function stub({role='owner',loggedIn=true,dbReject=false,existing=false}={}){
     eq:jest.fn((field,value)=>{state.filters.push([field,value]);return q}),
     maybeSingle:jest.fn(async()=>table==='crm_app_workspaces'?{data:{id:WID,owner_user_id:role==='owner'?'alice':'other-user'},error:null}:{data:null,error:null}),
     limit:jest.fn(async()=>table==='crm_app_members'?{data:[{role}],error:null}:{data:existing?[{id:'existing'}]:[],error:null}),
-    insert:jest.fn(rows=>{state.rows=rows;inserted.push({table,rows});return q})
+    insert:jest.fn(rows=>{state.rows=rows;inserted.push({table,rows});return q}),
+    in:jest.fn(async(field,ids)=>{
+     reads.push({table,field,ids,filters:state.filters});
+     if(readbackError)return {data:null,error:{code:'42501'}};
+     const found=inserted.filter(x=>x.table===table).flatMap(x=>x.rows).filter(x=>ids.includes(x.id));
+     return {data:readbackMismatch?found.map(x=>({...x,name:'WRONG'})):found,error:null};
+    })
    };
    if(table.startsWith('crm_app_companies')||table.startsWith('crm_app_contacts')){
     q.select=jest.fn((columns)=>{
@@ -23,7 +29,7 @@ function stub({role='owner',loggedIn=true,dbReject=false,existing=false}={}){
    return q;
   })
  };
- return {client,inserted};
+ return {client,inserted,reads};
 }
 function mockRes(){
  return {statusCode:null,payload:null,headers:{},setHeader(k,v){this.headers[k]=v;return this},status(s){this.statusCode=s;return this},json(p){this.payload=p;return this}};
@@ -36,6 +42,9 @@ describe('RLS enforced SaaS commercial directory receiver',()=>{
   await handler(request(),res);
   expect(res.statusCode).toBe(200);
   expect(res.payload).toMatchObject({accepted:true,target:'crm',workspace_id:WID,accepted_count:1,send_mail:false,create_hr_employee:false});
+  expect(res.payload.verified).toBe(true);
+  expect(db.reads).toHaveLength(1);
+  expect(db.reads[0]).toMatchObject({table:'crm_app_companies',field:'id',filters:[['workspace_id',WID]]});
   expect(db.inserted[0].table).toBe('crm_app_companies');
   expect(db.inserted[0].rows[0]).toMatchObject({workspace_id:WID,name:'شركة أطلس'});
   expect(db.inserted[0].rows[0].id).toBe(stableId(WID,{type:'organization',name:'شركة أطلس',email:'info@atlas.example'}));
@@ -62,6 +71,16 @@ describe('RLS enforced SaaS commercial directory receiver',()=>{
   expect(mixed.statusCode).toBe(400);
   const denied=stub({dbReject:true}),failed=mockRes();await createCommercialDirectoryReceiver({clientFactory:()=>denied.client})(request(),failed);
   expect(failed.statusCode).toBe(503);
+ });
+ test('committed write with denied readback reports unverified, never falsely rolled back',async()=>{
+  for(const fail of [{readbackError:true},{readbackMismatch:true}]){
+   const db=stub(fail),res=mockRes();
+   await createCommercialDirectoryReceiver({clientFactory:()=>db.client})(request(),res);
+   expect(db.inserted).toHaveLength(1);
+   expect(db.reads).toHaveLength(1);
+   expect(res.statusCode).toBe(202);
+   expect(res.payload).toMatchObject({accepted:true,verified:false,error:'DESTINATION_READBACK_UNVERIFIED',send_mail:false,create_hr_employee:false});
+  }
  });
  test('normalized stable identity makes repeated attempted imports deterministic',()=>{
   const base={type:'organization',name:'شركة الأفق',email:'INFO@AFaq.EXAMPLE'};

@@ -48,9 +48,9 @@ describe('service request persistence and readback contracts', () => {
 
   test('both language and workspace routes use the same cache-busted client', () => {
     for (const route of ['service-request.html','en/service-request.html','my-bonds/workspace/index.html','en/my-bonds/workspace/index.html']) {
-      expect(read(route)).toContain('/components/service-request.js?v=54');
+      expect(read(route)).toContain('/components/service-request.js?v=55');
     }
-    expect(read('sw.js')).toContain("'/components/service-request.js?v=54'");
+    expect(read('sw.js')).toContain("'/components/service-request.js?v=55'");
   });
 });
 
