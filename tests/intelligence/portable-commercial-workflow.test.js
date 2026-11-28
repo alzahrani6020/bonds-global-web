@@ -1,0 +1,123 @@
+'use strict';
+const fs=require('node:fs');const os=require('node:os');const path=require('node:path');
+const {createCommercialWorkflow}=require('../../lib/portable-intelligence/commercial-workflow');
+const A='12345678-1234-4123-8123-1234567890ab',B='12345678-1234-4123-8123-1234567890ac';
+function setup(){
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bonds-commercial-workflow-'));
+ const members=new Map([
+  ['alice:'+A,{workspace_id:A,actor_id:'alice',role:'owner',active:true}],
+  ['bob:'+B,{workspace_id:B,actor_id:'bob',role:'owner',active:true}],
+  ['viewer:'+A,{workspace_id:A,actor_id:'viewer',role:'viewer',active:true}]
+ ]);
+ const workflow=createCommercialWorkflow({filename:path.join(dir,'client.sqlite'),getMembership:async({workspaceId,actorId})=>members.get(actorId+':'+workspaceId)||null});
+ return {workflow,cleanup(){workflow.close();fs.rmSync(dir,{recursive:true,force:true})}};
+}
+function html(name){return Buffer.from('<p>اسم الشركة: '+name+'</p><p>المدينة: جدة</p><p>البريد: sales@company.example</p>')}
+describe('complete portable commercial workflow from source to destination intent',()=>{
+ test('HTML -> evidence -> explicit review -> SQLite -> search -> edit -> export',async()=>{
+  const {workflow,cleanup}=setup();
+  try{
+   const analysis=await workflow.analyze({workspaceId:A,actorId:'alice',file:{filename:'business.html',buffer:html('شركة الأفق')}});
+   expect(analysis.auto_saved).toBe(false);
+   expect(analysis.entity_suggestions.candidates.organization_name).toBe('شركة الأفق');
+   expect(await workflow.list({workspaceId:A,actorId:'alice'})).toHaveLength(0);
+   const proposal=workflow.prepareEntityReview({workspaceId:A,analysis,identity:{type:'organization',name:'شركة الأفق',city:'جدة',sector:'other'}});
+   expect(await workflow.duplicates({workspaceId:A,actorId:'alice',proposal})).toEqual([{index:0,matches:[]}]);
+   const approved=await workflow.approve({workspaceId:A,actorId:'alice',proposal,approvedIndices:[0]});
+   expect(approved.saved).toBe(1);
+   const rows=await workflow.search({workspaceId:A,actorId:'alice',query:'الأفق'});
+   expect(rows).toHaveLength(1);
+   const id=rows[0].id;
+   const changed=await workflow.update({workspaceId:A,actorId:'alice',id,changes:{city:'الرياض'}});
+   expect(changed.record.city).toBe('الرياض');
+   const exportResult=await workflow.exportDirectory({workspaceId:A,actorId:'alice',target:'correspondence',recordIds:[id]});
+   expect(exportResult).toMatchObject({send_mail:false,commit_destination:false,create_hr_employee:false});
+   expect(exportResult.records[0].city).toBe('الرياض');
+   const audit=await workflow.audit({workspaceId:A,actorId:'alice'});
+   expect(audit.map(a=>a.action)).toEqual(['import.reviewed','records.update','directory.export.correspondence']);
+  }finally{cleanup()}
+ });
+ test('cross-company and viewer cannot approve, edit or export',async()=>{
+  const {workflow,cleanup}=setup();
+  try{
+   const analysis=await workflow.analyze({workspaceId:A,actorId:'alice',file:{filename:'company.html',buffer:html('شركة الأفق')}});
+   const proposal=workflow.prepareEntityReview({workspaceId:A,analysis,identity:{type:'organization',name:'شركة الأفق'}});
+   await expect(workflow.approve({workspaceId:B,actorId:'bob',proposal,approvedIndices:[0]})).rejects.toThrow('WORKSPACE_MISMATCH');
+   await expect(workflow.approve({workspaceId:A,actorId:'viewer',proposal,approvedIndices:[0]})).rejects.toThrow('TENANT_ACCESS_DENIED');
+   await expect(workflow.update({workspaceId:A,actorId:'viewer',id:1,changes:{name:'Intruder'}})).rejects.toThrow('TENANT_ACCESS_DENIED');
+   await expect(workflow.exportDirectory({workspaceId:B,actorId:'bob',target:'crm',recordIds:[1]})).rejects.toThrow('EXPORT_RECORD_NOT_FOUND');
+  }finally{cleanup()}
+ });
+ test('denied export does not write an audit event',async()=>{
+  const {workflow,cleanup}=setup();
+  try{
+   await expect(workflow.exportDirectory({workspaceId:A,actorId:'viewer',target:'crm',recordIds:[1]})).rejects.toThrow('EXPORT_NOT_AUTHORIZED');
+   expect(await workflow.audit({workspaceId:A,actorId:'alice'})).toHaveLength(0);
+  }finally{cleanup()}
+ });
+ test('reviewed duplicate override records explicit reason atomically',async()=>{
+  const {workflow,cleanup}=setup();
+  try{
+   const analysis=await workflow.analyze({workspaceId:A,actorId:'alice',file:{filename:'first.html',buffer:html('شركة الأفق')}});
+   const proposal=workflow.prepareEntityReview({workspaceId:A,analysis,identity:{type:'organization',name:'شركة الأفق'}});
+   await workflow.approve({workspaceId:A,actorId:'alice',proposal,approvedIndices:[0]});
+   await expect(workflow.approve({workspaceId:A,actorId:'alice',proposal,approvedIndices:[0],allowDuplicates:true})).rejects.toThrow('DUPLICATE_OVERRIDE_REASON_REQUIRED');
+   await workflow.approve({workspaceId:A,actorId:'alice',proposal,approvedIndices:[0],allowDuplicates:true,duplicateOverrideReason:'Separate branch of the same group'});
+   expect(await workflow.list({workspaceId:A,actorId:'alice'})).toHaveLength(2);
+   const audit=await workflow.audit({workspaceId:A,actorId:'alice'});
+   expect(audit[1].action).toBe('import.reviewed.duplicate_override');
+   expect(JSON.parse(audit[1].details_json).duplicate_override_reason).toBe('Separate branch of the same group');
+  }finally{cleanup()}
+ });
+ test('concurrent imports cannot create an unreviewed duplicate',async()=>{
+  const {workflow,cleanup}=setup();
+  try{
+   const analysis=await workflow.analyze({workspaceId:A,actorId:'alice',file:{filename:'first.html',buffer:html('شركة الأفق')}});
+   const proposal=workflow.prepareEntityReview({workspaceId:A,analysis,identity:{type:'organization',name:'شركة الأفق'}});
+   const results=await Promise.allSettled([workflow.approve({workspaceId:A,actorId:'alice',proposal,approvedIndices:[0]}),workflow.approve({workspaceId:A,actorId:'alice',proposal,approvedIndices:[0]})]);
+   expect(results.filter(r=>r.status==='fulfilled')).toHaveLength(1);
+   expect(results.filter(r=>r.status==='rejected')).toHaveLength(1);
+   expect(await workflow.list({workspaceId:A,actorId:'alice'})).toHaveLength(1);
+  }finally{cleanup()}
+ });
+ test('changing a name to an existing organization is blocked',async()=>{
+  const {workflow,cleanup}=setup();
+  try{
+   for(const name of ['شركة الأفق','شركة النور']){
+    const analysis=await workflow.analyze({workspaceId:A,actorId:'alice',file:{filename:'company.html',buffer:html(name)}});
+    const proposal=workflow.prepareEntityReview({workspaceId:A,analysis,identity:{type:'organization',name}});
+    await workflow.approve({workspaceId:A,actorId:'alice',proposal,approvedIndices:[0]});
+   }
+   const records=await workflow.list({workspaceId:A,actorId:'alice'});
+   await expect(workflow.update({workspaceId:A,actorId:'alice',id:records[1].id,changes:{name:'شركة الأفق'}})).rejects.toThrow('DUPLICATE_IN_WORKSPACE');
+   expect(await workflow.list({workspaceId:A,actorId:'alice'})).toHaveLength(2);
+  }finally{cleanup()}
+ });
+ test('approved record archives atomically, disappears from searches, and remains audited',async()=>{
+  const {workflow,cleanup}=setup();
+  try{
+   const analysis=await workflow.analyze({workspaceId:A,actorId:'alice',file:{filename:'archive.html',buffer:html('شركة الأفق')}});
+   const proposal=workflow.prepareEntityReview({workspaceId:A,analysis,identity:{type:'organization',name:'شركة الأفق'}});
+   const saved=await workflow.approve({workspaceId:A,actorId:'alice',proposal,approvedIndices:[0]});
+   const id=saved.result.ids[0];
+   await expect(workflow.archive({workspaceId:A,actorId:'viewer',id})).rejects.toThrow('TENANT_ACCESS_DENIED');
+   await expect(workflow.archive({workspaceId:B,actorId:'bob',id})).rejects.toThrow('RECORD_NOT_FOUND');
+   const result=await workflow.archive({workspaceId:A,actorId:'alice',id});
+   expect(result.archived).toBe(true);
+   expect(await workflow.list({workspaceId:A,actorId:'alice'})).toHaveLength(0);
+   expect(await workflow.search({workspaceId:A,actorId:'alice',query:'الأفق'})).toHaveLength(0);
+   await expect(workflow.archive({workspaceId:A,actorId:'alice',id})).rejects.toThrow('RECORD_NOT_FOUND');
+   expect((await workflow.audit({workspaceId:A,actorId:'alice'})).at(-1).action).toBe('records.archive');
+  }finally{cleanup()}
+ });
+ test('identical entity requires duplicate decision before second save',async()=>{
+  const {workflow,cleanup}=setup();
+  try{
+   const analysis=await workflow.analyze({workspaceId:A,actorId:'alice',file:{filename:'first.html',buffer:html('شركة الأفق')}});
+   const proposal=workflow.prepareEntityReview({workspaceId:A,analysis,identity:{type:'organization',name:'شركة الأفق'}});
+   await workflow.approve({workspaceId:A,actorId:'alice',proposal,approvedIndices:[0]});
+   await expect(workflow.approve({workspaceId:A,actorId:'alice',proposal,approvedIndices:[0]})).rejects.toThrow('DUPLICATE_REVIEW_REQUIRED');
+   expect(await workflow.list({workspaceId:A,actorId:'alice'})).toHaveLength(1);
+  }finally{cleanup()}
+ });
+});

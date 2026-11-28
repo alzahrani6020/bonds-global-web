@@ -196,7 +196,8 @@ function auditJS(file, content) {
   // Syntax check
   if (!isBackend && !file.endsWith('.test.js')) {
     try {
-      new Function(content);
+      // Permit a standard Node executable shebang while still parsing its JavaScript body.
+      new Function(content.replace(/^#![^\r\n]*(?:\r?\n|$)/, ''));
     } catch (e) {
       const match = e.message.match(/line (\d+)/i);
       const line = match ? parseInt(match[1]) : 0;

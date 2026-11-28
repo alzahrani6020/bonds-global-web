@@ -140,6 +140,12 @@ jobs:
       - name: Run Assistant End-to-End CI Journeys
         run: npm run test:assistant:e2e-ci
 
+      - name: Verify portable local SQLite save/reopen/tenant isolation
+        run: node --test tests/intelligence/portable-sqlite-acceptance.cjs
+
+      - name: Verify portable encrypted backup and license signing
+        run: node --test tests/intelligence/portable-backup-license.acceptance.cjs
+
       - name: Run Unit and Integration Tests
         run: npm test
 
