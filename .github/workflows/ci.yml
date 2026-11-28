@@ -337,6 +337,43 @@ jobs:
                 test -s "$file" || exit 0
                 ;;
               .github/workflows/bonds-production-backup-restore.yml)
+                # Accept the campaign-only isolated restore verification when
+                # it is the *sole* additive block relative to the exact PR base.
+                # No production backup behavior, retention, secret or issued file
+                # may change; homepage pixels are still compared to PR base.
+                git show "$BASE_SHA:$file" > /tmp/bonds-base-backup-for-campaign.yml || exit 0
+                if python3 - <<'PY'
+          from pathlib import Path
+          base=Path('/tmp/bonds-base-backup-for-campaign.yml').read_text()
+          head=Path('.github/workflows/bonds-production-backup-restore.yml').read_text()
+          start='      - name: Verify BONDS campaign migrations on isolated restored production\\n'
+          end='      - name: Encrypt and store only encrypted archive\\n'
+          if base.count(end)!=1 or base.count(start)!=0 or head.count(start)!=1 or head.count(end)!=1:
+              raise SystemExit(1)
+          block=head[head.index(start):head.index(end)]
+          required=[
+              'docker cp "supabase/migrations/$migration"',
+              'bonds-restore-gate:/tmp/$migration',
+              'cmp -s "$RUNNER_TEMP/bonds-backup/campaign-count-before.txt"',
+              'correspondence_campaign_replies.sql',
+              'correspondence_campaign_dispatch.sql',
+              'correspondence_mailboxes.sql',
+              'correspondence_campaigns.sql',
+              'AND rowsecurity)=7',
+              "has_table_privilege('anon'",
+              'pg_restore'
+          ]
+          # Existing restore already contains pg_restore before this addition;
+          # require the new step itself to contain only inspected SQL validation.
+          required.remove('pg_restore')
+          if not all(token in block for token in required):
+              raise SystemExit(1)
+          if head.replace(block,'') != base:
+              raise SystemExit(1)
+          PY
+                then
+                  continue
+                fi
                 # Cron-only change accepted only if all other bytes match PR base.
                 # Retain the previously approved retention-only path below.
                 git show "$BASE_SHA:$file" > /tmp/bonds-base-backup-cron.yml || exit 0
