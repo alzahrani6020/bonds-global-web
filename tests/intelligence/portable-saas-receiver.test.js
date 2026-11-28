@@ -1,7 +1,7 @@
 'use strict';
 const {createCommercialDirectoryReceiver,stableId}=require('../../lib/api/commercial-portable-destination');
 const WID='12345678-1234-4123-8123-1234567890ab',OTHER='12345678-1234-4123-8123-1234567890ac';
-function stub({role='owner',loggedIn=true,dbReject=false,existing=false,readbackMismatch=false,readbackError=false}={}){
+function stub({role='owner',loggedIn=true,dbReject=false,existing=false,readbackMismatch=false,readbackError=false,incompleteReturning=false}={}){
  const inserted=[]; const reads=[];
  const client={
   auth:{getUser:jest.fn(async()=>loggedIn?{data:{user:{id:'alice',is_anonymous:false}},error:null}:{data:{user:null},error:{message:'unauthed'}})},
@@ -22,7 +22,7 @@ function stub({role='owner',loggedIn=true,dbReject=false,existing=false,readback
    };
    if(table.startsWith('crm_app_companies')||table.startsWith('crm_app_contacts')){
     q.select=jest.fn((columns)=>{
-     if(state.rows.length)return Promise.resolve(dbReject?{data:null,error:{code:'42501'}}:{data:state.rows.map(r=>({id:r.id,workspace_id:r.workspace_id})),error:null});
+     if(state.rows.length)return Promise.resolve(dbReject?{data:null,error:{code:'42501'}}:{data:incompleteReturning?[]:state.rows.map(r=>({id:r.id,workspace_id:r.workspace_id})),error:null});
      state.select=columns;return q;
     });
    }
@@ -81,6 +81,35 @@ describe('RLS enforced SaaS commercial directory receiver',()=>{
    expect(res.statusCode).toBe(202);
    expect(res.payload).toMatchObject({accepted:true,verified:false,error:'DESTINATION_READBACK_UNVERIFIED',send_mail:false,create_hr_employee:false});
   }
+ });
+ test('incomplete INSERT RETURNING emits a reconciliable 202 receipt without a readback retry',async()=>{
+  const db=stub({incompleteReturning:true}),res=mockRes();
+  await createCommercialDirectoryReceiver({clientFactory:()=>db.client})(request(),res);
+  expect(db.inserted).toHaveLength(1);
+  expect(db.reads).toHaveLength(0);
+  expect(res.statusCode).toBe(202);
+  expect(res.payload).toMatchObject({
+   accepted:true,verified:false,workspace_id:WID,target:'crm',
+   accepted_count:1,error:'INSERT_RETURNING_UNVERIFIED',
+   send_mail:false,create_hr_employee:false
+  });
+  expect(res.payload.receipt_id).toMatch(/^[0-9a-f-]{36}$/);
+  const {deliverReviewedDirectory}=require('../../lib/portable-intelligence/destination-delivery');
+  const workflow={exportDirectory:jest.fn(async()=>({
+   workspace_id:WID,target:'crm',commit_destination:false,
+   records:[{type:'organization',name:'شركة أطلس',email:'info@atlas.example'}]
+  }))};
+  const result=await deliverReviewedDirectory({
+   workflow,workspaceId:WID,actorId:'owner',target:'crm',recordIds:[1],
+   remoteEndpoint:'https://destination.example.org/api/import',
+   allowedOrigin:'https://destination.example.org',
+   bearerToken:'isolated-test-token-12345678901234567890',
+   fetchImpl:jest.fn(async()=>({
+    ok:true,status:202,headers:{get:()=> 'application/json'},
+    json:async()=>res.payload
+   }))
+  });
+  expect(result).toMatchObject({delivered:false,accepted:true,requires_reconciliation:true,verified_destination_ack:false,receipt_id:res.payload.receipt_id});
  });
  test('normalized stable identity makes repeated attempted imports deterministic',()=>{
   const base={type:'organization',name:'شركة الأفق',email:'INFO@AFaq.EXAMPLE'};
