@@ -12,6 +12,13 @@
  const numeric=v=>typeof v==='number'&&Number.isFinite(v);
  const fmt=v=>numeric(v)?v.toLocaleString('en-US',{maximumFractionDigits:4}):'—';
  const metricNames={
+  revenue:'الإيرادات',cogs:'تكلفة الإيرادات',operating_expenses:'المصروفات التشغيلية',
+  net_income:'صافي الربح',current_assets:'الأصول المتداولة',
+  current_liabilities:'الالتزامات المتداولة',cash:'النقد وما في حكمه',
+  inventory:'المخزون',receivables:'الذمم المدينة',
+  prior_revenue:'إيرادات الفترة السابقة',prior_net_income:'صافي ربح الفترة السابقة',
+  total_assets:'إجمالي الموجودات',total_liabilities:'إجمالي الالتزامات',
+  equity:'حقوق الملكية',gross_profit:'مجمل الربح',
   revenue:'الإيرادات',gross_profit:'مجمل الربح',gross_margin_pct:'هامش مجمل الربح %',
   total_expenses:'إجمالي المصروفات',net_margin_pct:'هامش صافي الربح %',
   ebitda:'الربح قبل الفوائد والضرائب والإهلاك والإطفاء',
@@ -95,6 +102,7 @@
   // Render readable source evidence while preserving raw values and provenance in storage.
   const sourceStatuses={
    extracted_multi_period:tr('مستخرج من فترات متعددة','Extracted from multiple periods'),
+   extracted_comparative:tr('مستخرج من الفترة المقارنة','Extracted from comparative period'),
    extracted:tr('مستخرج من المستند','Extracted from document'),
    not_comparable:tr('فترة غير قابلة للمقارنة المباشرة','Period not directly comparable'),
    manually_verified:tr('مُراجع يدويًا','Manually reviewed'),
@@ -107,7 +115,11 @@
   const readableRef=ref=>{
    if(!ref||typeof ref!=='object')return '—';
    const pieces=[];
-   if(ref.sheet!==undefined&&ref.sheet!==null&&ref.sheet!=='')pieces.push(tr('الصفحة/الورقة: ','Page/sheet: ')+String(ref.sheet));
+   if(ref.page!==undefined&&ref.page!==null&&ref.page!=='')pieces.push(tr('الصفحة: ','Page: ')+String(ref.page));
+   if(ref.sheet!==undefined&&ref.sheet!==null&&ref.sheet!==''){
+    const sheet=String(ref.sheet)==='text_parser'?tr('النص المستخرج','Extracted text'):String(ref.sheet);
+    pieces.push(tr('الورقة/المصدر: ','Sheet/source: ')+sheet);
+   }
    if(ref.row!==undefined&&ref.row!==null&&ref.row!=='')pieces.push(tr('الصف: ','Row: ')+String(ref.row));
    if(ref.column!==undefined&&ref.column!==null&&ref.column!=='')pieces.push(tr('العمود: ','Column: ')+String(ref.column));
    if(ref.line!==undefined&&ref.line!==null&&ref.line!=='')pieces.push(tr('السطر: ','Line: ')+String(ref.line));
