@@ -12,13 +12,13 @@
  const numeric=v=>typeof v==='number'&&Number.isFinite(v);
  const fmt=v=>numeric(v)?v.toLocaleString('en-US',{maximumFractionDigits:4}):'—';
  const metricNames={
-  revenue:'الإيرادات',cogs:'تكلفة الإيرادات',operating_expenses:'المصروفات التشغيلية',
+  cogs:'تكلفة الإيرادات',operating_expenses:'المصروفات التشغيلية',
   net_income:'صافي الربح',current_assets:'الأصول المتداولة',
   current_liabilities:'الالتزامات المتداولة',cash:'النقد وما في حكمه',
   inventory:'المخزون',receivables:'الذمم المدينة',
   prior_revenue:'إيرادات الفترة السابقة',prior_net_income:'صافي ربح الفترة السابقة',
   total_assets:'إجمالي الموجودات',total_liabilities:'إجمالي الالتزامات',
-  equity:'حقوق الملكية',gross_profit:'مجمل الربح',
+  equity:'حقوق الملكية',
   revenue:'الإيرادات',gross_profit:'مجمل الربح',gross_margin_pct:'هامش مجمل الربح %',
   total_expenses:'إجمالي المصروفات',net_margin_pct:'هامش صافي الربح %',
   ebitda:'الربح قبل الفوائد والضرائب والإهلاك والإطفاء',
