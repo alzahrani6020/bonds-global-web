@@ -49,6 +49,56 @@ function response(){
 async function request(handler,method,body,query,token='ok'){
  const res=response();await handler({method,url:'/api/campaigns',headers:{authorization:'Bearer '+token},body,query},res);return res;
 }
+// Exercise two independent authenticated identities against the same persisted
+// in-memory fixture. These are simulated tokens, NOT Supabase Auth sessions.
+function twoTenantDatabase(){
+ const userA=randomUUID(),userB=randomUUID(),companyA=randomUUID(),companyB=randomUUID();
+ const tables={
+  crm_app_workspaces:[
+   {id:companyA,owner_user_id:userA,name:'Company A'},
+   {id:companyB,owner_user_id:userB,name:'Company B'}
+  ],
+  crm_app_members:[],correspondence_campaigns:[],correspondence_campaign_recipients:[],
+  correspondence_campaign_events:[],correspondence_documents:[],correspondence_issues:[]
+ };
+ function chain(table,operation,payload){
+  const where=[];let limit=null;
+  const query={
+   select(){return query;},
+   eq(key,value){where.push(row=>row[key]===value);return query;},
+   in(key,values){where.push(row=>values.includes(row[key]));return query;},
+   is(key,value){where.push(row=>row[key]===value);return query;},
+   order(){return query;},
+   limit(value){limit=value;return query;},
+   maybeSingle:async()=>{const x=run();return {data:x.data[0]||null,error:x.error};},
+   single:async()=>{const x=run();return {data:x.data[0]||null,error:x.error};},
+   then(resolve,reject){return Promise.resolve(run()).then(resolve,reject);}
+  };
+  function run(){
+   const rows=tables[table];if(!rows)return {data:null,error:{message:'missing table'}};
+   if(operation==='insert'){
+    const created=(Array.isArray(payload)?payload:[payload]).map(row=>({id:row.id||randomUUID(),...row}));
+    rows.push(...created);return {data:created.map(row=>({...row})),error:null};
+   }
+   let data=rows.filter(row=>where.every(f=>f(row)));
+   if(operation==='update')data.forEach(row=>Object.assign(row,payload));
+   if(limit!==null)data=data.slice(0,limit);
+   return {data:data.map(row=>({...row})),error:null};
+  }
+  return query;
+ }
+ const sb={
+  auth:{getUser:async token=>({data:{user:token==='tenant-a'?{id:userA,is_anonymous:false}:
+   token==='tenant-b'?{id:userB,is_anonymous:false}:null},error:null})},
+  from(table){return {
+   select(){return chain(table,'select');},
+   insert(payload){return chain(table,'insert',payload);},
+   update(payload){return chain(table,'update',payload);}
+  };}
+ };
+ return {sb,tables,userA,userB,companyA,companyB};
+}
+
 describe('BONDS campaign API authorization and readback',()=>{
  let saved;
  beforeAll(()=>{saved=process.env.SUPABASE_SERVICE_ROLE_KEY;process.env.SUPABASE_SERVICE_ROLE_KEY='test-only';});
@@ -83,6 +133,59 @@ describe('BONDS campaign API authorization and readback',()=>{
   const start=await request(handler,'POST',{action:'start',id});
   expect(start.statusCode).toBe(409);
   expect(db.tables.correspondence_campaigns[0].status).toBe('draft');
+ });
+ test('two independent identities: 27 recipients persist and cross-tenant reads/writes are denied',async()=>{
+  const db=twoTenantDatabase(),handler=createHandler(()=>db.sb);
+  const call=(token,method,body,query)=>request(handler,method,body,query,token);
+  const mineA=await call('tenant-a','GET',null,{mine:'1'});
+  const mineB=await call('tenant-b','GET',null,{mine:'1'});
+  expect(mineA.statusCode).toBe(200);
+  expect(mineB.statusCode).toBe(200);
+  expect(mineA.body.workspaces.map(x=>x.id)).toEqual([db.companyA]);
+  expect(mineB.body.workspaces.map(x=>x.id)).toEqual([db.companyB]);
+
+  const created=await call('tenant-a','POST',{
+   action:'create',workspace_id:db.companyA,title:'Clix 27 independent drafts',kind:'investment'
+  });
+  expect(created.statusCode).toBe(201);
+  const campaignId=created.body.campaign.id;
+  const recipients=Array.from({length:27},(_,i)=>({
+   organization:'Institution '+String(i+1).padStart(2,'0'),
+   email:'tenant-a-contact-'+String(i+1).padStart(2,'0')+'@example.test'
+  }));
+  const imported=await call('tenant-a','POST',{action:'add_recipients',id:campaignId,recipients});
+  expect(imported.statusCode).toBe(201);
+  expect(imported.body.recipients).toHaveLength(27);
+  const reopened=await call('tenant-a','GET',null,{id:campaignId});
+  expect(reopened.statusCode).toBe(200);
+  expect(reopened.body.recipients.map(x=>x.email)).toEqual(recipients.map(x=>x.email));
+  expect(new Set(reopened.body.recipients.map(x=>x.id)).size).toBe(27);
+
+  const foreignRead=await call('tenant-b','GET',null,{id:campaignId});
+  expect(foreignRead.statusCode).toBe(404);
+  const foreignList=await call('tenant-b','GET',null,{workspace_id:db.companyA});
+  expect(foreignList.statusCode).toBe(404);
+  const foreignInsert=await call('tenant-b','POST',{
+   action:'add_recipients',id:campaignId,recipients:[{organization:'Injected',email:'injected@example.test'}]
+  });
+  expect(foreignInsert.statusCode).toBe(404);
+  const foreignUpdate=await call('tenant-b','POST',{
+   action:'update',id:campaignId,title:'Tampered',description:'cross-tenant'
+  });
+  expect(foreignUpdate.statusCode).toBe(404);
+  const companyBCreate=await call('tenant-b','POST',{
+   action:'create',workspace_id:db.companyB,title:'Other company campaign',kind:'partnership'
+  });
+  expect(companyBCreate.statusCode).toBe(201);
+  const companyBId=companyBCreate.body.campaign.id;
+  expect((await call('tenant-a','GET',null,{id:companyBId})).statusCode).toBe(404);
+  expect((await call('tenant-b','GET',null,{id:companyBId})).statusCode).toBe(200);
+  expect(db.tables.correspondence_campaign_recipients).toHaveLength(27);
+  expect(db.tables.correspondence_campaigns.find(x=>x.id===campaignId).title)
+   .toBe('Clix 27 independent drafts');
+  expect(db.tables.correspondence_campaign_events
+   .filter(x=>x.campaign_id===campaignId).map(x=>x.action))
+   .toEqual(['created','recipients_added']);
  });
  test('rejects invalid issuer and anonymous provider credentials',async()=>{
   const owner=randomUUID(),db=mockDatabase(owner,owner),handler=createHandler(()=>db.sb);
