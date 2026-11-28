@@ -346,8 +346,8 @@ jobs:
           from pathlib import Path
           base=Path('/tmp/bonds-base-backup-for-campaign.yml').read_text()
           head=Path('.github/workflows/bonds-production-backup-restore.yml').read_text()
-          start='      - name: Verify BONDS campaign migrations on isolated restored production\\n'
-          end='      - name: Encrypt and store only encrypted archive\\n'
+          start='      - name: Verify BONDS campaign migrations on isolated restored production\n'
+          end='      - name: Encrypt and store only encrypted archive\n'
           if base.count(end)!=1 or base.count(start)!=0 or head.count(start)!=1 or head.count(end)!=1:
               raise SystemExit(1)
           block=head[head.index(start):head.index(end)]
