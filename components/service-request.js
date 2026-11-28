@@ -2355,7 +2355,7 @@ async function uploadIntakeFile(sb,user){
  intakeUploadedPath=path;
  return {storage_path:path,file_name:file.name,mime_type:mime,size_bytes:file.size};
 }
-async function ensureSavedFinancialReport(datasetId,scroll=false){
+async function ensureSavedFinancialReport(datasetId,scroll=false,generation=financialNewReportGeneration){
  if(serviceCode!=='financial_analysis'||!datasetId)return false;
  const host=$('#srExecutionResult');
  if(!host)return false;
@@ -2375,6 +2375,7 @@ async function ensureSavedFinancialReport(datasetId,scroll=false){
    headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'}
   });
   const result=await response.json().catch(()=>({}));
+  if(generation!==financialNewReportGeneration)return false;
   if(!response.ok||!result.report?.html||result.report.dataset_id!==datasetId)
    throw new Error(result.error?.code||'FINANCIAL_REPORT_NOT_SAVED');
   // Server acknowledges persistence only after exact HTML SHA-256 readback.
@@ -2463,7 +2464,7 @@ async function restoreSavedFinancialResult({scroll=false,silent=false}={}){
    validation:data.validation||{}
   },dataset_persistence:{status:'saved',dataset_id:data.id,verified:true}};
   renderExecutionResult(payload);
-  const reportReady=await ensureSavedFinancialReport(data.id,scroll);
+  const reportReady=await ensureSavedFinancialReport(data.id,scroll,generation);
   if(generation!==financialNewReportGeneration)return false;
   const result=$('#srExecutionResult');
   if(result){
