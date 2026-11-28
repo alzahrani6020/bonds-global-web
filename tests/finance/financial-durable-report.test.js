@@ -110,7 +110,7 @@ describe('durable financial report contract',()=>{
     'my-bonds/workspace/index.html','en/my-bonds/workspace/index.html']){
     const html=fs.readFileSync(path,'utf8');
     expect(html).toContain('/components/service-request.css?v=3');
-    expect(html).toContain('/components/service-request.js?v=56');
+    expect(html).toContain('/components/service-request.js?v=57');
   }
  });
  test('owner is mandatory; other owner cannot create or read the report',async()=>{
@@ -192,6 +192,28 @@ describe('durable financial report contract',()=>{
    expect(await restore({scroll:false,silent:false})).toBe(reportReady);
   }
   expect(rendered).toBe(2);
+ });
+ test('saved report history is owner-scoped, opens selected dataset, and preserves previous reports',()=>{
+  const fs=require('node:fs');
+  const ui=fs.readFileSync('components/service-request.js','utf8');
+  const start=ui.indexOf('async function loadFinancialReportHistory(');
+  const end=ui.indexOf('async function reprocessLatestSavedFinancialFile(',start);
+  const history=ui.slice(start,end);
+  expect(start).toBeGreaterThan(0);
+  expect(end).toBeGreaterThan(start);
+  expect(ui).toContain('id="srBrowseFinancialReports"');
+  expect(history).toContain(".eq('user_id',user.id)");
+  expect(history).toContain(".eq('service_code','financial_analysis')");
+  expect(history).toContain(".eq('status','executed')");
+  expect(history).toContain(".eq('approval_status','approved')");
+  expect(history).toContain(".is('deleted_at',null)");
+  expect(history).toContain("query.eq('project_id',projectId)");
+  expect(history).toContain("query.eq('client_id',clientId)");
+  expect(history).toContain("restoreSavedFinancialResult({scroll:true,datasetId:select.value})");
+  expect(history).not.toContain('.update(');
+  expect(history).not.toContain('.delete(');
+  const restore=ui.slice(ui.indexOf('async function restoreSavedFinancialResult('),start);
+  expect(restore).toContain("if(datasetId)query=query.eq('id',datasetId)");
  });
  test('front-end embeds saved report and offers PDF print only after verified save',()=>{
   const fs=require('node:fs');
