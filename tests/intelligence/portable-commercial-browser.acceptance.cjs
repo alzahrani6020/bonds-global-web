@@ -182,7 +182,7 @@ test('Windows Chromium: remote 202 unverified receipt displays reconciliation wa
   await page.locator('#recordIds').fill(id);
   page.once('dialog',dialog=>dialog.accept());
   await page.locator('#deliver').click();
-  await page.locator('#notice').getByText('الحالة تتطلب مصالحة يدوية',{exact:false}).waitFor();
+  await page.locator('#notice').filter({hasText:'الحالة تتطلب مصالحة يدوية'}).waitFor();
   const pending=JSON.parse(await page.locator('#exportOutput').innerText());
   assert.equal(pending.delivered,false);
   assert.equal(pending.verified_destination_ack,false);
@@ -191,7 +191,7 @@ test('Windows Chromium: remote 202 unverified receipt displays reconciliation wa
   verified=true;
   page.once('dialog',dialog=>dialog.accept());
   await page.locator('#deliver').click();
-  await page.locator('#notice').getByText('تم تأكيد التسليم وإعادة القراءة',{exact:false}).waitFor();
+  await page.locator('#notice').filter({hasText:'تم تأكيد التسليم وإعادة القراءة'}).waitFor();
   const receipt=JSON.parse(await page.locator('#exportOutput').innerText());
   assert.equal(receipt.delivered,true);
   assert.equal(receipt.verified_destination_ack,true);
