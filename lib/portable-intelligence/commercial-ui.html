@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>BONDS Commercial Intelligence — Local</title>
+<style>
+:root{font-family:system-ui,"Segoe UI",sans-serif;color:#172338;background:#f4f7fb}
+body{margin:0}header{padding:18px 24px;background:#112849;color:white}
+header h1{margin:0;font-size:1.35rem}header small{color:#cbd5e1}
+main{max-width:1100px;margin:auto;padding:22px;display:grid;gap:15px}
+.panel{padding:18px;background:white;border:1px solid #dce4ed;border-radius:12px}
+h2{font-size:1.1rem;margin:0 0 12px}label{display:grid;gap:6px;font-weight:600;margin:8px 0}
+input,select,button{font:inherit;padding:10px;border:1px solid #b8c6d8;border-radius:8px}
+button{background:#174b88;color:white;border-color:#174b88;cursor:pointer;margin:4px}
+button:disabled{background:#a7b3c1;border-color:#a7b3c1}
+.secondary{background:#fff;color:#174b88}
+.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f7fb;padding:10px;border-radius:8px;max-height:300px;overflow:auto;font-size:.88rem}
+#notice{padding:12px;background:#edf4fd;border:1px solid #9dbce0;border-radius:8px}
+#notice.error{background:#fff3f1;border-color:#e49d95}
+[hidden]{display:none!important}
+table{border-collapse:collapse;width:100%}td,th{padding:9px;border-bottom:1px solid #dce4ed;text-align:right}
+@media(max-width:600px){main{padding:10px}.panel{padding:12px}header{padding:12px}.controls{display:grid}}
+</style></head>
+<body>
+<header><h1>BONDS — محرك البيانات التجاري المحلي</h1><small>مستقل عن قاعدة إنتاج BONDS · كل استيراد يتطلب موافقة صريحة</small></header>
+<main>
+<div id="notice" role="status" aria-live="polite">سجّل الدخول للبدء.</div>
+<section id="loginPanel" class="panel"><h2>تسجيل الدخول</h2>
+<form id="loginForm"><div class="grid"><label>اسم المستخدم<input id="username" autocomplete="username" required></label><label>كلمة المرور<input type="password" id="password" autocomplete="current-password" required></label></div><button type="submit">دخول</button></form></section>
+<div id="workspace" hidden>
+<section class="panel"><div class="controls"><h2>قراءة الملف واستخراج بيانات الجهات</h2><button id="logout" type="button" class="secondary">خروج</button></div>
+<form id="uploadForm"><label>الملف (PDF / Excel / Word / HTML / صورة)<input id="file" type="file" accept=".pdf,.xlsx,.xls,.csv,.docx,.html,.htm,.png,.jpg,.jpeg,.webp" required></label><button type="submit">قراءة ومعاينة — دون حفظ</button></form>
+<pre id="analysisOutput" aria-label="نتائج استخراج الملف">لا توجد معاينة بعد.</pre></section>
+<section class="panel" id="reviewPanel" hidden><h2>مراجعة الهوية وتصحيح البيانات</h2>
+<form id="reviewForm"><div class="grid">
+<label>الجهة / الشخص في المصدر<select id="candidate"></select></label>
+<label>النوع<select id="type"><option value="organization">شركة أو مؤسسة</option><option value="contact">شخص</option></select></label>
+<label>الاسم المعتمد<input id="name" required></label>
+<label>البريد الإلكتروني<input id="email" type="email"></label>
+<label>الهاتف<input id="phone"></label>
+<label>المدينة<input id="city"></label>
+<label>القطاع<input id="sector"></label>
+</div><div class="controls"><label><input id="nameOverride" type="checkbox"> أؤكد تصحيح الاسم يدويًا</label><label><input id="emailOverride" type="checkbox"> أؤكد تعديل بيانات المصدر يدويًا</label></div>
+<button type="submit">تجهيز للموافقة</button></form>
+<pre id="reviewOutput"></pre>
+<button id="approve" type="button" disabled>اعتماد وحفظ السجل المحدد</button>
+</section>
+<section class="panel"><h2>قاعدة البيانات — البحث والاسترجاع</h2>
+<form id="searchForm" class="controls"><label>بحث<input id="searchTerm" placeholder="اسم أو بريد أو هاتف"></label><button type="submit">بحث</button><button id="reload" type="button" class="secondary">عرض جميع السجلات</button></form>
+<div id="recordsOutput" role="region" aria-label="السجلات المعتمدة"></div>
+<div id="editPanel" hidden><h3>تعديل السجل المعتمد</h3><form id="editForm">
+<div class="grid">
+<label>الاسم<input id="editName" required></label>
+<label>البريد<input id="editEmail" type="email"></label>
+<label>الهاتف<input id="editPhone"></label>
+<label>المدينة<input id="editCity"></label>
+</div><div class="controls"><button type="submit">حفظ التعديل</button><button id="archive" type="button" class="secondary">أرشفة السجل بعد التأكيد</button><button id="cancelEdit" type="button" class="secondary">إلغاء</button></div></form></div>
+</section>
+<section class="panel"><h2>تصدير السجلات المعتمدة حسب الصلاحية</h2><p>ينشئ طلب تكامل فقط؛ لا يرسل رسائل ولا ينشئ موظفين.</p>
+<form id="exportForm" class="controls"><label>الوجهة<select id="target"><option value="crm">CRM</option><option value="correspondence">المراسلات</option><option value="hr">HR</option></select></label><label>معرّفات السجلات (مفصولة بفاصلة)<input id="recordIds" placeholder="1,2" required></label><button type="submit">إنشاء حزمة التصدير المصرح بها</button><button type="button" id="deliver" class="secondary">تسليم إلى نظام مصرح به (يتطلب ربطًا مفعّلًا)</button></form>
+<pre id="exportOutput"></pre></section>
+<section class="panel"><h2>نسخة احتياطية مشفرة — صلاحية المالك</h2>
+<p>يُنشئ النظام لقطة SQLite متسقة ويُشفرها بكلمة مرور منفصلة. يجب حفظ الملف الناتج والمفتاح في مكانين آمنين.</p>
+<form id="backupForm"><label>عبارة مرور النسخة الاحتياطية (16 حرفًا على الأقل)<input id="backupPassphrase" type="password" minlength="16" autocomplete="new-password" required></label><button type="submit">إنشاء نسخة مشفرة بعد التأكيد</button></form>
+<pre id="backupOutput"></pre></section>
+</div></main>
+<script src="./commercial-ui.js" defer></script></body></html>

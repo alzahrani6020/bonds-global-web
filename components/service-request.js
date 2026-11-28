@@ -1966,6 +1966,7 @@ function render(){
  renderFinancialOperationalInputs();
  renderStudiesOperationalInputs();
  renderFinancialIntake();
+ if(serviceCode==='financial_analysis')restoreSavedFinancialResult({silent:true});
  bindFinancialChoiceControls();
  restoreWorkspaceDraft();
  renderFeasibilityControls();
@@ -1994,7 +1995,7 @@ function ensureFinancialGuideStyles(){
  if(document.getElementById('srFinancialGuideStyles'))return;
  const style=document.createElement('style');
  style.id='srFinancialGuideStyles';
- style.textContent="\n/* Guided financial intake: beginner-readable controls without changing field names. */\nbody.financial-review-wide .sr-grid{grid-template-columns:minmax(0,1fr)}\nbody.financial-review-wide .sr-grid>aside{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}\nbody.financial-review-wide .sr-grid>aside .sr-card{margin:0;min-width:0}\n@media(max-width:700px){body.financial-review-wide .sr-grid>aside{grid-template-columns:1fr}}\n.sr-intake-row select[data-intake-candidate]{width:100%;min-width:0;min-height:46px;padding:9px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#10233f;font:inherit}\n.sr-intake-row [data-intake-suggest]{width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere;text-align:start;justify-content:flex-start;cursor:pointer}\n.sr-intake-row [data-intake-field]{min-width:0;min-height:44px}\n.sr-intake-row>div{min-width:0}\n.sr-friendly-choice select{width:100%;min-height:48px;margin:8px 0;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice input[list]{width:100%;min-height:48px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice .sr-friendly-help{display:block;margin-top:6px;font-size:.85rem;color:#57657b;line-height:1.6}\n.sr-friendly-notes{padding:12px 14px;border:1px solid #dbe2ec;border-radius:12px;background:#f8fafc}\n.sr-friendly-notes summary{font-weight:700;color:#123050;cursor:pointer}\n.sr-friendly-notes textarea{display:block;width:100%;min-height:88px;margin-top:10px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-review-guide{padding:12px 14px;margin:12px 0;border:1px solid #dbe7f4;border-radius:12px;background:#f5f8fc;line-height:1.8;font-weight:600;color:#18334f}\n.sr-review-group{border:1px solid #d7e0eb;border-radius:14px;margin:12px 0;background:#fff;overflow:hidden}\n.sr-review-group>summary{padding:14px 16px;background:#f8fafc;cursor:pointer;font-weight:800;color:#0d2343}\n.sr-review-group>.sr-intake-table{padding:10px}\n.sr-review-group summary:focus-visible,.sr-friendly-notes summary:focus-visible{outline:3px solid #2563eb;outline-offset:2px}\n@media(max-width:700px){.sr-review-guide{font-size:.88rem}.sr-review-group>.sr-intake-table{padding:6px}}\n";
+ style.textContent="\n/* Guided financial intake: beginner-readable controls without changing field names. */\nbody.financial-review-wide .sr-grid{grid-template-columns:minmax(0,1fr)}\nbody.financial-review-wide .sr-grid>aside{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}\nbody.financial-review-wide .sr-grid>aside .sr-card{margin:0;min-width:0}\n@media(max-width:700px){body.financial-review-wide .sr-grid>aside{grid-template-columns:1fr}}\n.sr-saved-reanalysis{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}\n.sr-saved-reanalysis small{color:#64748b;line-height:1.6}\n.sr-saved-reanalysis button:disabled{opacity:.65;cursor:wait}\n.sr-intake-row select[data-intake-candidate]{width:100%;min-width:0;min-height:46px;padding:9px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#10233f;font:inherit}\n.sr-intake-row [data-intake-suggest]{width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere;text-align:start;justify-content:flex-start;cursor:pointer}\n.sr-intake-row [data-intake-field]{min-width:0;min-height:44px}\n.sr-intake-row>div{min-width:0}\n.sr-friendly-choice select{width:100%;min-height:48px;margin:8px 0;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice input[list]{width:100%;min-height:48px;padding:11px 14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-friendly-choice .sr-friendly-help{display:block;margin-top:6px;font-size:.85rem;color:#57657b;line-height:1.6}\n.sr-friendly-notes{padding:12px 14px;border:1px solid #dbe2ec;border-radius:12px;background:#f8fafc}\n.sr-friendly-notes summary{font-weight:700;color:#123050;cursor:pointer}\n.sr-friendly-notes textarea{display:block;width:100%;min-height:88px;margin-top:10px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#10233f;font:inherit}\n.sr-review-guide{padding:12px 14px;margin:12px 0;border:1px solid #dbe7f4;border-radius:12px;background:#f5f8fc;line-height:1.8;font-weight:600;color:#18334f}\n.sr-review-group{border:1px solid #d7e0eb;border-radius:14px;margin:12px 0;background:#fff;overflow:hidden}\n.sr-review-group>summary{padding:14px 16px;background:#f8fafc;cursor:pointer;font-weight:800;color:#0d2343}\n.sr-review-group>.sr-intake-table{padding:10px}\n.sr-review-group summary:focus-visible,.sr-friendly-notes summary:focus-visible{outline:3px solid #2563eb;outline-offset:2px}\n@media(max-width:700px){.sr-review-guide{font-size:.88rem}.sr-review-group>.sr-intake-table{padding:6px}}\n";
  document.head.appendChild(style);
 }
 function renderFinancialIntake(){
@@ -2013,7 +2014,9 @@ function renderFinancialIntake(){
      '<label><input type="radio" name="__intake_mode" value="file" checked> '+escapeHtml(T.upload)+'</label>'+
      '<label><input type="radio" name="__intake_mode" value="manual"> '+escapeHtml(T.manual)+'</label>'+
    '</div>'+
-   '<div id="srIntakeFileWrap"><input id="srIntakeFile" type="file" accept=".pdf,.xlsx,.xls,.csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"><div class="sr-muted">'+escapeHtml(T.chooseFile)+'</div></div>'+
+   '<div id="srIntakeFileWrap"><input id="srIntakeFile" type="file" accept=".pdf,.xlsx,.xls,.csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"><div class="sr-muted">'+escapeHtml(T.chooseFile)+'</div>'+
+    (serviceCode==='financial_analysis'?'<div class="sr-saved-reanalysis"><button type="button" id="srShowSavedFinancialResult" class="sr-secondary">'+escapeHtml(lang==='ar'?'عرض آخر تحليل مالي محفوظ':'View latest saved financial analysis')+'</button><button type="button" id="srReprocessSavedFile" class="sr-secondary">'+escapeHtml(lang==='ar'?'إعادة تحليل آخر ملف محفوظ':'Reanalyze latest saved document')+'</button><small>'+escapeHtml(lang==='ar'?'يمكن عرض التقرير المحفوظ دون إعادة رفع الملف أو تشغيل الحسابات.':'View your saved report without uploading or recalculating.')+'</small></div>':'')+
+   '</div>'+
    '<div id="srIntakeReview"></div>';
  if(serviceCode==='financial_analysis'){
   const manualFields=[
@@ -2078,6 +2081,8 @@ function renderFinancialIntake(){
    document.head.appendChild(script);
   }
  }
+ panel.querySelector('#srShowSavedFinancialResult')?.addEventListener('click',()=>restoreSavedFinancialResult({scroll:true}));
+ panel.querySelector('#srReprocessSavedFile')?.addEventListener('click',reprocessLatestSavedFinancialFile);
  panel.querySelectorAll('input[name="__intake_mode"]').forEach(radio=>radio.addEventListener('change',()=>{
    intakeMode=radio.value;
    $('#srIntakeFileWrap').hidden=intakeMode!=='file';
@@ -2320,6 +2325,183 @@ async function uploadIntakeFile(sb,user){
  intakeUploadedPath=path;
  return {storage_path:path,file_name:file.name,mime_type:mime,size_bytes:file.size};
 }
+async function ensureSavedFinancialReport(datasetId,scroll=false){
+ if(serviceCode!=='financial_analysis'||!datasetId)return false;
+ const host=$('#srExecutionResult');
+ if(!host)return false;
+ let panel=host.querySelector('#srPersistedFinancialReport');
+ if(!panel){
+  panel=document.createElement('section');
+  panel.id='srPersistedFinancialReport';
+  panel.className='financial-result-section';
+  host.appendChild(panel);
+ }
+ panel.textContent=lang==='ar'?'جاري إعداد التقرير المالي المحفوظ...':'Preparing saved financial report...';
+ try{
+  const session=(await window.BondsAuth.getSupabase().auth.getSession()).data?.session;
+  if(!session?.access_token)throw new Error('UNAUTHORIZED');
+  const response=await fetch('/api/v3/services/intake/datasets/'+encodeURIComponent(datasetId)+'/report',{
+   method:'POST',
+   headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'}
+  });
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||!result.report?.html||result.report.dataset_id!==datasetId)
+   throw new Error(result.error?.code||'FINANCIAL_REPORT_NOT_SAVED');
+  // Server acknowledges persistence only after exact HTML SHA-256 readback.
+  // Use a sandboxed document; never inject generated markup into the parent DOM.
+  panel.textContent='';
+  const heading=document.createElement('h3');
+  heading.textContent=lang==='ar'?'التقرير المالي المحفوظ':'Saved financial report';
+  const notice=document.createElement('p');
+  notice.className='sr-muted';
+  notice.textContent=lang==='ar'
+   ?'تقرير تحليلي محفوظ مرتبط بإصدار الملف. بيانات المصدر غير مدققة، ولا يمثل اعتمادًا محاسبيًا.'
+   :'Persisted report tied to this file version. Source figures are unaudited.';
+  const frame=document.createElement('iframe');
+  frame.title=lang==='ar'?'معاينة التقرير المالي المحفوظ':'Saved financial report preview';
+  frame.setAttribute('sandbox','allow-modals');
+  frame.style.cssText='width:100%;height:740px;border:1px solid #cbd5e1;border-radius:8px;background:#fff';
+  frame.srcdoc=result.report.html;
+  const controls=document.createElement('div');
+  controls.className='sr-actions';
+  const saveHtml=document.createElement('button');
+  saveHtml.type='button';
+  saveHtml.className='sr-secondary';
+  saveHtml.textContent=lang==='ar'?'تنزيل التقرير المحفوظ HTML':'Download saved HTML report';
+  saveHtml.addEventListener('click',()=>{
+   const href=URL.createObjectURL(new Blob([result.report.html],{type:'text/html;charset=utf-8'}));
+   const link=document.createElement('a');link.href=href;
+   link.download='bonds-financial-report-'+datasetId+'.html';link.click();
+   setTimeout(()=>URL.revokeObjectURL(href),1000);
+  });
+  const print=document.createElement('button');
+  print.type='button';
+  print.className='sr-secondary';
+  print.textContent=lang==='ar'?'طباعة التقرير / حفظ PDF':'Print report / Save PDF';
+  print.addEventListener('click',()=>{try{
+   const win=window.open('','_blank');
+   if(!win)throw new Error('POPUP_BLOCKED');
+   win.document.open();win.document.write(result.report.html);win.document.close();win.focus();win.print();
+  }catch(e){showStatus(lang==='ar'?'اسمح بفتح نافذة التقرير للطباعة أو حفظ PDF.':'Allow the report popup to print or save PDF.',false);}});
+  controls.append(saveHtml,print);
+  panel.append(heading,notice,controls,frame);
+  if(scroll)panel.scrollIntoView({behavior:'smooth',block:'start'});
+  return true;
+ }catch(error){
+  panel.textContent=(lang==='ar'?'تعذر إنشاء التقرير المحفوظ: ':'Could not persist report: ')+String(error.message||error);
+  panel.setAttribute('role','alert');
+  return false;
+ }
+}
+async function restoreSavedFinancialResult({scroll=false,silent=false}={}){
+ if(serviceCode!=='financial_analysis'||(silent&&intakeDatasetId))return false;
+ const button=$('#srShowSavedFinancialResult');
+ if(button)button.disabled=true;
+ try{
+  await window.BondsAuth.ensureEnv();
+  const user=(await window.BondsAuth.getUser()).data?.user;
+  if(!user){if(!silent)throw new Error(T.login);return false;}
+  const sb=window.BondsAuth.getSupabase();
+  const projectId=params.get('project_id')||null;
+  const clientId=params.get('client_id')||null;
+  let query=sb.from('financial_datasets')
+   .select('id,dataset_version,source_file_name,status,approval_status,quality_status,reviewed_values,field_provenance,validation,execution_result,last_executed_at')
+   .eq('user_id',user.id)
+   .eq('service_code','financial_analysis')
+   .eq('status','executed')
+   .eq('approval_status','approved')
+   .is('deleted_at',null);
+  query=projectId?query.eq('project_id',projectId):query.is('project_id',null);
+  query=clientId?query.eq('client_id',clientId):query.is('client_id',null);
+  const {data,error}=await query.order('last_executed_at',{ascending:false}).limit(1).maybeSingle();
+  if(error)throw new Error(lang==='ar'?'تعذر قراءة نتائج التحليل المحفوظ من حسابك.':'Could not read your saved analysis.');
+  const stored=data?.execution_result;
+  if(!data||stored?.executed!==true||!stored.metrics||typeof stored.metrics!=='object'||
+    !Object.values(stored.metrics).some(value=>typeof value==='number'&&Number.isFinite(value))){
+   if(!silent)throw new Error(lang==='ar'?'لا يوجد تقرير مالي منفذ ومحفوظ في مساحة العمل الحالية.':'No completed financial report was found in this workspace.');
+   return false;
+  }
+  const evidence=stored.dataset||{};
+  const payload={...stored,dataset:{
+   ...evidence,
+   dataset_id:data.id,
+   dataset_version:data.dataset_version,
+   inputs_used:evidence.inputs_used||data.reviewed_values||{},
+   field_provenance:evidence.field_provenance||data.field_provenance?.fields||[],
+   validation:data.validation||{}
+  },dataset_persistence:{status:'saved',dataset_id:data.id,verified:true}};
+  renderExecutionResult(payload);
+  const reportReady=await ensureSavedFinancialReport(data.id,scroll);
+  const result=$('#srExecutionResult');
+  if(result){
+   result.setAttribute('aria-label',lang==='ar'?'التحليل المالي المحفوظ':'Saved financial analysis');
+   result.querySelector('h2')?.insertAdjacentHTML('afterend','<p class="sr-muted">'+escapeHtml(
+    (lang==='ar'?'ملف المصدر: ':'Source: ')+(data.source_file_name||'—')+
+    ' · '+(lang==='ar'?'نسخة ':'Version ')+data.dataset_version+
+    (data.quality_status==='unverified'?(lang==='ar'?' · بيانات المصدر غير معتمدة':' · Source not independently verified'):'')
+   )+'</p>');
+   if(scroll)result.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  // Loading metrics alone is not proof that the durable report exists.
+  return reportReady;
+ }catch(error){
+  if(!silent)showStatus(String(error?.message||error),false);
+  return false;
+ }finally{if(button)button.disabled=false;}
+}
+async function reprocessLatestSavedFinancialFile(){
+ if(serviceCode!=='financial_analysis'||submitting)return;
+ const button=$('#srReprocessSavedFile');
+ if(button)button.disabled=true;
+ try{
+  await window.BondsAuth.ensureEnv();
+  const user=(await window.BondsAuth.getUser()).data?.user;
+  if(!user)throw new Error(T.login);
+  const sb=window.BondsAuth.getSupabase();
+  const session=(await sb.auth.getSession()).data?.session;
+  if(!session?.access_token)throw new Error(T.login);
+  // Explicitly restrict to the signed-in user AND the selected workspace scope.
+  // An owner with several clients must never see another client's financial file.
+  const projectId=params.get('project_id')||null;
+  const clientId=params.get('client_id')||null;
+  let query=sb.from('financial_datasets')
+   .select('id,source_file_name,source_storage_path,source_mime_type')
+   .eq('user_id',user.id)
+   .eq('service_code','financial_analysis')
+   .eq('source_type','file')
+   .is('deleted_at',null);
+  query=projectId?query.eq('project_id',projectId):query.is('project_id',null);
+  query=clientId?query.eq('client_id',clientId):query.is('client_id',null);
+  const {data:prior,error}=await query.order('created_at',{ascending:false}).limit(1).maybeSingle();
+  if(error)throw new Error(lang==='ar'?'تعذر الوصول إلى ملفك المحفوظ بصلاحيات حسابك.':'Saved document could not be accessed with your account permissions.');
+  if(!prior?.source_storage_path||!prior?.source_file_name||!prior?.source_mime_type)
+   throw new Error(lang==='ar'?'لا يوجد ملف محفوظ في مساحة العمل المحددة؛ ارفع الملف من جهازك.':'No saved document in this workspace; upload it from your device.');
+  const response=await fetch('/api/v3/services/intake/prepare',{
+   method:'POST',
+   headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},
+   body:JSON.stringify({
+    service_code:'financial_analysis',
+    storage_path:prior.source_storage_path,
+    file_name:prior.source_file_name,
+    mime_type:prior.source_mime_type,
+    parent_dataset_id:prior.id,
+    project_id:projectId,
+    client_id:clientId
+   })
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok||!payload.dataset_id)
+   throw new Error(payload?.error?.code||('HTTP '+response.status));
+  intakeDatasetId=payload.dataset_id;
+  intakeMode='file';
+  renderIntakeReview(payload);
+  showStatus(lang==='ar'?'أعيد استخراج الملف المحفوظ في نسخة مستقلة؛ راجع النتائج قبل اعتمادها.':'Saved document re-extracted into a new version; review before approval.',true);
+ }catch(error){
+  showStatus(String(error?.message||error),false);
+ }finally{
+  if(button)button.disabled=false;
+ }
+}
 async function prepareFinancialIntake({sb,user,headers,values}){
  let source={manual_values:values};
  if(intakeMode==='file')source=await uploadIntakeFile(sb,user);
@@ -2465,6 +2647,52 @@ function formatFinancialValue(value){
 }
 function financialLabel(key){
  const labels={
+  gross_profit:lang==='ar'?'مجمل الربح':'Gross profit',
+  gross_margin_pct:lang==='ar'?'هامش مجمل الربح %':'Gross margin %',
+  net_margin_pct:lang==='ar'?'هامش صافي الربح %':'Net margin %',
+  ebitda:lang==='ar'?'الربح قبل الفوائد والضرائب والإهلاك والإطفاء (EBITDA)':'EBITDA',
+  ebitda_margin_pct:lang==='ar'?'هامش EBITDA %':'EBITDA margin %',
+  operating_margin_pct:lang==='ar'?'هامش الربح التشغيلي %':'Operating margin %',
+  current_ratio:lang==='ar'?'نسبة التداول':'Current ratio',
+  quick_ratio:lang==='ar'?'نسبة السيولة السريعة':'Quick ratio',
+  cash_ratio:lang==='ar'?'نسبة النقدية':'Cash ratio',
+  working_capital:lang==='ar'?'رأس المال العامل':'Working capital',
+  interest_coverage:lang==='ar'?'تغطية الفوائد':'Interest coverage',
+  debt_to_equity:lang==='ar'?'إجمالي الدين إلى حقوق الملكية':'Debt to equity',
+  liabilities_to_equity:lang==='ar'?'الالتزامات إلى حقوق الملكية':'Liabilities to equity',
+  liabilities_to_assets:lang==='ar'?'الالتزامات إلى الأصول':'Liabilities to assets',
+  roa_pct:lang==='ar'?'العائد على الأصول %':'Return on assets %',
+  roe_pct:lang==='ar'?'العائد على حقوق الملكية %':'Return on equity %',
+  asset_turnover:lang==='ar'?'معدل دوران الأصول':'Asset turnover',
+  receivables_turnover:lang==='ar'?'معدل دوران الذمم المدينة':'Receivables turnover',
+  inventory_turnover:lang==='ar'?'معدل دوران المخزون':'Inventory turnover',
+  net_cash_flow:lang==='ar'?'صافي التدفقات النقدية':'Net cash flow',
+  operating_cash_flow:lang==='ar'?'صافي التدفقات التشغيلية':'Operating cash flow',
+  investing_cash_flow:lang==='ar'?'صافي التدفقات الاستثمارية':'Investing cash flow',
+  financing_cash_flow:lang==='ar'?'صافي التدفقات التمويلية':'Financing cash flow',
+  ending_cash_from_flow:lang==='ar'?'النقد الختامي من التدفقات':'Ending cash from cash flow',
+  cash_conversion_cycle_days:lang==='ar'?'دورة التحويل النقدي (يوم)':'Cash conversion cycle (days)',
+  days_sales_outstanding:lang==='ar'?'أيام التحصيل':'Days sales outstanding',
+  days_inventory_outstanding:lang==='ar'?'أيام المخزون':'Days inventory outstanding',
+  days_payables_outstanding:lang==='ar'?'أيام السداد':'Days payables outstanding',
+  dscr:lang==='ar'?'تغطية خدمة الدين':'Debt-service coverage',
+  ebitda_interest_coverage:lang==='ar'?'تغطية الفوائد من EBITDA':'EBITDA interest coverage',
+  debt_to_assets:lang==='ar'?'الدين إلى الأصول':'Debt to assets',
+  net_debt:lang==='ar'?'صافي الدين':'Net debt',
+  net_debt_to_ebitda:lang==='ar'?'صافي الدين إلى EBITDA':'Net debt to EBITDA',
+  wacc_pct:lang==='ar'?'المتوسط المرجح لتكلفة رأس المال %':'Weighted average cost of capital %',
+  revenue_growth_pct:lang==='ar'?'نمو الإيرادات %':'Revenue growth %',
+  earnings_growth_pct:lang==='ar'?'نمو الأرباح %':'Earnings growth %',
+  cost_of_debt_pct:lang==='ar'?'تكلفة الدين %':'Cost of debt %',
+  revenue_expense_surplus:lang==='ar'?'فائض الإيرادات بعد المصروفات':'Revenue less expenses',
+  expense_to_revenue_pct:lang==='ar'?'المصروفات إلى الإيرادات %':'Expenses to revenue %',
+  revenue_expense_surplus_margin_pct:lang==='ar'?'هامش الفائض %':'Surplus margin %',
+  operating_cash_flow_margin_pct:lang==='ar'?'هامش التدفق النقدي التشغيلي %':'Operating cash flow margin %',
+  operating_cash_to_net_income:lang==='ar'?'النقد التشغيلي إلى صافي الربح':'Operating cash to net income',
+  adjusted_net_income_excluding_one_off:lang==='ar'?'صافي الربح باستبعاد البنود غير المتكررة':'Adjusted net income excluding one-off items',
+  cost_of_sales_pct:lang==='ar'?'تكلفة الإيرادات إلى الإيرادات %':'Cost of sales to revenue %',
+  operating_expenses_pct:lang==='ar'?'المصروفات التشغيلية إلى الإيرادات %':'Operating expenses to revenue %',
+
   period:lang==='ar'?'الفترة':'Period',
   status:lang==='ar'?'الحالة':'Status',
   metric:lang==='ar'?'البند':'Metric',
@@ -2511,7 +2739,7 @@ function renderFinancialObject(title,obj){
  const entries=Object.entries(obj).filter(([,v])=>['string','number','boolean'].includes(typeof v)||v===null);
  if(!entries.length)return '';
  return '<section class="financial-result-section"><h3>'+escapeHtml(title)+'</h3><div class="financial-result-kpis">'+
-  entries.map(([key,value])=>'<div><span>'+escapeHtml(financialLabel(key))+'</span><strong>'+formatFinancialValue(value)+'</strong></div>').join('')+
+  entries.map(([key,value])=>'<div><span>'+escapeHtml(financialLabel(key))+'</span><strong dir="ltr">'+formatFinancialValue(value)+(typeof value==='number'&&/_pct$/.test(key)?' %':'')+'</strong></div>').join('')+
   '</div></section>';
 }
 function renderFinancialExecution(result,metrics){
@@ -2716,7 +2944,7 @@ function printGovernedFinancialReport(payload){
  };
  if(window.BondsFinancialAnalysisReport){display();return;}
  const script=document.createElement('script');
- script.src='/components/financial-analysis-report.js?v=3';
+ script.src='/components/financial-analysis-report.js?v=4';
  script.onload=display;
  script.onerror=()=>{
   popup.close();
@@ -2731,7 +2959,8 @@ function renderExecutionResult(payload, executedInputs={}){
   box=document.createElement('section');
   box.id='srExecutionResult';
   box.className='sr-card';
-  $('#srRequestForm').insertAdjacentElement('afterend',box);
+  if(serviceCode==='financial_analysis')$('#srRequestForm').insertAdjacentElement('beforebegin',box);
+  else $('#srRequestForm').insertAdjacentElement('afterend',box);
  }
  const result=payload?.result||{};
  const metrics=result.metrics||payload?.metrics||{};
@@ -3059,6 +3288,7 @@ async function submit(e){
     track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null,dataset_id:intakeDatasetId});
     const artifactSaved=showExecutionPersistenceStatus(execution);
     renderExecutionResult(execution);
+    await ensureSavedFinancialReport(intakeDatasetId,true);
     if(artifactSaved)clearWorkspaceDraft();
     $('#srSubmit').disabled=true;
     return;

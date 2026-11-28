@@ -1,0 +1,81 @@
+name: Portable Commercial Intelligence — Windows Isolated Acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'lib/portable-intelligence/**'
+      - 'tests/intelligence/portable-**'
+      - '.github/workflows/portable-commercial-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portable-commercial-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  portable-windows-isolated:
+    name: Portable engine Windows isolated acceptance
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout immutable candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Setup Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate customer-owned SQLite import, tenant isolation and reopened data
+        run: node --test tests/intelligence/portable-sqlite-acceptance.cjs
+      - name: Verify encrypted backup recovery and signed license boundaries
+        run: node --test tests/intelligence/portable-backup-license.acceptance.cjs
+      - name: Verify live encrypted SQLite snapshot and isolated disaster recovery
+        run: node --test tests/intelligence/portable-online-backup.acceptance.cjs
+      - name: Test reviewed extraction, role gates, cross-company export, duplicate races and per-operation licensing
+        run: npx jest tests/intelligence/portable-commercial-engine.test.js tests/intelligence/portable-integration-contract.test.js tests/intelligence/portable-commercial-workflow.test.js tests/intelligence/portable-approved-directory-export.test.js tests/intelligence/portable-tenant-authorization.test.js tests/intelligence/portable-entity-intelligence.test.js tests/intelligence/portable-licensed-workflow.test.js tests/intelligence/portable-multi-entity-review.test.js tests/intelligence/portable-commercial-http.test.js tests/intelligence/portable-local-identity.test.js tests/intelligence/portable-encrypted-fields.test.js tests/intelligence/portable-html-directory-review.test.js tests/intelligence/portable-destination-delivery.test.js tests/intelligence/portable-saas-receiver.test.js tests/intelligence/portable-hr-directory.test.js --runInBand --no-coverage
+      - name: Install Chromium for isolated local UI acceptance
+        run: npx playwright install chromium
+      - name: Verify real Arabic UI on Windows Chromium
+        run: node --test tests/intelligence/portable-commercial-browser.acceptance.cjs
+      - name: Install pinned native encrypted SQLite driver for isolated acceptance
+        run: npm install --no-save --package-lock=false better-sqlite3-multiple-ciphers@13.2.0
+      - name: Verify whole database ciphertext, key rejection and reopen on Windows
+        run: node --test tests/intelligence/portable-full-database.acceptance.cjs
+      - name: Assemble independent Windows test-only runtime bundle
+        shell: pwsh
+        run: |
+          ./scripts/build-portable-commercial-windows.ps1 -OutputDirectory "$env:RUNNER_TEMP/bonds-commercial-bundle"
+      - name: Verify archived bundle can launch without global Node/npm
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Get-ChildItem "$env:RUNNER_TEMP/bonds-commercial-bundle/bonds-commercial-test-*.zip" | Select-Object -First 1
+          if (!$archive) { throw 'TEST_BUNDLE_MISSING' }
+          $extract = Join-Path $env:RUNNER_TEMP 'bonds-commercial-acceptance-extracted'
+          Expand-Archive -LiteralPath $archive.FullName -DestinationPath $extract
+          Push-Location $extract
+          try {
+            & (Join-Path $extract 'node.exe') -e "require('./commercial-server');require('./licensed-commercial-workflow');require('./file-adapters');console.log('EXTRACTED_RUNTIME_PASS')"
+            if ($LASTEXITCODE -ne 0) { throw 'EXTRACTED_RUNTIME_FAILED' }
+          }
+          finally { Pop-Location }
+      - name: Run customer acceptance using only extracted encrypted Windows bundle
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $extract = Join-Path $env:RUNNER_TEMP 'bonds-commercial-acceptance-extracted'
+          if (!(Test-Path (Join-Path $extract 'commercial-server.js'))) { throw 'EXTRACTED_BUNDLE_MISSING' }
+          $env:BONDS_EXTRACTED_BUNDLE = $extract
+          & (Join-Path $extract 'node.exe') tests/intelligence/portable-extracted-bundle.acceptance.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'EXTRACTED_BUNDLE_E2E_FAILED' }
+      - name: Upload isolated portable package evidence (not customer release)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: commercial-portable-windows-test-only
+          path: ${{ runner.temp }}/bonds-commercial-bundle/bonds-commercial-test-*.zip
+          retention-days: 1

@@ -125,6 +125,12 @@ jobs:
       - name: Run Assistant End-to-End CI Journeys
         run: npm run test:assistant:e2e-ci
 
+      - name: Verify portable local SQLite save/reopen/tenant isolation
+        run: node --test tests/intelligence/portable-sqlite-acceptance.cjs
+
+      - name: Verify portable encrypted backup and license signing
+        run: node --test tests/intelligence/portable-backup-license.acceptance.cjs
+
       - name: Run Unit and Integration Tests
         run: npm test
 
@@ -217,6 +223,15 @@ jobs:
           fi
           echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then exit 0; fi
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            # Preserve an actual byte/pixel comparison against current main.
+            # The legacy mobile homepage reference predates its approved redesign.
+            git fetch --no-tags --depth=1 origin main
+            BASE_SHA="$(git rev-parse FETCH_HEAD)"
+            echo "reference-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+            echo "scope=base-compare" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           git fetch --no-tags --depth=1 origin "$BASE_SHA"
           git diff --name-only "$BASE_SHA" HEAD > /tmp/bonds-pr-changed-files.txt
           cat /tmp/bonds-pr-changed-files.txt
@@ -224,6 +239,38 @@ jobs:
             echo "VISUAL_SCOPE_CLASSIFY: $file"
             case "$file" in
               components/service-request.js|lib/api/document-parser-core.js|tests/security/document-parser-pdf-process.test.js|tests/security/document-parser-containment.test.js|lib/finance/three-statement-consistency.js|tests/finance/three-statement-consistency.test.js|.github/workflows/financial-analysis-acceptance.yml|components/feasibility-report.js|components/financial-analysis-report.js|components/financial-analysis-lab.js|lib/finance/financial-analysis-lab.js|tests/finance/financial-analysis-lab.test.js|tests/v3/financial-analysis-lab-browser.test.js|lib/finance/financial-data-intake.js|lib/finance/engines/financial-analysis-engine.js|tests/finance/financial-analysis-end-to-end.test.js|tests/finance/financial-engine-registry.test.js|tests/finance/financial-analysis-derivation-gate.test.js|tests/finance/financial-analysis-institutional-evidence.test.js|tests/finance/financial-analysis-multiperiod-intake.test.js|tests/finance/feasibility-institutional-report.test.js|components/service-workspace.css|my-bonds/workspace/index.html|en/my-bonds/workspace/index.html|service-request.html|en/service-request.html|lib/finance/engines/feasibility-engine.js|lib/finance/feasibility-input-validator.js|lib/finance/feasibility-artifact-gate.js|tests/finance/feasibility-artifact-gate.test.js|lib/intent/intent-engine.js|tests/intent/intent-engine.test.js|lib/semantic/profiles.json|tests/orchestrator/trade-sector-acceptance.test.js|lib/services/studies-workspace-bindings.js|tests/v3/studies-research-preservation.test.js|lib/finance/shared/math.js|lib/orchestrator/intelligence-orchestrator.js|lib/orchestrator/ucp-bridge.js|tests/finance/feasibility-input-validator.test.js|tests/orchestrator/ucp-bridge.test.js|tests/v3/feasibility-integrity-gate.test.js|tests/v3/feasibility-workspace-browser.test.js|tests/v3/service-artifact-persistence-contract.test.js|tests/v3/service-request-readback-contract.test.js|tests/v3/service-request-success-destination.test.js|tests/v3/service-workspace-continuity.test.js|tests/v3/service-workspace-routing.test.js|v3/api/services.js|lib/capabilities/runtime-adapters.js|tests/capabilities/user-governed-execution.test.js|tests/v3/feasibility-orchestrator-response-envelope.test.js|tests/assistant/assistant-production-smoke.test.js) ;;
+              tests/finance/financial-durable-report.test.js)
+                # Finance test-only changes cannot alter public homepage pixels.
+                # Keep Jest and focused financial gates; compare home pixels to
+                # the exact PR-base homepage, never replace approved baselines.
+                # Preserve the new-suite contract for files absent from PR base.
+                if git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then continue; fi
+                grep -Fq "owner report creation persists actual Arabic HTML" "$file" || exit 0
+                grep -Fq "other owner cannot create or read the report" "$file" || exit 0
+                ;;
+              scripts/post-deploy-smoke.js)
+                # Require ONLY a well-bounded authenticated report E2E test
+                # insertion; any other smoke change forces the full visual gate.
+                git show "$BASE_SHA:$file" > /tmp/bonds-base-report-smoke.js
+                node <<'NODE' || exit 0
+          const fs=require('node:fs');
+          const before=fs.readFileSync('/tmp/bonds-base-report-smoke.js','utf8');
+          const after=fs.readFileSync('scripts/post-deploy-smoke.js','utf8');
+          const begin='  // Test 8 — authenticated real-production report persistence and exact readback.';
+          const marker='  console.log('+String.fromCharCode(10)+'    '+String.fromCharCode(96)+'Financial Data 62 acceptance PASS';
+          const start=after.indexOf(begin),end=after.indexOf(marker,start);
+          if(start<0||end<=start||after.slice(0,start)+after.slice(end)!==before)process.exit(1);
+          const addition=after.slice(start,end);
+          if(addition.length<800||addition.length>5000)process.exit(1);
+          for(const part of [
+            "prepareManual('financial_analysis'",
+            "executeDataset('financial_analysis'",
+            "reportRead.body?.report?.format!=='html'",
+            "reportAgain.body?.reused!==true",
+            "reportRead.body.report.sha256"
+          ]){if(!addition.includes(part))process.exit(1);}
+          NODE
+                ;;
               components/correspondence-workspace-ui.css|components/correspondence-workspace-ui.js|tests/letterhead/correspondence-institutional-ui.test.js|tests/letterhead/correspondence-institutional-ui.browser.test.js|lib/api/correspondence-tenant-dispatch.js|tests/security/correspondence-tenant-dispatch.test.js|docs/correspondence-institutional-delivery-matrix-20261127.md|lib/api/institutional-directory.js|tests/security/institutional-directory-isolation.test.js|institutional-directory.html|en/institutional-directory.html|components/institutional-directory-ui.js|tests/security/institutional-directory-ui.test.js|components/institutional-directory-import.js|tests/security/institutional-directory-import.test.js|tests/security/institutional-directory-workspace-actions.test.js|assets/institutional-directory-import-template.csv)
                 # Correspondence-only assets, security test and scope report are not homepage assets.
                 # Existing paths are normal in follow-up fixes: compare real PR-base
@@ -390,6 +437,32 @@ jobs:
           if(after.split(route).length!==2)process.exit(1);
           if(after.replace(helper,'').replace(route,'')!==before)process.exit(1);
           NODE
+                ;;
+              .github/workflows/post-deploy-smoke.yml)
+                # Compare the entire workflow against PR base, allowing only
+                # the reviewed fail-closed smoke trigger and explanatory guard.
+                # Unchanged homepage pixels still compare to exact PR base.
+                git show "$BASE_SHA:$file" > /tmp/bonds-base-smoke-workflow.yml || exit 0
+                python3 - <<'PY' || exit 0
+          from pathlib import Path
+          base = Path('/tmp/bonds-base-smoke-workflow.yml').read_text()
+          head = Path('.github/workflows/post-deploy-smoke.yml').read_text()
+          old = "      github.event.workflow_run.conclusion == 'success'"
+          new = "      (github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure')"
+          anchor = "    runs-on: ubuntu-24.04"
+          guard = ("    # The smoke script independently verifies the deployed SHA before any authenticated writes.\n"
+                   "    # A failed release can coexist with a separately verified production deployment.\n")
+          if base.count(old) != 1 or base.count(anchor) < 1:
+              raise SystemExit(1)
+          expected = base.replace(old, new, 1).replace(anchor, guard + anchor, 1)
+          if head != expected:
+              raise SystemExit(1)
+          PY
+                ;;
+              tests/release/post-deploy-smoke-workflow.test.js)
+                # Test-only acceptance changes cannot affect homepage rendering.
+                # The full Jest suite still runs and verifies the SHA gate.
+                test -s "$file" || exit 0
                 ;;
               tests/admin/hr-owner-aggregate-overview.test.js|tests/admin/dashboard-correspondence-workspace-link.test.js)
                 # Test-only non-home source; the unit suite runs the link contract.
